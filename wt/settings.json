@@ -1,0 +1,224 @@
+{
+    "$schema": "https://aka.ms/terminal-profiles-schema",
+    "actions": 
+    [
+        {
+            "command": 
+            {
+                "action": "splitPane",
+                "split": "vertical"
+            },
+            "keys": "ctrl+shift+plus"
+        },
+        {
+            "command": 
+            {
+                "action": "splitPane",
+                "split": "horizontal"
+            },
+            "keys": "ctrl+shift+minus"
+        },
+        {
+            "command": "paste",
+            "keys": "shift+insert"
+        },
+        {
+            "command": "closePane",
+            "keys": "ctrl+q"
+        },
+        {
+            "command": "unbound",
+            "keys": "ctrl+tab"
+        },
+        {
+            "command": "unbound",
+            "keys": "alt+shift+minus"
+        },
+        {
+            "command": "unbound",
+            "keys": "alt+shift+plus"
+        }
+    ],
+    "confirmCloseAllTabs": false,
+    "copyFormatting": "none",
+    "copyOnSelect": false,
+    "defaultProfile": "{9c9f8101-755c-42a7-a9e0-b1605b67c17a}",
+    "disableAnimations": true,
+    // global
+    "disabledProfileSources": 
+    [
+        "Windows.Terminal.Wsl",
+        "Windows.Terminal.Azure",
+        "Windows.Terminal.PowershellCore"
+    ],
+    "initialCols": 70,
+    "initialPosition": "0,10",
+    "initialRows": 25,
+    "language": "en-US",
+    "profiles": 
+    {
+        "defaults": 
+        {
+            "acrylicOpacity": 0.98999999999999999,
+            "altGrAliasing": true,
+            "antialiasingMode": "cleartype",
+            "backgroundImageOpacity": 0.69999999999999996,
+            "bellStyle": "none",
+            "closeOnExit": "always",
+            "colorScheme": "bongu16",
+            "font": 
+            {
+                "face": "HackGenNerd Console",
+                "size": 13,
+                "weight": "normal"
+            },
+            "historySize": 600,
+            "padding": "3",
+            "selectionBackground": "#4682B4",
+            "useAcrylic": true
+        },
+        "list": 
+        [
+            {
+                "acrylicOpacity": 0.98999999999999999,
+                "backgroundImage": "C:\\bin\\repository\\tar80\\images\\bg_clover1b.jpg",
+                "backgroundImageOpacity": 0.75,
+                "backgroundImageStretchMode": "uniformToFill",
+                "colorScheme": "bongu16",
+                "commandline": "%scoop%\\apps\\nyagos\\current\\nyagos.exe",
+                "experimental.retroTerminalEffect": false,
+                "font": 
+                {
+                    "face": "HackGenNerd Console"
+                },
+                "guid": "{9c9f8101-755c-42a7-a9e0-b1605b67c17a}",
+                "hidden": false,
+                "icon": "C:\\bin\\repository\\tar80\\myrepo\\nyagos\\nyagosico.png",
+                "name": "Nyagos",
+                "padding": "6"
+            },
+            {
+                "acrylicOpacity": 0.98999999999999999,
+                "backgroundImage": "C:\\bin\\repository\\tar80\\images\\bg_clover2.jpg",
+                "backgroundImageOpacity": 0.69999999999999996,
+                "commandline": "%PPX_DIR%\\ppbw.exe",
+                "guid": "{395d314c-e522-4133-8d10-6bf24dcb6e08}",
+                "hidden": true,
+                "icon": "C:\\bin\\repository\\tar80\\images\\ppb.ico",
+                "name": "PPb"
+            },
+            {
+                "backgroundImage": "C:\\bin\\repository\\tar80\\images\\bg_clover1b.jpg",
+                "commandline": "%scoop%\\apps\\pwsh\\current\\pwsh.exe",
+                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+                "hidden": false,
+                "name": "PowerShell",
+                "suppressApplicationTitle": true,
+                "tabTitle": "PowerShell"
+            },
+            {
+                "acrylicOpacity": 0.98999999999999999,
+                "backgroundImage": "C:\\bin\\repository\\tar80\\images\\bg_clover1b.jpg",
+                "backgroundImageOpacity": 0.29999999999999999,
+                "colorScheme": "clover",
+                "commandline": "%Scoop%\\apps\\neovim\\current\\bin\\nvim.exe",
+                "experimental.retroTerminalEffect": false,
+                "font": 
+                {
+                    "face": "FirgeNerd Console",
+                    "size": 13,
+                    "weight": "semi-light"
+                },
+                "guid": "{a4091933-5d47-46e3-b22d-d70292b80447}",
+                "icon": "C:\\bin\\repository\\tar80\\images\\nvim.ico",
+                "name": "Neovim",
+                "padding": "0",
+                "scrollbarState": "hidden",
+                "tabColor": "#0B1611",
+                "useAcrylic": true
+            },
+            {
+                "commandline": "%Scoop%\\apps\\git\\current\\bin\\bash.exe",
+                "font": 
+                {
+                    "face": "Cascadia Code",
+                    "weight": "normal"
+                },
+                "guid": "{0975eb6a-f209-4aaa-a75a-abe5ef7f5a4f}",
+                "hidden": false,
+                "icon": "%Scoop%\\apps\\git\\current\\mingw64\\share\\git\\git-for-windows.ico",
+                "name": "bash"
+            },
+            {
+                "commandline": "cmd.exe",
+                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+                "hidden": true,
+                "name": "Command Prompt"
+            },
+            {
+                "acrylicOpacity": 0.98999999999999999,
+                "colorScheme": "bongu16",
+                "commandline": "cmd.exe /c set MSYS=winsymlinks:nativestrict && %scoop%/apps/msys2/current/msys2_shell.cmd -defterm -full-path -no-start -msys",
+                "guid": "{d60e8963-08da-4a18-ac74-7632ce9e2511}",
+                "icon": "%Scoop%\\apps\\msys2\\current\\msys2.ico",
+                "name": "MSYS2",
+                "useAcrylic": false
+            }
+        ]
+    },
+    "schemes": 
+    [
+        {
+            "background": "#000000",
+            "black": "#000B00",
+            "blue": "#3E62AD",
+            "brightBlack": "#9079AD",
+            "brightBlue": "#8491C3",
+            "brightCyan": "#59B9C6",
+            "brightGreen": "#93CA76",
+            "brightPurple": "#CC7EB1",
+            "brightRed": "#EC6D71",
+            "brightWhite": "#EAEDF7",
+            "brightYellow": "#EEC362",
+            "cursorColor": "#2DBA54",
+            "cyan": "#83CCD2",
+            "foreground": "#DCDDDD",
+            "green": "#839B5C",
+            "name": "bongu16",
+            "purple": "#BC64A4",
+            "red": "#E95464",
+            "selectionBackground": "#549473",
+            "white": "#BED2C3",
+            "yellow": "#FFD768"
+        },
+        {
+            "background": "#0B1611",
+            "black": "#000000",
+            "blue": "#4D7976",
+            "brightBlack": "#102C27",
+            "brightBlue": "#81B5C3",
+            "brightCyan": "#A1E1E5",
+            "brightGreen": "#9ECE6E",
+            "brightPurple": "#A980D1",
+            "brightRed": "#FC89D4",
+            "brightWhite": "#C4CCBE",
+            "brightYellow": "#E2DC79",
+            "cursorColor": "#31D1C3",
+            "cyan": "#06989A",
+            "foreground": "#555753",
+            "green": "#4E9A06",
+            "name": "clover",
+            "purple": "#77679F",
+            "red": "#FD5C70",
+            "selectionBackground": "#839A87",
+            "white": "#D3D7CF",
+            "yellow": "#C4A000"
+        }
+    ],
+    "showTabsInTitlebar": true,
+    "tabWidthMode": "equal",
+    "theme": "dark",
+    "trimBlockSelection": true,
+    "useAcrylicInTabRow": false,
+    "windowingBehavior": "useExisting"
+}

@@ -1,0 +1,419 @@
+# vim:textwidth=0:foldmethod=marker:foldlevel=1
+
+[[plugins]]
+repo = "vim-denops/denops.vim"
+hook_add = "let g:denops_disable_version_check = 1"
+
+[[plugins]]
+repo = "Shougo/context_filetype.vim"
+on_ft = ["toml", "markdown"]
+hook_source = """
+let g:context_filetype#ignore_patterns = {
+    \ "toml": ['^\s*#\s*'],
+    \ }
+"""
+
+[[plugins]]
+repo = "itchyny/vim-parenmatch"
+on_event = "BufReadPost"
+
+## ale {{{2
+[[plugins]]
+repo = "dense-analysis/ale"
+on_ft = "javascript"
+hook_add = """
+  "@ ALEInfoでLogを確認するときはg:ale_history_enabled=1に設定する
+
+  " augroup ALEDisableFloatingWindow
+  "   au!
+  "   autocmd User lsp_float_opened ALEDisable
+  "   autocmd User lsp_float_closed ALEEnable
+  " augroup END
+
+  nmap <silent> [a <Plug>(ale_previous_wrap)
+  nmap <silent> ]a <Plug>(ale_next_wrap)
+
+  let g:ale_history_enabled = 0
+  let g:ale_sign_priority = 9
+  let g:ale_sign_error    = ''
+  let g:ale_sign_warning  = ''
+  let g:ale_linters = {
+    \  'javascript': ['eslint'],
+    \ }
+  let g:ale_lint_delay = 100
+  let g:ale_lint_on_enter = 0
+  let g:ale_lint_on_filetype_changed = 0
+  let g:ale_lint_on_text_changed = 0
+  let g:ale_lint_on_insert_leave = 0
+  let g:ale_lint_on_save = 1
+  let g:ale_virtualtext_cursor = 0
+  let g:ale_virtualtext_delay = 100
+  let g:ale_virtualtext_prefix = ' '
+  let g:airline#extensions#ale#enabled = 0
+  let g:ale_disable_lsp = 1
+  let g:ale_echo_cursor = 1
+  let g:ale_echo_delay = 300
+  let g:ale_echo_msg_format = '[%linter%]%code: %%s'
+  let g:ale_hover_cursor = 0
+  let g:ale_set_balloons = 0
+"""
+
+## ctrlp {{{2
+[[plugins]]
+repo = "ctrlpvim/ctrlp.vim"
+on_if = "!has('nvim')"
+on_func = "ctrlp"
+hook_add = """
+  if !has('nvim')
+    let g:ctrlp_map = '<leader>;'
+
+    nnoremap <leader>m <cmd>CtrlPMRUFiles<CR>
+    nnoremap <leader>o <cmd>CtrlPCurWD<CR>
+    nnoremap <leader>r <cmd>CtrlPRoot<CR>
+    nnoremap <leader>b <cmd>CtrlPBookmarkDir<CR>
+    endif
+"""
+hook_source = """
+  autocmd! vimrcDependencies CmdLineLeave * call s:SetRelNr()
+
+  function s:SetRelNr() abort
+    if &filetype !=# 'ctrlp' | setlocal relativenumber | endif
+  endfunction
+
+  " command! -nargs=* CtrlPUser call <SID>ctrlp_user(<q-args>)
+
+  " function! s:ctrlp_user(path) abort
+    " let b:ctrlp_user_command = 'fd -HL -c never --exclude node_modules --exclude migemo --exclude ".git" "" %s'
+    " " if exists('b:ctrlp_user_command') | unlet b:ctrlp_user_command | endif
+    " execute 'CtrlP ' a:path
+  " endfunction
+
+  function! CtrlPEnter()
+    setlocal laststatus=0
+    hi Cursor guifg=purple guibg=#110011
+    hi CursorLine guifg=#8660C0 guibg=#110011
+    hi CtrlPNoEntries guifg=#FF9740
+    hi CtrlPMatch guifg=#F2D675
+    hi CtrlPLinePre guifg=blue
+    hi CtrlPPrtBase guifg=#75C6C3
+    hi CtrlPPrtText guifg=#F2D675
+    hi CtrlPPrtCursor guifg=#F2D675
+    hi Normal guifg=#595857
+  endfunction
+
+  function! CtrlPLeave()
+    setlocal laststatus=2
+    hi Cursor guifg=black guibg=lightgreen
+    hi CursorLine guifg=#000B00 guibg=#75C6C3
+    hi Normal guifg=#C0C6C9
+  endfunction
+
+  let b:ctrlp_user_command = 'fd -HL -c never --exclude node_modules --exclude migemo --exclude ".git" "" %s'
+  let g:ctrlp_cmd = 'exe "CtrlP".get(["Buffer", "File"], v:count)'
+  let g:ctrlp_match_window = 'bottom,order:ttb,min:7,max:7,results:50'
+  let g:ctrlp_reuse_window = 'help\|quickfix'
+  let g:ctrlp_root_markers = ['.git']
+  let g:ctrlp_use_caching = 0
+  let g:ctrlp_show_hidden = 1
+  let g:ctrlp_cache_dir = $HOME.'/.cache/ctrlp'
+  let g:ctrlp_custom_ignore = {
+        \ 'dir':  '\v(\.git|\.bundle|_site|vendor|node_modules|images|migemo)$',
+        \ 'file': '\v\.(exe|msi|zip|7z|xz|cab|dll)$',
+        \ }
+  let g:ctrlp_open_multiple_files = '1vi'
+  let g:ctrlp_follow_symlinks = 1
+  let g:ctrlp_prompt_mappings = {
+        \ 'PrtBS()':      ['<bs>', '<c-h>'],
+        \ 'PrtCurLeft()': ['<left>', '<c-^>'],
+        \ }
+  let g:ctrlp_line_prefix = has('nvim') ? ' ' : '>'
+  let g:ctrlp_mruf_max = 50
+  let g:ctrlp_mruf_save_on_update = 0
+  let g:ctrlp_buffer_func = {
+        \ 'enter': 'CtrlPEnter',
+        \ 'exit': 'CtrlPLeave',
+        \ }
+"""
+
+## fzf {{{2
+[[plugins]]
+repo = "junegunn/fzf.vim"
+if = "has('nvim')"
+on_if = "has('nvim')"
+on_cmd = ["Buffers", "History", "Files", "GFiles", "Hisotry:"]
+hook_add = """
+  if has('nvim')
+    nnoremap <leader>; <Cmd>Buffers<CR>
+    nnoremap <leader>: <Cmd>History:<CR>
+    nnoremap <leader>o <Cmd>Files<CR>
+    nnoremap <leader>r <Cmd>GFiles<CR>
+    nnoremap <leader>m <Cmd>History<CR>
+  endif
+"""
+hook_source = """
+  let $FZF_DEFAULT_OPTS = '--layout=reverse --inline-info --border=none
+        \ --bind=ctrl-p:toggle-preview
+        \ --preview-window=wrap:hidden:right:50%:border-left'
+
+  let g:fzf_layout = {'window': {'width': 0.9, 'height': 0.6, 'relative': v:true, 'border': 'rounded'}}
+  let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
+
+  if has('nvim')
+    function! s:create_float(hl, opts)
+      let buf = nvim_create_buf(v:false, v:true)
+      let opts = extend({'relative': 'editor', 'style': 'minimal'}, a:opts)
+      let win = nvim_open_win(buf, v:true, opts)
+      call setwinvar(win, '&winhighlight', 'NormalFloat:'.a:hl)
+      call setwinvar(win, '&colorcolumn', '')
+      return buf
+    endfunction
+
+    function! FloatingFZF()
+      let width = float2nr(&columns * 0.9)
+      let height = float2nr(&lines * 0.6)
+      let row = float2nr((&lines - height) / 2)
+      let col = float2nr((&columns - width) / 2)
+
+      let top = '╭' . repeat('─', width - 2) . '╮'
+      let mid = '│' . repeat(' ', width - 2) . '│'
+      let bot = '╰' . repeat('─', width - 2) . '╯'
+      let border = [top] + repeat([mid], height - 2) + [bot]
+
+      let s:frame = s:create_float('Comment', {'row': row, 'col': col, 'width': width, 'height': height})
+      call nvim_buf_set_lines(s:frame, 0, -1, v:true, border)
+
+      call s:create_float('Normal', {'row': row + 1, 'col': col + 2, 'width': width - 4, 'height': height - 2})
+
+      autocmd BufUnload <buffer> execute 'bwipeout!' s:frame
+    endfunction
+
+    let g:fzf_layout = { 'window': 'call FloatingFZF()' }
+  endif
+"""
+## clever-f {{{2
+[[plugins]]
+repo = "rhysd/clever-f.vim"
+on_map = {n = "<Plug>", o = "<Plug>"}
+hook_add = """
+  "@ 行を跨がない = 1
+  let g:clever_f_across_no_line = 0
+  let g:clever_f_ignore_case    = 1
+  let g:clever_f_smart_case     = 1
+  let g:clever_f_use_migemo     = 0
+  let g:clever_f_fix_key_direction  = 0
+  let g:clever_f_mark_cursor        = 1
+  let g:clever_f_mark_cursor_color  = "ErrorMsg"
+  let g:clever_f_mark_char          = 1
+  let g:clever_f_mark_char_color    = "SpellBad"
+  nmap f <Plug>(clever-f-f)
+  xmap f <Plug>(clever-f-f)
+  omap f <Plug>(clever-f-f)
+  nmap F <Plug>(clever-f-F)
+  xmap F <Plug>(clever-f-F)
+  omap F <Plug>(clever-f-F)
+  nmap t <Plug>(clever-f-t)
+  xmap t <Plug>(clever-f-t)
+  omap t <Plug>(clever-f-t)
+  nmap T <Plug>(clever-f-T)
+  xmap T <Plug>(clever-f-T)
+  omap T <Plug>(clever-f-T)
+"""
+
+## yankround {{{2
+[[plugins]]
+repo = "leafCage/yankround.vim"
+on_map = ["<Plug>"]
+hook_add = """
+  let g:yankround_dir ="~/.cache/yankround"
+  let g:yankround_use_region_hl = 1
+  let g:yankround_region_hl_groupname = 'Underlined'
+  nmap p <Plug>(yankround-p)
+  xmap p <Plug>(yankround-p)
+  nmap P <Plug>(yankround-P)
+  nmap gp <Plug>(yankround-gp)
+  xmap gp <Plug>(yankround-gp)
+  nmap gP <Plug>(yankround-gP)
+  nmap <C-p> <Plug>(yankround-prev)
+  nmap <C-n> <Plug>(yankround-next)
+"""
+
+## vim-gitbranch {{{2
+[[plugins]]
+repo = "itchyny/vim-gitbranch"
+on_cmd = ["Gitdiff", "GitrootWD"]
+on_event = "BufReadPost"
+hook_add = """
+  nnoremap <silent> <space>gv <Cmd>Gitdiff %<CR>
+  nnoremap <silent> <space>ga <Cmd>GitAdd<CR>
+"""
+hook_source = """
+
+  autocmd vimrcDependencies BufReadPost * if !empty(gitbranch#name()) | setlocal undofile | endif
+
+  command! GitrootWD execute 'lcd' <SID>gitRoot()
+  command! GitAdd call <SID>gitadd()
+  command! -nargs=* Gitdiff call <SID>gitDiffCmd(<f-args>)
+
+  function s:gitadd() abort "{{{3
+    if exists('b:gitbranch_path')
+      let s:path = expand('%')
+      update | call job_start('git add ' . s:path)
+      echo 'staged ' . s:path
+    endif
+  endfunction
+
+  function s:gitRoot() abort "{{{3
+    try
+      return substitute(b:gitbranch_path, '.git/HEAD', '', '')
+    catch
+      return ''
+    endtry
+  endfunction
+
+  function s:gitDiffCmd(...) abort "{{{3
+    let l:root = s:gitRoot()
+    if l:root !=# ''
+      let l:path = a:0 ? a:{a:0} : '%'
+      let l:path = strpart(fnamemodify(expand(l:path), ':p'), len(l:root))
+      let l:path = substitute(l:path, '\\', '/', 'g')
+      let l:hash = (a:0 ==# '2') ? a:1 : ''
+      let g:diff_translations = 0
+      diffthis | rightbelow vnew [diff] | set bt=nofile | execute 'r! git cat-file -p ' . l:hash . ':' . l:path | 0d_ | diffthis | wincmd p
+    else
+      echo 'not a git repository.'
+    endif
+    return ''
+  endfunction
+"""
+
+## gitgutter {{{2
+[[plugins]]
+repo = "airblade/vim-gitgutter"
+on_cmd = "GitGutterEnable"
+hook_add = """
+  let g:gitgutter_enabled = 0
+  let g:gitgutter_map_keys = 0
+  let g:gitgutter_use_location_list = 1
+  let g:gitgutter_preview_win_location = 'bo'
+  " let g:gitgutter_diff_relative_to = 'working_tree'
+  " let g:gitgutter_grep = ''
+  let g:gitgutter_sign_priority = 8
+  let g:gitgutter_close_preview_on_escape = 1
+"""
+hook_post_source = """
+  nmap [c <Plug>(GitGutterPrevHunk)
+  nmap ]c <Plug>(GitGutterNextHunk)
+  nmap ghp <Plug>(GitGutterPreviewHunk)
+  nmap gha <Plug>(GitGutterStageHunk)
+  nmap ghu <Plug>(GitGutterUndoHunk)
+"""
+
+## open-browser {{{2
+[[plugins]]
+repo = "tyru/open-browser.vim"
+on_map = ["<Plug>(openbrowser-smart-search)"]
+hook_add = """
+  nmap <Space>/ <Plug>(openbrowser-smart-search)
+  xmap <Space>/ <Plug>(openbrowser-smart-search)
+"""
+hook_source = """
+  " let g:openbrowser_search_engines = {}
+    " (default: See below)
+      " You can add favorite search engines like: >
+      " let g:openbrowser_search_engines = {
+      "\   'favorite': 'http://example.com/search?q={query}',
+      "\}
+  let g:openbrowser_open_vim_command = "split"
+    " (default: "vsplit")
+      " This value is used for opening looks-like-a-path string.
+      " See |g:openbrowser_open_filepath_in_vim| for the details.
+  " let g:openbrowser_message_verbosity = 2
+    " (default: 2)
+      " value meaning ~
+      " 0     no messages / no error messages
+      " 1     no messages / show error messages
+      " 2     show messages / show error messages
+      " NOTE: Even if this value is 2, no messages are echoed when
+      " |g:openbrowser_format_message|.msg is empty value.
+  let g:openbrowser_use_vimproc = 0
+    " (default: 1)
+      " If this value is non-zero and vimproc is installed,
+      " use vimproc to open a URL.
+  " let g:openbrowser_force_foreground_after_open = 0
+    " (default: 0)
+      " If this value is non-zero,
+      " make Vim foreground after opening URL or searching word(s).
+"""
+
+[[plugins]]
+repo = "mbbill/undotree"
+on_func = "undotree#UndotreeToggle()"
+hook_add = """
+  noremap <F7> <cmd>call undotree#UndotreeToggle()<CR>
+"""
+hook_source = """
+  let g:loaded_undotree = 1
+  let g:undotree_WindowLayout = 2
+  let g:undotree_ShortIndicators = 1
+  let g:undotree_SplitWidth = 28
+  let g:undotree_DiffpanelHeight = 6
+  let g:undotree_DiffAutoOpen = 1
+  let g:undotree_SetFocusWhenToggle = 1
+  let g:undotree_TreeNodeShape = '*'
+  let g:undotree_TreeVertShape = '|'
+  let g:undotree_DiffCommand = "diff"
+  let g:undotree_RelativeTimestamp = 1
+  let g:undotree_HighlightChangedText = 1
+  let g:undotree_HighlightChangedWithSign = 1
+  let g:undotree_HighlightSyntaxAdd = "DiffAdd"
+  let g:undotree_HighlightSyntaxChange = "DiffChange"
+  let g:undotree_HighlightSyntaxDel = "DiffDelete"
+  let g:undotree_HelpLine = 1
+  let g:undotree_CursorLine = 1
+
+  " Deprecates the old style configuration.
+  if exists('g:undotree_SplitLocation')
+    echo "g:undotree_SplitLocation is deprecated,
+          \ please use g:undotree_WindowLayout instead."
+  endif
+"""
+
+## vim-precious {{{2
+[[plugins]]
+repo = "osyo-manga/vim-precious"
+depends = "context_filetype.vim"
+on_ft = ["toml", "markdown"]
+hook_source = """
+  augroup vimrcDependencies
+    autocmd InsertEnter *.toml,*.md PreciousSwitch
+  augroup END
+
+  let g:precious_enable_switchers = {
+        \ "*" : {
+        \   "setfiletype" : 0
+        \   },
+        \ "markdown" : {
+        \   "setfiletype" : 1
+        \   },
+        \ "toml" : {
+        \   "setfiletype" : 1
+        \   },
+        \ }
+
+  let g:precious_enable_switch_CursorMoved = {"*" : 0}
+  let g:precious_enable_switch_CursorMoved_i = {'*': 0}
+  let g:context_filetype#search_offset = 200
+"""
+## lightline {{{1
+# [[plugins]]
+# repo = "itchyny/lightline.vim"
+# on_event = "VimEnter"
+# hook_source = "source $MYREPO\vim\deinrc\lightline.vim"
+# hook_post_source = """
+#   if has('nvim')
+#     highlight Normal guibg=NONE
+#     highlight LineNr guibg=NONE
+#     highlight SignColumn guibg=NONE
+#   endif
+# """
+

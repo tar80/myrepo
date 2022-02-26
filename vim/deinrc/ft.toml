@@ -1,0 +1,31 @@
+# vim:textwidth=0:foldmethod=marker:foldlevel=1:
+
+hook_add = '''
+" Update filetype.
+autocmd vimrcDependencies BufWritePost * nested
+  \ if &l:filetype ==# '' || exists('b:ftdetect')
+  \ |   unlet! b:ftdetect
+  \ |   filetype detect
+  \ | endif
+
+if !has('nvim')
+  autocmd TerminalOpen * if &buftype == 'terminal' | setfiletype terminal | endif
+endif
+'''
+
+[ftplugin]
+
+_ = '''
+" Disable automatically insert comment.
+setl formatoptions-=t
+setl formatoptions-=c
+setl formatoptions-=r
+setl formatoptions-=o
+'''
+
+help = '''
+setlocal iskeyword+=:
+setlocal iskeyword+=#
+setlocal iskeyword+=-
+'''
+

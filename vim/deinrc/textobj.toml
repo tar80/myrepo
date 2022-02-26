@@ -1,0 +1,82 @@
+# vim:textwidth=0:foldmethod=marker:foldlevel=1
+
+## operator-replace {{{2
+[[plugins]]
+repo = "kana/vim-operator-replace"
+depends = "vim-operator-user"
+on_map = {n = "<Plug>(operator-replace)"}
+hook_add = """
+  map \  <Plug>(operator-replace)
+  map _  "0<Plug>(operator-replace)
+"""
+
+## operator-surround {{{2
+[[plugins]]
+repo = "rhysd/vim-operator-surround"
+depends = "vim-operator-replace"
+on_map = ["<Plug>"]
+hook_add = """
+  map <silent> <Space>a <Plug>(operator-surround-append)
+  map <silent> <Space>d <Plug>(operator-surround-delete)
+  map <silent> <Space>r <Plug>(operator-surround-replace)
+
+  nmap <silent> <Space>dd <Plug>(operator-surround-delete)<Plug>(textobj-anyblock-a)
+  nmap <silent> <Space>rr <Plug>(operator-surround-replace)<Plug>(textobj-anyblock-a)
+"""
+
+## textobj-anyblock
+[[plugins]]
+repo = "rhysd/vim-textobj-anyblock"
+depends = "vim-textobj-user"
+on_source = "vim-operator-replace"
+
+## caw {{{2
+[[plugins]]
+repo = "tyru/caw.vim"
+depends = "vim-operator-user"
+on_event = "VimEnter"
+hook_add = """
+  let g:caw_hatpos_startinsert_at_blank_line = 0
+  let g:caw_hatpos_skip_blank_line = 1
+  let g:caw_hatpos_align = 0
+  let g:caw_zeropos_startinsert_at_blank_line = 0
+  let g:caw_dollarpos_startinsert = 1
+  let g:caw_wrap_skip_blank_line = 0
+  let g:caw_no_default_keymappings = 1
+
+  if dein#is_available('vim-operator-user')
+    nmap gcc <Plug>(caw:hatpos:toggle)
+    nmap gci <Plug>(caw:hatpos:comment:operator)
+    nmap gcui <Plug>(caw:hatpos:uncomment:operator)
+    nmap gcI <Plug>(caw:zeropos:comment:operator)
+    nmap gcuI <Plug>(caw:zeropos:uncomment:operator)
+    nmap gca <Plug>(caw:dollarpos:comment:operator)
+    nmap gcua <Plug>(caw:dollarpos:uncomment:operator)
+    nmap gcw <Plug>(caw:wrap:comment:operator)
+    nmap gcuw <Plug>(caw:wrap:uncomment:operator)
+    nmap gcb <Plug>(caw:box:comment:operator)
+  else
+    nmap gcc <Plug>(caw:hatpos:toggle)
+    nmap gci <Plug>(caw:hatpos:comment)
+    nmap gcui <Plug>(caw:hatpos:uncomment)
+    nmap gcI <Plug>(caw:zeropos:comment)
+    nmap gcuI <Plug>(caw:zeropos:uncomment)
+    nmap gca <Plug>(caw:dollarpos:comment)
+    nmap gcua <Plug>(caw:dollarpos:uncomment)
+    nmap gcw <Plug>(caw:wrap:comment)
+    nmap gcuw <Plug>(caw:wrap:uncomment)
+    nmap gcb <Plug>(caw:box:comment)
+  endif
+
+  xmap gcc <Plug>(caw:hatpos:toggle)
+  xmap gci <Plug>(caw:hatpos:comment)
+  xmap gcui <Plug>(caw:hatpos:uncomment)
+  xmap gcI <Plug>(caw:zeropos:comment)
+  xmap gcuI <Plug>(caw:zeropos:uncomment)
+  xmap gca <Plug>(caw:dollarpos:comment)
+  xmap gcua <Plug>(caw:dollarpos:uncomment)
+  xmap gcw <Plug>(caw:wrap:comment)
+  xmap gcuw <Plug>(caw:wrap:uncomment)
+  xmap gcb <Plug>(caw:box:comment)
+"""
+

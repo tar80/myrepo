@@ -1,0 +1,62 @@
+# Viminfo version
+|1,4
+
+# このファイルが書かれた時の 'encoding' の値
+*encoding=utf-8
+
+# コマンドライン 項目の履歴 (新しいものから古いものへ):
+:lcd ~/
+|2,0,1000000019,,"lcd ~/"
+:lcd %:h
+|2,0,1000000018,,"lcd %:h"
+:lcd C:/git/tar80/myrepo/
+|2,0,1000000017,,"lcd C:/git/tar80/myrepo/"
+:difforg
+|2,0,1000000009,,"difforg"
+:set scb | wincmd p | set scb
+|2,0,1000000009,,"set scb | wincmd p | set scb"
+:e ++enc=utf-8 ++ff=unix
+|2,0,1000000009,,"e ++enc=utf-8 ++ff=unix"
+:e ++enc=sjis ++ff=dos
+|2,0,1000000009,,"e ++enc=sjis ++ff=dos"
+:set noro
+|2,0,1000000009,,"set noro"
+:set fenc=sjis ff=dos
+|2,0,1000000009,,"set fenc=sjis ff=dos"
+:set fenc=utf-8 ff=unix
+|2,0,1000000009,,"set fenc=utf-8 ff=unix"
+:set noexpandtab
+|2,0,1000000009,,"set noexpandtab"
+:tabclose
+|2,0,1000000000,,"tabclose"
+:set spell
+|2,0,1000000000,,"set spell"
+:retab!
+|2,0,1000000000,,"retab!"
+:inoreabbrev
+|2,0,1000000000,,"inoreabbrev"
+:vertical diffsplit
+|2,0,1000000000,,"vertical diffsplit"
+:saveas
+|2,0,1000000000,,"saveas"
+:so $VIMRUNTIME/syntax/colortest.vim
+|2,0,1000000000,,"so $VIMRUNTIME/syntax/colortest.vim"
+:so ~/vim81/syntax/hitest.vim
+|2,0,1000000000,,"so $VIMRUNTIME/syntax/hitest.vim"
+:tabnew
+|2,0,1000000000,,"tabnew"
+:tab ball
+|2,0,1000000000,,"tab ball"
+:tabonly
+|2,0,1000000000,,"tabonly"
+:marks
+|2,0,1000000000,,"marks"
+
+# 検索文字列 項目の履歴 (新しいものから古いものへ):
+# 式 項目の履歴 (新しいものから古いものへ):
+# 入力行 項目の履歴 (新しいものから古いものへ):
+# デバッグ行 項目の履歴 (新しいものから古いものへ):
+# レジスタ:
+# ジャンプリスト (新しいものが先):
+# バッファリスト:
+# ファイル内マークの履歴 (新しいものから古いもの):

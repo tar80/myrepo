@@ -1,0 +1,14 @@
+node_modules
+theme
+*template*
+*test*
+*@*.cfg
+*.lock
+.eslintrc.json
+package-lock.json
+index.js
+cryptrclone.js
+images
+*.png
+*.jpg
+*.bmp

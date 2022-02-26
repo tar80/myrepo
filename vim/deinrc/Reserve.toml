@@ -1,0 +1,40 @@
+# vim:textwidth=0:foldmethod=marker:foldlevel=1:
+
+# [[plugins]]
+# repo = ""
+# merged = 0
+
+# [[plugins]]
+# repo = "lambdalisue/gina.vim"
+# hook_add = """
+#   call gina#custom#action#alias(
+#         \ '/.*', 'dp', 'diff:preview'
+#         \ )
+#   call gina#custom#action#shorten(
+#         \ 'status',
+#         \ 'show',
+#         \ ['show:vsplit', 'show:preview']
+#         \)
+#   call gina#custom#command#option(
+#         \ '/\%(status\|changes\)',
+#         \ '--opener', 'vsplit'
+#         \)
+# """
+# [[plugins]]
+# repo = "nvim-treesitter/nvim-treesitter"
+# if = 'has("nvim")'
+# on_event = "BufRead"
+# hook_post_update = "TSUpdate"
+# hook_source = """
+#   lua <<EOF
+#     require'nvim-treesitter.configs'.setup {
+#       ensure_installed = 'all',
+#                       highlight = {
+#                         enable = true,
+#                         disable = {'c'},
+#                       },
+#     }
+#   EOF
+# """
+
+

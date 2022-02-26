@@ -1,0 +1,49 @@
+# tips
+範囲選択してg+<C-a>で連番
+f <filename>でリネーム
+# SmartinputCommand
+gs 30vs<Bar>Gina<Space>status<Space>-s
+nn NyagosRun
+gg GitGutterEnable
+uu call<Space>undotree#UndotreeToggle()
+sy set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb
+su set<Space>noscb
+
+# openbrowser
+<C-w>/ ブラウザで開く
+
+# ctrlp
+<C-z> select multiline
+
+# normal
+gw{motion} 行整形
+<C-w>
+  i 識別子の宣言位置を開く
+  o 他のペインを削除
+  b 一番下のペインに移動
+  ] タグを開く
+  r ペイン位置をずらす
+  | 幅最大
+
+# insert
+\  operator-replace
+_  "0 + operator-replace
+
+# cmdline
+:messages
+:L <cmd> 結果をバッファに出力
+:vnew 新規縦開き
+<C-r><C-w> カーソル下単語
+
+# fold
+zf 作成
+zR 全開き
+zM 全閉じ
+zj 次の折畳
+zk 前の折畳
+[z 折畳の開始点
+]z 折畳の終点
+
+# help
+tab help  新規タブで開く
+helpg     検索してヘルプ

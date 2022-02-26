@@ -1,0 +1,16 @@
+{
+  "name": "vim",
+  "version": "1.0.0",
+  "description": "linter formatter for vim",
+  "main": "index.js",
+  "author": "tar80",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.7.0",
+    "lua-fmt": "^2.6.0",
+    "markdownlint": "^0.25.1",
+    "markdownlint-cli": "^0.30.0",
+    "prettier": "^2.5.1"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,142 @@
+-- Edit and put it on %USERPROFILE%, %HOME% or the same folder with nyagos.exe
+
+-- Prompt for CMD.EXE
+nyagos.env.prompt = '$P$s'
+
+-- Prompt for NYAGOS.EXE
+do
+  local git_branch = function()
+  local path = nyagos.getwd()
+    repeat
+      if nyagos.access(nyagos.pathjoin(path, '.git'), 0) then
+        break
+      end
+      path = string.match(path, '^(.+)\\')
+    until not path
+
+    if path then
+      local branch = nyagos.eval('git rev-parse --abbrev-ref HEAD 2>nul')
+      if branch then
+          local ref = string.match(branch, '^%(detached from ([0-9a-f]+)%)$')
+          if ref then
+            return '(' .. ref .. '...)'
+          else
+            return branch
+          end
+      else
+          return ('no branch')
+      end
+    else
+      return nil
+    end
+  end
+
+  local prompt_ = nyagos.prompt
+
+  nyagos.prompt = function(prompt)
+    local branch = git_branch()
+    local title = "NYAGOS - " .. nyagos.getwd()
+    if branch then
+      branch = '$e[100;96m$e[100;33m  ' .. branch .. ' $e[49;90m'
+    else
+      branch = '$e[49;96m'
+    end
+
+    if nyagos.elevated() then
+      return prompt_('$e[0m$e[106;30m'.. prompt .. ' ' .. branch .. '$e[92m$_$s$e[49;39m',title)
+    else
+      return prompt_('$e[0m$e[106;30m'.. prompt .. ' ' .. branch .. '$e[92m$_$s$e[49;39m',title)
+    end
+  end
+end
+
+-- 履歴数
+nyagos.histsize = 200
+
+-- 環境変数
+nyagos.env.HOME = 'C:/bin/HOME'
+nyagos.env.myrepo = 'C:/bin/repository/tar80/myrepo'
+nyagos.envadd('CDPATH',
+  '%scoop%\\apps\\git\\current\\usr\\bin',
+  '%myrepo%'
+)
+
+nyagos.env.LESSCHARSET = 'utf-8'
+nyagos.env.FZF_DEFAULT_COMMAND = 'fd -HL -c never --exclude ".git" .'
+nyagos.env.FZF_DEFAULT_OPTS = '--reverse --border --height 80% --inline-info --color=fg:-1,bg:-1,hl:#ffcc00 --color=fg+:#4d84a8,bg+:-1,hl+:#00eaff --color=info:#aa82fa,prompt:#2cdede,pointer:#6bff26 --color=marker:#c06eff,spinner:#a357ff,header:#a7d1d1'
+local fzf = {}
+fzf.cmd          =  'fzf.exe'
+fzf.args         =  {}
+fzf.args.dir     =  ''
+fzf.args.cmdhist =  ''
+fzf.args.cdhist  =  ''
+fzf.args.gitlog  =  '--preview="git show {1}"'
+fzf.args.gitdiff =  '--preview="echo {2} | xargs git diff --color"'
+
+-- エイリアス
+nyagos.alias.vim = '%scoop%/apps/neovim/current/bin/nvim.exe'
+nyagos.alias.gvim = '%scoop%/apps/vim/current/gvim.exe'
+
+nyagos.alias.ll = 'lsd -l --group-dirs first --blocks permission --blocks size --blocks date --blocks name '
+nyagos.alias.cc = function ()
+  local path = nyagos.eval('fd -Ht d -c never -E .git -E node_modules | fzf')
+  return nyagos.exec('cd ' .. path)
+end
+
+nyagos.alias.re = function ()
+  local path = nyagos.eval('fd -Lt d -c never --full-path . %myrepo% | fzf')
+  return nyagos.exec('cd ' .. path)
+end
+
+nyagos.alias.gd = function()
+    local result = nyagos.eval('git status -s -uall | ' .. fzf.cmd .. " " .. fzf.args.gitdiff)
+    return string.match(result,"^%S+") or ""
+end
+
+-- 補完:入力部分のハイライト
+nyagos.completion_hook = function(c)
+  for index, item in ipairs(c.list) do
+      c.shownlist[index] = '\027[49;90m' .. c.word .. '\027[49;93m' .. item:sub(string.len(c.word) + 1 )
+  end
+  return c.list, c.shownlist
+end
+
+-- キーバインド
+nyagos.key["F9"] = function()
+  nyagos.exec('vim %myrepo%\\nyagos\\.nyagos')
+end
+
+nyagos.alias.__dump_history = function()
+    local uniq={}
+    for i=nyagos.gethistory()-1,1,-1 do
+        local line = nyagos.gethistory(i)
+        if line ~= "" and not uniq[line] then
+            nyagos.write(line,"\n")
+            uniq[line] = true
+        end
+    end
+end
+
+nyagos.bindkey("C_R", function(this)
+    local result = nyagos.eval('__dump_history | ' .. fzf.cmd .. " " .. fzf.args.cmdhist)
+    this:call("CLEAR_SCREEN")
+    return result
+end)
+
+nyagos.bindkey("M_H" , function(this)
+    local result = nyagos.eval('cd --history | ' .. fzf.cmd .. " " .. fzf.args.cdhist)
+    this:call("CLEAR_SCREEN")
+    if string.find(result,' ') then
+        result = '"'..result..'"'
+    end
+    return result
+end)
+
+nyagos.bindkey("M_G" , function()
+    local result = nyagos.eval('git log --pretty="format:%h %s" | ' .. fzf.cmd .. " " .. fzf.args.gitlog)
+    return string.match(result,"^%S+") or ""
+end)
+
+use 'git'
+
+-- vim:set ft=lua: --

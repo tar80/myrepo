@@ -1,0 +1,326 @@
+# vim:textwidth=0:foldmarker=<<<,>>>:foldmethod=marker:foldlevel=1:
+
+## main <<<1
+[[plugins]]
+repo = "Shougo/ddc.vim"
+depends = ["context_filetype.vim", "denops.vim", "pum.vim"]
+on_event = "InsertEnter"
+hook_source = """
+  "@ global <<<2
+  call ddc#custom#patch_global('minKeywordLength', '2')
+  call ddc#custom#patch_global('completionMenu', 'pum.vim')
+  call ddc#custom#patch_global('backspaceCompletion', v:true)
+  call ddc#custom#patch_global('sourceOptions', {
+        \ '_': {
+          \ 'matchers': ['matcher_head'],
+          \ 'sorters': ['sorter_rank'],
+          \ 'ignoreCase': v:true,
+          \ 'converters': ['converter_remove_overlap'],
+          \ }})
+
+  let comp_sources = [
+        \ 'skkeleton',
+        \ 'vsnip',
+        \ 'around',
+        \ 'buffer',
+        \ 'vim-lsp',
+        \ 'file',
+        \ ]
+
+  call ddc#custom#patch_global(
+        \ 'sources', comp_sources
+        \ )
+
+  "@ filetype
+  call ddc#custom#patch_filetype(
+        \ ['javascript', 'PPxcfg', 'lua'], 'sources', extend(copy(comp_sources), ['dictionary'])
+        \ )
+
+  call ddc#custom#patch_filetype(
+        \ ['javascript'], {
+          \ 'sourceParams': {
+            \ 'dictionary': {
+              \ 'dictPaths': [
+                \ $MYREPO . '/vim/local/dict/javascript.dict',
+                \ $MYREPO . '/vim/local/dict/ppx.dict',
+                \ $MYREPO . '/vim/local/dict/xcfg.dict',
+                \ ],
+                \ }}}
+                \ )
+  call ddc#custom#patch_filetype(
+        \ ['lua'], {
+          \ 'sourceParams': {
+            \ 'dictionary': {
+              \ 'dictPaths': [$MYREPO . '/vim/local/dict/lua.dict'],
+              \ }}},
+              \ )
+  call ddc#custom#patch_filetype(
+        \ ['PPxcfg'], {
+          \ 'sourceParams': {
+            \ 'dictionary': {
+              \ 'dictPaths': [$MYREPO . '/vim/local/dict/xcfg.dict'],
+              \ }}},
+              \ )
+
+  "@ souses <<<2
+  let name = 'skkeleton'
+  call ddc#custom#patch_global({
+        \ 'sourceOptions': {name: {
+          \ 'mark': 'skkeleton',
+          \ 'matchers': ['skkeleton'],
+          \ 'sorters': [],
+          \ 'minAutoCompleteLength': 2,
+          \ }}
+        \ })
+
+  let name = 'vsnip'
+  call ddc#custom#patch_global({
+        \ 'sourceOptions': {name: {'mark': 'vsnip'}}
+        \ })
+
+  let name = 'vim-lsp'
+  call ddc#custom#patch_global({
+        \ 'sourceOptions': {name: {'mark': 'lsp'}}
+        \ })
+
+  let name = 'around'
+  call ddc#custom#patch_global({
+        \ 'sourceOptions': {name: {'mark': 'around'}},
+        \ 'sourceParams': {name: {'maxsize': 300}},
+        \ })
+
+  let name = 'buffer'
+  call ddc#custom#patch_global({
+        \ 'sourceOptions': {name: {'mark': 'B'}}
+        \ })
+
+  let name = 'file'
+  call ddc#custom#patch_global({
+        \ 'sourceOptions': {name: {
+          \ 'mark': 'File',
+          \ 'isVolatile': v:true,
+          \ }},
+          \ 'sourceParams': {name: {
+            \ 'disableMenu': v:true,
+            \ }},
+            \ })
+
+  let name = 'dictionary'
+  call ddc#custom#patch_global({
+        \ 'sourceOptions': {name: {'mark': 'Dict'}},
+        \ 'sourceParams': {name: {
+          \ 'smartCase': v:true,
+          \ 'showMenu': v:false,
+          \ }}
+          \ })
+
+  "@ Functions <<<2
+
+  function! s:ForceComplSlash() abort "<<<3
+    call ddc#custom#patch_buffer({
+          \ 'sourceOptions': {'file': {'forceCompletionPattern': '\S/\S*'}},
+          \ 'sourceParams': {'file': {'mode': 'posix' }}
+          \ })
+  endfunction
+
+  function! s:ForceComplBackslash() abort "<<<3
+    call ddc#custom#patch_buffer({
+          \ 'sourceOptions': {'file': {'forceCompletionPattern': '\S\\\S*'}},
+          \ 'sourceParams': {'file': {'mode': 'win31' }}
+          \ })
+  endfunction
+
+  function! s:ComplTabKey() abort "<<<3
+    let l:chr = strpart(getline('.'),col('.') -2, 1)
+    if l:chr ==# "/"
+      set csl =slash
+      call s:ForceComplSlash()
+    elseif l:chr ==# '\'
+      set csl =backslash
+      call s:ForceComplBackslash()
+    else
+      return "\<TAB>"
+    endif
+      " unlet l:chr
+      return "\<C-x>\<C-f>"
+  endfunction
+
+  function! s:ComplCr(key) abort "<<<3
+    "@ 単語と候補が同じ場合二回決定しないと補完されないので対策
+    let l:mapkey = "\<" . a:key . ">"
+
+    if !pum#visible()
+      call feedkeys(l:mapkey, "n")
+      return ''
+    endif
+
+    let info = g:pum#complete_info()
+    let word = info.items[info.selected].word
+    let word_len = strchars(word)
+    if word ==# strcharpart(getline('.'), col('.') - word_len -1 , word_len)
+      if (a:key !=# 'CR')
+        call pum#map#cancel()
+      else
+        call feedkeys(l:mapkey, "n")
+      endif
+
+      return ''
+    endif
+
+    call pum#map#confirm()
+    return ''
+  endfunction
+
+  function! s:ToggleShellslash() abort "<<<3
+    if &shellslash
+      echo '\' . 'noshellslash[ddc]' . '\'
+      setlocal noshellslash
+      call s:ForceComplBackslash()
+    else
+      echo '/shellslash[ddc]/'
+      setlocal shellslash
+      call s:ForceComplSlash()
+    endif
+    return ''
+  endfunction
+
+  "@ Maps <<<2
+
+  noremap  <expr> <F4> <SID>ToggleShellslash()
+  noremap! <expr> <F4> <SID>ToggleShellslash()
+
+  inoremap <silent> <expr> <C-n> pum#visible() ?
+        \ '<Cmd>call pum#map#insert_relative(+1)<CR>' : ddc#manual_complete()
+  inoremap <silent> <expr> <C-p> pum#visible() ?
+        \ '<Cmd>call pum#map#insert_relative(-1)<CR>' : ddc#manual_complete()
+
+  imap <silent><expr> <C-e> pum#visible() ? '<Cmd>call pum#map#cancel()<CR>' : '<C-e>'
+
+  if dein#is_available('vim-vsnip')
+    inoremap <C-y> <Cmd>execute <SID>ComplCr('C-y')<CR>
+    inoremap <CR> <Cmd>execute <SID>ComplCr('CR')<CR>
+  endif
+
+  inoremap <expr> <TAB> pum#visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' : <SID>ComplTabKey()
+  imap <expr> <S-TAB> pum#visible() ? '<Cmd>call pum#map#insert_relative(-1)<CR>' : '<C-h>'
+
+  call ddc#enable()
+"""
+
+## sources <<<1
+[[plugins]]
+repo = "Shougo/pum.vim"
+on_source = "ddc.vim"
+
+[[plugins]]
+repo = "Shougo/ddc-sorter_rank"
+on_source = "ddc.vim"
+
+[[plugins]]
+repo = "Shougo/ddc-matcher_head"
+on_source = "ddc.vim"
+
+[[plugins]]
+repo = "Shougo/ddc-around"
+on_source = "ddc.vim"
+
+[[plugins]]
+repo = "Shougo/ddc-converter_remove_overlap"
+on_source = "ddc.vim"
+
+[[plugins]]
+repo = "shun/ddc-vim-lsp"
+depends = "vim-lsp"
+on_source = "ddc.vim"
+
+[[plugins]]
+repo = "matsui54/ddc-buffer"
+on_source = "ddc.vim"
+
+[[plugins]]
+repo = "matsui54/ddc-dictionary"
+on_source = "ddc.vim"
+
+[[plugins]]
+repo = "LumaKernel/ddc-file"
+on_source = "ddc.vim"
+
+## vim-vsnip <<<1
+[[plugins]]
+repo = "hrsh7th/vim-vsnip"
+depends = ["ddc.vim", "vim-vsnip-integ"]
+on_event = ["InsertEnter", "CmdlineEnter"]
+hook_source = """
+  let g:vsnip_snippet_dir = $MYREPO . '\vim\.vsnip'
+  " let g:vsnip_namespace = ''
+
+
+  autocmd User PumCompleteDone call vsnip_integ#on_complete_done(g:pum#completed_item)
+
+
+  inoremap <C-j> <Cmd>execute <SID>ComplSnip(+1)<CR>
+  smap <expr> <C-j> vsnip#jumpable(+1) ? '<Plug>(vsnip-jump-next)' : '<DOWN>'
+  inoremap <C-k> <Cmd>execute <SID>ComplSnip(-1)<CR>
+  smap <expr> <C-k> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<UP>'
+  imap <expr> <C-y> <SID>ComplCr('c-y')
+  imap <expr> <CR>  <SID>ComplCr('CR')
+
+
+  function! s:ComplSnip(direction) abort "<<<2
+    if vsnip#available()
+      if vsnip#expandable()
+        call vsnip#expand()
+      else
+        if pum#visible()
+          call pum#map#confirm()
+        endif
+
+        let l:session = vsnip#get_session()
+        if !empty(l:session) && l:session.jumpable(a:direction)
+          call l:session.jump(a:direction)
+        endif
+      endif
+
+      call pum#map#cancel()
+      return ''
+    endif
+
+    if pum#visible()
+      call pum#map#select_relative(a:direction)
+      return ''
+    endif
+
+    let updown = (a:direction is 1) ? "\<DOWN>" : "\<UP>"
+    call feedkeys(updown)
+    return ''
+  endfunction
+
+  function! s:ComplCr(key) abort "<<<2
+    let l:mapkey = (a:key ==? 'CR') ? "\<Plug>(smartinput_CR)" : "\<C-y>"
+
+    if !pum#visible()
+      return l:mapkey
+    endif
+
+    let info = g:pum#complete_info()
+    let word = info.items[info.selected].word
+    let word_len = strchars(word)
+    let source = info.items[info.selected].__sourceName
+    if word ==# strcharpart(getline('.'), col('.') - word_len -1 , word_len)
+      call pum#map#confirm()
+      if source ==# 'vsnip'
+        return vsnip#expand()
+      endif
+
+      return (a:key ==? 'CR' ? l:mapkey : '')
+    endif
+
+    return pum#map#confirm()
+  endfunction
+"""
+
+## vim-vsnip-integ <<<1
+[[plugins]]
+repo = "hrsh7th/vim-vsnip-integ"
+on_sourse = "vim-vsnip"
+
