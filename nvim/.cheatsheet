@@ -1,0 +1,75 @@
+# tips
+範囲選択してg+<C-a>で連番
+g+<Ctrl+g> ファイル情報
+g; 前の履歴
+g, 次の履歴
+
+# oparetor
+if,af function-block
+i%,a% any-block
+
+# Quickfix
+cdo リストに対してコマンドを実行
+
+# SmartinputCommand
+eu8 open file encode utf8
+eu16 open file encode utf16
+gf GinaFlex
+gs gitsigns
+sc set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb
+scn set<Space>noscb
+dd diff
+dof diff off
+dor difforg
+ht hitest
+
+# openbrowser
+<C-w>/ ブラウザで開く
+
+# ctrlp
+<C-z> select multiline
+
+# normal
+\  operator-replace
+_  "0 + operator-replace
+<S-k> カーソル下単語ヘルプ
+gw{motion} 行整形
+<C-w>
+  i 識別子の宣言位置を開く
+  o 他のペインを削除
+  b 一番下のペインに移動
+  ] タグを開く
+  r ペイン位置をずらす
+  | 幅最大
+
+# insert
+<C-g>u undo区切り
+<C-r><C-o>{register} 矩形を崩さず貼り付け
+<C-r><C-w> カーソル下単語
+0<C-d> 字下げ削除
+^<C-d> 字下げ削除 改行の字下げ維持
+
+# cmdline
+:Z <query> zoxide query
+:L <cmd> 結果をバッファに出力
+:E <path> 親パスをカレントに設定しつつ編集
+:W git add
+:messages
+:vnew 新規縦開き
+:g/^/m0 reverse lines
+:v/str/d 含まない行を削除
+:argadd <file> バッファに追加
+:tabc タブページ閉じる
+
+# fold
+zf 作成
+zR 全開き
+zM 全閉じ
+zj 次の折畳
+zk 前の折畳
+[z 折畳の開始点
+]z 折畳の終点
+
+# help
+tab help  新規タブで開く
+helpg     検索してヘルプ

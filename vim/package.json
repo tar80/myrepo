@@ -1,0 +1,20 @@
+{
+  "name": "vim",
+  "version": "1.0.0",
+  "description": "linter formatter for vim",
+  "main": "index.js",
+  "author": "tar80",
+  "license": "MIT",
+  "devDependencies": {
+    "lua-fmt": "^2.6.0",
+    "markdownlint": "^0.25.1",
+    "markdownlint-cli": "^0.32.2",
+    "prettier": "^2.5.1"
+  },
+  "dependencies": {
+    "textlint": "^12.2.4",
+    "textlint-rule-preset-ja-technical-writing": "^7.0.0",
+    "textlint-rule-preset-japanese": "^7.0.0",
+    "textlint-rule-prh": "^5.3.0"
+  }
+}
