@@ -1,10 +1,10 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
--- #AutoGroup
+---#AutoGroup
 -- vim.api.nvim_create_augroup("rcGits", {})
 
--- ##AutoCommands {{{2
+---##AutoCommands {{{2
 -- vim.api.nvim_create_autocmd(
 -- "BufEnter",
 -- {
@@ -21,8 +21,8 @@
 -- }
 -- )
 
--- #GitSigns {{{1
-require("gitsigns").setup({
+---#GitSigns {{{1
+require('gitsigns').setup({
   update_debounce = vim.g.update_time,
   on_attach = function(bufnr)
     local gs = package.loaded.gitsigns
@@ -34,40 +34,40 @@ require("gitsigns").setup({
     end
 
     -- Navigation
-    map("n", "]c", function()
+    map('n', ']c', function()
       if vim.wo.diff then
-        return "]c"
+        return ']c'
       end
       vim.schedule(function()
         gs.next_hunk()
       end)
-      return "<Ignore>"
+      return '<Ignore>'
     end, { expr = true })
 
-    map("n", "[c", function()
+    map('n', '[c', function()
       if vim.wo.diff then
-        return "[c"
+        return '[c'
       end
       vim.schedule(function()
         gs.prev_hunk()
       end)
-      return "<Ignore>"
+      return '<Ignore>'
     end, { expr = true })
 
     -- Actions
-    map({ "n", "v" }, "gsa", ":Gitsigns stage_hunk<CR>")
-    map({ "n", "v" }, "gsu", ":Gitsigns reset_hunk<CR>")
-    map("n", "gsA", gs.stage_buffer)
-    map("n", "gsz", gs.undo_stage_hunk)
-    map("n", "gsU", gs.reset_buffer)
-    map("n", "gss", gs.preview_hunk)
-    map("n", "gsb", function()
+    map({ 'n', 'v' }, 'gsa', ':Gitsigns stage_hunk<CR>')
+    map({ 'n', 'v' }, 'gsr', ':Gitsigns reset_hunk<CR>')
+    map('n', 'gsA', gs.stage_buffer)
+    map('n', 'gsz', gs.undo_stage_hunk)
+    map('n', 'gsR', gs.reset_buffer)
+    map('n', 'gss', gs.preview_hunk)
+    map('n', 'gsb', function()
       gs.blame_line({ full = true })
     end)
-    map("n", "gsv", gs.toggle_current_line_blame)
+    map('n', 'gsv', gs.toggle_current_line_blame)
 
     -- Text object
-    map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>")
+    map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
   end,
 })
 --}}}1

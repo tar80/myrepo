@@ -22,3 +22,4 @@ end --}}}
 -- #Requires
 require("settings")
 require("plugins")
+-- require("packer")

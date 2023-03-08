@@ -105,6 +105,7 @@ if jetpack#tap('vim-operator-surround') "{{{2
   map <silent> <Leader>r <Plug>(operator-surround-replace)
   map <silent> <Leader>a <Plug>(operator-surround-append)
   map <silent> <Leader>d <Plug>(operator-surround-delete)
+  nmap <silent> <Leader>r <Plug>(operator-surround-replace)a
   nmap <silent> <Leader>i <Plug>(operator-surround-append)i
   nmap <silent> <Leader>a <Plug>(operator-surround-append)a
   nmap <silent> <Leader>d <Plug>(operator-surround-delete)a

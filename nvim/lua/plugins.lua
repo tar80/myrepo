@@ -1,171 +1,72 @@
 --- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 -------------------------------------------------------------------------------
 
-vim.opt.runtimepath:append({ "c:\\bin\\home\\.local\\share\\nvim-data\\site\\pack\\packer\\opt\\mug.nvim" })
+-- vim.pretty_print(vim.api.nvim_list_runtime_paths())
 -- #Variables
-vim.g.use_scheme = "mossco"
--- vim.g.did_load_filetypes = 1
--- vim.g.did_load_ftplugin = 1
-local PACKER_DIR = vim.fn.stdpath("data") .. "\\site\\pack\\packer\\opt\\packer.nvim"
-local packer_bootstrap
+vim.g.use_scheme = 'mossco'
+local LAZY_PATH = vim.fn.stdpath('data') .. '\\lazy\\lazy.nvim'
 
--- #AutoGroup
-vim.api.nvim_create_augroup("rcPacker", {})
-
--- ##AutoCommands {{{2
-if vim.fn.has("vim_starting") then
-  vim.defer_fn(function()
-    vim.api.nvim_command("doautocmd User LazyLoad")
-  end, 100)
-
-  vim.api.nvim_create_autocmd("User", {
-    group = "rcPacker",
-    pattern = "LazyLoad",
-    once = true,
-    callback = function()
-      vim.g.loaded_matchit = nil
-      require("config.lazyload")
-      -- require("module.repository").get_branch_stats(vim.fn.getcwd())
-    end,
+-- ##lazy.nvim bootstrap {{{2
+if not vim.loop.fs_stat(LAZY_PATH) then
+  vim.fn.system({
+    'git',
+    'clone',
+    '--filter=blob:none',
+    'https://github.com/folke/lazy.nvim.git',
+    '--branch=stable',
+    LAZY_PATH,
   })
 end
 
-vim.api.nvim_create_autocmd("BufWritePost", {
-  group = "rcPacker",
-  pattern = "plugins.lua",
-  command = "source <afile>|PackerCompile",
-})
+vim.opt.rtp:prepend(LAZY_PATH)
 
-vim.api.nvim_create_autocmd("User", {
-  group = "rcPacker",
-  pattern = "PackerCompileDone",
-  command = "echo 'PackerCompile Done'",
-})
---}}}2
+-- #AutoGroup
+vim.api.nvim_create_augroup('initLazy', {})
 
--- ##Packer install {{{2
-if vim.fn.empty(vim.fn.glob(PACKER_DIR)) > 0 then
-  packer_bootstrap =
-    vim.fn.system({ "git", "clone", "--depth", "1", "https://github.com/wbthomason/packer.nvim", PACKER_DIR })
+-- ##AutoCommand {{{2
+if vim.fn.has('vim_starting') then
+  vim.defer_fn(function()
+    vim.api.nvim_command('doautocmd User LazyLoad')
+  end, 100)
+
+  vim.api.nvim_create_autocmd('User', {
+    group = 'initLazy',
+    pattern = 'LazyLoad',
+    once = true,
+    callback = function()
+      vim.g.loaded_matchit = nil
+      require('config.lazyload')
+    end,
+  })
 end
 --}}}2
 
 -- #Plugins {{{1
-vim.api.nvim_command([[packadd packer.nvim]])
-
-return require("packer").startup({
-  function(use)
-    use({ "wbthomason/packer.nvim", opt = true })
-    -- use({
-    --   "j-hui/fidget.nvim",
-    --   config = function()
-    --     require("fidget").setup({
-    --       window = {
-    --         relative = "win", -- where to anchor, either "win" or "editor"
-    --         blend = 0, -- &winblend for the window
-    --         zindex = nil, -- the zindex value for the window
-    --         border = "none", -- style of border for the fidget window
-    --       },
-    --     })
-    --   end,
-    --   event = "UIEnter",
-    -- })
-    use({
-      "delphinus/cellwidths.nvim",
+require('lazy').setup(
+  {
+    { -- plugins {{{2
+      'delphinus/cellwidths.nvim',
       config = function()
-        require("cellwidths").setup({
-          -- log_levet = "DEBUG",
-          name = "user/custom",
+        require('cellwidths').setup({
+          -- log_level = "DEBUG",
+          name = 'user/custom',
           fallback = function(cw)
-            cw.load("cica")
+            cw.load('cica')
             cw.add({
               { 0xF000, 0xFD46, 2 },
             })
           end,
         })
       end,
-      run = function()
-        require("cellwidths").remove()
+      build = function()
+        require('cellwidths').remove()
       end,
-    })
-    use({
-      "c:/bin/repository/tar80/mug.nvim",
-      setup = function()
-        require("mug").setup({
-          mkrepo = true,
-          commit = true,
-          diff = true,
-          variables = {
-            commit_notation = "conventional",
-          },
-        })
-      end,
-    })
-    use({ "tar80/mossco.nvim", opt = true })
-    use({
-      "feline-nvim/feline.nvim",
-      wants = "mossco.nvim",
-      config = [[require("config.indicate")]],
-      event = "UIEnter",
-    })
-    use({ "nvim-lua/plenary.nvim", module = "plenary" })
-    use({ "williamboman/mason-lspconfig.nvim", module = "mason-lspconfig" })
-    use({
-      "williamboman/mason.nvim",
-      opt = true,
-      config = function()
-        require("mason").setup({
-          ui = {
-            border = "single",
-            icons = {
-              package_installed = "🟢",
-              package_pending = "🟠",
-              package_uninstalled = "🔘",
-            },
-            keymaps = { apply_language_filter = "<NOP>" },
-          },
-          -- install_root_dir = path.concat { vim.fn.stdpath "data", "mason" },
-          pip = { install_args = {} },
-          -- log_level = vim.log.levels.INFO,
-          -- max_concurrent_installers = 4,
-          github = {},
-        })
-      end,
-    })
-    use({
-      "jose-elias-alvarez/null-ls.nvim",
-      opt = true,
-    })
-    use({
-      "neovim/nvim-lspconfig",
-      wants = { "mason.nvim", "null-ls.nvim", "cmp-nvim-lsp" },
-      config = [[require("config.lsp")]],
-      event = "UIEnter",
-    })
-    use({
-      "nvim-treesitter/nvim-treesitter",
-      module = "nvim-treesitter",
-      run = ":TSUpdate",
-      config = [[require('config.ts')]],
-      event = "UIEnter",
-    })
-    use({
-      "nvim-treesitter/nvim-treesitter-textobjects",
-      config = [[require('config.ts_textobj')]],
-      event = "User LazyLoad",
-    })
-    use({
-      "nvim-telescope/telescope.nvim",
-      tag = "0.1.0",
-      wants = { "nvim-cmp", "vim-smartinput" },
-      config = [[require('config.finder')]],
-      cmd = { "Telescope" },
-      keys = { { "n", "<Leader>" }, { "n", "gl" } },
-    })
-    -- use({
+    },
+    { 'nvim-lua/plenary.nvim', lazy = true },
+    -- {
     --   "rcarriga/nvim-notify",
     --   event = "User LazyLoad",
-    --   wants = { "telescope.nvim" },
+    --   dependencies = { "telescope.nvim" },
     --   config = function()
     --     vim.notify = require("notify")
     --     require("notify").setup({
@@ -178,55 +79,151 @@ return require("packer").startup({
     --       -- stages = "slide",
     --     })
     --   end,
-    -- })
-    use({ "kana/vim-smartword", event = "User LazyLoad" })
-    use({ "tar80/nvim-select-multi-line", branch = "tar80", event = "User LazyLoad" })
-    use({
-      "numToStr/Comment.nvim",
+    -- },
+    { dir = 'C:/bin/temp/edita.vim' },
+    { dir = 'C:/bin/repository/tar80/mossco.nvim', lazy = true },
+    {
+      dir = 'C:/bin/repository/tar80/mug.nvim',
       config = function()
-        require("Comment").setup({ ignore = "^$" })
+        require('mug').setup({
+          commit = true,
+          conflict = true,
+          diff = true,
+          files = true,
+          index = true,
+          merge = true,
+          show = true,
+          mkrepo = true,
+          variables = {
+            edit_command = 'E',
+            file_command = 'F',
+            write_command = 'W',
+            commit_notation = 'conventional',
+            remote_url = 'git@github.com:tar80',
+            diff_position = 'right',
+          },
+        })
       end,
-      event = "User LazyLoad",
-    })
-    use({
-      "vim-denops/denops.vim",
-      requires = {
-        { "yuki-yano/fuzzy-motion.vim", opt = true },
-        { "vim-skk/skkeleton", opt = true },
+      event = 'UIEnter',
+    },
+    {
+      'feline-nvim/feline.nvim',
+      dependencies = { 'tar80/mossco.nvim' },
+      config = function()
+        require('config.indicate')
+      end,
+      event = 'UIEnter',
+    },
+    { 'williamboman/mason-lspconfig.nvim', lazy = true },
+    {
+      'williamboman/mason.nvim',
+      lazy = true,
+      config = function()
+        require('mason').setup({
+          ui = {
+            border = 'single',
+            icons = {
+              package_installed = '🟢',
+              package_pending = '🟠',
+              package_uninstalled = '🔘',
+            },
+            keymaps = { apply_language_filter = '<NOP>' },
+          },
+          -- install_root_dir = path.concat { vim.fn.stdpath "data", "mason" },
+          pip = { install_args = {} },
+          -- log_level = vim.log.levels.INFO,
+          -- max_concurrent_installers = 4,
+          github = {},
+        })
+      end,
+    },
+    {
+      'jose-elias-alvarez/null-ls.nvim',
+      lazy = true,
+    },
+    {
+      'neovim/nvim-lspconfig',
+      dependencies = { 'williamboman/mason.nvim', 'jose-elias-alvarez/null-ls.nvim', 'hrsh7th/cmp-nvim-lsp' },
+      config = function()
+        require('config.lsp')
+      end,
+      event = 'UIEnter',
+    },
+    {
+      'nvim-treesitter/nvim-treesitter',
+      build = ':TSUpdate',
+      config = function()
+        require('config.ts')
+      end,
+      event = 'UIEnter',
+    },
+    {
+      'nvim-treesitter/nvim-treesitter-textobjects',
+      config = function()
+        require('config.ts_textobj')
+      end,
+      event = 'User LazyLoad',
+    },
+    {
+      'nvim-telescope/telescope.nvim',
+      tag = '0.1.0',
+      dependencies = { 'hrsh7th/nvim-cmp', 'kana/vim-smartinput' },
+      config = function()
+        require('config.finder')
+      end,
+      cmd = 'Telescope',
+      keys = { '<Leader>', 'gl' },
+    },
+    { 'kana/vim-smartword', event = 'User LazyLoad' },
+    {
+      dir = 'C:/bin/repository/tar80/nvim-select-multi-line',
+      branch = 'tar80',
+      event = 'User LazyLoad',
+    },
+    {
+      'numToStr/Comment.nvim',
+      config = function()
+        require('Comment').setup({ ignore = '^$' })
+      end,
+      event = 'User LazyLoad',
+    },
+    -- 'lambdalisue/guise.vim',
+    {
+      'vim-denops/denops.vim',
+      dependencies = {
+        'yuki-yano/fuzzy-motion.vim',
+        'vim-skk/skkeleton',
       },
-      wants = { "fuzzy-motion.vim", "skkeleton" },
-      setup = function()
+      init = function()
         vim.g.denops_disable_version_check = 1
       end,
       config = function()
-        require("config.denos")
+        require('config.denos')
       end,
-      event = { "User LazyLoad" },
-    })
-    use({
-      "lewis6991/gitsigns.nvim",
+      event = 'User LazyLoad',
+    },
+    {
+      'lewis6991/gitsigns.nvim',
       -- config = [[require('config.gits')]],
-      event = { "CursorMoved" },
-    })
-    use({ "hrsh7th/vim-eft", event = "User LazyLoad" })
-    use({
-      "hrsh7th/nvim-cmp",
-      modele = "cmp",
-      requires = {
-        "hrsh7th/cmp-nvim-lsp",
-        { "hrsh7th/vim-vsnip", after = "nvim-cmp" },
-        { "hrsh7th/cmp-vsnip", after = "nvim-cmp" },
-        { "hrsh7th/cmp-buffer", after = "nvim-cmp" },
-        { "hrsh7th/cmp-path", after = "nvim-cmp" },
-        { "hrsh7th/cmp-cmdline", after = "nvim-cmp" },
+      event = 'CursorMoved',
+    },
+    { 'hrsh7th/vim-eft', event = 'User LazyLoad' },
+    {
+      'hrsh7th/nvim-cmp',
+      dependencies = {
+        'hrsh7th/cmp-nvim-lsp',
+        'hrsh7th/vim-vsnip',
+        'hrsh7th/cmp-vsnip',
+        'hrsh7th/cmp-buffer',
+        'hrsh7th/cmp-path',
+        'hrsh7th/cmp-cmdline',
         {
-          "uga-rosa/cmp-dictionary",
-          after = "nvim-cmp",
+          'uga-rosa/cmp-dictionary',
           config = function()
-            require("cmp_dictionary").setup({
+            require('cmp_dictionary').setup({
               dic = {
-                ["javascript"] = { vim.g.repo .. "/myrepo/nvim/after/dict/ppx.dict" },
-                ["PPxcfg"] = { vim.g.repo .. "/myrepo/nvim/after/dict/xcfg.dict" },
+                ['javascript'] = { vim.g.repo .. '/myrepo/nvim/after/dict/ppx.dict' },
+                ['PPxcfg'] = { vim.g.repo .. '/myrepo/nvim/after/dict/xcfg.dict' },
               },
               -- exact = 2,
               first_case_insensitive = true,
@@ -234,107 +231,141 @@ return require("packer").startup({
               max_items = -1,
               capacity = 5,
             })
-            require("cmp_dictionary").update()
+            require('cmp_dictionary').update()
           end,
         },
-        opt = 1,
       },
       config = function()
-        require("config.completion")
+        require('config.comp')
       end,
-      event = { "CursorMoved", "InsertEnter", "CmdlineEnter" },
-    })
-    use({ "kana/vim-operator-user", fn = "operator#user#define" })
-    use({ "kana/vim-operator-replace", event = "User LazyLoad" })
-    use({ "rhysd/vim-operator-surround", event = "CursorMoved" })
-    use({
-      "kana/vim-smartinput",
+      event = { 'CursorMoved', 'InsertEnter', 'CmdlineEnter' },
+    },
+    {
+      'kana/vim-operator-user',
+      dependencies = {
+        { 'kana/vim-operator-replace' },
+        { 'rhysd/vim-operator-surround' },
+      },
+      event = 'VeryLazy',
+    },
+    {
+      'kana/vim-smartinput',
       config = function()
-        require("config.input")
+        require('config.input')
       end,
-      event = { "InsertEnter", "CmdlineEnter" },
-    })
-    use({
-      "tar80/vim-parenmatch",
+      event = { 'InsertEnter', 'CmdlineEnter' },
+    },
+    {
+      dir = 'C:/bin/repository/tar80/vim-parenmatch',
       config = function()
-        require("parenmatch").setup({
-          highlight = { fg = "#D6B87B", underline = true },
-          ignore_filetypes = { "TelescopePrompt", "cmp-menu", "help" },
-          ignore_buftypes = { "nofile" },
-          itmatch = {
-            enable = true,
-          },
+        require('parenmatch').setup({
+          highlight = { fg = '#D6B87B', underline = true },
+          ignore_filetypes = { 'TelescopePrompt', 'cmp-menu', 'help' },
+          ignore_buftypes = { 'nofile' },
+          itmatch = { enable = true },
         })
       end,
-      event = "CursorMoved",
-    })
-    use({
-      "uga-rosa/translate.nvim",
-      cmd = { "Translate" },
-    })
-    use({
-      "tversteeg/registers.nvim",
+      event = 'CursorMoved',
+    },
+    {
+      'uga-rosa/translate.nvim',
+      cmd = 'Translate',
+    },
+    {
+      'tversteeg/registers.nvim',
       config = function()
-        local registers = require("registers")
+        local registers = require('registers')
         registers.setup({
           show_empty = false,
           register_user_command = false,
           system_clipboard = false,
           show_register_types = false,
-          symbols = { tab = "~" },
+          symbols = { tab = '~' },
           bind_keys = {
             registers = registers.apply_register({ delay = 0.1 }),
             normal = registers.show_window({
-              mode = "motion",
+              mode = 'motion',
               delay = 0.5,
             }),
             insert = registers.show_window({
-              mode = "insert",
+              mode = 'insert',
               delay = 0.5,
             }),
           },
           window = {
             max_width = 100,
             highlight_cursorline = true,
-            border = "rounded",
+            border = 'rounded',
             transparency = 9,
           },
         })
       end,
-      keys = { { "n", '"' }, { "i", "<c-r>" } },
-    })
-    use({ "rhysd/conflict-marker.vim" })
-    use({
-      "cohama/agit.vim",
-      setup = function()
-        vim.g.agit_no_default_mappings = 0
-        vim.g.agit_enable_auto_show_commit = 0
-      end,
-      cmd = { "Agit", "Agitfile" },
-    })
-    use({ "bfredl/nvim-luadev", cmd = "Luadev" })
-    use({ "tyru/open-browser.vim", fn = "openbrowser#_keymap_smart_search" })
-    use({
-      "sindrets/diffview.nvim",
-      cmd = { "DiffviewOpen", "DiffviewLog", "DiffviewFocusFiles", "DiffviewFileHistory" },
-    })
-    use({ "mbbill/undotree", fn = "undotree#UndotreeToggle" })
-    use({ "norcalli/nvim-colorizer.lua", cmd = "Colorizer" })
-    use({ "weilbith/nvim-code-action-menu", cmd = "CodeActionMenu" })
-    use({ "vim-jp/vimdoc-ja" })
-    use({ "tar80/vim-PPxcfg", ft = "cfg" })
-
-    if packer_bootstrap then
-      require("packer").sync()
-    end
-  end,
-  config = {
-    profile = {
-      enable = true,
-      threshold = 1,
+      keys = { '"', { '<c-r>', mode = 'i' } },
     },
-    display = {
-      open_fn = require("packer.util").float,
+    -- {
+    --   'cohama/agit.vim',
+    --   setup = function()
+    --     vim.g.agit_no_default_mappings = 0
+    --     vim.g.agit_enable_auto_show_commit = 0
+    --   end,
+    --   cmd = { 'Agit', 'Agitfile' },
+    -- },
+    { 'bfredl/nvim-luadev', cmd = 'Luadev' },
+    { 'tyru/open-browser.vim', key = { '<Space>/', { '<Space>/', 'x' } } },
+    {
+      'sindrets/diffview.nvim',
+      cmd = { 'DiffviewOpen', 'DiffviewLog', 'DiffviewFocusFiles', 'DiffviewFileHistory' },
     },
+    { 'mbbill/undotree', key = '<F7>' },
+    { 'norcalli/nvim-colorizer.lua', cmd = 'Colorizer' },
+    { 'weilbith/nvim-code-action-menu', cmd = 'CodeActionMenu' },
+    { 'vim-jp/vimdoc-ja' },
+    { 'tar80/vim-PPxcfg', ft = 'cfg' },
   },
-})
+  { -- options {{{2
+    ui = {
+      size = { width = 0.8, height = 0.8 },
+      wrap = true,
+      border = 'single',
+      icons = {
+        cmd = '',
+        config = '',
+        event = '',
+        ft = '',
+        init = '',
+        import = '',
+        keys = ' ',
+        lazy = '',
+        loaded = '●',
+        not_loaded = '○',
+        plugin = '',
+        runtime = '',
+        source = '',
+        start = '',
+        task = '✔',
+        list = {
+          '●',
+          '➜',
+          '★',
+          '‒',
+        },
+      },
+    },
+    performance = {
+      rtp = {
+        reset = true,
+        paths = {},
+        disabled_plugins = {
+          'gzip',
+          'matchit',
+          'matchparen',
+          'netrwPlugin',
+          'tarPlugin',
+          'tohtml',
+          'tutor',
+          'zipPlugin',
+        },
+      },
+    },
+  } ---}}}2
+)

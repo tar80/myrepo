@@ -22,7 +22,7 @@
     "body": [
       "function! s:$1($2) abort \"{{{2",
       "\t$3",
-      "endfunction "}}}2,
+      "endfunction \"}}}2",
       "\n$0"
     ]
   },

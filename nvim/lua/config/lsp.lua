@@ -1,21 +1,50 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
--- #AUTOGROUP
-vim.api.nvim_create_augroup("rcLsp", {})
+---#AUTOGROUP
+vim.api.nvim_create_augroup('rcLsp', {})
 
--- #FUNCTIONS
--- Credit:This code from https://github.com/tamton-aquib/essentials.nvim
----- VScode like rename function
+---#FUNCTIONS
+---VScode like rename function
 local popup_rename = function()
-  local rename_old = vim.fn.expand("<cword>")
-  if vim.lsp.buf.server_ready() == true then
-    require("module.util").ui_input({ width = 25, default = rename_old }, function(input)
-      vim.lsp.buf.rename(vim.trim(input))
-      vim.notify(rename_old .. " -> " .. input, 2, { title = "LSP-rename" })
-    end)
+  local util = require('module.util')
+  local title = 'Lsp-rename'
+  local adjust_cursor = util.getchr():match('[^%w]')
+
+  if adjust_cursor then
+    vim.api.nvim_command('normal h')
+  end
+
+  local rename_old = vim.fn.expand('<cword>')
+
+  if adjust_cursor or not util.has_words_before() then
+    vim.api.nvim_command('normal l')
+  end
+
+  if vim.lsp.buf.server_ready() then
+    local contents = function()
+      return rename_old
+    end
+
+    local post = function()
+      vim.keymap.set('i', '<CR>', function()
+        local input = vim.api.nvim_get_current_line()
+        vim.api.nvim_command('quit|stopinsert!')
+        vim.lsp.buf.rename(vim.trim(input))
+        vim.notify(rename_old .. ' -> ' .. input, 2, { title = title })
+      end, { buffer = true })
+    end
+
+    require('mug.module.float').input({
+      title = title,
+      width = 25,
+      border = 'single',
+      relative = 'cursor',
+      contents = contents,
+      post = post,
+    })
   else
-    vim.notify("LSP Not ready yet!", 3, { title = "LSP-rename" })
+    vim.notify('LSP Not ready yet!', 3, { title = title })
   end
 end
 
@@ -25,72 +54,72 @@ vim.diagnostic.config({
   severity_sort = true,
   float = {
     focusable = true,
-    style = "minimal",
-    border = "single",
-    source = "always",
-    header = "",
-    prefix = "",
+    style = 'minimal',
+    border = 'single',
+    source = 'always',
+    header = '',
+    prefix = '',
   },
   signs = true,
   update_in_insert = false,
 })
-local signs = { Error = "", Warn = "", Hint = "", Info = "" }
+local signs = { Error = '', Warn = '', Hint = '', Info = '' }
 for type, icon in pairs(signs) do
-  local hl = "DiagnosticSign" .. type
-  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "NONE" })
+  local hl = 'DiagnosticSign' .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = 'NONE' })
 end
 
--- vim.lsp.set_log_level("OFF")
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "single" })
-vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "single" })
+vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'single' })
+vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'single' })
 
 -- #KEYMAPS {{{1
 -- vim.keymap.set("n", "gle", "<Cmd>lua vim.diagnostic.open_float(0,{border='rounded'})<CR>")
-vim.keymap.set("n", "glv", function()
+vim.keymap.set('n', 'glv', function()
   local vt_set = not vim.diagnostic.config().virtual_text
   vim.diagnostic.config({ virtual_text = vt_set })
 end)
-vim.keymap.set("n", "]d", "<Cmd>lua vim.diagnostic.goto_next()<CR>")
-vim.keymap.set("n", "[d", "<Cmd>lua vim.diagnostic.goto_prev()<CR>")
+vim.keymap.set('n', ']d', '<Cmd>lua vim.diagnostic.goto_next()<CR>')
+vim.keymap.set('n', '[d', '<Cmd>lua vim.diagnostic.goto_prev()<CR>')
 
 local on_attach = function(client, bufnr)
-  vim.keymap.set("n", "gD", vim.lsp.buf.declaration)
-  vim.keymap.set("n", "gd", vim.lsp.buf.definition)
-  vim.keymap.set("n", "glh", vim.lsp.buf.signature_help)
-  vim.keymap.set("n", "gll", vim.lsp.buf.hover)
+  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration)
+  vim.keymap.set('n', 'gd', vim.lsp.buf.definition)
+  vim.keymap.set('n', 'glh', vim.lsp.buf.signature_help)
+  vim.keymap.set('n', 'gll', vim.lsp.buf.hover)
   -- vim.keymap.set("n", "gli", vim.lsp.buf.implementation)
   -- vim.keymap.set("n", "glk", vim.lsp.buf.type_definition)
-  vim.keymap.set("n", "glr", function()
+  vim.keymap.set('n', 'glr', function()
     -- vim.lsp.buf.rename()
     popup_rename()
   end)
-  vim.keymap.set("n", "gla", "<Cmd>CodeActionMenu<CR>")
+  vim.keymap.set('n', 'gla', '<Cmd>CodeActionMenu<CR>')
   -- vim.keymap.set("n", "glj", vim.lsp.buf.references)
-  vim.keymap.set("n", "glf", function(bufnr)
+  vim.keymap.set('n', 'glf', function(bufnr)
     vim.lsp.buf.format({
       filter = function(client)
-        return client.name == "null-ls"
+        return client.name == 'null-ls'
       end,
       bufnr = bufnr,
     })
   end)
-  vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
-  -- ##Under cursor Symbol highlight -- {{{2
-  vim.api.nvim_create_autocmd({ "CursorHold" }, {
-    group = "rcLsp",
+  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+  ---##Under cursor Symbol highlight -- {{{2
+  vim.api.nvim_create_autocmd({ 'CursorHold' }, {
+    group = 'rcLsp',
     buffer = 0,
     callback = function()
-      if vim.lsp.buf.server_ready() == false then
+      if client.config.root_dir ~= vim.fs.normalize(vim.loop.cwd()) then
         return
       end
       vim.lsp.buf.document_highlight()
     end,
   })
-  vim.api.nvim_create_autocmd({ "CursorMoved" }, {
-    group = "rcLsp",
+  vim.api.nvim_create_autocmd({ 'CursorMoved' }, {
+    group = 'rcLsp',
     buffer = 0,
     callback = function()
-      if vim.lsp.buf.server_ready() == false then
+      -- if vim.lsp.buf.server_ready() == false and client.config.root_dir ~= vim.fs.normalize(vim.fn.getcwd()) then
+      if client.config.root_dir ~= vim.fs.normalize(vim.loop.cwd()) then
         return
       end
       vim.lsp.buf.clear_references()
@@ -108,11 +137,11 @@ local flags = {
   allow_incremental_sync = false,
   debounce_text_changes = 700,
 }
-local capabilities = require("cmp_nvim_lsp").default_capabilities()
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
-require("mason-lspconfig").setup_handlers({
+require('mason-lspconfig').setup_handlers({
   function(server_name)
-    require("lspconfig")[server_name].setup({
+    require('lspconfig')[server_name].setup({
       flags = flags,
       on_attach = function(client, bufnr)
         on_attach(client, bufnr)
@@ -120,20 +149,20 @@ require("mason-lspconfig").setup_handlers({
       capabilities = capabilities,
     })
   end,
-  ["denols"] = function()
-    require("lspconfig")["denols"].setup({
+  ['denols'] = function()
+    require('lspconfig')['denols'].setup({
       flags = flags,
-      root_dir = require("lspconfig").util.root_pattern("deno.json", "deno.jsonc"),
+      root_dir = require('lspconfig').util.root_pattern('deno.json', 'deno.jsonc'),
       on_attach = function(client, bufnr)
         on_attach(client, bufnr)
       end,
       capabilities = capabilities,
     })
   end,
-  ["sumneko_lua"] = function()
-    require("lspconfig").sumneko_lua.setup({
+  ['lua_ls'] = function()
+    require('lspconfig').lua_ls.setup({
       flags = flags,
-      root_dir = require("lspconfig").util.root_pattern(".git"),
+      root_dir = require('lspconfig').util.root_pattern('.git'),
       -- single_file_support = false,
       on_attach = function(client, bufnr)
         on_attach(client, bufnr)
@@ -143,14 +172,17 @@ require("mason-lspconfig").setup_handlers({
         Lua = {
           completion = {
             enable = true,
-            showWord = "Disable",
+            showWord = 'Disable',
           },
           runtime = {
-            version = "LuaJIT",
+            version = 'LuaJIT',
           },
           diagnostics = {
-            globals = { "vim", "nyagos", "packer_plugins", "describe", "it", "before_each", "after_each" },
+            globals = { 'vim', 'nyagos', 'packer_plugins', 'describe', 'it', 'before_each', 'after_each' },
           },
+          -- workspace = {
+          --   library = vim.api.nvim_get_runtime_file("", true),
+          -- },
           telemetry = {
             enable = false,
           },
@@ -160,7 +192,7 @@ require("mason-lspconfig").setup_handlers({
   end,
 })
 
-local null_ls = require("null-ls")
+local null_ls = require('null-ls')
 null_ls.setup({
   sources = {
     null_ls.builtins.formatting.prettier,
@@ -169,4 +201,4 @@ null_ls.setup({
   },
 })
 
-vim.api.nvim_command("LspStart")
+vim.api.nvim_command('LspStart')

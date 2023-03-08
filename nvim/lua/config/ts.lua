@@ -2,23 +2,23 @@
 --------------------------------------------------------------------------------
 
 -- ##Treesitter
-require("nvim-treesitter.configs").setup({
+require('nvim-treesitter.configs').setup({
   -- ensure_installed = {"lua", "javascript", "markdown"},
   sync_install = false,
   auto_install = false,
-  ignore_install = { "help", "text" },
+  ignore_install = { 'help', 'text' },
   highlight = {
     enable = true,
-    disable = { "help", "text" },
+    disable = { 'help', 'text' },
     additional_vim_regex_highlighting = false,
   },
   incremental_selection = {
     enable = true,
     keymaps = {
-      init_selection = "<CR>",
-      node_incremental = "<Leader>n",
-      node_decremental = "<Leader>m",
-      scope_incremental = "<CR>",
+      init_selection = '<Space><CR>',
+      node_incremental = '<Leader>n',
+      node_decremental = '<Leader>m',
+      scope_incremental = '<Space><CR>',
     },
   },
 })

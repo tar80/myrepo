@@ -1,27 +1,27 @@
 local dirname = function(p)
-  return vim.fn.fnamemodify(p, ":h")
+  return vim.fn.fnamemodify(p, ':h')
 end
 
 local function get_trace(element, level, msg)
   local function trimTrace(info)
-    local index = info.traceback:find("\n%s*%[C]")
+    local index = info.traceback:find('\n%s*%[C]')
     info.traceback = info.traceback:sub(1, index)
     return info
   end
   level = level or 3
 
-  local thisdir = dirname(debug.getinfo(1, "Sl").source, ":h")
-  local info = debug.getinfo(level, "Sl")
+  local thisdir = dirname(debug.getinfo(1, 'Sl').source, ':h')
+  local info = debug.getinfo(level, 'Sl')
   while
-    info.what == "C"
-    or info.short_src:match("luassert[/\\].*%.lua$")
-    or (info.source:sub(1, 1) == "@" and thisdir == dirname(info.source))
+    info.what == 'C'
+    or info.short_src:match('luassert[/\\].*%.lua$')
+    or (info.source:sub(1, 1) == '@' and thisdir == dirname(info.source))
   do
     level = level + 1
-    info = debug.getinfo(level, "Sl")
+    info = debug.getinfo(level, 'Sl')
   end
 
-  info.traceback = debug.traceback("", level)
+  info.traceback = debug.traceback('', level)
   info.message = msg
 
   -- local file = busted.getFile(element)
@@ -29,7 +29,7 @@ local function get_trace(element, level, msg)
   return file and file.getTrace(file.name, info) or trimTrace(info)
 end
 
-local is_headless = require("plenary.nvim_meta").is_headless
+local is_headless = require('plenary.nvim_meta').is_headless
 
 local mod = {}
 
@@ -65,7 +65,7 @@ local call_inner = function(desc, func)
     -- debug.traceback
     -- return vim.inspect(get_trace(nil, 3, msg))
     local trace = get_trace(nil, 3, msg)
-    return trace.message .. "\n" .. trace.traceback
+    return trace.message .. '\n' .. trace.traceback
   end)
   clear_last_each()
   pop_description()
@@ -73,11 +73,11 @@ local call_inner = function(desc, func)
   return ok, msg, desc_stack
 end
 
-local HEADER = string.rep("=", 40)
+local HEADER = string.rep('=', 40)
 
 mod.format_results = function(res)
-  print("")
-  print("Success: " .. #res.pass .. ", Failed: " .. #res.fail .. ", Errors: " .. #res.errs)
+  print('')
+  print('Success: ' .. #res.pass .. ', Failed: ' .. #res.fail .. ', Errors: ' .. #res.errs)
   print(HEADER)
 end
 
@@ -126,14 +126,14 @@ local indent = function(msg, spaces)
     spaces = 4
   end
 
-  local prefix = string.rep(" ", spaces)
-  return prefix .. msg:gsub("\n", "\n" .. prefix)
+  local prefix = string.rep(' ', spaces)
+  return prefix .. msg:gsub('\n', '\n' .. prefix)
 end
 
 local run_each = function(tbl)
   for _, v in pairs(tbl) do
     for _, w in ipairs(v) do
-      if type(w) == "function" then
+      if type(w) == 'function' then
         w()
       end
     end
@@ -158,11 +158,11 @@ mod.it = function(desc, func)
     to_insert = results.fail
     test_result.msg = msg
 
-    print("[Fail]   " .. table.concat(test_result.descriptions, ": "))
+    print('[Fail]   ' .. table.concat(test_result.descriptions, ': '))
     print(indent(msg, 12))
   else
     to_insert = results.pass
-    print("[Success]   " .. table.concat(test_result.descriptions, ": "))
+    print('[Success]   ' .. table.concat(test_result.descriptions, ': '))
   end
 
   table.insert(to_insert, test_result)
@@ -171,7 +171,7 @@ end
 mod.pending = function(desc, func)
   local curr_stack = vim.deepcopy(current_description)
   table.insert(curr_stack, desc)
-  print("[Pending]   " .. table.concat(curr_stack, " "))
+  print('[Pending]   ' .. table.concat(curr_stack, ' '))
 end
 
 _PlenaryBustedOldAssert = _PlenaryBustedOldAssert or assert
@@ -182,21 +182,21 @@ pending = mod.pending
 before_each = mod.before_each
 after_each = mod.after_each
 clear = mod.clear
-assert = require("luassert")
+assert = require('luassert')
 
 mod.run = function(file)
   results = {}
-  print("Testing:   ", file)
+  print('Testing:   ', file)
 
   local ok, msg = pcall(dofile, file)
 
   if not ok then
     print(HEADER)
-    print("FAILED TO LOAD FILE")
+    print('FAILED TO LOAD FILE')
     print(msg)
     print(HEADER)
     if is_headless then
-      return vim.cmd("2cq")
+      return vim.cmd('2cq')
     else
       return
     end
@@ -205,7 +205,7 @@ mod.run = function(file)
   -- If nothing runs (empty file without top level describe)
   if not results.pass then
     if is_headless then
-      return vim.cmd("0cq")
+      return vim.cmd('0cq')
     else
       return
     end
@@ -214,19 +214,19 @@ mod.run = function(file)
   mod.format_results(results)
 
   if #results.errs ~= 0 then
-    print("We had an unexpected error: ", vim.inspect(results.errs), vim.inspect(results))
+    print('We had an unexpected error: ', vim.inspect(results.errs), vim.inspect(results))
     if is_headless then
-      return vim.cmd("2cq")
+      return vim.cmd('2cq')
     end
   elseif #results.fail > 0 then
-    print("Tests Failed. Exit: 1")
+    print('Tests Failed. Exit: 1')
 
     if is_headless then
-      return vim.cmd("1cq")
+      return vim.cmd('1cq')
     end
   else
     if is_headless then
-      return vim.cmd("0cq")
+      return vim.cmd('0cq')
     end
   end
 end

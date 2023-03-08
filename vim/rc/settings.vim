@@ -50,7 +50,7 @@ set diffopt=vertical,filler,iwhite,iwhiteeol,closeoff,indent-heuristic,algorithm
 " set browsedir=buffer
 set nobackup
 set noswapfile
-set noundofile
+set undofile
 set undodir=$HOME/.cache/undolog
 set history=300
 set gdefault
