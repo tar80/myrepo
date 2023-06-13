@@ -8,7 +8,7 @@ end
 
 M.has_words_before = function()
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0 and vim.api.nvim_buf_get_lines(0, row - 1, row, true)[1]:sub(col, col):match("[^%w]") == nil
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, row - 1, row, true)[1]:sub(col, col):match('[^%w]') == nil
 end
 
 M.feedkey = function(key, mode)
@@ -18,15 +18,20 @@ end
 M.hl_at_cursor = function()
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
   col = col + 1
-  local hl_name = "(vim-syntax)" .. vim.fn.synIDattr(vim.fn.synIDtrans(vim.fn.synID(row, col, 2)), "name")
+  local hl_name = '(vim-syntax)' .. vim.fn.synIDattr(vim.fn.synIDtrans(vim.fn.synID(row, col, 2)), 'name')
 
   if not hl_name == '' then
     --[[
     -- This code from https://github.com/nvim-treesitter/playground/blob/master/lua/nvim-treesitter-playground/utils.lua
     -- under the Apatch license 2.0
     ]]
-    local ts_utils = require("nvim-treesitter.ts_utils")
-    local highlighter = require("vim.treesitter.highlighter")
+    if not package.loaded['nvim-treesitter'] then
+      vim.notify('treesitter is not loaded', 3)
+      return
+    end
+
+    local ts_utils = require('nvim-treesitter.ts_utils')
+    local highlighter = require('vim.treesitter.highlighter')
 
     local bufnr = vim.api.nvim_get_current_buf()
     local buf_highlighter = highlighter.active[bufnr]
@@ -35,7 +40,7 @@ M.hl_at_cursor = function()
       return
     end
 
-    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+    row, col = unpack(vim.api.nvim_win_get_cursor(0))
     row = row - 1
 
     buf_highlighter.tree:for_each_tree(function(tstree, tree)
@@ -58,7 +63,7 @@ M.hl_at_cursor = function()
         return
       end
 
-      local matche = "empty"
+      local matche = 'empty'
       local iter = query:query():iter_captures(root, buf_highlighter.bufnr, row, row + 1)
 
       for capture, node, _ in iter do
@@ -73,11 +78,34 @@ M.hl_at_cursor = function()
         end
       end
 
-      hl_name = "(treesitter)" .. matche
+      hl_name = '(treesitter)' .. matche
     end, true)
   end
 
   print(hl_name)
+end
+
+M.shell = function(name)
+  local scoop = os.getenv('scoop'):gsub('\\', '/')
+  local s = {
+    cmd = { path = 'cmd.exe', flag = '/s /c', pipe = '>%s 2>&1', quote = '', xquote = '"', slash = false },
+    bash = {
+      path = scoop .. '/apps/git/current/bin/bash.exe',
+      flag = '-c',
+      pipe = '2>1| tee',
+      quote = '"',
+      xquote = '"',
+      slash = true,
+    },
+  }
+  local new = s[name]
+  local set = vim.api.nvim_set_option
+  set('shell', new.path)
+  set('shellcmdflag', new.flag)
+  set('shellpipe', new.pipe)
+  set('shellquote', new.quote)
+  set('shellxquote', new.xquote)
+  set('shellslash', new.slash)
 end
 
 return M

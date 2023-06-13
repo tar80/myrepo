@@ -1,25 +1,39 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
-vim.api.nvim_set_option("encoding", "utf-8")
-vim.scriptencoding = "utf-8"
+vim.api.nvim_set_option('encoding', 'utf-8')
+vim.scriptencoding = 'utf-8'
 
--- #Echo message vim startup time {{{2
-if vim.fn.has("vim_starting") then
+-- ##Echo message vim startup time {{{2
+if vim.fn.has('vim_starting') then
   local pre = vim.fn.reltime()
-  vim.api.nvim_create_augroup("Startup", {})
-  vim.api.nvim_create_autocmd("UIEnter", {
-    group = "Startup",
+  vim.api.nvim_create_augroup('Startup', {})
+  vim.api.nvim_create_autocmd('UIEnter', {
+    group = 'Startup',
     once = true,
     callback = function()
       local post = vim.fn.reltime(pre)
-      print("StartupTime:" .. vim.fn.reltimestr(post))
-      vim.api.nvim_del_augroup_by_name("Startup")
+      print('StartupTime:' .. vim.fn.reltimestr(post))
+      vim.api.nvim_del_augroup_by_name('Startup')
     end,
   })
-end --}}}
+end
+
+-- ##Pipe {{{2
+local pipe = [[\\.\pipe\nvim.100.0]]
+local server = vim.v.servername
+
+if server then
+  if server ~= pipe then
+    local ok = pcall(vim.fn.serverstart, pipe)
+    if ok then
+      pcall(vim.fn.serverstop, server)
+    end
+  end
+else
+  pcall(vim.fn.serverstart, pipe)
+end --}}}2
 
 -- #Requires
-require("settings")
-require("plugins")
--- require("packer")
+require('settings')
+require('plugins')

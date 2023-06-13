@@ -8,6 +8,7 @@
 # config.bind(';b', 'hint all tab-bg')
 # config.bind(';d', 'hint links download')
 config.bind(';f', 'hint focus')
+config.bind(';v', 'hint links spawn mpv --ytdl-format="best[height<=360]" {hint-url}')
 # config.bind(';h', 'hint all hover')
 # config.bind(';i', 'hint images')
 # config.bind(';I', 'hint images tab')

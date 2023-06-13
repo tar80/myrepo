@@ -13,6 +13,8 @@
 
 'use strict';
 
+PPx.linemessage('!"using result.js');
+
 const CASE_EMPTY = 'NoMatch';
 
 const result = () => {

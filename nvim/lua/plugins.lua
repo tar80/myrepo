@@ -1,13 +1,14 @@
 --- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 -------------------------------------------------------------------------------
 
--- vim.pretty_print(vim.api.nvim_list_runtime_paths())
+vim.loader.enable()
+
 -- #Variables
 vim.g.use_scheme = 'mossco'
 local LAZY_PATH = vim.fn.stdpath('data') .. '\\lazy\\lazy.nvim'
 
 -- ##lazy.nvim bootstrap {{{2
-if not vim.loop.fs_stat(LAZY_PATH) then
+if vim.fn.isdirectory(LAZY_PATH) == 0 then
   vim.fn.system({
     'git',
     'clone',
@@ -55,6 +56,7 @@ require('lazy').setup(
             cw.add({
               { 0xF000, 0xFD46, 2 },
             })
+            cw.delete({ 0xE0B4, 0xE0B6, 0xE285, 0xE725 })
           end,
         })
       end,
@@ -80,10 +82,20 @@ require('lazy').setup(
     --     })
     --   end,
     -- },
-    { dir = 'C:/bin/temp/edita.vim' },
-    { dir = 'C:/bin/repository/tar80/mossco.nvim', lazy = true },
+    -- {
+    --   dir = 'C:/bin/temp/backup/conflict-marker.vim',
+    --   config = function()
+    --     vim.api.nvim_set_hl(0, 'ConflictMarkerBegin', { bg = '#2f7366' })
+    --     vim.api.nvim_set_hl(0, 'ConflictMarkerOurs', { bg = '#2e5049' })
+    --     vim.api.nvim_set_hl(0, 'ConflictMarkerTheirs', { bg = '#344f69' })
+    --     vim.api.nvim_set_hl(0, 'ConflictMarkerEnd', { bg = '#2f628e' })
+    --     vim.api.nvim_set_hl(0, 'ConflictMarkerCommonAncestorsHunk', { bg = '#754a81' })
+    --   end,
+    -- },
+    { dir = 'C:/bin/repository/tar80/mossco.nvim', name = 'mossco.nvim', lazy = true },
     {
       dir = 'C:/bin/repository/tar80/mug.nvim',
+      name = 'mug.nvim',
       config = function()
         require('mug').setup({
           commit = true,
@@ -92,23 +104,33 @@ require('lazy').setup(
           files = true,
           index = true,
           merge = true,
-          show = true,
           mkrepo = true,
+          rebase = true,
+          show = true,
+          terminal = true,
           variables = {
             edit_command = 'E',
             file_command = 'F',
             write_command = 'W',
+            -- symbol_not_repository = '',
+            index_auto_update = true,
             commit_notation = 'conventional',
             remote_url = 'git@github.com:tar80',
             diff_position = 'right',
+            term_command = 'T',
+            -- term_shell = 'nyagos',
+            term_position = 'bottom',
+            term_disable_columns = true,
+            term_nvim_pseudo = true,
           },
+          highlights = {},
         })
       end,
       event = 'UIEnter',
     },
     {
       'feline-nvim/feline.nvim',
-      dependencies = { 'tar80/mossco.nvim' },
+      dependencies = { 'mossco.nvim' },
       config = function()
         require('config.indicate')
       end,
@@ -175,9 +197,11 @@ require('lazy').setup(
       keys = { '<Leader>', 'gl' },
     },
     { 'kana/vim-smartword', event = 'User LazyLoad' },
+    { 'kana/vim-niceblock', event = 'User LazyLoad' },
     {
       dir = 'C:/bin/repository/tar80/nvim-select-multi-line',
       branch = 'tar80',
+      name = 'nvim-select-multi-line',
       event = 'User LazyLoad',
     },
     {
@@ -187,15 +211,17 @@ require('lazy').setup(
       end,
       event = 'User LazyLoad',
     },
-    -- 'lambdalisue/guise.vim',
     {
       'vim-denops/denops.vim',
       dependencies = {
+        'lambdalisue/kensaku.vim',
         'yuki-yano/fuzzy-motion.vim',
         'vim-skk/skkeleton',
       },
       init = function()
-        vim.g.denops_disable_version_check = 1
+        vim.api.nvim_set_var('denops_disable_version_check', 1)
+        vim.api.nvim_set_var('denops#server#retry_threshold', 1)
+        vim.api.nvim_set_var('denops#server#reconnect_threshold', 1)
       end,
       config = function()
         require('config.denos')
@@ -204,10 +230,25 @@ require('lazy').setup(
     },
     {
       'lewis6991/gitsigns.nvim',
-      -- config = [[require('config.gits')]],
       event = 'CursorMoved',
     },
-    { 'hrsh7th/vim-eft', event = 'User LazyLoad' },
+    {
+      dir = 'C:/bin/repository/tar80/fret.nvim',
+      name = 'fret.nvim',
+      config = function()
+        require('fret.config').setup({
+          fret_enable_kana = true,
+          fret_timeout = 9000,
+          mapkeys = {
+            fret_f = 'f',
+            fret_F = 'F',
+            fret_t = 't',
+            fret_T = 'T',
+          },
+        })
+      end,
+      event = 'UIEnter',
+    },
     {
       'hrsh7th/nvim-cmp',
       dependencies = {
@@ -243,7 +284,7 @@ require('lazy').setup(
     {
       'kana/vim-operator-user',
       dependencies = {
-        { 'kana/vim-operator-replace' },
+        { 'yuki-yano/vim-operator-replace' },
         { 'rhysd/vim-operator-surround' },
       },
       event = 'VeryLazy',
@@ -257,8 +298,9 @@ require('lazy').setup(
     },
     {
       dir = 'C:/bin/repository/tar80/vim-parenmatch',
+      name = 'parenmatch',
       config = function()
-        require('parenmatch').setup({
+        require('parenmatch.config').setup({
           highlight = { fg = '#D6B87B', underline = true },
           ignore_filetypes = { 'TelescopePrompt', 'cmp-menu', 'help' },
           ignore_buftypes = { 'nofile' },
@@ -285,11 +327,11 @@ require('lazy').setup(
             registers = registers.apply_register({ delay = 0.1 }),
             normal = registers.show_window({
               mode = 'motion',
-              delay = 0.5,
+              delay = 0.6,
             }),
             insert = registers.show_window({
               mode = 'insert',
-              delay = 0.5,
+              delay = 0.6,
             }),
           },
           window = {
@@ -300,16 +342,11 @@ require('lazy').setup(
           },
         })
       end,
-      keys = { '"', { '<c-r>', mode = 'i' } },
+      keys = {
+        { '"', mode = { 'n', 'v' } },
+        { '<C-R>', mode = 'i' },
+      },
     },
-    -- {
-    --   'cohama/agit.vim',
-    --   setup = function()
-    --     vim.g.agit_no_default_mappings = 0
-    --     vim.g.agit_enable_auto_show_commit = 0
-    --   end,
-    --   cmd = { 'Agit', 'Agitfile' },
-    -- },
     { 'bfredl/nvim-luadev', cmd = 'Luadev' },
     { 'tyru/open-browser.vim', key = { '<Space>/', { '<Space>/', 'x' } } },
     {
@@ -317,7 +354,7 @@ require('lazy').setup(
       cmd = { 'DiffviewOpen', 'DiffviewLog', 'DiffviewFocusFiles', 'DiffviewFileHistory' },
     },
     { 'mbbill/undotree', key = '<F7>' },
-    { 'norcalli/nvim-colorizer.lua', cmd = 'Colorizer' },
+    { 'norcalli/nvim-colorizer.lua', cmd = 'ColorizerAttachToBuffer' },
     { 'weilbith/nvim-code-action-menu', cmd = 'CodeActionMenu' },
     { 'vim-jp/vimdoc-ja' },
     { 'tar80/vim-PPxcfg', ft = 'cfg' },

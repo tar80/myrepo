@@ -1,64 +1,64 @@
--- Edit and put it on %USERPROFILE%, %HOME% or the same folder with nyagos.exe
-
 -- Prompt for CMD.EXE
-nyagos.env.prompt = "$P$s"
+nyagos.env.prompt = '$P$s'
 
 -- Prompt for NYAGOS.EXE
 do
-  local branch_info = function()
+  local function branch_info()
     local path = nyagos.getwd()
     repeat
-      if nyagos.access(nyagos.pathjoin(path, ".git"), 0) then
+      if nyagos.access(nyagos.pathjoin(path, '.git'), 0) then
         break
       end
-      path = string.match(path, "^(.+)\\")
+      path = path:match('^(.+)\\')
     until not path
 
     if path then
-      local status = nyagos.eval("git status -s -b --porcelain")
+      local status = nyagos.eval('git status -b --porcelain')
       local lines = {}
 
-      for line in string.gmatch(status, "[^\n]+") do
+      for line in status:gmatch('[^\n]+') do
         table.insert(lines, line)
       end
 
-      local branch = string.sub(lines[1], 4)
-      local stage, unstage = 0, 0
+      local branch = lines[1]:gsub('##%s([^\\.]+).*', '%1')
+      local staged, unstaged, conflicted = 0, 0, 0
 
       for i = 2, #lines do
-        if string.find(string.sub(lines[i], 1, 1), "[MADRC]") then
-          stage = stage + 1
+        if lines[i]:find('UU') then
+          conflicted = conflicted + 1
         end
-        if string.find(string.sub(lines[i], 1, 1), "[%sU]") then
-          unstage = unstage + 1
+        if lines[i]:sub(1, 1):find('[MADRC]') then
+          staged = staged + 1
+        end
+        if lines[i]:sub(2, 2):find('[^%s!]') then
+          unstaged = unstaged + 1
         end
       end
-
-      return "  " .. branch .. " +" .. stage .. " ~" .. unstage
+      return '  ' .. branch .. ' +' .. staged .. ' ~' .. unstaged .. ' !' .. conflicted
     else
       return nil
     end
   end
 
-  local prompt_ = nyagos.prompt
+  local prompt = nyagos.default_prompt
 
-  nyagos.prompt = function(prompt)
+  nyagos.prompt = function(this)
     local stats = branch_info()
-    local title = "NYAGOS - " .. nyagos.getwd()
+    local title = 'NYAGOS - ' .. nyagos.getwd()
     if stats then
-      stats = "$e[49;90m$e[100;93m" .. stats .. " $e[49;90m"
+      stats = '$e[49;90m$e[100;93m' .. stats .. ' $e[49;90m'
     else
-      stats = "$e[49;49m"
+      stats = '$e[49;49m'
     end
 
     if nyagos.elevated() then
-      return prompt_(
-        "$e[0m$e[49;36m" .. prompt .. " " .. stats .. "$e[92m" .. os.date(" %H:%M:%S") .. "$_$s$e[49;39m",
+      return prompt(
+        '$e[0m$e[49;36m' .. this .. ' ' .. stats .. '$e[92m' .. os.date(' %H:%M:%S') .. '$_$s$e[49;39m',
         title
       )
     else
-      return prompt_(
-        "$e[0m$e[49;36m" .. prompt .. " " .. stats .. "$e[92m" .. os.date(" %H:%M:%S") .. "$_$s$e[49;39m",
+      return prompt(
+        '$e[0m$e[49;36m' .. this .. ' ' .. stats .. '$e[92m' .. os.date(' %H:%M:%S') .. '$_$s$e[49;39m',
         title
       )
     end
@@ -68,95 +68,97 @@ end
 nyagos.histsize = 200
 
 -- system env
-nyagos.env.repo = "C:\\bin\\repository\\tar80"
-nyagos.envadd("CDPATH", "%scoop%\\apps\\git\\current\\usr\\bin")
+nyagos.env.tar80 = 'C:\\bin\\repository\\tar80'
+nyagos.envadd('PATH', '%scoop%\\apps\\git\\current\\usr\\bin')
 
-nyagos.env.LESSCHARSET = "utf-8"
+nyagos.env.LESSCHARSET = 'utf-8'
 nyagos.env.FZF_DEFAULT_COMMAND = 'fd -HL -c never --exclude ".git" .'
 nyagos.env.FZF_DEFAULT_OPTS =
-  "--reverse --border --height 80% --inline-info --color=fg:-1,bg:-1,hl:#ffcc00 --color=fg+:#4d84a8,bg+:-1,hl+:#00eaff --color=info:#aa82fa,prompt:#2cdede,pointer:#6bff26 --color=marker:#c06eff,spinner:#a357ff,header:#a7d1d1"
+  '--reverse --border --height 80% --inline-info --color=fg:-1,bg:-1,hl:#ffcc00 --color=fg+:#4d84a8,bg+:-1,hl+:#00eaff --color=info:#aa82fa,prompt:#2cdede,pointer:#6bff26 --color=marker:#c06eff,spinner:#a357ff,header:#a7d1d1'
 local fzf = {}
-fzf.cmd = "fzf.exe"
+fzf.cmd = 'fzf.exe'
 fzf.args = {}
-fzf.args.dir = ""
-fzf.args.cmdhist = ""
-fzf.args.cdhist = ""
+fzf.args.dir = ''
+fzf.args.cmdhist = ''
+fzf.args.cdhist = ''
 fzf.args.gitlog = '--preview="git show {1}"'
 fzf.args.gitdiff = '--preview="echo {2} | xargs git diff --color"'
 
 -- alias
-nyagos.alias.gvim = "%scoop%\\apps\\vim\\current\\gvim.exe"
-nyagos.alias.keyp = "C:\\bin\\Keypirinha\\keypirinha.exe"
+-- nyagos.alias.nvim = os.getenv('scoop') .. [[\apps\neovim-nightly\current\bin\nvim.exe --listen "\\.\pipe\nvim-100-0"]]
+nyagos.alias.keyp = 'C:\\bin\\Keypirinha\\keypirinha.exe'
 
-nyagos.alias.zi = "zoxide query -i"
+nyagos.alias.zi = 'zoxide query -i'
 nyagos.alias.z = function(arg)
-  local path = nyagos.eval("zoxide query " .. arg[1])
-  return nyagos.exec("cd " .. path)
+  local path = nyagos.eval('zoxide query ' .. arg[1])
+  return nyagos.exec('cd ' .. path)
 end
-nyagos.alias.ll = "lsd -l --group-dirs first --blocks permission --blocks size --blocks date --blocks name "
+nyagos.alias.ll = 'lsd -l --group-dirs first --blocks permission --blocks size --blocks date --blocks name '
 nyagos.alias.cc = function()
-  local path = nyagos.eval("fd -Ht d -c never -E .git -E node_modules | fzf")
-  return nyagos.exec("cd " .. path)
+  local path = nyagos.eval('fd -Ht d -c never -E .git -E node_modules | fzf')
+  return nyagos.exec('cd ' .. path)
 end
 
 nyagos.alias.re = function()
-  local path = nyagos.eval("fd -Lt d -c never --full-path . %repo% | fzf")
-  return nyagos.exec("cd " .. path)
+  local path = nyagos.eval('fd -Lt d -c never --full-path . %tar80% | fzf')
+  return nyagos.exec('cd ' .. path)
 end
 
 nyagos.alias.gd = function()
-  local result = nyagos.eval("git status -s -uall | " .. fzf.cmd .. " " .. fzf.args.gitdiff)
-  return string.match(result, "^%S+") or ""
+  local stdout = nyagos.eval('git status -s -uall | ' .. fzf.cmd .. ' ' .. fzf.args.gitdiff)
+  if not stdout:find('^fatal:') then
+    return nyagos.exec('nvim ' .. stdout:sub(3))
+  end
 end
 
 -- Completion. Highlighting input parts
 nyagos.completion_hook = function(c)
   for index, item in ipairs(c.list) do
-    c.shownlist[index] = "\027[49;39m" .. c.word .. "\027[49;93m" .. item:sub(string.len(c.word) + 1)
+    c.shownlist[index] = '\027[49;39m' .. c.word .. '\027[49;93m' .. item:sub(string.len(c.word) + 1)
   end
   return c.list, c.shownlist
 end
 
 -- keys
-nyagos.key["F1"] = function()
-  nyagos.rawexec("c:\\bin\\cltc\\cltc.exe")
+nyagos.key['F1'] = function()
+  nyagos.rawexec('c:\\bin\\cltc\\cltc.exe')
 end
 
-nyagos.key["F9"] = function()
-  nyagos.exec("nvim %repo%\\myrepo\\nyagos\\.nyagos")
+nyagos.key['F9'] = function()
+  nyagos.exec('nvim %tar80%\\myrepo\\nyagos\\.nyagos')
 end
 
 nyagos.alias.__dump_history = function()
   local uniq = {}
   for i = nyagos.gethistory() - 1, 1, -1 do
     local line = nyagos.gethistory(i)
-    if line ~= "" and not uniq[line] then
-      nyagos.write(line, "\n")
+    if line ~= '' and not uniq[line] then
+      nyagos.write(line, '\n')
       uniq[line] = true
     end
   end
 end
 
-nyagos.bindkey("C_R", function(this)
-  local result = nyagos.eval("__dump_history | " .. fzf.cmd .. " " .. fzf.args.cmdhist)
-  this:call("CLEAR_SCREEN")
+nyagos.bindkey('C_R', function(this)
+  local result = nyagos.eval('__dump_history | ' .. fzf.cmd .. ' ' .. fzf.args.cmdhist)
+  this:call('CLEAR_SCREEN')
   return result
 end)
 
-nyagos.bindkey("M_H", function(this)
-  local result = nyagos.eval("cd --history | " .. fzf.cmd .. " " .. fzf.args.cdhist)
-  this:call("CLEAR_SCREEN")
-  if string.find(result, " ") then
+nyagos.bindkey('M_H', function(this)
+  local result = nyagos.eval('cd --history | ' .. fzf.cmd .. ' ' .. fzf.args.cdhist)
+  this:call('CLEAR_SCREEN')
+  if string.find(result, ' ') then
     result = '"' .. result .. '"'
   end
   return result
 end)
 
-nyagos.bindkey("M_G", function()
-  local result = nyagos.eval('git log --pretty="format:%h %s" | ' .. fzf.cmd .. " " .. fzf.args.gitlog)
-  return string.match(result, "^%S+") or ""
+nyagos.bindkey('M_G', function()
+  local result = nyagos.eval('git log --pretty="format:%h %s" | ' .. fzf.cmd .. ' ' .. fzf.args.gitlog)
+  return string.match(result, '^%S+') or ''
 end)
 
-use("git")
+use('git')
 
--- vim:set ft=lua: --
+-- vim:set ft=lua:

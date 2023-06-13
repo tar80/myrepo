@@ -1,8 +1,12 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
----#AutoGroup
--- vim.api.nvim_create_augroup("rcGits", {})
+vim.api.nvim_create_user_command('GitsingsAttach', function()
+  package.loaded['gitsigns'].attach()
+end, {})
+vim.api.nvim_create_user_command('GitsingsDetach', function()
+  package.loaded['gitsigns'].detach_all()
+end, {})
 
 ---##AutoCommands {{{2
 -- vim.api.nvim_create_autocmd(
@@ -24,8 +28,9 @@
 ---#GitSigns {{{1
 require('gitsigns').setup({
   update_debounce = vim.g.update_time,
+  word_diff = true,
   on_attach = function(bufnr)
-    local gs = package.loaded.gitsigns
+    local gs = package.loaded['gitsigns']
 
     local function map(mode, l, r, opts)
       opts = opts or {}
@@ -55,9 +60,8 @@ require('gitsigns').setup({
     end, { expr = true })
 
     -- Actions
-    map({ 'n', 'v' }, 'gsa', ':Gitsigns stage_hunk<CR>')
-    map({ 'n', 'v' }, 'gsr', ':Gitsigns reset_hunk<CR>')
-    map('n', 'gsA', gs.stage_buffer)
+    map({ 'n', 'v' }, 'gsa', gs.stage_hunk)
+    map({ 'n', 'v' }, 'gsr', gs.reset_hunk)
     map('n', 'gsz', gs.undo_stage_hunk)
     map('n', 'gsR', gs.reset_buffer)
     map('n', 'gss', gs.preview_hunk)

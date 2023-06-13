@@ -1,5 +1,6 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
+
 ---#Autogroup
 vim.api.nvim_create_augroup('rcDeno', {})
 
@@ -24,7 +25,8 @@ vim.api.nvim_create_autocmd('User', {
 })
 
 ---##FuzzyMotion {{{2
-vim.g.fuzzy_motion_word_filter_regexp_list = { '^[a-zA-Z0-9]' }
+vim.g.fuzzy_motion_matchers = { 'fzf', 'kensaku' }
+-- vim.g.fuzzy_motion_word_filter_regexp_list = { '^[a-zA-Z0-9]' }
 -- vim.g.fuzzy_motion_word_regexp_list = [ '[0-9a-zA-Z_-]+', '([0-9a-zA-Z_-]|[.])+', '([0-9a-zA-Z_-]|[().#])+' ]
 -- vim.g.fuzzy_motion_auto_jump = false
 vim.keymap.set('n', '<Leader>j', function()
@@ -143,6 +145,7 @@ function Skkeleton_init()
     ['ryj'] = { 'りゅん', '' },
     ['ryl'] = { 'りょん', '' },
     ['ryz'] = { 'りゃん', '' },
+    ['sj'] = { 'すん', '' },
     ['sd'] = { 'せん', '' },
     ['sk'] = { 'しん', '' },
     ['sl'] = { 'そん', '' },

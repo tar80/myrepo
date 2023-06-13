@@ -7,6 +7,8 @@
         "packer_plugins",
         "describe",
         "before_each",
+        "setup",
+        "teardown",
         "it",
     ],
     "Lua.workspace.checkThirdParty": false

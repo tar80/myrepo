@@ -58,6 +58,8 @@ gw{motion} 行整形
 :v/str/d 含まない行を削除
 :argadd <file> バッファに追加
 :tabc タブページ閉じる
+:tab help  新規タブで開く
+:helpg     検索してヘルプ
 
 # fold
 zf 作成
@@ -71,7 +73,3 @@ zk 前の折畳
 #spell
 zg good単語登録
 zw wrong単語登録
-
-# help
-tab help  新規タブで開く
-helpg     検索してヘルプ

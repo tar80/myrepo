@@ -1,13 +1,13 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
--- #Lazy load plugins
+---#AUTOGROUP
 
 -- ##Vim-eft {{{2
-vim.keymap.set({ 'n', 'x', 'o' }, 'f', '<Plug>(eft-f-repeatable)')
-vim.keymap.set({ 'n', 'x', 'o' }, 'F', '<Plug>(eft-F-repeatable)')
-vim.keymap.set({ 'n', 'x', 'o' }, 't', '<Plug>(eft-t-repeatable)')
-vim.keymap.set({ 'n', 'x', 'o' }, 'T', '<Plug>(eft-T-repeatable)')
+-- vim.keymap.set({ 'n', 'x', 'o' }, 'f', '<Plug>(eft-f-repeatable)')
+-- vim.keymap.set({ 'n', 'x', 'o' }, 'F', '<Plug>(eft-F-repeatable)')
+-- vim.keymap.set({ 'n', 'x', 'o' }, 't', '<Plug>(eft-t-repeatable)')
+-- vim.keymap.set({ 'n', 'x', 'o' }, 'T', '<Plug>(eft-T-repeatable)')
 
 -- ##Operator-replace {{{2
 -- if pcall(require, 'vim-operator-replace') then
@@ -77,22 +77,21 @@ vim.g.undotree_CursorLine = 1
 -- end
 
 -- ##Luadev {{{2
--- if pcall(require, 'nvim-luadev') then
-vim.api.nvim_create_user_command('LuadevRun', function()
+-- vim.api.nvim_create_user_command('LuadevRun', function()
+vim.keymap.set({ 'n' }, '<Space>1', function()
   vim.api.nvim_command('Luadev')
+  vim.api.nvim_buf_set_option(0, 'filetype', 'lua')
   vim.api.nvim_command('wincmd K|resize +5')
-  vim.b.loaded_luadev = true
+  local devnr = vim.fn.bufnr(vim.fs.normalize(vim.loop.cwd() .. '/[nvim-lua]'))
+  -- vim.b.loaded_luadev = devnr
   vim.keymap.set('n', 'gtt', '<Plug>(Luadev-RunLine)', { buffer = true })
   vim.keymap.set('v', 'gtt', '<Plug>(Luadev-Run)', { buffer = true })
   vim.keymap.set('n', 'gtq', function()
-    local dev_buf_nr = vim.fn.bufnr(vim.fs.normalize(vim.loop.cwd() .. '/[nvim-lua]'))
-    vim.api.nvim_buf_delete(dev_buf_nr, { unload = true })
+    vim.api.nvim_buf_delete(devnr, { unload = true })
     vim.keymap.del('n', 'gtq', { buffer = true })
     vim.keymap.del({ 'n', 'v' }, 'gtt', { buffer = true })
-    vim.b.loaded_luadev = false
   end, { buffer = true })
 end, {})
--- end
 
 -- ##OpenBrowser {{{2
 -- if pcall(require, 'open-browser.vim') then
@@ -105,5 +104,5 @@ vim.keymap.set('x', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('v')
 
 -- ##Colorizer {{{2
 -- if pcall(require, 'nvim-colorizer.lua') then
-vim.api.nvim_create_user_command('Colorizer', 'packadd nvim-colorizer.lua|ColorizerAttachToBuffer', {})
+-- vim.api.nvim_create_user_command('Colorizer', 'packadd nvim-colorizer.lua|ColorizerAttachToBuffer', {})
 -- end

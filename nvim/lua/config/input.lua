@@ -67,6 +67,10 @@ rule({ at = 'ppw\\%#', char = '.', input = '<C-w>PPx.Echo();<Left><Left>', filet
 -- ^| @ -> <Space> -> ---@
 rule({ at = '^\\s*@\\%#$', char = '<Space>', input = '<BS>---@', filetype = { 'lua' } })
 rule({ at = '^\\s*--\\[\\%#\\]$', char = '[', input = '[<Del><CR>--<Space><CR>--]]<Home><Left>', filetype = { 'lua' } })
+-- pp -> . -> vim.print(|)
+rule({ at = 'pp\\%#', char = '.', input = '<BS><BS>vim.print()<Left>', filetype = { 'lua' } })
+-- va -> . -> vim.api.nvim_|
+rule({ at = 'va\\%#', char = '.', input = '<BS><BS>vim.api.nvim_', filetype = { 'lua' } })
 
 -- ##Folding {{{3
 rule({ at = '\\s"{{\\%#"', char = '{', input = '{2<Del>', mode = 'i', filetype = { 'vim', 'lua' } })

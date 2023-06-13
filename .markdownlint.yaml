@@ -143,9 +143,9 @@ MD031: false
 # MD032: false
 
 ## MD033/no-inline-html - Inline HTML
-MD033:
+MD033: false
   ## Allowed elements
-  allowed_elements: ['span', 'script', 'BR']
+  # 'allowed_elements': ['span', 'script', 'BR']
 
 ## MD034/no-bare-urls - Bare URL used
 # MD034: true

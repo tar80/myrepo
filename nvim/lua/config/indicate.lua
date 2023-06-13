@@ -4,21 +4,40 @@
 ---##Colorscheme {{{2
 local color_scheme = vim.api.nvim_get_var('use_scheme')
 
-local time_manage = function()
+local time_manage = function(f)
   local h = os.date('*t').hour
-  if h > 6 and h < 20 then
-    return 'decay'
+  local tbl = {}
+  if h > 6 and h < 19 then
+    tbl = {
+      theme = 'decay',
+      fade = false,
+      hl = {
+        Normal = { bg = '#103030' },
+        NormalNC = { bg = '#133939' },
+        NormalFloat = { bg = '#102929' },
+        CursorLine = { fg = 'NONE', bg = '#A33865' },
+      },
+    }
+    return tbl[f]
   else
-    return 'decay'
+    tbl = {
+      theme = 'decay',
+      fade = true,
+      hl = {
+        CursorLine = { fg = 'NONE', bg = '#A33865' },
+      },
+    }
+    return tbl[f]
   end
 end
 
 ---@cast color_scheme -nil
 require(color_scheme).setup({
-  theme = time_manage(),
+  theme = time_manage('theme'),
   borders = true, -- Split window borders
   fade_nc = true, -- Fade non-current windows, making them more distinguishable
-  fade_no_bg = true, -- Enable fade_nc but disable current pane background
+  fade_no_bg = time_manage('fade'),
+  -- fade_no_bg = true, -- Enable fade_nc but disable current pane background
   styles = {
     comments = 'NONE',
     strings = 'NONE',
@@ -33,9 +52,7 @@ require(color_scheme).setup({
     cursorline = false,
     eob_lines = true,
   },
-  custom_highlights = {
-    CursorLine = { fg = 'NONE', bg = '#A33865' },
-  },
+  custom_highlights = time_manage('hl'),
   plugins = {
     lsp = true,
     treesitter = true,
@@ -43,8 +60,7 @@ require(color_scheme).setup({
     fuzzy_motion = true,
     cmp = true,
     gitsigns = true,
-    eft = true,
-    agit = true,
+    fret = true,
     -- notify = true
   },
 })
@@ -271,7 +287,7 @@ local git = {
   priority = -2,
   branch = {
     provider = function()
-      return vim.b.mug_branch_name and icon.git[1] .. vim.b.mug_branch_name or ''
+      return vim.b.mug_branch_name and string.format('%s %s', icon.git[1], vim.b.mug_branch_name) or ''
     end,
     short_provider = icon.git[1],
     hl = {

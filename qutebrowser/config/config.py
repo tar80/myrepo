@@ -189,10 +189,14 @@ c.content.autoplay = False
 ## URL-decoding it).
 ## Type: List of Url
 c.content.blocking.adblock.lists = [
-        'https://easylist.to/easylist/easyprivacy.txt',
+        'https://filters.adtidy.org/extension/ublock/filters/101_optimized.txt',
+        'https://filters.adtidy.org/extension/ublock/filters/118_optimized.txt',
+        'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt',
+        'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt',
         'https://raw.githubusercontent.com/Yuki2718/adblock/master/japanese/jp-filters.txt',
         'https://raw.githubusercontent.com/eEIi0A5L/adblock_filter/master/kujira_filter.txt',
-        'https://raw.githubusercontent.com/eEIi0A5L/adblock_filter/master/negi_filter.txt'
+        'https://raw.githubusercontent.com/eEIi0A5L/adblock_filter/master/negi_filter.txt',
+        'https://raw.githubusercontent.com/eEIi0A5L/adblock_filter/master/fix_filter.txt'
         ]
         # 'https://raw.githubusercontent.com/tofukko/filter/master/Adblock_Plus_list.txt',
         # 'http://tofukko.r.ribbon.to/antena.txt',

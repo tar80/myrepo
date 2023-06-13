@@ -34,7 +34,8 @@ const g_nvim = ((args = PPx.Arguments) => {
 
 const g_cmd = {
   edit() {
-    return PPx.Extract('%*script(%*getcust(S_ppm#global:lib)\\entity_path.js)');
+    const path = PPx.Extract('%*script(%*getcust(S_ppm#global:lib)\\entity_path.js)');
+    return `edit ${path}`;
   },
   args() {
     const path = PPx.Extract('%*script(%*getcust(S_ppm#global:lib)\\entity_path.js)');
@@ -44,7 +45,7 @@ const g_cmd = {
     }
 
     g_nvim.order = 'edit';
-    return path;
+    return `edit ${path}`;
   },
   diff() {
     const path =
@@ -66,19 +67,12 @@ const g_cmd = {
 }[g_nvim.order]();
 
 const g_opt = ((v = g_nvim, cmd = g_cmd) => {
-  const sort_flag = v.order === 'edit';
   const remote_opt = {
-    true: {
-      '0': `--remote ${cmd}`,
-      '-1': `--remote-tab-silent ${cmd}`
-    },
-    false: {
-      '0': `--remote-send "<Cmd>${cmd}<CR>"`,
-      '-1': `--remote-send "<Cmd>tabnew|${cmd}<CR>"`
-    }
-  }[sort_flag];
+    '0': `--remote-send "<Cmd>${cmd}<CR>"`,
+    '-1': `--remote-send "<Cmd>stopinsert|tabnew|${cmd}<CR>"`
+  };
 
   return remote_opt[v.process];
 })();
 
-PPx.Execute(`%Obd nvim --server "\\\\.\\pipe\\nvim-${g_nvim.port}-0" ${g_opt}`);
+PPx.Execute(`%Obd nvim --server "\\\\.\\pipe\\nvim.${g_nvim.port}.0" ${g_opt}`);

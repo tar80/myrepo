@@ -36,10 +36,10 @@ cmp.setup({
   -- completion = { keyword_length = 2 },
   performance = { debounce = 100, throttle = 100 },
   --matching = {disallow_prefix_unmatching = false},
-  experimental = { ghost_text = true },
+  experimental = { ghost_text = {hl_group = '@constant.macro'} },
   window = {
     -- completion = cmp.config.window.bordered(),
-    -- documentation = cmp.config.window.bordered(),
+    documentation = cmp.config.window.bordered(),
   },
   snippet = {
     expand = function(args)
@@ -151,3 +151,12 @@ cmp.setup.cmdline(':', {
   mapping = cmp.mapping.preset.cmdline(),
 })
 --}}}2
+-- #cmp-dictionary {{{2
+local dict = require('cmp_dictionary')
+
+dict.switcher({
+  filetype = {
+    lua = { vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\lua.dict' },
+    javascript = { vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\javascript.dict' },
+  },
+})

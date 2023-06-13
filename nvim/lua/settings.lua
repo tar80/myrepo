@@ -4,7 +4,8 @@
 local util = require('module.util')
 
 ---#VARIABLES
-vim.env.myvimrc = vim.loop.fs_realpath(vim.env.myvimrc)
+vim.env.myvimrc = vim.loop.fs_readlink(vim.env.myvimrc, nil)
+-- vim.env.myvimrc = vim.loop.fs_realpath(vim.env.myvimrc)
 vim.g.repo = 'c:\\bin\\repository\\tar80'
 vim.g.update_time = 700
 vim.api.nvim_command('language message C')
@@ -14,6 +15,7 @@ local foldmarker = vim.split(vim.api.nvim_win_get_option(0, 'foldmarker'), ',', 
 local tab2space = (' '):rep(vim.api.nvim_buf_get_option(0, 'tabstop'))
 local cms
 
+---NOTE: leave it to lazy.nvim
 ---##Unload {{{2
 -- vim.g.loaded_2html_plugin = true
 -- vim.g.loaded_gzip = true
@@ -37,10 +39,6 @@ vim.api.nvim_set_option('fileformats', 'unix,dos,mac')
 --vim.api.nvim_buf_set_option(0, "name", value)
 
 ---##Both {{{2
-vim.o.t_8f = '\\<Esc>[38;2;%lu;%lu;%lum'
-vim.o.t_8b = '\\<Esc>[48;2;%lu;%lu;%lum'
-vim.o.t_Cs = '\\e[4:3m'
-vim.o.t_Ce = '\\e[4:0m'
 vim.o.fileencodings = 'utf-8,utf-16le,cp932,euc-jp,sjis'
 -- vim.o.timeoutlen = 1000
 vim.o.updatetime = vim.g.update_time
@@ -233,9 +231,21 @@ vim.g.mapleader = ';'
 ---##Normal {{{2
 vim.keymap.set('n', '<leader>t', function()
   ---this code excerpt from essentials.nvim(https://github.com/tamton-aquib/essentials.nvim)
-  local c = vim.api.nvim_get_current_line()
-  local subs = c:match('true') and c:gsub('true', 'false') or c:gsub('false', 'true')
-  vim.api.nvim_set_current_line(subs)
+  local cword = vim.fn.expand('<cword>')
+  local line = vim.api.nvim_get_current_line()
+  if cword == 'true' then
+    vim.api.nvim_command('normal viwcfalse')
+  elseif cword == 'false' then
+    vim.api.nvim_command('normal viwctrue')
+  else
+    local t = line:find('true', 1, true) or 1000
+    local f = line:find('false', 1, true) or 1000
+    if (t + f) == 2000 then
+      return
+    end
+    local subs = t < f and line:gsub('true', 'false', 1) or line:gsub('false', 'true', 1)
+    vim.api.nvim_set_current_line(subs)
+  end
 end)
 vim.keymap.set('n', '<F1>', function()
   return os.execute('c:/bin/cltc/cltc.exe')
@@ -264,7 +274,13 @@ end)
 vim.keymap.set('n', '<C-Z>', '<NOP>')
 vim.keymap.set('n', 'q', '<NOP>')
 vim.keymap.set('n', 'Q', 'q')
-vim.keymap.set('n', ',', '<Cmd>setlocal nohlsearch<CR>')
+vim.keymap.set('n', ',', function()
+  if vim.o.hlsearch then
+    vim.o.hlsearch = false
+  else
+    vim.api.nvim_feedkeys(',', 'n', false)
+  end
+end)
 vim.keymap.set('n', '<C-J>', 'i<C-M><ESC>')
 vim.keymap.set('n', '/', function()
   vim.o.hlsearch = true

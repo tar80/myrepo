@@ -21,7 +21,7 @@ local popup_rename = function()
     vim.api.nvim_command('normal l')
   end
 
-  if vim.lsp.buf.server_ready() then
+  -- if vim.lsp.buf.server_ready() then
     local contents = function()
       return rename_old
     end
@@ -37,15 +37,15 @@ local popup_rename = function()
 
     require('mug.module.float').input({
       title = title,
-      width = 25,
+      width = math.max(25, #rename_old + 8),
       border = 'single',
       relative = 'cursor',
       contents = contents,
       post = post,
     })
-  else
-    vim.notify('LSP Not ready yet!', 3, { title = title })
-  end
+  -- else
+  --   vim.notify('LSP Not ready yet!', 3, { title = title })
+  -- end
 end
 
 -- #DIAGNOSTIC {{{1
