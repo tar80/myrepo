@@ -4,6 +4,7 @@
 * ・XC_dsetから該当するパスの設定を削除
 */
 
+PPx.Echo('use deleteBG.js');
 var g_bg = (function () {
   var upDir = PPx.Extract('%FD');
   var root = PPx.Extract('%*name(H,' + upDir + ')\\');

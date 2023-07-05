@@ -19,7 +19,7 @@ const file_type = PPx.Extract('.%t').toLowerCase();
 // ファイルの種類と含まれる拡張子
 const ITEMS = {
   doc: ['.txt', '.ini', '.js', '.log', '.cfg', '.html', '.md', '.vbs', '.json', '.vim'],
-  image: ['.jpg', '.jpeg', '.bmp', '.png', '.gif', '.vch', '.edg'],
+  image: ['.jpg', '.jpeg', '.bmp', '.png', '.gif', '.vch', '.edg', '.webp'],
   movie: ['.3gp', '.avi', '.mp4', '.mpg', '.qt', '.ebml', '.webm']
 };
 
@@ -52,9 +52,9 @@ const run = () => {
 
     case 'movie':
       PPx.Execute(
-        '%On *ppb -c %0..\\mplayer\\mplayer.exe' +
-          ' -framedrop -geometry %*windowrect(%N.,l):%*windowrect(%N.,t)' +
-          ' -vf dsize=%*windowrect(%N.,w):%*windowrect(%N.,h):0 %FDC -loop 0'
+        '%On *ppb -c mpv.exe %FDC' +
+          ' --framedrop=vo --geometry=%*windowrect(%N.,w)x%*windowrect(%N.,h)+%*windowrect(%N.,l)+%*windowrect(%N.,t)' +
+          ' --loop=no %FDC'
       );
       PPx.Execute('*linecust JsKeyEnter,KV_main:CLOSEEVENT,');
       PPx.Quit(1);
@@ -73,7 +73,7 @@ if (PPx.WindowIDName === FULL_SCREEN_ID) {
   PPx.Execute('%Ox *setcust X_win:V=B100000000');
   PPx.Execute(
     '*linecust JsKeyEnter,KV_main:CLOSEEVENT,*setcust X_vpos=%*getcust(X_vpos) %%:' +
-      ' *execute C,*string p,vState= %%: *linecust JsKeyEnter,KV_main:CLOSEEVENT,'
+      ' *execute C,*linecust JsKeyEnter,KV_main:CLOSEEVENT,'
   );
   //PPx.Execute('*topmostwindow %NVA,1');
 } else {
@@ -81,14 +81,11 @@ if (PPx.WindowIDName === FULL_SCREEN_ID) {
   PPx.Execute('*setcust X_win:V=B000000000');
   PPx.Execute(
     '*linecust JsKeyEnter,KV_main:CLOSEEVENT,*setcust X_vpos=%*getcust(X_vpos) %%:' +
-      ' *execute C,*string p,vState= %%%%: *maskentry %%%%: *jumppath -update -entry:%%%%R %%:' +
+      ' *execute C,*maskentry %%%%: *jumppath -update -entry:%%%%R %%:' +
       ' *linecust JsKeyEnter,KV_main:CLOSEEVENT,'
   );
   run();
 }
-
-// Moving_PPv停止 ※movingPPv.jsを導入していなければ不要
-PPx.Execute('*string p,vState=1');
 
 // PPcに被せて表示
 PPx.Execute('*setcust X_vpos=3');

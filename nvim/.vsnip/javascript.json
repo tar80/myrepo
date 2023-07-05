@@ -176,5 +176,21 @@
   "UnitTest it": {
     "prefix": "it",
     "body": ["it('$1', function () {", "\t$2", "});"]
+  },
+  "PPx arguments": {
+    "prefix": "gargsv",
+    "body": [
+      "var g_args = function(args) {",
+      "\tvar arr = [${1}];",
+      "",
+      "\tfor (var i = 0, l = args.length; i < l; i++) {",
+      "\t\tarr[i] = args(i);",
+      "\t}",
+      "${2}",
+      "\treturn {",
+      "\t\t${3}: arr[0],",
+      "\t}",
+      "}${0}"
+    ]
   }
 }

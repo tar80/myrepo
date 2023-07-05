@@ -67,8 +67,8 @@ if (g_markCount === 2) {
   const entry2 = entryClass();
 
   // 一時的にFirstMarkに付加する接尾語を設定
-  let tempName = entry1.name + '_ren';
-  while (fso.FileExists(tempName)|0 || fso.FolderExists(tempName)|0) {
+  let tempName = entry1.name + '_ren_' + entry1.ext;
+  while (fso.FileExists(tempName) || fso.FolderExists(tempName)) {
     tempName = tempName.replace('_', '__');
   }
 

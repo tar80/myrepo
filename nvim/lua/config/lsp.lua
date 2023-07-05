@@ -48,6 +48,8 @@ local popup_rename = function()
   -- end
 end
 
+vim.lsp.buf.format({ timeout_ms = 2000 })
+
 -- #DIAGNOSTIC {{{1
 vim.diagnostic.config({
   virtual_text = false,

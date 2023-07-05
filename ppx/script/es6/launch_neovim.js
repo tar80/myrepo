@@ -2,10 +2,10 @@
 /**
  * Launch Neovim, depending on the situation.
  *
- * @arg {number} 0 Process existence of the Neovim. 0:false | -1:true
- * @arg {number} 1 Vimserver port number
- * @arg {string} 2 Edit-order. edit | args | diff | command
- * @arg {string} 3 CommandLine to apply. If Edit-order is "command"
+ * @arg {number} 0 - Process existence of the Neovim. 0:false | -1:true
+ * @arg {number} 1 - Vimserver port number
+ * @arg {string} 2 - Edit-order. edit | args | diff | command
+ * @arg {string} 3 - CommandLine to apply. If Edit-order is "command"
  */
 
 'use strict';
@@ -62,7 +62,7 @@ const g_cmd = {
       errors('arg');
     }
 
-    return `${cmd}`;
+    return cmd;
   }
 }[g_nvim.order]();
 

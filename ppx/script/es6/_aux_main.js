@@ -49,7 +49,7 @@ const g_args = {
     //   msgLog(`getting ${g_args.path1}`)
     // );
     PPx.Execute(
-      ` *execute b,*job start %%:*set RCLONE_CONFIG_PASS=test %%: ${g_ls2lf.PATH} -j "A:Attr,S:Size,M:ModeTime,F:Name" ${g_ls2lf.OPT} ${g_args.listfile} ${g_args.cmd} lsjson ${g_args.path1} %%& *job end %%:` +
+      ` *execute B,*job start %%:*set RCLONE_CONFIG_PASS=test %%: ${g_ls2lf.PATH} -j "A:Attr,S:Size,W:ModTime,F:Path" ${g_ls2lf.OPT} ${g_args.listfile} ${g_args.cmd} lsjson ${g_args.path1} %%& *job end %%:` +
       ` *execute ${g_args.ppcID},*string p,runJsAuxMain= %%%%: *jumppath aux://S_auxRCLONE/${g_args.path1}`
     );
     // PPx.Execute(

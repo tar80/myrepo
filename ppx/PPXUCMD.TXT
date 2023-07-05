@@ -402,7 +402,7 @@
 *zoom  ;比率 拡大縮小
 %m|@pca@budle@pages *run -noppb -d:c:\bin\repository\tar80\pages-pca nyagos -k bundle exec jekyll s --future
 %m|@mpv@url *string o,url=%*input("%*clippedtext()" -title:"Specify url" -mode:e)%:%Obd mpv --ytdl-format="best[height<=360]" "%so'url'"
-%m|@mpv@youtube *string o,term=%*input("" -title:"Youtube search" -mode:e)%:%Obd mpv --ytdl-format="best[height<=360]" ytdl://ytsearch:"%so'term'"
+%m|@mpv@youtube *string o,term=%*input("" -title:"Youtube search" -mode:s)%:%Obd mpv --ytdl-format="best[height<=360]" ytdl://ytsearch:"%so'term'"
 %m|テキスト比較@cmd@diff fc %C "%2\%C"
 %m|バイナリ比較@cmd@diff fc /b %C "%2\%C"
 %m|クォータ違反の表示@cmd fsutil quota violations

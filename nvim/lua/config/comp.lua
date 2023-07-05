@@ -36,7 +36,7 @@ cmp.setup({
   -- completion = { keyword_length = 2 },
   performance = { debounce = 100, throttle = 100 },
   --matching = {disallow_prefix_unmatching = false},
-  experimental = { ghost_text = {hl_group = '@constant.macro'} },
+  -- experimental = { ghost_text = {hl_group = '@constant.macro'} },
   window = {
     -- completion = cmp.config.window.bordered(),
     documentation = cmp.config.window.bordered(),

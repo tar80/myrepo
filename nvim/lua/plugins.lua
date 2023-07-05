@@ -357,7 +357,7 @@ require('lazy').setup(
     { 'norcalli/nvim-colorizer.lua', cmd = 'ColorizerAttachToBuffer' },
     { 'weilbith/nvim-code-action-menu', cmd = 'CodeActionMenu' },
     { 'vim-jp/vimdoc-ja' },
-    { 'tar80/vim-PPxcfg', ft = 'cfg' },
+    { 'tar80/vim-PPxcfg', ft = 'PPxcfg' },
   },
   { -- options {{{2
     ui = {

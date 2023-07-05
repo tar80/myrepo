@@ -360,17 +360,21 @@ vim.api.nvim_create_user_command('UTSetup', function()
     return print('Not repository')
   end
 
+  os.execute(os.getenv('PPX_DIR') .. '/pptrayw.exe -c *deletecust _WinPos:BT')
   os.execute('wt -w 1 sp -V --size 0.4 ' .. os.getenv('PPX_DIR') .. '/ppbw.exe -bootid:t -k @wt -w 1 mf left')
 
   local path = vim.fs.normalize(vim.loop.cwd() .. '/t')
-  local name = vim.fs.normalize('t/utp_' .. vim.fn.expand('%:t'))
+  local name = vim.fn.expand('%:t')
 
-  if vim.fn.isdirectory(path) ~= 1 then
-    vim.fn.mkdir(path)
+  if not name:find('utp_', 1, 'plain') then
+    local testpath = vim.fs.normalize('t/utp_' .. name)
+
+    if vim.fn.isdirectory(path) ~= 1 then
+      vim.fn.mkdir(path)
+    end
+
+    vim.api.nvim_command('bot split ' .. testpath .. '|set fenc=utf-8|set ff=unix')
   end
-
-  vim.api.nvim_command('bot split ' .. name .. '|set fenc=utf-8|set ff=unix')
-  -- vim.api.nvim_cmd({ cmd = "split", args = { name }, mods = { split = "botright" } }, {})
 end, {})
 
 -- #"UTDo <arguments>" Unit-test doing {{{2
