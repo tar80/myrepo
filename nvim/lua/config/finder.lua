@@ -123,7 +123,7 @@ vim.keymap.set('n', '<Leader>b', function()
   load_telescope('git_branches')
 end, {})
 -- for lsp
-vim.keymap.set('n', 'gle', function()
+vim.keymap.set('n', 'glE', function()
   load_telescope('diagnostics', 0.5, true)
 end, {})
 vim.keymap.set('n', 'glk', function()

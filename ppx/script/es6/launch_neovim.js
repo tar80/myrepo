@@ -10,14 +10,14 @@
 
 'use strict';
 
-const script_name = PPx.scriptName;
+const scriptName = PPx.scriptName;
 
 const errors = (method) => {
-  PPx.Execute('*script "%*getcust(S_ppm#global:lib)\\errors.js",' + method + ',' + script_name);
+  PPx.Execute('*script "%*getcust(S_ppm#global:lib)\\errors.js",' + method + ',' + scriptName);
   PPx.Quit(-1);
 };
 
-const g_nvim = ((args = PPx.Arguments) => {
+const gNvim = ((args = PPx.Arguments) => {
   const len = PPx.Arguments.length;
 
   if (len < 3) {
@@ -32,31 +32,37 @@ const g_nvim = ((args = PPx.Arguments) => {
   };
 })();
 
-const g_cmd = {
+const adjustPath = () => {
+  const path = PPx.Extract('%*script(%*getcust(S_ppm#global:lib)\\entity_path.js)');
+
+  return path.replace(/^"(.+)"$/, '$1');
+};
+
+const gCmd = {
   edit() {
-    const path = PPx.Extract('%*script(%*getcust(S_ppm#global:lib)\\entity_path.js)');
+    const path = adjustPath();
     return `edit ${path}`;
   },
   args() {
-    const path = PPx.Extract('%*script(%*getcust(S_ppm#global:lib)\\entity_path.js)');
+    const path = adjustPath();
 
     if (PPx.EntryMarkCount > 1) {
       return `args! ${path}`;
     }
 
-    g_nvim.order = 'edit';
+    gNvim.order = 'edit';
     return `edit ${path}`;
   },
   diff() {
     const path =
       PPx.EntryMarkCount === 2
-        ? PPx.Extract('%#;FDC').split(';')
-        : [PPx.Extract('%FDC'), PPx.Extract('%~FDC')];
+        ? PPx.Extract('%#;FDCN').split(';')
+        : [PPx.Extract('%FDCN'), PPx.Extract('%~FDCN')];
 
     return `silent! edit ${path[1]}|silent! vertical diffsplit ${path[0]}`;
   },
   command() {
-    const cmd = g_nvim.command;
+    const cmd = gNvim.command;
 
     if (cmd === null) {
       errors('arg');
@@ -64,15 +70,15 @@ const g_cmd = {
 
     return cmd;
   }
-}[g_nvim.order]();
+}[gNvim.order]();
 
-const g_opt = ((v = g_nvim, cmd = g_cmd) => {
-  const remote_opt = {
+const gOpt = ((v = gNvim, cmd = gCmd) => {
+  const remoteOption = {
     '0': `--remote-send "<Cmd>${cmd}<CR>"`,
     '-1': `--remote-send "<Cmd>stopinsert|tabnew|${cmd}<CR>"`
   };
 
-  return remote_opt[v.process];
+  return remoteOption[v.process];
 })();
 
-PPx.Execute(`%Obd nvim --server "\\\\.\\pipe\\nvim.${g_nvim.port}.0" ${g_opt}`);
+PPx.Execute(`%Obd nvim --server "\\\\.\\pipe\\nvim.${gNvim.port}.0" ${gOpt}`);

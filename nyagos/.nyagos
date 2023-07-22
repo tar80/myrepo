@@ -67,6 +67,7 @@ do
   end
 end
 
+-- options
 nyagos.histsize = 200
 
 -- system env
@@ -100,65 +101,15 @@ local fzf = {
 setmetatable(fzf, {
   __index = {
     gitlog = function(self)
-      return string.format('%s --preview="git show {1}"', self.cmd)
+      return self.cmd .. ' --preview="git show {1}"'
     end,
     gitdiff = function(self)
-      return string.format('%s --preview="echo {2} |xargs git diff --color"', self.cmd)
+      return self.cmd .. ' --preview="echo {2} |xargs git diff --color"'
     end,
   },
 })
 
 -- alias
-nyagos.alias.keyp = 'C:\\bin\\Keypirinha\\keypirinha.exe'
-
-nyagos.alias.zi = function()
-  local path = nyagos.eval('zoxide query -i')
-  return nyagos.exec('cd ' .. path)
-end
-
-nyagos.alias.z = function(arg)
-  local path = nyagos.eval('zoxide query ' .. arg[1])
-  return nyagos.exec('cd ' .. path)
-end
-
-nyagos.alias.ll = 'lsd -l --group-dirs first --blocks permission --blocks size --blocks date --blocks name '
-nyagos.alias.cc = function()
-  local path = nyagos.eval('fd -Ht d -c never -E .git -E node_modules | fzf')
-  return nyagos.exec('cd ' .. path)
-end
-
-nyagos.alias.re = function()
-  local path = nyagos.eval('fd -Lt d -c never --full-path . %tar80% | fzf')
-  if path ~= '' then
-    return nyagos.exec('cd ' .. path)
-  end
-end
-
-nyagos.alias.gd = function()
-  local cmd = string.format('git status -s -uall|%s', fzf:gitdiff())
-  local stdout = nyagos.eval(cmd)
-  if not (stdout == '' or stdout:find('^fatal:')) then
-    return nyagos.exec('nvim ' .. stdout:sub(3))
-  end
-end
-
--- Completion. Highlighting input parts
-nyagos.completion_hook = function(c)
-  for index, item in ipairs(c.list) do
-    c.shownlist[index] = string.format('\027[49;39m%s\027[49;93m', c.word, item:sub(string.len(c.word) + 1))
-  end
-  return c.list, c.shownlist
-end
-
--- keys
-nyagos.key['F1'] = function()
-  nyagos.rawexec('c:\\bin\\cltc\\cltc.exe')
-end
-
-nyagos.key['F9'] = function()
-  nyagos.exec('nvim %tar80%\\myrepo\\nyagos\\.nyagos')
-end
-
 nyagos.alias.__dump_history = function()
   local uniq = {}
   for i = nyagos.gethistory() - 1, 1, -1 do
@@ -169,17 +120,65 @@ nyagos.alias.__dump_history = function()
     end
   end
 end
-
-nyagos.bindkey('C_R', function(this)
+nyagos.alias.keyp = 'C:\\bin\\Keypirinha\\keypirinha.exe'
+nyagos.alias.zi = function()
+  local path = nyagos.eval('zoxide query -i')
+  return nyagos.exec('cd ' .. path)
+end
+nyagos.alias.z = function(arg)
+  local path = nyagos.eval('zoxide query ' .. arg[1])
+  return nyagos.exec('cd ' .. path)
+end
+nyagos.alias.ll = 'lsd -l --group-dirs first --blocks permission --blocks size --blocks date --blocks name '
+nyagos.alias.cc = function()
+  local path = nyagos.eval('fd -Ht d -c never -E .git -E node_modules | fzf')
+  return nyagos.exec('cd ' .. path)
+end
+nyagos.alias.re = function(this)
   local result = nyagos.eval('__dump_history | ' .. fzf.cmd)
-  this:call('CLEAR_SCREEN')
+  this:call('REPAINT_ON_NEWLINE')
   return result
+end
+nyagos.alias.gd = function()
+  local cmd = 'git status -s -uall|%s' .. fzf:gitdiff()
+  local stdout = nyagos.eval(cmd)
+  if not (stdout == '' or stdout:find('^fatal:')) then
+    return nyagos.exec('nvim ' .. stdout:sub(3))
+  end
+end
+
+-- Completion. Highlighting input parts
+-- nyagos.completion_hook = function(c)
+--   local len = c.word:gsub('.+[/\\]', ''):len()
+--   for index, item in ipairs(c.shownlist) do
+--     local _item = string.format('\027[49;93m%s\027[49;39m%s', item:sub(1, len), item:sub(len + 1))
+--     c.shownlist[index] = _item .. "test"
+--   end
+--   return c.shownlist
+-- end
+
+-- keys
+nyagos.key['F1'] = function()
+  nyagos.rawexec('c:\\bin\\cltc\\cltc.exe')
+end
+
+nyagos.key['F9'] = function()
+  nyagos.exec('nvim %tar80%\\myrepo\\nyagos\\.nyagos')
+end
+
+nyagos.bindkey('C_R', function()
+  local path = nyagos.eval('fd -Lt d -c never --full-path . %tar80% | fzf')
+  if path ~= '' then
+    nyagos.eval('zoxide add ' .. path)
+    return nyagos.exec('cd ' .. path)
+  end
 end)
 
 nyagos.bindkey('M_H', function(this)
   local cmd = string.format('%s|%s', 'cd --history', fzf.cmd)
-  this:call('CLEAR_SCREEN')
-  return string.format('"%s"', nyagos.eval(cmd))
+  local cwd = string.format('cd "%s"', nyagos.eval(cmd))
+  nyagos.exec(cwd)
+  this:call('REPAINT_ON_NEWLINE')
 end)
 
 nyagos.bindkey('M_G', function()

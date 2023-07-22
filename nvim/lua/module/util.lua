@@ -88,7 +88,15 @@ end
 M.shell = function(name)
   local scoop = os.getenv('scoop'):gsub('\\', '/')
   local s = {
-    cmd = { path = 'cmd.exe', flag = '/s /c', pipe = '>%s 2>&1', quote = '', xquote = '"', slash = false },
+    cmd = { path = 'cmd.exe', flag = '/c', pipe = '>%s 2>&1', quote = '', xquote = '"', slash = false },
+    nyagos = {
+      path = scoop .. '/apps/nyagos/current/nyagos.exe',
+      flag = '-c',
+      pipe = '|& tee',
+      quote = '',
+      xquote = '',
+      slash = true,
+    },
     bash = {
       path = scoop .. '/apps/git/current/bin/bash.exe',
       flag = '-c',
@@ -98,14 +106,14 @@ M.shell = function(name)
       slash = true,
     },
   }
-  local new = s[name]
+  local cui = s[name]
   local set = vim.api.nvim_set_option
-  set('shell', new.path)
-  set('shellcmdflag', new.flag)
-  set('shellpipe', new.pipe)
-  set('shellquote', new.quote)
-  set('shellxquote', new.xquote)
-  set('shellslash', new.slash)
+  set('shell', cui.path)
+  set('shellcmdflag', cui.flag)
+  set('shellpipe', cui.pipe)
+  set('shellquote', cui.quote)
+  set('shellxquote', cui.xquote)
+  set('shellslash', cui.slash)
 end
 
 return M

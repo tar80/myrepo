@@ -188,6 +188,7 @@ vim.api.nvim_win_set_option(0, 'foldtext', 'v:lua.Simple_fold()')
 local toggleShellslash = function() -- {{{2
   vim.opt_local.shellslash = not vim.api.nvim_get_option('shellslash')
   vim.api.nvim_command('redrawstatus')
+  vim.api.nvim_command('redrawtabline')
 end
 
 local search_star = function(g, mode) -- {{{2
@@ -388,3 +389,6 @@ vim.api.nvim_create_user_command('UTDo', function(...)
       .. args
   )
 end, { nargs = '*' })
+
+---##Shell
+util.shell('nyagos')

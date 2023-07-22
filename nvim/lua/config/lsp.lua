@@ -1,7 +1,7 @@
--- vim:textwidth=0:foldmethod=marker:foldlevel=1:
+-- vim:textwidth=0:foldmethod=marker:foldlevel=1:lsp
 --------------------------------------------------------------------------------
 
----#AUTOGROUP
+---#AUTOGROUr
 vim.api.nvim_create_augroup('rcLsp', {})
 
 ---#FUNCTIONS
@@ -48,8 +48,6 @@ local popup_rename = function()
   -- end
 end
 
-vim.lsp.buf.format({ timeout_ms = 2000 })
-
 -- #DIAGNOSTIC {{{1
 vim.diagnostic.config({
   virtual_text = false,
@@ -75,7 +73,7 @@ vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { 
 vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'single' })
 
 -- #KEYMAPS {{{1
--- vim.keymap.set("n", "gle", "<Cmd>lua vim.diagnostic.open_float(0,{border='rounded'})<CR>")
+vim.keymap.set("n", "gle", "<Cmd>lua vim.diagnostic.open_float(0,{border='rounded'})<CR>")
 vim.keymap.set('n', 'glv', function()
   local vt_set = not vim.diagnostic.config().virtual_text
   vim.diagnostic.config({ virtual_text = vt_set })
@@ -89,21 +87,12 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', 'glh', vim.lsp.buf.signature_help)
   vim.keymap.set('n', 'gll', vim.lsp.buf.hover)
   -- vim.keymap.set("n", "gli", vim.lsp.buf.implementation)
-  -- vim.keymap.set("n", "glk", vim.lsp.buf.type_definition)
+  -- vim.keymap.set("n", "glt", vim.lsp.buf.type_definition)
   vim.keymap.set('n', 'glr', function()
-    -- vim.lsp.buf.rename()
     popup_rename()
   end)
   vim.keymap.set('n', 'gla', '<Cmd>CodeActionMenu<CR>')
   -- vim.keymap.set("n", "glj", vim.lsp.buf.references)
-  vim.keymap.set('n', 'glf', function(bufnr)
-    vim.lsp.buf.format({
-      filter = function(client)
-        return client.name == 'null-ls'
-      end,
-      bufnr = bufnr,
-    })
-  end)
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   ---##Under cursor Symbol highlight -- {{{2
   vim.api.nvim_create_autocmd({ 'CursorHold' }, {
@@ -151,16 +140,26 @@ require('mason-lspconfig').setup_handlers({
       capabilities = capabilities,
     })
   end,
-  ['denols'] = function()
-    require('lspconfig')['denols'].setup({
+  ['tsserver'] = function()
+    require('lspconfig').tsserver.setup({
       flags = flags,
-      root_dir = require('lspconfig').util.root_pattern('deno.json', 'deno.jsonc'),
+      root_dir = require('lspconfig').util.root_pattern('tsconfig.json'),
       on_attach = function(client, bufnr)
         on_attach(client, bufnr)
       end,
       capabilities = capabilities,
     })
   end,
+  -- ['denols'] = function()
+  --   require('lspconfig').denols.setup({
+  --     flags = flags,
+  --     root_dir = require('lspconfig').util.root_pattern('tsconfig.json', 'deno.json', 'deno.jsonc'),
+  --     on_attach = function(client, bufnr)
+  --       on_attach(client, bufnr)
+  --     end,
+  --     capabilities = capabilities,
+  --   })
+  -- end,
   ['lua_ls'] = function()
     require('lspconfig').lua_ls.setup({
       flags = flags,
@@ -194,11 +193,22 @@ require('mason-lspconfig').setup_handlers({
   end,
 })
 
+vim.lsp.buf.format({ timeout_ms = 2000 })
+vim.keymap.set('n', 'glf', function(bufnr)
+  vim.lsp.buf.format({
+    filter = function(client)
+      return client.name == 'null-ls'
+    end,
+    bufnr = bufnr,
+  })
+end)
+
 local null_ls = require('null-ls')
 null_ls.setup({
   sources = {
     null_ls.builtins.formatting.prettier,
     null_ls.builtins.formatting.stylua,
+    null_ls.builtins.formatting.markdownlint,
     null_ls.builtins.diagnostics.markdownlint,
   },
 })

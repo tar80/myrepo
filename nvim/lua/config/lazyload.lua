@@ -3,15 +3,9 @@
 
 ---#AUTOGROUP
 
--- ##Vim-eft {{{2
--- vim.keymap.set({ 'n', 'x', 'o' }, 'f', '<Plug>(eft-f-repeatable)')
--- vim.keymap.set({ 'n', 'x', 'o' }, 'F', '<Plug>(eft-F-repeatable)')
--- vim.keymap.set({ 'n', 'x', 'o' }, 't', '<Plug>(eft-t-repeatable)')
--- vim.keymap.set({ 'n', 'x', 'o' }, 'T', '<Plug>(eft-T-repeatable)')
-
 -- ##Operator-replace {{{2
 -- if pcall(require, 'vim-operator-replace') then
-vim.keymap.set('n', '_', '<Plug>(operator-replace)')
+vim.keymap.set('n', '_', '"*<Plug>(operator-replace)')
 vim.keymap.set('n', '\\', '"0<Plug>(operator-replace)')
 -- end
 

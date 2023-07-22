@@ -1,4 +1,4 @@
-﻿//!*script
+﻿//!*scripconstt
 /**
  * PPV呼び出し
  *
@@ -13,7 +13,7 @@
 const FULL_SCREEN_ID = 'C_X';
 
 const pwd = PPx.Extract('%*script(%*getcust(S_ppm#global:lib)\\getcwd.js)');
-const cursor_entry = PPx.Extract('%*name(C,"%FC")');
+let cursor_entry = PPx.Extract('%*name(C,"%FC")');
 const file_type = PPx.Extract('.%t').toLowerCase();
 
 // ファイルの種類と含まれる拡張子
@@ -64,6 +64,7 @@ const run = () => {
       if (PPx.DirectoryType >= 63 && !!PPx.Execute('%"書庫内ファイル"%Q"PPvで開きますか？"')) {
         PPx.Quit(1);
       }
+      cursor_entry = `${pwd}\\${cursor_entry}`
       break;
   }
 };

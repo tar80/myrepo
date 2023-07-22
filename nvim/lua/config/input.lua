@@ -45,23 +45,31 @@ multi_at({ '\\%#[\'`"])', '\\%#[\'`"]}' }, { char = '<C-f>', input = '<C-g>U<Rig
 rule({ at = '\\%#[\'`"]]$', char = '=', input = '<C-g>U<Right><Right><Space>=<Space>' })
 rule({ at = '\\%#]$', char = '=', input = '<C-g>U<Right><Space>=<Space>' })
 
+-- #nodejs {{{3
+rule({ at = 'log\\%#', char = '.', input = '<C-w>console.log()<Left>', filetype = { 'javascript', 'typescript' } })
+
 -- ##PPx {{{3
 -- ppx -> . -> PPx.
-rule({ at = '\\(^\\|\\s\\|(\\)ppx\\%#', char = '.', input = '<BS><BS><BS>PPx.', filetype = { 'lua', 'javascript' } })
+rule({ at = '\\(^\\|\\s\\|(\\)ppx\\%#', char = '.', input = '<BS><BS><BS>PPx.', filetype = { 'lua', 'javascript', 'typescript' }, })
 -- ppa| -> . -> PPx.Arguments(|);
-rule({ at = 'ppa\\%#', char = '.', input = '<C-w>PPx.Arguments', filetype = { 'javascript' } })
+rule({ at = 'ppa\\%#', char = '.', input = '<C-w>PPx.Arguments', filetype = { 'javascript', 'typescript' } })
 -- ppe| -> . -> PPx.Execute(|);
-rule({ at = 'ppe\\%#', char = '.', input = '<C-w>PPx.Execute()<Left>', filetype = { 'javascript' } })
+rule({ at = 'ppe\\%#', char = '.', input = '<C-w>PPx.Execute()<Left>', filetype = { 'javascript', 'typescript' } })
 -- ppt| -> . -> PPx.Extract(|);
-rule({ at = 'ppt\\%#', char = '.', input = '<C-w>PPx.Extract()<Left>', filetype = { 'javascript' } })
+rule({ at = 'ppt\\%#', char = '.', input = '<C-w>PPx.Extract()<Left>', filetype = { 'javascript', 'typescript' } })
 -- uue| -> . -> util.xecute(|);
-rule({ at = 'uue\\%#', char = '.', input = '<C-w>util.execute()<Left>', filetype = { 'javascript' } })
+rule({ at = 'uue\\%#', char = '.', input = '<C-w>util.execute()<Left>', filetype = { 'javascript', 'typescript' } })
 -- uut| -> . -> util.xtract(|);
-rule({ at = 'uut\\%#', char = '.', input = '<C-w>util.extract()<Left>', filetype = { 'javascript' } })
+rule({ at = 'uut\\%#', char = '.', input = '<C-w>util.extract()<Left>', filetype = { 'javascript', 'typescript' } })
 -- ppq| -> . -> PPx.Quit(|1);
-rule({ at = 'ppq\\%#', char = '.', input = '<C-w>PPx.Quit(1);<Left><Left><Left>', filetype = { 'javascript' } })
+rule({
+  at = 'ppq\\%#',
+  char = '.',
+  input = '<C-w>PPx.Quit(1);<Left><Left><Left>',
+  filetype = { 'javascript', 'typescript' },
+})
 -- ppw| -> . -> PPx.Echo(|);
-rule({ at = 'ppw\\%#', char = '.', input = '<C-w>PPx.Echo();<Left><Left>', filetype = { 'javascript' } })
+rule({ at = 'ppw\\%#', char = '.', input = '<C-w>PPx.Echo();<Left><Left>', filetype = { 'javascript', 'typescript' } })
 
 -- ##Lua {{{3
 -- ^| @ -> <Space> -> ---@

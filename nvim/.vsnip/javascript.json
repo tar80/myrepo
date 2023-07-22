@@ -1,7 +1,16 @@
 {
   "Template": {
     "prefix": "temp",
-    "body": ["//!*script", "/**", " * discription", " *", " */", "\n'use strict';"]
+    "body": [
+      "//!*script",
+      "/*!",
+      " * ${1:discription}",
+      " *",
+      " * @arg {$2} $3",
+      " * @return {$4} $5",
+      " */",
+      "\n${6:'use strict';}"
+    ]
   },
   "Import modules CV8": {
     "prefix": "impv",
@@ -17,10 +26,12 @@
     ]
   },
   "Import modules chakra": {
-    "prefix": "impc",
+    "prefix": "impe",
     "body": [
       "/* Import modules */",
+      "/** @type {!any} */",
       "const st = PPx.CreateObject('ADODB.stream');",
+      "//@ts-ignore",
       "let module = function (filepath) {",
       "\tst.Open;",
       "\tst.Type = 2;",
@@ -32,31 +43,48 @@
       "\treturn Function(' return ' + data)();",
       "};",
       "",
-      "// Load modules",
       "const util = module(PPx.Extract('%*getcust(S_ppm#global:module)\\\\\\\\util.js'));",
+      "//@ts-ignore",
       "module = null;"
     ]
   },
   "Import modules": {
-    "prefix": "imp",
+    "prefix": "impj",
     "body": [
       "/* Import modules */",
+      "/** @type {!any} */",
       "var st = PPx.CreateObject('ADODB.stream');",
+      "//@ts-ignore",
       "var module = function (filepath) {",
       "\tst.Open;",
       "\tst.Type = 2;",
       "\tst.Charset = 'UTF-8';",
       "\tst.LoadFromFile(filepath);",
-      "\tconst data = st.ReadText(-1);",
+      "\tvar data = st.ReadText(-1);",
       "\tst.Close;",
       "",
       "\treturn Function(' return ' + data)();",
       "};",
-      "",
-      "// Load modules",
       "var util = module(PPx.Extract('%*getcust(S_ppm#global:module)\\\\\\\\util.js'));",
+      "//@ts-ignore",
       "module = null;"
     ]
+  },
+  "Annotation": {
+    "prefix": "pa",
+    "body": " * @${1:param} {$2} $0"
+  },
+  "Type annotation": {
+    "prefix": "an",
+    "body": "/** @${1:type} {${2:string}} $0*/"
+  },
+  "Ts check": {
+    "prefix": "tsc",
+    "body": "//@ts-check"
+  },
+  "Ts ignore": {
+    "prefix": "tsi",
+    "body": "//@ts-ignore"
   },
   "Comment": {
     "prefix": "come",
@@ -104,11 +132,11 @@
     ]
   },
   "For loop var": {
-    "prefix": "forv",
+    "prefix": "forj",
     "body": ["for (var ${1:i} = 0; ${1:i} < ${2:l}; ${1:i}++) {", "\t$3", "}", "\n$0"]
   },
   "For loop var limit": {
-    "prefix": "forvl",
+    "prefix": "forjl",
     "body": [
       "for (var ${1:i} = ${2:0}, ${3:l} = ${4:array}.length; ${1:i} < ${3:l}; ${1:i}++) {",
       "\tvar ${5:element} = ${4:array}[${1:i}];",
@@ -149,17 +177,9 @@
     "prefix": "do",
     "body": "do{\n\t$1\n} while($0);"
   },
-  "Getcust S_ppm#global": {
-    "prefix": "getg",
-    "body": "%*getcust(S_ppm#global:$1)"
-  },
-  "Getcust S_ppm#plugins": {
-    "prefix": "getp",
-    "body": "%*getcust(S_ppm#plugins:$1)"
-  },
-  "Getcust S_ppm#user": {
-    "prefix": "getu",
-    "body": "%*getcust(S_ppm#user:$1)"
+  "Getcust S_ppm#": {
+    "prefix": "getppm",
+    "body": "%*getcust(S_ppm#${1:global}:$2)"
   },
   "Util.getc": {
     "prefix": "uget",
@@ -177,10 +197,26 @@
     "prefix": "it",
     "body": ["it('$1', function () {", "\t$2", "});"]
   },
-  "PPx arguments": {
-    "prefix": "gargsv",
+  "PPx arguments ECMA": {
+    "prefix": "argse",
     "body": [
-      "var g_args = function(args) {",
+      "const adjustArg = (args) => {",
+      "\tconst arr = [${1}];",
+      "",
+      "\tfor (let i = 0, l = args.length; i < l; i++) {",
+      "\t\tarr[i] = args(i);",
+      "\t}",
+      "${2}",
+      "\treturn {",
+      "\t\t${3}: arr[0],",
+      "\t}",
+      "}${0}"
+    ]
+  },
+  "PPx arguments JS": {
+    "prefix": "argsj",
+    "body": [
+      "var adjustArg = function(args) {",
       "\tvar arr = [${1}];",
       "",
       "\tfor (var i = 0, l = args.length; i < l; i++) {",

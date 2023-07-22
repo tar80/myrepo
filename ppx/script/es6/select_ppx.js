@@ -5,9 +5,9 @@
  * @arg {string} 0 - Specify PPx. Same as %*ppxlist() options
  */
 
-if (PPx.getValue('focusppx') === '1') PPx.Quit(1);
+if (PPx.getValue('selectppx') === '1') PPx.Quit(1);
 
-const MENU_NAME = 'M_tempfocusppx';
+const MENU_NAME = 'M_tempselectppx';
 const MENU_PPE = 'PP&e';
 
 const id_name = PPx.windowIDName;
@@ -42,7 +42,7 @@ if (~arr_id.indexOf(id_name)) {
     PPx.Quit(1);
   } else if (arr_id.length === 2) {
     arr_id.splice(arr_id.indexOf(id_name), 1);
-    PPx.Execute(`*focus ${arr_id}`);
+    PPx.Execute(`*selectppx ${arr_id}`);
     PPx.Quit(1);
   }
 }
@@ -84,7 +84,7 @@ const select_ppx = {
 const item_count = arr_id.length;
 
 if (item_count === 1) {
-  PPx.Execute(`*focus ${arr_id[0]}`);
+  PPx.Execute(`*selectppx ${arr_id[0]}`);
   PPx.Quit(1);
 }
 
@@ -98,10 +98,10 @@ for (let i = 0, l = item_count; i < l; i++) {
   }
 }
 
-PPx.setValue('focusppx', 1);
+PPx.setValue('selectppx', 1);
 PPx.Execute(menu_items.join('%:'));
-PPx.Execute(`%k"down"%:*focus %${MENU_NAME}`);
+PPx.Execute(`%k"down"%:*selectppx %${MENU_NAME}`);
 PPx.Execute(`*deletecust "${MENU_NAME}"`);
 PPx.Execute('%K"@LOADCUST"');
 PPx.Execute('*wait 1000,2');
-PPx.setValue('focusppx', '')
+PPx.setValue('selectppx', '')

@@ -1,4 +1,5 @@
 //!*script
+//@ts-check
 /**
  * aux:パスリストの作成
  * ・スクリプトの重複実行回避のため実行中は%sp"runJsAuxMain"に"1"が代入される

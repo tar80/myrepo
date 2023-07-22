@@ -62,9 +62,11 @@ Hide
 Highlight
 IDName
 Index
+IndexOf
 IndexFrom
 Information
 Insert
+instanceof
 Item(
 LastMark
 linemessage
@@ -77,9 +79,15 @@ Name
 NextMark
 Pane
 PPxVersion
+PointType
+PointIndex
 PrevMark
 report(
 result
+ScriptName
+ScriptFullName
+ScriptEngineName
+ScriptEngineVersion
 SetComment(
 setIValue(
 SetPopLineMessage(
@@ -90,6 +98,7 @@ State
 SyncView
 Tab
 Type
+typeof
 WindowDirection
 WindowIDName
 toUpperCase()
