@@ -67,7 +67,7 @@ nyagos.histsize = 200
 nyagos.env.tar80 = 'C:\\bin\\repository\\tar80'
 nyagos.envadd('PATH', '%scoop%\\apps\\git\\current\\usr\\bin')
 nyagos.env.LESSCHARSET = 'utf-8'
-local bat_opts = '--color=always --style=numbers --line-range=:50 --theme=Nord'
+local bat_opts = '--color=always --style=numbers,changes --line-range=:50 --theme=Nord'
 local fzf_opts = {
   '--exit-0',
   '--reverse',
@@ -75,7 +75,7 @@ local fzf_opts = {
   '--height 80%',
   '--inline-info',
   '--bind ctrl-f:page-down,ctrl-b:page-up',
-  '--bind pgdn:preview-page-down,pgup:preview-page-up',
+  '--bind ctrl-d:preview-page-down,ctrl-u:preview-page-up',
   '--color=fg:-1,bg:-1,hl:#FFCC00',
   '--color=fg+:#4D84A8,bg+:-1,hl+:#00EAFF',
   '--color=info:#AA82FA,prompt:#2CDEDE,pointer:#6BFF26',
@@ -98,7 +98,7 @@ setmetatable(fzf, {
       return string.format('%s --preview="echo {2} |xargs git diff --color"', self.cmd)
     end,
     bat = function(self)
-      return string.format('%s --preview="bat ' .. bat_opts .. ' "{1}""', self.cmd)
+      return string.format('%s --preview="bat ' .. bat_opts .. ' "{}""', self.cmd)
     end,
   },
 })
@@ -135,7 +135,7 @@ nyagos.alias.bb = function()
   if path == '' then
     return nil
   end
-  nyagos.exec(string.format('bat "%s"'), path)
+  nyagos.exec(string.format('bat --style=numbers,changes --theme=Nord "%s"', path))
 end
 nyagos.alias.cc = function()
   local path = nyagos.eval('fd -Ht d -c never -E .git -E node_modules | ' .. fzf.cmd)
@@ -148,8 +148,8 @@ nyagos.alias.ll = 'lsd -l --group-dirs first --blocks permission --blocks size -
 nyagos.alias.re = function()
   local path = nyagos.eval('fd -Lt d -c never --full-path . %tar80% | ' .. fzf.cmd)
   if path ~= '' then
-    nyagos.exec(string.format('cd "%s"', path))
-    nyagos.exec(string.format('zoxide add "%s"', path))
+    nyagos.exec(string.format('cd %s', path))
+    nyagos.exec(string.format('zoxide add %s', path))
   end
   return nil
 end
@@ -202,10 +202,9 @@ nyagos.bindkey('C_R', function(this)
 end)
 
 nyagos.bindkey('M_H', function(this)
-  local cmd = nyagos.eval('%s|%s', 'cd --history', fzf.cmd)
-  local cwd = string.format('cd "%s"', nyagos.eval(cmd))
-  nyagos.exec(cwd)
+  local cmd = string.format('%s|%s', 'cd --history', fzf.cmd)
   this:call('REPAINT_ON_NEWLINE')
+  return string.format('"%s"', nyagos.eval(cmd))
 end)
 
 nyagos.bindkey('M_G', function()
