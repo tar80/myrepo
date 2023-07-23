@@ -1,4 +1,4 @@
-﻿//!*scripconstt
+﻿//!*script
 /**
  * PPV呼び出し
  *

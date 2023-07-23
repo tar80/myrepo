@@ -1,7 +1,7 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:lsp
 --------------------------------------------------------------------------------
 
----#AUTOGROUr
+---#AUTOGROUP
 vim.api.nvim_create_augroup('rcLsp', {})
 
 ---#FUNCTIONS
