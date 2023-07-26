@@ -57,10 +57,6 @@ rule({ at = 'ppa\\%#', char = '.', input = '<C-w>PPx.Arguments', filetype = { 'j
 rule({ at = 'ppe\\%#', char = '.', input = '<C-w>PPx.Execute()<Left>', filetype = { 'javascript', 'typescript' } })
 -- ppt| -> . -> PPx.Extract(|);
 rule({ at = 'ppt\\%#', char = '.', input = '<C-w>PPx.Extract()<Left>', filetype = { 'javascript', 'typescript' } })
--- uue| -> . -> util.xecute(|);
-rule({ at = 'uue\\%#', char = '.', input = '<C-w>util.execute()<Left>', filetype = { 'javascript', 'typescript' } })
--- uut| -> . -> util.xtract(|);
-rule({ at = 'uut\\%#', char = '.', input = '<C-w>util.extract()<Left>', filetype = { 'javascript', 'typescript' } })
 -- ppq| -> . -> PPx.Quit(|1);
 rule({
   at = 'ppq\\%#',
@@ -70,6 +66,12 @@ rule({
 })
 -- ppw| -> . -> PPx.Echo(|);
 rule({ at = 'ppw\\%#', char = '.', input = '<C-w>PPx.Echo();<Left><Left>', filetype = { 'javascript', 'typescript' } })
+-- mme| -> . -> ppm.execute(|);
+rule({ at = 'mme\\%#', char = '.', input = '<C-w>ppm.execute();<Left><Left>', filetype = { 'javascript', 'typescript' } })
+-- mmt| -> . -> ppm.extract(|);
+rule({ at = 'mmt\\%#', char = '.', input = '<C-w>ppm.extract()<Left>', filetype = { 'javascript', 'typescript' } })
+-- mmw| -> . -> msg.echo(|);
+rule({ at = 'mmw\\%#', char = '.', input = '<C-w>msg.echo();<Left><Left>', filetype = { 'javascript', 'typescript' } })
 
 -- ##Lua {{{3
 -- ^| @ -> <Space> -> ---@

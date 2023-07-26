@@ -76,7 +76,7 @@ vim.keymap.set({ 'n' }, '<Space>1', function()
   vim.api.nvim_command('Luadev')
   vim.api.nvim_buf_set_option(0, 'filetype', 'lua')
   vim.api.nvim_command('wincmd K|resize +5')
-  local devnr = vim.fn.bufnr(vim.fs.normalize(vim.loop.cwd() .. '/[nvim-lua]'))
+  local devnr = vim.fn.bufnr(vim.fs.normalize(vim.uv.cwd() .. '/[nvim-lua]'))
   -- vim.b.loaded_luadev = devnr
   vim.keymap.set('n', 'gtt', '<Plug>(Luadev-RunLine)', { buffer = true })
   vim.keymap.set('v', 'gtt', '<Plug>(Luadev-Run)', { buffer = true })

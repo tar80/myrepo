@@ -1,1 +1,125 @@
-C:/bin/REPOSI~1/tar80/myrepo/nvim/VSNIP~1/JAVASC~2.JSO
+{
+  "Template": {
+    "prefix": "temp",
+    "body": [
+      "/* @file $1",
+      " * @version ${2:0.1.0}",
+      " * @author tar80 <tar80master@google.com>",
+      " * @license MIT",
+      " */",
+      "\nimport {data$3{:, requires}} from './mod/data.ts';",
+      "\n'use strict';\n${0}"
+    ]
+  },
+  "Import": {
+    "prefix": "imp",
+    "body": "import ${1} from '${2:@ppmdev/modules/}';"
+  },
+  "Import modules": {
+    "prefix": "impv",
+    "body": [
+      "/* Import modules */",
+      "/** @type {!any} */",
+      "var st = PPx.CreateObject('ADODB.stream');",
+      "//@ts-ignore",
+      "var module = function (filepath) {",
+      "\tst.Open;",
+      "\tst.Type = 2;",
+      "\tst.Charset = 'UTF-8';",
+      "\tst.LoadFromFile(filepath);",
+      "\tvar data = st.ReadText(-1);",
+      "\tst.Close;",
+      "",
+      "\treturn Function(' return ' + data)();",
+      "};",
+      "var util = module(PPx.Extract('%*getcust(S_ppm#global:module)\\\\\\\\util.js'));",
+      "//@ts-ignore",
+      "module = null;"
+    ]
+  },
+  "Comment": {
+    "prefix": "come",
+    "body": "/**\n * $1\n */"
+  },
+  "FileSystemObject": {
+    "prefix": "fso",
+    "body": "const fso = PPx.CreateObject('Scripting.FileSystemObject');\n$0"
+  },
+  "Object inline": {
+    "prefix": "obji",
+    "body": "'$1': '$2',\n$0"
+  },
+  "Object arrow function": {
+    "prefix": "objaf",
+    "body": "$1('$2') $3,\n$0"
+  },
+  "Object function": {
+    "prefix": "objf",
+    "body": "'$1': function ('$2') {$3},\n$0"
+  },
+  "If": {
+    "prefix": "if",
+    "body": "if ($1) {\n\t$2\n}$3\n$0"
+  },
+  "For loop": {
+    "prefix": "for",
+    "body": ["for (let ${1:i} = ${2:0}; ${1:i} < ${3:l}; ${1:i}++) {", "\t$4", "}", "\n$0"]
+  },
+  "For loop limit": {
+    "prefix": "forl",
+    "body": [
+      "for (let ${1:i} = ${2:0}, ${3:l} = ${4:array}.length; ${1:i} < ${3}; ${1:i}++) {",
+      "\tconst ${5:element} = ${4:array}[${1:i}];",
+      "\t$0",
+      "}"
+    ]
+  },
+  "For of": {
+    "prefix": "forof",
+    "body": "for (const ${1:item} of ${1}s${2}) {\n\t$0\n}"
+  },
+  "Arrow function": {
+    "prefix": "af",
+    "body": "($1): $2 => $0"
+  },
+  "Anonymous arrow function": {
+    "prefix": "afn",
+    "body": "(($1: $2): $3 => $0)()"
+  },
+  "Function": {
+    "prefix": "func",
+    "body": "function ($1) {$2}"
+  },
+  "Anonymous function": {
+    "prefix": "funcn",
+    "body": "(function ($1) {$2})()"
+  },
+  "Do loop": {
+    "prefix": "do",
+    "body": "do{\n\t$1\n} while($0);"
+  },
+  "Getcust S_ppm#": {
+    "prefix": "getppm",
+    "body": "%*getcust(S_ppm#${1:global}:$2)"
+  },
+  "Util.getc": {
+    "prefix": "uget",
+    "body": "util.getc($1)"
+  },
+  "Util.setc": {
+    "prefix": "uset",
+    "body": "util.setc($1)"
+  },
+  "Jest describe": {
+    "prefix": "desc",
+    "body": ["describe('$1', function () {", "\t$2", "});"]
+  },
+  "Jest it": {
+    "prefix": "it",
+    "body": ["it('$1', () => {", "\t$2", "});"]
+  },
+  "Jest expect": {
+    "prefix": "exp",
+    "body": ["expect(${1}).${2}"]
+  }
+}

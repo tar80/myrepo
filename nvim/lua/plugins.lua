@@ -113,6 +113,7 @@ require('lazy').setup(
             file_command = 'F',
             write_command = 'W',
             -- symbol_not_repository = '',
+            root_patterns = { '.gitignore', '.git/' },
             index_auto_update = true,
             commit_notation = 'conventional',
             remote_url = 'git@github.com:tar80',
@@ -125,6 +126,9 @@ require('lazy').setup(
           },
           highlights = {},
         })
+        vim.keymap.set('n', 'md', '<Cmd>MugDiff<cr>')
+        vim.keymap.set('n', 'mi', '<Cmd>MugIndex<cr>')
+        vim.keymap.set('n', 'mc', '<Cmd>MugCommit<cr>')
       end,
       event = 'UIEnter',
     },

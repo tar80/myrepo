@@ -99,7 +99,7 @@ local on_attach = function(client, bufnr)
     group = 'rcLsp',
     buffer = 0,
     callback = function()
-      if client.config.root_dir ~= vim.fs.normalize(vim.loop.cwd()) then
+      if client.config.root_dir ~= vim.fs.normalize(vim.uv.cwd()) then
         return
       end
       vim.lsp.buf.document_highlight()
@@ -110,7 +110,7 @@ local on_attach = function(client, bufnr)
     buffer = 0,
     callback = function()
       -- if vim.lsp.buf.server_ready() == false and client.config.root_dir ~= vim.fs.normalize(vim.fn.getcwd()) then
-      if client.config.root_dir ~= vim.fs.normalize(vim.loop.cwd()) then
+      if client.config.root_dir ~= vim.fs.normalize(vim.uv.cwd()) then
         return
       end
       vim.lsp.buf.clear_references()

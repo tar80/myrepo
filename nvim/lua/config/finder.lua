@@ -5,9 +5,13 @@
 ---#Setup {@@2
 require('telescope').setup({
   defaults = {
+    hidden = true,
+    no_ignore = true,
     winblend = 8,
     previewer = false,
-    file_ignore_patterns = { '^node_modules\\', '^%.bundle\\', '^vendor\\', '^migemo\\' },
+    cache_picker = false,
+    color_devicons = false,
+    file_ignore_patterns = { '.git\\', '^node_modules\\', '^%.bundle\\', '^vendor\\', '^migemo\\' },
     prompt_title = false,
     prompt_prefix = ' ',
     selection_caret = ' ',
@@ -32,12 +36,11 @@ require('telescope').setup({
       '--trim',
       '--glob=!{node_modules,vendor,migemo,.bundle,.git}/',
     },
-    color_devicons = false,
     mappings = {
       i = {
-        ['<C-S-D>'] = require('telescope.actions').delete_buffer,
-        ['<C-UP>'] = require('telescope.actions').preview_scrolling_up,
-        ['<C-DOWN>'] = require('telescope.actions').preview_scrolling_down,
+        ['<C-D>'] = require('telescope.actions').delete_buffer,
+        ['<C-K>'] = require('telescope.actions').preview_scrolling_up,
+        ['<C-J>'] = require('telescope.actions').preview_scrolling_down,
         ['<C-G>'] = require('telescope.actions').close,
         ['<C-A>'] = { '<Home>', type = 'command' },
         ['<C-E>'] = { '<End>', type = 'command' },
@@ -83,7 +86,7 @@ local preview = function(width, mirror)
   return {
     winblend = 8,
     results_title = false,
-    path_display = function(opts, path)
+    path_display = function(_, path)
       local tail = require('telescope.utils').path_tail(path)
       return string.format('%s [%s]', tail, path)
     end,
@@ -112,15 +115,18 @@ end, {})
 vim.keymap.set('n', '<leader>l', function()
   load_telescope('live_grep', 0.4)
 end, {})
-vim.keymap.set('n', '<leader>h', function()
-  load_telescope('help_tags', 0.7)
-end, {})
-vim.keymap.set('n', '<leader>:', function()
-  load_telescope('current_buffer_fuzzy_find', 0.4)
-end, {})
+-- vim.keymap.set('n', '<leader>h', function()
+--   load_telescope('help_tags', 0.7)
+-- end, {})
+-- vim.keymap.set('n', '<leader>:', function()
+--   load_telescope('current_buffer_fuzzy_find', 0.4)
+-- end, {})
 -- for git
 vim.keymap.set('n', '<Leader>b', function()
   load_telescope('git_branches')
+end, {})
+vim.keymap.set('n', '<Leader>c', function()
+  load_telescope('git_commits', 0.6, true)
 end, {})
 -- for lsp
 vim.keymap.set('n', 'glE', function()

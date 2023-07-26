@@ -3,9 +3,12 @@
 
 local util = require('module.util')
 
+---##Shell
+util.shell('nyagos')
+
 ---#VARIABLES
-vim.env.myvimrc = vim.loop.fs_readlink(vim.env.myvimrc, nil)
--- vim.env.myvimrc = vim.loop.fs_realpath(vim.env.myvimrc)
+vim.env.myvimrc = vim.uv.fs_readlink(vim.env.myvimrc, nil)
+-- vim.env.myvimrc = vim.uv.fs_realpath(vim.env.myvimrc)
 vim.g.repo = 'c:\\bin\\repository\\tar80'
 vim.g.update_time = 700
 vim.api.nvim_command('language message C')
@@ -358,13 +361,13 @@ vim.api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " .
 ---#"UTSetup" Unit-test compose multi-panel {{{2
 vim.api.nvim_create_user_command('UTSetup', function()
   if vim.b.mug_branch_name == nil then
-    return print('Not repository')
+    return print('Not a repository')
   end
 
   os.execute(os.getenv('PPX_DIR') .. '/pptrayw.exe -c *deletecust _WinPos:BT')
   os.execute('wt -w 1 sp -V --size 0.4 ' .. os.getenv('PPX_DIR') .. '/ppbw.exe -bootid:t -k @wt -w 1 mf left')
 
-  local path = vim.fs.normalize(vim.loop.cwd() .. '/t')
+  local path = vim.fs.normalize(vim.uv.cwd() .. '/t')
   local name = vim.fn.expand('%:t')
 
   if not name:find('utp_', 1, 'plain') then
@@ -390,5 +393,27 @@ vim.api.nvim_create_user_command('UTDo', function(...)
   )
 end, { nargs = '*' })
 
----##Shell
-util.shell('nyagos')
+---#"JestSetup" Unit-test compose multi-panel {{{2
+vim.api.nvim_create_user_command('JestSetup', function()
+  if vim.b.mug_branch_name == nil then
+    return print('Not a repository')
+  end
+
+  os.execute('wt -w 1 sp -V --size 0.4 nyagos -k wt -w 1 mf left')
+
+  local symbol = 'test'
+  local sym_dir = string.format('__%ss__', symbol)
+  local parent = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
+  local test_dir = vim.fs.joinpath(parent, sym_dir)
+  local name = vim.fn.expand('%:t')
+
+  if not parent:find(sym_dir, 1, true) then
+    local test_path = string.format('%s/%s.%s.ts', test_dir, name:gsub('.ts$', ''), symbol)
+
+    if vim.fn.isdirectory(parent) ~= 1 then
+      vim.fn.mkdir(parent)
+    end
+
+    vim.api.nvim_command('bot split ' .. test_path .. '|set fenc=utf-8|set ff=unix')
+  end
+end, {})
