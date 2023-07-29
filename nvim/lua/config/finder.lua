@@ -5,8 +5,6 @@
 ---#Setup {@@2
 require('telescope').setup({
   defaults = {
-    hidden = true,
-    no_ignore = true,
     winblend = 8,
     previewer = false,
     cache_picker = false,
@@ -74,46 +72,52 @@ require('telescope').setup({
 })
 
 -- ##Functions {@@2
-local no_preview = require('telescope.themes').get_dropdown({
-  previewer = false,
-  layout_config = {
-    height = 0.7,
-    width = 0.8,
-  },
-})
+local no_preview = function(add)
+  local preset = {
+    previewer = false,
+    layout_config = {
+      height = 0.7,
+      width = 0.6,
+    },
+  }
 
-local preview = function(width, mirror)
-  return {
+  return require('telescope.themes').get_dropdown(vim.tbl_deep_extend('force', preset, add))
+end
+
+local preview = function(add)
+  local preset = {
     winblend = 8,
     results_title = false,
     path_display = function(_, path)
       local tail = require('telescope.utils').path_tail(path)
       return string.format('%s [%s]', tail, path)
     end,
-    layout_config = {
-      mirror = mirror or false,
-      preview_width = width,
-    },
   }
+
+  return vim.tbl_deep_extend('force', preset, add)
 end
 
-local load_telescope = function(builtin, prev, mirror)
-  local sub_window = prev and prev > 0 and preview(prev, mirror) or no_preview
+local load_telescope = function(builtin, add)
+  local has_preview = add.layout_config and add.layout_config.preview_width
+  local sub_window = has_preview and has_preview > 0 and preview(add) or no_preview(add)
   require('telescope.builtin')[builtin](sub_window)
 end
 
 -- ##Keymap {@@2
 vim.keymap.set('n', '<Leader><Leader>', function()
-  load_telescope('buffers')
+  load_telescope('buffers', {})
 end)
 vim.keymap.set('n', '<leader>m', function()
-  load_telescope('oldfiles')
+  load_telescope('oldfiles', {})
 end, {})
 vim.keymap.set('n', '<leader>o', function()
-  load_telescope('find_files')
+  load_telescope('find_files', {cwd = vim.fn.expand('%:p:h'), hidden = true, no_ignore = true})
+end, {})
+vim.keymap.set('n', '<leader>@', function()
+  load_telescope('find_files', {hidden = true, no_ignore = true})
 end, {})
 vim.keymap.set('n', '<leader>l', function()
-  load_telescope('live_grep', 0.4)
+  load_telescope('live_grep', { layout_config = { preview_width = 0.5, width = 0.9, height = 0.9 } })
 end, {})
 -- vim.keymap.set('n', '<leader>h', function()
 --   load_telescope('help_tags', 0.7)
@@ -123,21 +127,21 @@ end, {})
 -- end, {})
 -- for git
 vim.keymap.set('n', '<Leader>b', function()
-  load_telescope('git_branches')
+  load_telescope('git_branches', {})
 end, {})
 vim.keymap.set('n', '<Leader>c', function()
-  load_telescope('git_commits', 0.6, true)
+  load_telescope('git_commits', { layout_config = { mirror = false, preview_width = 0.7, width = 0.9, height = 0.9} })
 end, {})
 -- for lsp
 vim.keymap.set('n', 'glE', function()
-  load_telescope('diagnostics', 0.5, true)
+  load_telescope('diagnostics', { layout_config = { mirror = true, preview_width = 0.5 } })
 end, {})
 vim.keymap.set('n', 'glk', function()
-  load_telescope('lsp_references', 0.5, true)
+  load_telescope('lsp_references', { layout_config = { mirror = true, preview_width = 0.5 } })
 end, {})
 vim.keymap.set('n', 'gld', function()
-  load_telescope('lsp_definitions', 0.5, true)
+  load_telescope('lsp_definitions', { layout_config = { mirror = true, preview_width = 0.5 } })
 end, {})
 vim.keymap.set('n', 'glj', function()
-  load_telescope('lsp_dynamic_workspace_symbols', 0.5, true)
+  load_telescope('lsp_dynamic_workspace_symbols', { layout_config = { mirror = true, preview_width = 0.5 } })
 end, {})

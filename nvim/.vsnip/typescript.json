@@ -3,9 +3,9 @@
     "prefix": "temp",
     "body": [
       "/* @file $1",
-      " * @version ${2:0.1.0}",
       " * @author tar80 <tar80master@google.com>",
       " * @license MIT",
+      " * @arg $2",
       " */",
       "\nimport {data$3{:, requires}} from './mod/data.ts';",
       "\n'use strict';\n${0}"
@@ -15,26 +15,16 @@
     "prefix": "imp",
     "body": "import ${1} from '${2:@ppmdev/modules/}';"
   },
-  "Import modules": {
-    "prefix": "impv",
+  "Args": {
+    "prefix": "ar",
     "body": [
-      "/* Import modules */",
-      "/** @type {!any} */",
-      "var st = PPx.CreateObject('ADODB.stream');",
-      "//@ts-ignore",
-      "var module = function (filepath) {",
-      "\tst.Open;",
-      "\tst.Type = 2;",
-      "\tst.Charset = 'UTF-8';",
-      "\tst.LoadFromFile(filepath);",
-      "\tvar data = st.ReadText(-1);",
-      "\tst.Close;",
-      "",
-      "\treturn Function(' return ' + data)();",
-      "};",
-      "var util = module(PPx.Extract('%*getcust(S_ppm#global:module)\\\\\\\\util.js'));",
-      "//@ts-ignore",
-      "module = null;"
+      "const adjustArgs = (args = PPx.Arguments): object => {",
+      "\tconst arr: string[] = [$1];",
+      "\n\tfor (let i = 0, l = args.length; i < l; i++) {",
+      "\t\tarr[i] = args.Item(i);",
+      "\t}",
+      "\nreturn {$2};",
+      "};$0"
     ]
   },
   "Comment": {
@@ -98,17 +88,21 @@
     "prefix": "do",
     "body": "do{\n\t$1\n} while($0);"
   },
-  "Getcust S_ppm#": {
-    "prefix": "getppm",
-    "body": "%*getcust(S_ppm#${1:global}:$2)"
+  "ppm.execute": {
+    "prefix": "ppme",
+    "body": "ppm.execute('${1:.}', '$2')$0"
   },
-  "Util.getc": {
-    "prefix": "uget",
-    "body": "util.getc($1)"
+  "ppm.extract": {
+    "prefix": "ppmt",
+    "body": "ppm.extract('${1:.}', '$2')$0"
   },
-  "Util.setc": {
-    "prefix": "uset",
-    "body": "util.setc($1)"
+  "Type annotation": {
+    "prefix": "tya",
+    "body": "/** @${1:deprecated} */$0"
+  },
+  "Ts ignore": {
+    "prefix": "tsi",
+    "body": "// @ts-ignore"
   },
   "Jest describe": {
     "prefix": "desc",

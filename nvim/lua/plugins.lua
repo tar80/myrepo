@@ -257,6 +257,7 @@ require('lazy').setup(
       'hrsh7th/nvim-cmp',
       dependencies = {
         'hrsh7th/cmp-nvim-lsp',
+        'hrsh7th/cmp-nvim-lsp-signature-help',
         'hrsh7th/vim-vsnip',
         'hrsh7th/cmp-vsnip',
         'hrsh7th/cmp-buffer',
@@ -331,11 +332,11 @@ require('lazy').setup(
             registers = registers.apply_register({ delay = 0.1 }),
             normal = registers.show_window({
               mode = 'motion',
-              delay = 0.6,
+              delay = 1,
             }),
             insert = registers.show_window({
               mode = 'insert',
-              delay = 0.6,
+              delay = 1,
             }),
           },
           window = {

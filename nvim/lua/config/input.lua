@@ -66,10 +66,6 @@ rule({
 })
 -- ppw| -> . -> PPx.Echo(|);
 rule({ at = 'ppw\\%#', char = '.', input = '<C-w>PPx.Echo();<Left><Left>', filetype = { 'javascript', 'typescript' } })
--- mme| -> . -> ppm.execute(|);
-rule({ at = 'mme\\%#', char = '.', input = '<C-w>ppm.execute();<Left><Left>', filetype = { 'javascript', 'typescript' } })
--- mmt| -> . -> ppm.extract(|);
-rule({ at = 'mmt\\%#', char = '.', input = '<C-w>ppm.extract()<Left>', filetype = { 'javascript', 'typescript' } })
 -- mmw| -> . -> msg.echo(|);
 rule({ at = 'mmw\\%#', char = '.', input = '<C-w>msg.echo();<Left><Left>', filetype = { 'javascript', 'typescript' } })
 

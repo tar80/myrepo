@@ -395,8 +395,9 @@ end, { nargs = '*' })
 
 ---#"JestSetup" Unit-test compose multi-panel {{{2
 vim.api.nvim_create_user_command('JestSetup', function()
-  if vim.b.mug_branch_name == nil then
-    return print('Not a repository')
+  local has_config = vim.fn.filereadable('jest.config.js') + vim.fn.filereadable('package.json')
+  if has_config == 0 then
+    print('Config file not found')
   end
 
   os.execute('wt -w 1 sp -V --size 0.4 nyagos -k wt -w 1 mf left')
@@ -405,15 +406,23 @@ vim.api.nvim_create_user_command('JestSetup', function()
   local sym_dir = string.format('__%ss__', symbol)
   local parent = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
   local test_dir = vim.fs.joinpath(parent, sym_dir)
-  local name = vim.fn.expand('%:t')
+  local name = vim.fn.expand('%:t:r')
 
   if not parent:find(sym_dir, 1, true) then
-    local test_path = string.format('%s/%s.%s.ts', test_dir, name:gsub('.ts$', ''), symbol)
+    local test_path = string.format('%s/%s.%s.ts', test_dir, name, symbol)
+    local insert_string = ''
 
-    if vim.fn.isdirectory(parent) ~= 1 then
-      vim.fn.mkdir(parent)
+    if vim.fn.filereadable(test_path) ~= 1 then
+      local line1 = "import PPx from '@ppmdev/modules/ppx';"
+      local line2 = 'global.PPx = Object.create(PPx)'
+      local line3 = string.format("import from '../%s'", vim.fn.expand('%:t:r'))
+      insert_string = string.format('|execute "normal! I%s\n%s\n%s\\<Esc>3G06l"', line1, line2, line3)
     end
 
-    vim.api.nvim_command('bot split ' .. test_path .. '|set fenc=utf-8|set ff=unix')
+    if vim.fn.isdirectory(test_dir) ~= 1 then
+      vim.fn.mkdir(test_dir)
+    end
+
+    vim.api.nvim_command(string.format('bot split %s|set fenc=utf-8|set ff=unix%s', test_path, insert_string))
   end
 end, {})
