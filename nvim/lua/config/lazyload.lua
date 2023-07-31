@@ -44,7 +44,6 @@ vim.keymap.set({ 'n', 'x' }, 'me', '<Cmd>Translate EN<CR>', { silent = true })
 vim.keymap.set({ 'n', 'x' }, 'mj', '<Cmd>Translate JA<CR>', { silent = true })
 vim.keymap.set({ 'n', 'x' }, 'mE', '<Cmd>Translate EN -output=replace<CR>', { silent = true })
 vim.keymap.set({ 'n', 'x' }, 'mJ', '<Cmd>Translate JA -output=replace<CR>', { silent = true })
--- end
 
 -- ##Undotree {{{2
 -- if pcall(require, 'undotree') then
@@ -68,24 +67,71 @@ vim.g.undotree_HighlightSyntaxChange = 'DiffChange'
 vim.g.undotree_HighlightSyntaxDel = 'DiffDelete'
 vim.g.undotree_HelpLine = 1
 vim.g.undotree_CursorLine = 1
--- end
 
--- ##Luadev {{{2
--- vim.api.nvim_create_user_command('LuadevRun', function()
-vim.keymap.set({ 'n' }, '<Space>1', function()
-  vim.api.nvim_command('Luadev')
-  vim.api.nvim_buf_set_option(0, 'filetype', 'lua')
-  vim.api.nvim_command('wincmd K|resize +5')
-  local devnr = vim.fn.bufnr(vim.fs.normalize(vim.uv.cwd() .. '/[nvim-lua]'))
-  -- vim.b.loaded_luadev = devnr
-  vim.keymap.set('n', 'gtt', '<Plug>(Luadev-RunLine)', { buffer = true })
-  vim.keymap.set('v', 'gtt', '<Plug>(Luadev-Run)', { buffer = true })
-  vim.keymap.set('n', 'gtq', function()
-    vim.api.nvim_buf_delete(devnr, { unload = true })
-    vim.keymap.del('n', 'gtq', { buffer = true })
-    vim.keymap.del({ 'n', 'v' }, 'gtt', { buffer = true })
-  end, { buffer = true })
+---@desc Quickrun {{{2
+vim.keymap.set({ 'n', 'v' }, 'mq', function()
+  local prefix = ''
+  local mode = vim.api.nvim_get_mode().mode
+
+  if mode:find('^[vV]') then
+    local s = vim.fn.line('v')
+    local e = vim.api.nvim_win_get_cursor(0)[1]
+    prefix = string.format('%s,%s', s, e)
+  end
+
+  vim.cmd(string.format('%sQuickRun', prefix))
 end, {})
+
+---@see https://github.com/yuki-yano/dotfiles/blob/main/.vim/lua/plugins/utils.lua
+local jobs = {}
+vim.g.quickrun_config = {
+  ['_'] = {
+    outputter = 'error',
+    ['outputter/error/success'] = 'buffer',
+    ['outputter/error/error'] = 'quickfix',
+    ['outputter/buffer/opener'] = ':botright 7split',
+    ['outputter/buffer/close_on_empty'] = 0,
+    runner = 'neovim_job',
+    hooks = {
+      {
+        on_ready = function(session, _)
+          local job_id = nil
+          if session._temp_names then
+            job_id = session._temp_names[1]
+            jobs[job_id] = { finish = false }
+          end
+
+          vim.notify(string.format('[QuickRun] Running %s ...', session.config.command), 'warn', {
+            title = ' QuickRun',
+          })
+        end,
+        on_success = function(session, _)
+          vim.notify('[QuickRun] Success', 'info', { title = ' QuickRun' })
+        end,
+        on_failure = function(session, _)
+          vim.notify('[QuickRun] Error', 'error', { title = ' QuickRun' })
+        end,
+        on_finish = function(session, _)
+          if session._temp_names then
+            local job_id = session._temp_names[1]
+            jobs[job_id].finish = true
+          end
+        end,
+      },
+    },
+  },
+  typescript = { type = 'deno' },
+  deno = {
+    command = 'deno',
+    cmdopt = '--no-check --allow-all --unstable',
+    exec = { '%c run %o %S' },
+  },
+  lua = {
+    command = ':luafile',
+    exec = { '%C %S' },
+    runner = 'vimscript',
+  },
+}
 
 -- ##OpenBrowser {{{2
 -- if pcall(require, 'open-browser.vim') then

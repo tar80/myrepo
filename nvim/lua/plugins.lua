@@ -353,6 +353,13 @@ require('lazy').setup(
       },
     },
     { 'bfredl/nvim-luadev', cmd = 'Luadev' },
+    {
+      'thinca/vim-quickrun',
+      dependencies = {
+        { 'tar80/vim-quickrun-neovim-job', branch = 'win-nyagos' },
+      },
+      cmd = { 'QuickRun' },
+    },
     { 'tyru/open-browser.vim', key = { '<Space>/', { '<Space>/', 'x' } } },
     {
       'sindrets/diffview.nvim',

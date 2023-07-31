@@ -7,7 +7,6 @@
       " * @license MIT",
       " * @arg $2",
       " */",
-      "\nimport {data$3{:, requires}} from './mod/data.ts';",
       "\n'use strict';\n${0}"
     ]
   },
@@ -21,9 +20,9 @@
       "const adjustArgs = (args = PPx.Arguments): object => {",
       "\tconst arr: string[] = [$1];",
       "\n\tfor (let i = 0, l = args.length; i < l; i++) {",
-      "\t\tarr[i] = args.Item(i);",
+      "\t\tarr[i] = args(i);",
       "\t}",
-      "\nreturn {$2};",
+      "\n\treturn {$2};",
       "};$0"
     ]
   },

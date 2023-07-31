@@ -1,23 +1,54 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
--- #Smartinput
--- @template: rule({ at = '', char = '', input = '', mode = '', filetype = '', syntax = '' })
+---@desc Abbreviate
+---@see https://zenn.dev/vim_jp/articles/2023-06-30-vim-substitute-tips
+local cmd_abbrev = function(i, o, s)
+  local ignore_space = s and '[getchar(), ""][1].' or ''
+  local fmt =
+    string.format('<expr> %s getcmdtype().getcmdline() ==# ":%s" ? %s"%s" : "%s"', i, i, ignore_space, o, i)
+  vim.cmd.cnoreabbrev(fmt)
+end
+
+vim.cmd.abbreviate('exoprt', 'export')
+vim.cmd.abbreviate('exoper', 'export')
+vim.cmd.abbreviate('funcion', 'function')
+vim.cmd.abbreviate('fuction', 'function')
+
+cmd_abbrev("'<,'>", [['<,'>s/\\//\\\\\\\\/|nohlsearch]], true)
+cmd_abbrev('s', '%s///<Left>', true)
+cmd_abbrev('ms', 'MugShow')
+cmd_abbrev('e8', 'e<Space>++enc=utf-8<CR>')
+cmd_abbrev('e16', 'e<Space>++enc=utf-16le<CR>')
+cmd_abbrev('gs', 'lua<Space>require("config.gits")<CR>')
+cmd_abbrev('sc', 'set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb<CR>')
+cmd_abbrev('scn', 'set<Space>noscb<CR>')
+cmd_abbrev('del', [[call<Space>delete(expand('%'))]])
+cmd_abbrev('cs', [[execute<Space>'50vsplit'g:repo.'/myrepo/nvim/.cheatsheet'<CR>]])
+cmd_abbrev('dd', 'diffthis<Bar>wincmd<Space>p<Bar>diffthis<Bar>wincmd<Space>p<CR>')
+cmd_abbrev('dof', 'syntax<Space>enable<Bar>diffoff<CR>')
+cmd_abbrev('dor', 'vert<Space>bel<Space>new<Space>difforg<Bar>set<Space>bt=nofile<Bar>r<Space>++edit<Space>#<Bar>0d_<Bar>windo<Space>diffthis<Bar>wincmd<Space>p<CR>')
+cmd_abbrev('ht', 'so<Space>$VIMRUNTIME/syntax/hitest.vim', true)
+cmd_abbrev('ct', 'so<Space>$VIMRUNTIME/syntax/colortest.vim', true)
+cmd_abbrev('hl', "lua<Space>print(require('module.util').hl_at_cursor())<CR>")
+
+---@desc Smartinput
+---@template: rule({ at = '', char = '', input = '', mode = '', filetype = '', syntax = '' })
 
 -- #Triggers {{{2
 local trigger = vim.fn['smartinput#map_to_trigger']
 
 trigger('i', '<Plug>(smartinput_CR)', '<Enter>', '<Enter>')
 trigger('i', '<Plug>(smartinput_C-h)', '<BS>', '<C-h>')
--- trigger("i", "<Plug>(smartinput_SPACE)", "<Space>", "<Space>")
-trigger('i', '<Space>', '<Space>', '<C-g>U<Space>')
+-- trigger('i', '<Plug>(smartinput_Space)', '<Space>', '<C-g>U<Space>')
+-- trigger('i', '<Space>', '<Space>', '<C-g>U<Space>')
 trigger('i', '<Tab>', '<Tab>', '<Tab>')
 trigger('i', '<C-f>', '<C-f>', '<C-f>')
 -- trigger("i", ";", ";", ";")
 trigger('i', '=', '=', '=')
 trigger('i', '.', '.', '.')
 trigger('c', '<CR>', '<CR>', '<CR>')
-trigger('c', '<Space>', '<Space>', '<Space>')
+-- trigger('c', '<Space>', '<Space>', '<Space>')
 
 -- #Rules {{{2
 local rule = vim.fn['smartinput#define_rule']
@@ -30,7 +61,7 @@ local multi_at = function(at, rulespec)
 end
 
 -- Auto completion path
-rule({ at = [[\w\+\\\%#$]], char = '<Tab>', input = '<C-g>u<C-x><C-f>' })
+rule({ at = [[/\w\+/\%#$]], char = '<Tab>', input = '<C-g>u<C-x><C-f>' })
 
 -- Replace indent of spaces to tab
 rule({ at = '^\\s\\+\\%#$', char = '<Tab>', input = '<C-u><C-v><Tab>' })
@@ -46,11 +77,16 @@ rule({ at = '\\%#[\'`"]]$', char = '=', input = '<C-g>U<Right><Right><Space>=<Sp
 rule({ at = '\\%#]$', char = '=', input = '<C-g>U<Right><Space>=<Space>' })
 
 -- #nodejs {{{3
-rule({ at = 'log\\%#', char = '.', input = '<C-w>console.log()<Left>', filetype = { 'javascript', 'typescript' } })
+rule({ at = 'con\\%#', char = '.', input = '<C-w>console.log()<Left>', filetype = { 'javascript', 'typescript' } })
 
 -- ##PPx {{{3
 -- ppx -> . -> PPx.
-rule({ at = '\\(^\\|\\s\\|(\\)ppx\\%#', char = '.', input = '<BS><BS><BS>PPx.', filetype = { 'lua', 'javascript', 'typescript' }, })
+rule({
+  at = '\\(^\\|\\s\\|(\\)ppx\\%#',
+  char = '.',
+  input = '<BS><BS><BS>PPx.',
+  filetype = { 'lua', 'javascript', 'typescript' },
+})
 -- ppa| -> . -> PPx.Arguments(|);
 rule({ at = 'ppa\\%#', char = '.', input = '<C-w>PPx.Arguments', filetype = { 'javascript', 'typescript' } })
 -- ppe| -> . -> PPx.Execute(|);
@@ -71,10 +107,10 @@ rule({ at = 'mmw\\%#', char = '.', input = '<C-w>msg.echo();<Left><Left>', filet
 
 -- ##Lua {{{3
 -- ^| @ -> <Space> -> ---@
-rule({ at = '^\\s*@\\%#$', char = '<Space>', input = '<BS>---@', filetype = { 'lua' } })
+rule({ at = '^\\s*@\\%#$', char = '<Tab>', input = '<BS>---@', filetype = { 'lua' } })
 rule({ at = '^\\s*--\\[\\%#\\]$', char = '[', input = '[<Del><CR>--<Space><CR>--]]<Home><Left>', filetype = { 'lua' } })
 -- pp -> . -> vim.print(|)
-rule({ at = 'pp\\%#', char = '.', input = '<BS><BS>vim.print()<Left>', filetype = { 'lua' } })
+rule({ at = 'vp\\%#', char = '.', input = '<BS><BS>vim.print()<Left>', filetype = { 'lua' } })
 -- va -> . -> vim.api.nvim_|
 rule({ at = 'va\\%#', char = '.', input = '<BS><BS>vim.api.nvim_', filetype = { 'lua' } })
 
@@ -95,10 +131,7 @@ end
 
 -- Individualized responses
 --  (|) -> <Space> -> ( | )
-multi_at(
-  { '(\\s*\\%#\\s*)', '{\\s*\\%#\\s*}', '\\[\\s*\\%#\\s*]' },
-  { char = '<Space>', input = '<Space><Space><Left>' }
-)
+multi_at({ '(\\s*\\%#\\s*)', '{\\s*\\%#\\s*}', '\\[\\s*\\%#\\s*]' }, { char = '<Tab>', input = '<Space><Space><Left>' })
 -- ( | ) -> <BS> -> (|)
 multi_at({ '(\\s*\\%#\\s*)', '{\\s*\\%#\\s*}', '\\[\\s*\\%#\\s*]' }, { char = '<BS>', input = '<BS><Del>' })
 
@@ -113,30 +146,3 @@ for _, quote in ipairs(quoteList) do
   rule({ at = '\\%#', char = quote, input = quote })
 end
 --}}}2
-
--- ##Cmdline abbrev
--- Credit:https://scrapbox.io/vim-jp/lexima.vim%E3%81%A7Better_vim-altercmd%E3%82%92%E5%86%8D%E7%8F%BE%E3%81%99%E3%82%8B
-vim.api.nvim_create_user_command('SmartinputAbbrev', function(param) -- {{{2
-  local reply = vim.fn.split(param.args)
-  local input_space = '<C-w>' .. reply[2] .. '<Space>'
-  local input_cr = '<C-w>' .. reply[2] .. '<CR>'
-  local exp = { mode = ':', at = "^\\(''<,''>\\)\\?" .. reply[1] .. '\\%#' }
-  rule(vim.fn.extend(exp, { char = '<Space>', input = input_space }))
-  rule(vim.fn.extend(exp, { char = '<CR>', input = input_cr }))
-end, { nargs = 1 }) --}}}2
-
-vim.cmd([[
-SmartinputAbbrev eu8 e<Space>++enc=utf-8<CR>
-SmartinputAbbrev eu16 e<Space>++enc=utf-16le<CR>
-SmartinputAbbrev gs lua<Space>require('config.gits')<CR>
-SmartinputAbbrev sc set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb<CR>
-SmartinputAbbrev scn set<Space>noscb<CR>
-SmartinputAbbrev del call<Space>delete(expand('%'))
-SmartinputAbbrev cs execute<Space>'50vsplit'g:repo.'\\myrepo\\nvim\\.cheatsheet'<CR>
-SmartinputAbbrev dd diffthis<Bar>wincmd<Space>p<Bar>diffthis<Bar>wincmd<Space>p<CR>
-SmartinputAbbrev dof syntax<Space>enable<Bar>diffoff<CR>
-SmartinputAbbrev dor vert<Space>bel<Space>new<Space>difforg<Bar>set<Space>bt=nofile<Bar>r<Space>++edit<Space>#<Bar>0d_<Bar>windo<Space>diffthis<Bar>wincmd<Space>p<CR>
-SmartinputAbbrev ht so<Space>$VIMRUNTIME/syntax/hitest.vim
-SmartinputAbbrev ct so<Space>$VIMRUNTIME/syntax/colortest.vim
-SmartinputAbbrev hl lua<Space>print(require("module.util").hl_at_cursor())<CR>
-]])
