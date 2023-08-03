@@ -113,6 +113,13 @@
         {
             "command": "paste",
             "keys": "shift+insert"
+        },
+        {
+            "command": 
+            {
+                "action": "nextTab"
+            },
+            "keys": "ctrl+shift+tab"
         }
     ],
     "alwaysShowNotificationIcon": false,
@@ -138,7 +145,7 @@
             "colorScheme": "bongu16",
             "font": 
             {
-                "face": "HackGen Console NFJ",
+                "face": "HackGen Console NF",
                 "size": 13,
                 "weight": "normal"
             },
@@ -155,16 +162,16 @@
                 "backgroundImageOpacity": 0.89000000000000001,
                 "closeOnExit": "automatic",
                 "colorScheme": "clover",
-                "commandline": "%Scoop%\\apps\\neovim-nightly\\current\\bin\\nvim.exe --listen \"\\\\.\\pipe\\nvim-100-0\"",
+                "commandline": "%Scoop%\\apps\\neovim-nightly\\current\\bin\\nvim.exe --listen \"\\\\.\\pipe\\nvim.100.0\"",
                 "experimental.retroTerminalEffect": false,
                 "font": 
                 {
-                    "face": "FirgeNerd Console",
+                    "face": "HackGen Console NF",
                     "size": 13,
                     "weight": "normal"
                 },
                 "guid": "{82304bab-2dc5-4825-9d56-d73787cd1a41}",
-                "icon": "C:\\bin\\repository\\tar80\\images\\nvim.ico",
+                "icon": "C:\\bin\\repository\\tar80\\myrepo\\images\\nvim.ico",
                 "intenseTextStyle": "bold",
                 "name": "Neovim",
                 "opacity": 100,
@@ -176,7 +183,7 @@
                 "useAcrylic": false
             },
             {
-                "backgroundImage": "C:\\bin\\repository\\tar80\\images\\bg_clover1a.png",
+                "backgroundImage": "C:\\bin\\repository\\tar80\\myrepo\\images\\bg_clover1a.png",
                 "backgroundImageOpacity": 0.83999999999999997,
                 "backgroundImageStretchMode": "uniformToFill",
                 "colorScheme": "clover",
@@ -184,7 +191,7 @@
                 "experimental.retroTerminalEffect": false,
                 "font": 
                 {
-                    "face": "HackGen Console NFJ",
+                    "face": "HackGen Console NF",
                     "size": 13
                 },
                 "guid": "{54d1e30c-4952-4c32-a77d-e59b7d87e759}",
@@ -200,17 +207,17 @@
             },
             {
                 "antialiasingMode": "cleartype",
-                "backgroundImage": "C:\\bin\\repository\\tar80\\images\\aqua.jpg",
-                "backgroundImageOpacity": 0.47000000000000003,
+                "backgroundImage": "C:\\bin\\repository\\tar80\\myrepo\\images\\aqua.jpg",
+                "backgroundImageOpacity": 0.47999999999999998,
                 "backgroundImageStretchMode": "none",
                 "closeOnExit": "always",
                 "commandline": "%PPX_DIR%\\ppbw.exe",
                 "guid": "{105557c2-9b32-4c4b-8cf9-65046de2f6bd}",
                 "hidden": false,
-                "icon": "C:\\bin\\repository\\tar80\\images\\ppb.ico",
+                "icon": "C:\\bin\\repository\\tar80\\myrepo\\images\\ppb.ico",
                 "intenseTextStyle": "bright",
                 "name": "PPb",
-                "opacity": 97,
+                "opacity": 87,
                 "suppressApplicationTitle": false,
                 "tabColor": "#426757",
                 "useAcrylic": true
@@ -486,8 +493,8 @@
             "yellow": "#FFD768"
         },
         {
-            "background": "#0E2019",
-            "black": "#102C27",
+            "background": "#001B1B",
+            "black": "#001616",
             "blue": "#547BA8",
             "brightBlack": "#1E5248",
             "brightBlue": "#64AAE8",
@@ -497,7 +504,7 @@
             "brightRed": "#EB686A",
             "brightWhite": "#C4CCBE",
             "brightYellow": "#E2DC79",
-            "cursorColor": "#31D1C3",
+            "cursorColor": "#3EADA4",
             "cyan": "#5EA89A",
             "foreground": "#8D9189",
             "green": "#6E8F4C",

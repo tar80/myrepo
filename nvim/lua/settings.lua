@@ -42,6 +42,7 @@ vim.api.nvim_set_option('fileformats', 'unix,dos,mac')
 --vim.api.nvim_buf_set_option(0, "name", value)
 
 ---##Both {{{2
+vim.o.guicursor = 'n:block,i-c-ci-ve:ver50,v-r-cr-o:hor50'
 vim.o.fileencodings = 'utf-8,utf-16le,cp932,euc-jp,sjis'
 -- vim.o.timeoutlen = 1000
 vim.o.updatetime = vim.g.update_time

@@ -73,9 +73,14 @@ vim.keymap.set({ 'n', 'v' }, 'mq', function()
   local prefix = ''
   local mode = vim.api.nvim_get_mode().mode
 
-  if mode:find('^[vV]') then
+  if mode:find('^[vV\x16]') then
     local s = vim.fn.line('v')
     local e = vim.api.nvim_win_get_cursor(0)[1]
+
+    if s > e then
+      s, e = e, s
+    end
+
     prefix = string.format('%s,%s', s, e)
   end
 
@@ -89,7 +94,7 @@ vim.g.quickrun_config = {
     outputter = 'error',
     ['outputter/error/success'] = 'buffer',
     ['outputter/error/error'] = 'quickfix',
-    ['outputter/buffer/opener'] = ':botright 7split',
+    ['outputter/buffer/opener'] = ':botright 5split',
     ['outputter/buffer/close_on_empty'] = 0,
     runner = 'neovim_job',
     hooks = {
@@ -120,16 +125,29 @@ vim.g.quickrun_config = {
       },
     },
   },
-  typescript = { type = 'deno' },
+  typescript = { type = 'deno'},
   deno = {
     command = 'deno',
     cmdopt = '--no-check --allow-all --unstable',
+    tempfile = '%{tempname()}.ts',
     exec = { '%c run %o %S' },
   },
   lua = {
     command = ':luafile',
     exec = { '%C %S' },
     runner = 'vimscript',
+  },
+  javascript = {type = 'ppx' },
+  ppx = {
+    command = 'ppbw',
+    cmdopt = '-c *stdout',
+    tempfile = '%{tempname()}.js',
+    exec = { '${PPX_DIR}/%c %o %%*script(%S)' },
+  },
+  node = {
+    command = 'node',
+    tempfile = '%{tempname()}.js',
+    exec = { '%c %S' },
   },
 }
 

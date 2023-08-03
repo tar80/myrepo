@@ -135,6 +135,10 @@ cmp.setup.cmdline('/', {
 --}}}2
 -- #Command-mode {{{2
 cmp.setup.cmdline(':', {
+  window = {
+    -- completion = cmp.config.window.bordered(),
+    -- documentation = cmp.config.window.bordered(),
+  },
   completion = { keyword_length = 2 },
   sources = cmp.config.sources({
     { name = 'path', max_item_count = 20 },

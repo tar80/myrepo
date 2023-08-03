@@ -3,8 +3,7 @@
 
 ---##Colorscheme {{{2
 local color_scheme = vim.api.nvim_get_var('use_scheme')
-
-local time_manage = function(f)
+local time_manage = (function()
   local h = os.date('*t').hour
   local tbl = {}
   if h > 6 and h < 19 then
@@ -18,7 +17,6 @@ local time_manage = function(f)
         CursorLine = { fg = 'NONE', bg = '#A33865' },
       },
     }
-    return tbl[f]
   else
     tbl = {
       theme = 'decay',
@@ -27,16 +25,16 @@ local time_manage = function(f)
         CursorLine = { fg = 'NONE', bg = '#A33865' },
       },
     }
-    return tbl[f]
   end
-end
+  return tbl
+end)()
 
 ---@cast color_scheme -nil
 require(color_scheme).setup({
-  theme = time_manage('theme'),
+  theme = time_manage.theme,
   borders = true, -- Split window borders
   fade_nc = true, -- Fade non-current windows, making them more distinguishable
-  fade_no_bg = time_manage('fade'),
+  fade_no_bg = time_manage.fade,
   -- fade_no_bg = true, -- Enable fade_nc but disable current pane background
   styles = {
     comments = 'NONE',
@@ -52,7 +50,7 @@ require(color_scheme).setup({
     cursorline = false,
     eob_lines = true,
   },
-  custom_highlights = time_manage('hl'),
+  custom_highlights = time_manage.hl,
   plugins = {
     lsp = true,
     treesitter = true,
@@ -133,7 +131,7 @@ local icon = {
   ERROR = { ' ', 'pink' },
   WARN = { ' ', 'olive' },
   INFO = { ' ', 'blue' },
-  HINT = { ' ', 'purple' },
+  HINT = { ' ', 'purple' },
   git = { '', 'green' },
   stage = {},
   unstage = {},

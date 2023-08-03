@@ -12,7 +12,7 @@ require('telescope').setup({
     file_ignore_patterns = { '.git\\', '^node_modules\\', '^%.bundle\\', '^vendor\\', '^migemo\\' },
     prompt_title = false,
     prompt_prefix = ' ',
-    selection_caret = ' ',
+    selection_caret = ' ',
     -- multi_icon = " ",
     sorting_strategy = 'ascending',
     layout_strategy = 'horizontal',

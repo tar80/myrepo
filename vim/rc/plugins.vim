@@ -76,6 +76,7 @@ call jetpack#add('rhysd/vim-operator-surround', {'keys': '<Plug>(operator-surrou
 call jetpack#add('hrsh7th/vim-eft', {'keys': '<Plug>(eft-'})
 call jetpack#add('tyru/caw.vim', {'keys': '<Plug>(caw:'})
 call jetpack#add('tyru/open-browser.vim', {'keys': '<Plug>(openbrowser-smart-search)'})
+call jetpack#add('thinca/vim-quickrun')
 call jetpack#add('ctrlpvim/ctrlp.vim', {'cmd': ['CtrlPBuffer', 'CtrlPLine', 'CtrlPMRMrw', 'CtrlPMRMrr', 'CtrlPCurWD', 'CtrlPTag']})
 call jetpack#add('mattn/ctrlp-matchfuzzy', {'opt': 1})
 call jetpack#add('tsuyoshicho/ctrlp-mr.vim', {'opt': 1})

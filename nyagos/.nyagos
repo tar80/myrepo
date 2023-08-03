@@ -143,6 +143,8 @@ nyagos.alias.__dump_history = function()
   end
 end
 
+nyagos.alias.pca = 'cd c:\\bin\\repository\\tar80\\pages-pca && bundle exec jekyll s --future'
+
 nyagos.alias.keyp = 'C:\\bin\\Keypirinha\\keypirinha.exe'
 
 nyagos.alias.zi = function()
@@ -243,4 +245,4 @@ end)
 
 use('git')
 
----vim:set ft=lua:
+-- vim: set ft=lua:

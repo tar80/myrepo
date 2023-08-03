@@ -3,9 +3,8 @@
     "prefix": "temp",
     "body": [
       "/* @file $1",
-      " * @author tar80 <tar80master@google.com>",
-      " * @license MIT",
-      " * @arg $2",
+      " * @return $2",
+      " * @arg $3",
       " */",
       "\n'use strict';\n${0}"
     ]
@@ -17,12 +16,13 @@
   "Args": {
     "prefix": "ar",
     "body": [
-      "const adjustArgs = (args = PPx.Arguments): object => {",
-      "\tconst arr: string[] = [$1];",
+      "type Args = {$1}",
+      "const adjustArgs = (args = PPx.Arguments): Args => {",
+      "\tconst arr: string[] = [$2];",
       "\n\tfor (let i = 0, l = args.length; i < l; i++) {",
       "\t\tarr[i] = args(i);",
       "\t}",
-      "\n\treturn {$2};",
+      "\n\treturn {$1};",
       "};$0"
     ]
   },

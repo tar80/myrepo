@@ -165,6 +165,16 @@ if jetpack#tap('caw.vim') "{{{2
   xmap gcua <Plug>(caw:dollarpos:uncomment)
 endif
 
+if jetpack#tap('vim-quickrun') "{{{2
+  let g:quickrun_config = {}
+  let g:quickrun_config.javascript = {
+        \ 'type': 'javascript',
+        \ 'command': 'ppbw',
+        \ 'cmdopt': '-c *stdout',
+        \ 'exec': ['${PPX_DIR}/%c %o %%*script(%S)']
+        \ }
+endif
+
 if jetpack#tap('open-browser.vim') "{{{2
   " let g:openbrowser_search_engines = {}
   " (default: See below)
@@ -230,7 +240,5 @@ if jetpack#tap('translate.vim') "{{{2
   vnoremap mj <Cmd>Translate<CR>
 endif
 
-" if jetpack#tap('') "{{{2
-" endif
 " if jetpack#tap('') "{{{2
 " endif

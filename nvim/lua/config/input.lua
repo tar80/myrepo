@@ -14,10 +14,11 @@ vim.cmd.abbreviate('exoprt', 'export')
 vim.cmd.abbreviate('exoper', 'export')
 vim.cmd.abbreviate('funcion', 'function')
 vim.cmd.abbreviate('fuction', 'function')
+vim.cmd.abbreviate('stirng', 'string')
 
 cmd_abbrev("'<,'>", [['<,'>s/\\//\\\\\\\\/|nohlsearch]], true)
 cmd_abbrev('s', '%s///<Left>', true)
-cmd_abbrev('ms', 'MugShow')
+cmd_abbrev('ms', 'MugShow', true)
 cmd_abbrev('e8', 'e<Space>++enc=utf-8<CR>')
 cmd_abbrev('e16', 'e<Space>++enc=utf-16le<CR>')
 cmd_abbrev('gs', 'lua<Space>require("config.gits")<CR>')
@@ -77,7 +78,7 @@ rule({ at = '\\%#[\'`"]]$', char = '=', input = '<C-g>U<Right><Right><Space>=<Sp
 rule({ at = '\\%#]$', char = '=', input = '<C-g>U<Right><Space>=<Space>' })
 
 -- #nodejs {{{3
-rule({ at = 'con\\%#', char = '.', input = '<C-w>console.log()<Left>', filetype = { 'javascript', 'typescript' } })
+rule({ at = 'log\\%#', char = '.', input = '<C-w>console.log()<Left>', filetype = { 'javascript', 'typescript' } })
 
 -- ##PPx {{{3
 -- ppx -> . -> PPx.

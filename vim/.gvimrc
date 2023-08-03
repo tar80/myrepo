@@ -30,7 +30,7 @@ if has('xfontset')
   set guifontset=a14,r14,k14
 elseif has('win32') || has('win64')
   " set guifont=Cica:h14:cSHIFTJIS
-  set guifont=HackGen_Console_NFJ:h13:cSHIFTJIS
+  set guifont=HackGen_Console_NF:h13:cSHIFTJIS
   " set guifont=FirgeNerd:h13:w7.2:cSHIFTJIS
   set renderoptions=type:directx,renmode:5,level:1,gamma:1.2,contrast:2
 endif
