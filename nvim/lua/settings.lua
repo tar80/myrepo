@@ -289,7 +289,7 @@ end)
 vim.keymap.set('n', '<C-J>', 'i<C-M><ESC>')
 vim.keymap.set('n', '/', function()
   vim.o.hlsearch = true
-  return '/'
+  return '/\\V'
 end, { expr = true })
 ---Move buffer use <SPACE>
 vim.keymap.set('n', '<SPACE>', '<C-W>', { remap = true })
@@ -323,7 +323,7 @@ end)
 ---##Insert & Command {{{2
 vim.keymap.set('i', '<C-J>', '<DOWN>')
 vim.keymap.set('i', '<C-K>', '<UP>')
-vim.keymap.set('i', '<C-L>', '<DELETE>')
+vim.keymap.set('i', '<C-D>', '<DELETE>')
 vim.keymap.set('i', '<C-F>', '<RIGHT>')
 vim.keymap.set('i', '<S-DELETE>', '<C-O>D')
 vim.keymap.set('!', '<C-B>', '<LEFT>')

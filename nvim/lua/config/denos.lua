@@ -24,7 +24,7 @@ vim.api.nvim_create_autocmd('User', {
   end,
 })
 
----##FuzzyMotion {{{2
+---@desc FuzzyMotion {{{2
 vim.g.fuzzy_motion_matchers = { 'fzf', 'kensaku' }
 -- vim.g.fuzzy_motion_word_filter_regexp_list = { '^[a-zA-Z0-9]' }
 -- vim.g.fuzzy_motion_word_regexp_list = [ '[0-9a-zA-Z_-]+', '([0-9a-zA-Z_-]|[.])+', '([0-9a-zA-Z_-]|[().#])+' ]
@@ -34,7 +34,7 @@ vim.keymap.set('n', '<Leader>j', function()
     vim.fn['denops#plugin#register']('fuzzy-motion')
   end
 
-  vim.cmd([[FuzzyMotion]])
+  vim.cmd('FuzzyMotion')
 end)
 
 ---##Skkeleton {{{2
@@ -176,6 +176,7 @@ function Skkeleton_init()
     ['z~'] = { '〜', '' },
     ['z;'] = { ';', '' },
     ['z,'] = { ',', '' },
+    ['z.'] = { '.', '' },
     ['z['] = { '【', '' },
     ['z]'] = { '】', '' },
   })

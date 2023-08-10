@@ -13,13 +13,17 @@
     "prefix": "imp",
     "body": "import ${1} from '${2:@ppmdev/modules/}';"
   },
+  "Import polyfill": {
+    "prefix": "impp",
+    "body": "import '@ppmdev/polyfills/${1}';\n${0}"
+  },
   "Args": {
     "prefix": "ar",
     "body": [
       "type Args = {$1}",
       "const adjustArgs = (args = PPx.Arguments): Args => {",
       "\tconst arr: string[] = [$2];",
-      "\n\tfor (let i = 0, l = args.length; i < l; i++) {",
+      "\n\tfor (let i = 0, k = args.length; i < l; i++) {",
       "\t\tarr[i] = args(i);",
       "\t}",
       "\n\treturn {$1};",
@@ -52,12 +56,12 @@
   },
   "For loop": {
     "prefix": "for",
-    "body": ["for (let ${1:i} = ${2:0}; ${1:i} < ${3:l}; ${1:i}++) {", "\t$4", "}", "\n$0"]
+    "body": ["for (let ${1:i} = ${2:0}; ${1:i} < ${3:k}; ${1:i}++) {", "\t$4", "}", "\n$0"]
   },
   "For loop limit": {
     "prefix": "forl",
     "body": [
-      "for (let ${1:i} = ${2:0}, ${3:l} = ${4:array}.length; ${1:i} < ${3}; ${1:i}++) {",
+      "for (let ${1:i} = ${2:0}, ${3:k} = ${4:array}.length; ${1:i} < ${3}; ${1:i}++) {",
       "\tconst ${5:element} = ${4:array}[${1:i}];",
       "\t$0",
       "}"

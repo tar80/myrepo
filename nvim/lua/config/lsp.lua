@@ -1,10 +1,12 @@
--- vim:textwidth=0:foldmethod=marker:foldlevel=1:lsp
+-- vim:textwidth=0:foldmethod=marker:foldlevel=1
 --------------------------------------------------------------------------------
 
----#AUTOGROUP
+local signs = { Error = '', Warn = '', Hint = '', Info = '' }
+
+---@desc AUTOGROUP
 vim.api.nvim_create_augroup('rcLsp', {})
 
----#FUNCTIONS
+---@desc FUNCTIONS {{{1
 ---VScode like rename function
 local popup_rename = function()
   local util = require('module.util')
@@ -22,33 +24,38 @@ local popup_rename = function()
   end
 
   -- if vim.lsp.buf.server_ready() then
-    local contents = function()
-      return rename_old
-    end
+  local contents = function()
+    return rename_old
+  end
 
-    local post = function()
-      vim.keymap.set('i', '<CR>', function()
-        local input = vim.api.nvim_get_current_line()
-        vim.api.nvim_command('quit|stopinsert!')
-        vim.lsp.buf.rename(vim.trim(input))
-        vim.notify(rename_old .. ' -> ' .. input, 2, { title = title })
-      end, { buffer = true })
-    end
+  local post = function()
+    vim.keymap.set('i', '<CR>', function()
+      local input = vim.api.nvim_get_current_line()
+      vim.api.nvim_command('quit|stopinsert!')
+      vim.lsp.buf.rename(vim.trim(input))
+      vim.notify(rename_old .. ' -> ' .. input, 2, { title = title })
+    end, { buffer = true })
+  end
 
-    require('mug.module.float').input({
-      title = title,
-      width = math.max(25, #rename_old + 8),
-      border = 'single',
-      relative = 'cursor',
-      contents = contents,
-      post = post,
-    })
+  require('mug.module.float').input({
+    title = title,
+    width = math.max(25, #rename_old + 8),
+    border = 'single',
+    relative = 'cursor',
+    contents = contents,
+    post = post,
+  })
   -- else
   --   vim.notify('LSP Not ready yet!', 3, { title = title })
   -- end
 end
 
--- #DIAGNOSTIC {{{1
+---@desc OPTIONS {{{1
+vim.lsp.set_log_level = 'OFF'
+vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'single' })
+vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'single' })
+
+---@desc DIAGNOSTIC {{{1
 vim.diagnostic.config({
   virtual_text = false,
   severity_sort = true,
@@ -63,17 +70,14 @@ vim.diagnostic.config({
   signs = true,
   update_in_insert = false,
 })
-local signs = { Error = '', Warn = '', Hint = '', Info = '' }
+
 for type, icon in pairs(signs) do
   local hl = 'DiagnosticSign' .. type
   vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = 'NONE' })
 end
 
-vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'single' })
-vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'single' })
-
--- #KEYMAPS {{{1
-vim.keymap.set("n", "gle", "<Cmd>lua vim.diagnostic.open_float(0,{border='rounded'})<CR>")
+---@desc KEYMAPS {{{1
+vim.keymap.set('n', 'gle', "<Cmd>lua vim.diagnostic.open_float(0,{border='rounded'})<CR>")
 vim.keymap.set('n', 'glv', function()
   local vt_set = not vim.diagnostic.config().virtual_text
   vim.diagnostic.config({ virtual_text = vt_set })
@@ -81,6 +85,7 @@ end)
 vim.keymap.set('n', ']d', '<Cmd>lua vim.diagnostic.goto_next()<CR>')
 vim.keymap.set('n', '[d', '<Cmd>lua vim.diagnostic.goto_prev()<CR>')
 
+---@desc On_attach {{{1
 local on_attach = function(client, bufnr)
   vim.keymap.set('n', 'gD', vim.lsp.buf.declaration)
   vim.keymap.set('n', 'gd', vim.lsp.buf.definition)
@@ -118,7 +123,7 @@ local on_attach = function(client, bufnr)
   })
 end
 
--- #MASON-LSPCONFIG {{{1
+---@desc MASON-LSPCONFIG {{{1
 -- require("mason-lspconfig").setup({
 --   ensure_installed = { "sumneko_lua" },
 --   automatic_installation = true,
@@ -193,9 +198,11 @@ require('mason-lspconfig').setup_handlers({
   end,
 })
 
-vim.lsp.buf.format({ timeout_ms = 2000 })
+---@desc NULL_LS {{{1
 vim.keymap.set('n', 'glf', function(bufnr)
   vim.lsp.buf.format({
+    async = true,
+    timeout_ms = 3000,
     filter = function(client)
       return client.name == 'null-ls'
     end,
@@ -205,12 +212,33 @@ end)
 
 local null_ls = require('null-ls')
 null_ls.setup({
+  debounce = 500,
   sources = {
     null_ls.builtins.formatting.prettier,
     null_ls.builtins.formatting.stylua,
-    null_ls.builtins.formatting.markdownlint,
-    null_ls.builtins.diagnostics.markdownlint,
+    null_ls.builtins.formatting.markdownlint.with({
+      extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.markdownlint.yaml') },
+    }),
+    null_ls.builtins.diagnostics.markdownlint.with({
+      extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.markdownlint.yaml') },
+    }),
+    null_ls.builtins.formatting.textlint.with({
+      extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
+    }),
+    null_ls.builtins.diagnostics.textlint.with({
+      extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
+      diagnostic_config = {
+        virtual_text = {
+          format = function(diagnostic)
+            return string.format('%s: [%s] %s', diagnostic.source, diagnostic.code, diagnostic.message)
+          end,
+        },
+        signs = false,
+      },
+      method = null_ls.methods.DIAGNOSTICS_ON_SAVE,
+    }),
   },
 })
+---}}}1
 
 vim.api.nvim_command('LspStart')

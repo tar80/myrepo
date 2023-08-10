@@ -219,6 +219,7 @@ require('lazy').setup(
       'vim-denops/denops.vim',
       dependencies = {
         'lambdalisue/kensaku.vim',
+        'lambdalisue/kensaku-search.vim',
         'yuki-yano/fuzzy-motion.vim',
         'vim-skk/skkeleton',
       },
@@ -231,6 +232,16 @@ require('lazy').setup(
         require('config.denos')
       end,
       event = 'User LazyLoad',
+    },
+    {
+      'delphinus/skkeleton_indicator.nvim',
+      config = function()
+        require('skkeleton_indicator').setup({
+          alwaysShown = false,
+          fadeOutMs = 0,
+        })
+      end,
+      event = 'InsertEnter',
     },
     {
       'lewis6991/gitsigns.nvim',
@@ -352,7 +363,6 @@ require('lazy').setup(
         { '<C-R>', mode = 'i' },
       },
     },
-    { 'bfredl/nvim-luadev', cmd = 'Luadev' },
     {
       'thinca/vim-quickrun',
       dependencies = {
@@ -377,14 +387,14 @@ require('lazy').setup(
       wrap = true,
       border = 'single',
       icons = {
-        cmd = '',
+        cmd = '',
         config = '',
         event = '',
         ft = '',
         init = '',
         import = '',
         keys = ' ',
-        lazy = '',
+        lazy = '',
         loaded = '●',
         not_loaded = '○',
         plugin = '',

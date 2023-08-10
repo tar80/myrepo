@@ -3,11 +3,20 @@
 
 ---#AUTOGROUP
 
--- ##Operator-replace {{{2
--- if pcall(require, 'vim-operator-replace') then
+---@desc kensaku-search {{{2
+vim.keymap.set('c', '<CR>', function()
+  local cmdtype = vim.fn.getcmdtype()
+
+  if cmdtype == '/' or cmdtype == '?' then
+    return '<Plug>(kensaku-search-replace)<CR>'
+  end
+
+  return '<CR>'
+end, { expr = true })
+
+---@desc Operator-replace {{{2
 vim.keymap.set('n', '_', '"*<Plug>(operator-replace)')
 vim.keymap.set('n', '\\', '"0<Plug>(operator-replace)')
--- end
 
 -- ##Oparetor-surround {{{2
 -- if pcall(require, 'vim-operator-surround') then
@@ -125,7 +134,7 @@ vim.g.quickrun_config = {
       },
     },
   },
-  typescript = { type = 'deno'},
+  typescript = { type = 'deno' },
   deno = {
     command = 'deno',
     cmdopt = '--no-check --allow-all --unstable',
@@ -137,12 +146,12 @@ vim.g.quickrun_config = {
     exec = { '%C %S' },
     runner = 'vimscript',
   },
-  javascript = {type = 'ppx' },
+  javascript = { type = 'ppx' },
   ppx = {
     command = 'ppbw',
     cmdopt = '-c *stdout',
     tempfile = '%{tempname()}.js',
-    exec = { '${PPX_DIR}/%c %o %%*script(%S)' },
+    exec = { '${PPX_DIR}/%c %o [PPx] %%*script(%S)' },
   },
   node = {
     command = 'node',

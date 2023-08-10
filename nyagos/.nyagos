@@ -175,7 +175,7 @@ end
 nyagos.alias.cc = function()
   local path = nyagos.eval('fd -Ht d -c never -E .git -E node_modules | ' .. fzf.cmd)
   if path ~= '' then
-    nyagos.exec(string.format('cd "%s"', path))
+    nyagos.exec(string.format('cd %s', path))
   end
   return nil
 end

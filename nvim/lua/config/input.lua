@@ -1,7 +1,7 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
----@desc Abbreviate
+---@desc Abbreviate {{{2
 ---@see https://zenn.dev/vim_jp/articles/2023-06-30-vim-substitute-tips
 local cmd_abbrev = function(i, o, s)
   local ignore_space = s and '[getchar(), ""][1].' or ''
@@ -21,7 +21,7 @@ cmd_abbrev('s', '%s///<Left>', true)
 cmd_abbrev('ms', 'MugShow', true)
 cmd_abbrev('e8', 'e<Space>++enc=utf-8<CR>')
 cmd_abbrev('e16', 'e<Space>++enc=utf-16le<CR>')
-cmd_abbrev('gs', 'lua<Space>require("config.gits")<CR>')
+cmd_abbrev('gs', [[lua<Space>require('config.gits')<CR>]])
 cmd_abbrev('sc', 'set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb<CR>')
 cmd_abbrev('scn', 'set<Space>noscb<CR>')
 cmd_abbrev('del', [[call<Space>delete(expand('%'))]])
@@ -33,7 +33,7 @@ cmd_abbrev('ht', 'so<Space>$VIMRUNTIME/syntax/hitest.vim', true)
 cmd_abbrev('ct', 'so<Space>$VIMRUNTIME/syntax/colortest.vim', true)
 cmd_abbrev('hl', "lua<Space>print(require('module.util').hl_at_cursor())<CR>")
 
----@desc Smartinput
+---@desc Smartinput {{{2
 ---@template: rule({ at = '', char = '', input = '', mode = '', filetype = '', syntax = '' })
 
 -- #Triggers {{{2
@@ -48,7 +48,7 @@ trigger('i', '<C-f>', '<C-f>', '<C-f>')
 -- trigger("i", ";", ";", ";")
 trigger('i', '=', '=', '=')
 trigger('i', '.', '.', '.')
-trigger('c', '<CR>', '<CR>', '<CR>')
+-- trigger('c', '<CR>', '<CR>', '<CR>')
 -- trigger('c', '<Space>', '<Space>', '<Space>')
 
 -- #Rules {{{2

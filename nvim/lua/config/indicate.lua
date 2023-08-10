@@ -59,6 +59,7 @@ require(color_scheme).setup({
     cmp = true,
     gitsigns = true,
     fret = true,
+    skkeleton_indicator = true,
     -- notify = true
   },
 })
