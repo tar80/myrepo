@@ -10,8 +10,14 @@ vim.api.nvim_create_augroup('rcLsp', {})
 ---VScode like rename function
 local popup_rename = function()
   local util = require('module.util')
-  local title = 'Lsp-rename'
   local adjust_cursor = util.getchr():match('[^%w]')
+  local bufnr = vim.api.nvim_get_current_buf()
+  local title = 'Lsp-rename'
+
+  if vim.tbl_isempty(vim.lsp.get_clients({bufnr = bufnr })) then
+    vim.notify('Language server is not attached this buffer', 3, { title = title })
+    return
+  end
 
   if adjust_cursor then
     vim.api.nvim_command('normal h')
@@ -23,7 +29,6 @@ local popup_rename = function()
     vim.api.nvim_command('normal l')
   end
 
-  -- if vim.lsp.buf.server_ready() then
   local contents = function()
     return rename_old
   end
@@ -45,9 +50,6 @@ local popup_rename = function()
     contents = contents,
     post = post,
   })
-  -- else
-  --   vim.notify('LSP Not ready yet!', 3, { title = title })
-  -- end
 end
 
 ---@desc OPTIONS {{{1
@@ -124,11 +126,6 @@ local on_attach = function(client, bufnr)
 end
 
 ---@desc MASON-LSPCONFIG {{{1
--- require("mason-lspconfig").setup({
---   ensure_installed = { "sumneko_lua" },
---   automatic_installation = true,
--- })
-
 local flags = {
   allow_incremental_sync = false,
   debounce_text_changes = 700,
@@ -223,10 +220,11 @@ null_ls.setup({
       extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.markdownlint.yaml') },
     }),
     null_ls.builtins.formatting.textlint.with({
-      extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
+      extra_args = { '--no-color', '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
     }),
     null_ls.builtins.diagnostics.textlint.with({
-      extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
+      filetypes = {'text', 'markdown'},
+      extra_args = { '--no-color', '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
       diagnostic_config = {
         virtual_text = {
           format = function(diagnostic)

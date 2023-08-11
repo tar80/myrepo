@@ -1,8 +1,11 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
----##Colorscheme {{{2
 local color_scheme = vim.api.nvim_get_var('use_scheme')
+local colors = require(string.format('feline.themes.%s', color_scheme))
+
+---@desc Colorscheme {{{1
+---@desc time-manage {{{2
 local time_manage = (function()
   local h = os.date('*t').hour
   local tbl = {}
@@ -29,6 +32,7 @@ local time_manage = (function()
   return tbl
 end)()
 
+---@desc ColorScheme Setup {{{2
 ---@cast color_scheme -nil
 require(color_scheme).setup({
   theme = time_manage.theme,
@@ -63,16 +67,24 @@ require(color_scheme).setup({
     -- notify = true
   },
 })
---}}}2
----##Nvim-Tabline {{{2
----Source: David Zhang <https://github.com/crispgm>
+---}}}2
+
+---@desc Nvim-Tabline {{{1
+---@see https://github.com/crispgm
+---@desc highlights {{{2
+vim.api.nvim_set_hl(0, 'TabLineFill', { fg = colors.theme.fg, bg = colors.theme.bg })
+vim.api.nvim_set_hl(0, 'TabLineSel', { fg = colors.theme.cyan, bg = colors.theme.bg2 })
+vim.api.nvim_set_hl(0, 'TabLine', { fg = colors.theme.green, bg = colors.theme.bg })
+
+---@desc options {{{2
 local options = {
   show_index = true,
   show_modify = true,
-  modify_indicator = '  ',
+  modify_indicator = '',
   no_name = '[No Name]',
 }
 
+---@desc tabline() {{{2
 local function tabline(opts)
   local s = ''
   for index = 1, #vim.api.nvim_list_tabpages() do
@@ -82,31 +94,14 @@ local function tabline(opts)
     local bufname = vim.fn.bufname(bufnr)
     local bufmodified = vim.api.nvim_buf_get_option(bufnr, 'modified')
 
-    s = s .. '%' .. index .. 'T'
-    if index == vim.fn.tabpagenr() then
-      s = s .. '%#TabLineSel#'
-    else
-      s = s .. '%#TabLineFill#'
-    end
-    -- tab index
-    s = s .. ' '
-    -- index
-    if opts.show_index then
-      s = s .. index .. ' '
-    end
-    -- buf name
-    if bufname ~= '' then
-      s = s .. vim.fn.fnamemodify(bufname, ':t') .. ' '
-    else
-      s = s .. opts.no_name .. ' '
-    end
-    -- modify indicator
-    if bufmodified and opts.show_modify and opts.modify_indicator ~= nil then
-      s = s .. opts.modify_indicator .. ' '
-    end
+    local color = index == vim.fn.tabpagenr() and '%#TabLineSel#' or '%#TabLineFill#'
+    local idx = opts.show_index and index or ''
+    local name = bufname ~= '' and vim.fn.fnamemodify(bufname, ':t') or opts.no_name
+    local modifier = bufmodified and opts.show_modify and opts.modify_indicator ~= nil and opts.modify_indicator or ''
+    s = string.format('%s%%%sT%s %s %s %s', s, index, color, idx, name, modifier)
   end
 
-  s = s .. '%#TabLineFill#%T%=%#StatusLine#%{getcwd()} '
+  s = string.format('%s%%#TabLineFill#%%T%%=%%#TabLine#%%{getcwd()} ', s)
   return s
 end
 
@@ -115,35 +110,33 @@ function _G.nvim_tabline()
 end
 
 vim.o.tabline = '%!v:lua.nvim_tabline()'
---}}}2
--- #Feline {{{1
+---}}}2
+
+---@desc Feline {{{1
 if not pcall(require, 'feline') then
   return
 end
 
--- ##Initial {{{2
-local colors = require('feline.themes.' .. color_scheme)
+---@desc Initial {{{2
 local vm = require('feline.providers.vi_mode')
 
+---@desc icon {{{2
 local icon = {
-  dos = { '  ', 'fg' },
-  unix = { '  ', 'fg' },
-  mac = { '  ', 'fg' },
-  ERROR = { ' ', 'pink' },
-  WARN = { ' ', 'olive' },
-  INFO = { ' ', 'blue' },
-  HINT = { ' ', 'purple' },
+  dos = { '', 'blue' },
+  unix = { '', 'olive' },
+  mac = { '', 'pink' },
+  ERROR = { '', 'pink' },
+  WARN = { '', 'olive' },
+  INFO = { '', 'blue' },
+  HINT = { '', 'purple' },
   git = { '', 'green' },
   stage = {},
   unstage = {},
 }
+---}}}2
 
--- ##Highlights {{{2
-vim.api.nvim_set_hl(0, 'TabLineFill', { fg = colors.theme.fg, bg = colors.theme.bg })
-vim.api.nvim_set_hl(0, 'TabLine', { fg = colors.theme.fg, bg = colors.theme.bg2 })
-
--- #Feline left {{{1
--- ##Mode {{{2
+---@desc Feline left
+---@desc Mode {{{2
 local mode = {
   priority = 2,
   vim = {
@@ -155,7 +148,7 @@ local mode = {
       },
     },
     short_provider = function()
-      return ' ' .. string.sub(vm.get_vim_mode(), 1, 1) .. ' '
+      return string.format(' %s', string.sub(vm.get_vim_mode(), 1, 1))
     end,
     icon = '',
     hl = function()
@@ -188,7 +181,7 @@ local mode = {
     end,
   },
   sep = {
-    provider = '',
+    provider = '',
     hl = function()
       return {
         fg = require('feline.providers.vi_mode').get_mode_color(),
@@ -197,7 +190,7 @@ local mode = {
     end,
   },
 }
--- ##Diagnostics {{{2
+---@desc Diagnostics {{{2
 local function diagnostics_count(severity)
   return vim.fn.mode() == 'n' and vim.tbl_count(vim.diagnostic.get(0, { severity = vim.diagnostic.severity[severity] }))
     or 0
@@ -206,7 +199,7 @@ end
 local function diagnostics_provider(severity)
   return function()
     local count = diagnostics_count(severity)
-    return icon[severity][1] .. count .. ' '
+    return string.format(' %s%s ', icon[severity][1], count)
   end
 end
 local function diagnostics_enable(severity)
@@ -230,20 +223,12 @@ local diag = {
   info = diag_signs('INFO'),
   hint = diag_signs('HINT'),
   sep = {
-    left_sep = { str = '', hl = { fg = 'bg2' }, always_visible = true },
+    left_sep = { str = ' ', hl = { fg = 'bg2' }, always_visible = true },
   },
 }
--- ##Edit status {{{2
+---@desc Edit status {{{2
 local edit = {
   priority = 1,
-  luadev = {
-    provider = function()
-      return vim.b.loaded_luadev and '' or ''
-    end,
-    hl = {
-      fg = 'cyan',
-    },
-  },
   readonly = {
     provider = function()
       return vim.bo.readonly and '' or ''
@@ -275,13 +260,17 @@ local edit = {
   --   hl = { bg = "fg" },
   -- },
 }
--- #Feline Center {{{1
--- #Feline Right {{{1
+---}}}2
+
+---@desc Feline Center
+
+---@desc Feline Right
+---@desc sepalator {{{2
 local sepalator = {
-  str = ' ⏽ ',
+  str = '  ',
   hl = { fg = 'bg2' },
 }
--- ##Git {{{2
+---@desc Git {{{2
 local git = {
   priority = -2,
   branch = {
@@ -296,7 +285,8 @@ local git = {
   info = {
     provider = function()
       local info = vim.b.mug_branch_info or ''
-      return info ~= '' and '(' .. info .. ') ' or ' '
+      return info ~= '' and string.format('(%s)', info) or ' '
+      -- return info ~= '' and '(' .. info .. ') ' or ' '
     end,
     hl = {
       fg = icon.git[2],
@@ -305,7 +295,8 @@ local git = {
   status = {
     provider = function()
       local state = vim.b.mug_branch_stats
-      return state and '+' .. state.s .. ' ~' .. state.u .. ' !' .. state.c or ''
+      return state and string.format('+%s ~%s !%s', state.s, state.u, state.c) or ''
+      -- return state and '+' .. state.s .. ' ~' .. state.u .. ' !' .. state.c or ''
     end,
     hl = {
       fg = icon.git[2],
@@ -313,15 +304,22 @@ local git = {
     truncate_hide = true,
   },
 }
--- ##File info {{{2
+---@desc File info {{{2
 local file = {
   priority = -2,
   type = {
     provider = function()
-      local ft = vim.api.nvim_buf_get_option(0, 'filetype')
-      local ff = vim.api.nvim_buf_get_option(0, 'fileformat')
-      return ft .. icon[ff][1]
+      return vim.api.nvim_buf_get_option(0, 'filetype')
+      -- return ft .. icon[ff][1]
       -- return vim.bo.filetype .. icon[vim.bo.fileformat][1]
+    end,
+    hl = { fg = 'cyan' },
+    left_sep = sepalator,
+  },
+  encode = {
+    provider = function()
+      local ff = vim.api.nvim_buf_get_option(0, 'fileformat')
+      return string.format('%s %s', vim.api.nvim_buf_get_option(0, 'fileencoding'), icon[ff][1])
     end,
     hl = function()
       local bufnr = tonumber(vim.api.nvim_get_var('actual_curbuf'))
@@ -329,15 +327,9 @@ local file = {
     end,
     left_sep = sepalator,
   },
-  encode = {
-    provider = function()
-      return vim.api.nvim_buf_get_option(0, 'fileencoding')
-    end,
-    hl = { fg = 'fg' },
-  },
   truncate_hide = true,
 }
--- ##Line {{{2
+---@desc Line {{{2
 local line = {
   priority = -2,
   pos = {
@@ -350,32 +342,19 @@ local line = {
         },
       },
     },
+    hl = { fg = 'purple' },
     left_sep = sepalator,
     truncate_hide = true,
   },
   percent = {
     provider = 'line_percentage',
+    hl = { fg = 'purple' },
     left_sep = sepalator,
     truncate_hide = true,
   },
-  -- bar = {
-  --   provider = {
-  --     name = "scroll_bar",
-  --     opts = {
-  --       reverse = true,
-  --     },
-  --   },
-  --   hl = function()
-  --     return {
-  --       fg = "bg2",
-  --       bg = require("feline.providers.vi_mode").get_mode_color(),
-  --     }
-  --   end,
-  --   left_sep = " ",
-  -- },
 }
 
--- ##Feline inactive {{{2
+--@desc Feline inactive {{{2
 local filetype = {
   provider = function()
     return ' ' .. vim.bo.filetype .. ' '
@@ -398,8 +377,8 @@ local path = {
   hl = { fg = 'fg' },
 }
 
--- #Setup {{{1
--- ##Table {{{2
+---@desc Setup
+---@desc Table {{{2
 local active = {
   {
     mode.vim,
@@ -410,7 +389,6 @@ local active = {
     diag.info,
     diag.hint,
     diag.sep,
-    edit.luadev,
     edit.readonly,
     edit.name,
     edit.modified,
@@ -424,7 +402,7 @@ local inactive = {
   {},
   { line.percent },
 }
--- ##Require {{{2
+---@desc Feline Setup {{{2
 require('feline').setup({
   theme = colors.theme,
   vi_mode_colors = colors.vi_mode,
@@ -432,7 +410,6 @@ require('feline').setup({
   highlight_reset_triggers = { 'SessionLoadPost', 'ColorScheme' },
   force_inactive = {
     filetypes = {
-      'packer',
       'qf',
       'help',
       'diff',
@@ -444,6 +421,6 @@ require('feline').setup({
     filetypes = {},
   },
 })
---}}}1
+--}}}
 
 color_scheme = nil

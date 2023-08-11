@@ -52,11 +52,11 @@ require('lazy').setup(
           -- log_level = "DEBUG",
           name = 'user/custom',
           fallback = function(cw)
-            cw.load('cica')
-            cw.add({
-              { 0xF000, 0xFD46, 2 },
-            })
-            cw.delete({ 0xE0B4, 0xE0B6, 0xE285, 0xE725 })
+            cw.load('sfmono_square')
+            -- cw.add({
+            --   { 0xF000, 0xFD46, 2 },
+            -- })
+            cw.delete({ 0xE0B4, 0xE0B6, 0xE0B8, 0xE0BA, 0xE0BC, 0xE0BD, 0xE0BE, 0xE0BF, 0xE285, 0xE725 })
           end,
         })
       end,
