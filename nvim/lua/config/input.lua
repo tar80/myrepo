@@ -15,6 +15,7 @@ vim.cmd.abbreviate('exoper', 'export')
 vim.cmd.abbreviate('funcion', 'function')
 vim.cmd.abbreviate('fuction', 'function')
 vim.cmd.abbreviate('stirng', 'string')
+vim.cmd.abbreviate('retrun', 'return')
 
 cmd_abbrev("'<,'>", [['<,'>s/\\//\\\\\\\\/|nohlsearch]], true)
 cmd_abbrev('s', '%s///<Left>', true)

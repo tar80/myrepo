@@ -64,7 +64,7 @@ vim.diagnostic.config({
   float = {
     focusable = true,
     style = 'minimal',
-    border = 'single',
+    border = 'rounded',
     source = 'always',
     header = '',
     prefix = '',
@@ -79,7 +79,20 @@ for type, icon in pairs(signs) do
 end
 
 ---@desc KEYMAPS {{{1
-vim.keymap.set('n', 'gle', "<Cmd>lua vim.diagnostic.open_float(0,{border='rounded'})<CR>")
+vim.keymap.set('n', 'gle', function()
+  local opts = { focusable = false }
+  local winblend = vim.o.winblend
+  local scope_c = vim.tbl_extend('force', opts, { scope = 'cursor' })
+  vim.api.nvim_win_set_option(0, 'winblend', 0)
+  local ret = vim.diagnostic.open_float(0, scope_c)
+
+  if not ret then
+    local scope_l = vim.tbl_extend('force', opts, { scope = 'line' })
+    vim.diagnostic.open_float(0, scope_l)
+  end
+
+  vim.api.nvim_win_set_option(0, 'winblend', winblend)
+end)
 vim.keymap.set('n', 'glv', function()
   local vt_set = not vim.diagnostic.config().virtual_text
   vim.diagnostic.config({ virtual_text = vt_set })

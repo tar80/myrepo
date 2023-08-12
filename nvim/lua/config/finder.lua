@@ -5,7 +5,7 @@
 ---#Setup {@@2
 require('telescope').setup({
   defaults = {
-    winblend = 8,
+    winblend = 9,
     previewer = false,
     cache_picker = false,
     color_devicons = false,
@@ -86,7 +86,7 @@ end
 
 local preview = function(add)
   local preset = {
-    winblend = 8,
+    winblend = 9,
     results_title = false,
     path_display = function(_, path)
       local tail = require('telescope.utils').path_tail(path)

@@ -83,8 +83,8 @@ vim.o.signcolumn = 'yes'
 -- vim.o.backspace = { indent = true,eol = true, start = true }
 vim.o.complete = '.,w'
 vim.opt.completeopt = { menu = true, menuone = true, noselect = true }
-vim.o.winblend = 6
-vim.o.pumblend = 6
+vim.o.winblend = 0
+vim.o.pumblend = 10
 vim.o.pumheight = 10
 vim.o.pumwidth = 20
 vim.o.matchtime = 2
