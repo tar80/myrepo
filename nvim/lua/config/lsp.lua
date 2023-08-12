@@ -7,14 +7,14 @@ local signs = { Error = '', Warn = '', Hint = '', Info = '' }
 vim.api.nvim_create_augroup('rcLsp', {})
 
 ---@desc FUNCTIONS {{{1
----VScode like rename function
+---@desc VScode like rename function {{{2
 local popup_rename = function()
   local util = require('module.util')
   local adjust_cursor = util.getchr():match('[^%w]')
   local bufnr = vim.api.nvim_get_current_buf()
   local title = 'Lsp-rename'
 
-  if vim.tbl_isempty(vim.lsp.get_clients({bufnr = bufnr })) then
+  if vim.tbl_isempty(vim.lsp.get_clients({ bufnr = bufnr })) then
     vim.notify('Language server is not attached this buffer', 3, { title = title })
     return
   end
@@ -101,7 +101,7 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', 'gla', '<Cmd>CodeActionMenu<CR>')
   -- vim.keymap.set("n", "glj", vim.lsp.buf.references)
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-  ---##Under cursor Symbol highlight -- {{{2
+  ---@desc Under cursor Symbol highlight -- {{{2
   vim.api.nvim_create_autocmd({ 'CursorHold' }, {
     group = 'rcLsp',
     buffer = 0,
@@ -146,22 +146,24 @@ require('mason-lspconfig').setup_handlers({
     require('lspconfig').tsserver.setup({
       flags = flags,
       root_dir = require('lspconfig').util.root_pattern('tsconfig.json'),
+      filetypes = { 'typescript' },
       on_attach = function(client, bufnr)
         on_attach(client, bufnr)
       end,
       capabilities = capabilities,
     })
   end,
-  -- ['denols'] = function()
-  --   require('lspconfig').denols.setup({
-  --     flags = flags,
-  --     root_dir = require('lspconfig').util.root_pattern('tsconfig.json', 'deno.json', 'deno.jsonc'),
-  --     on_attach = function(client, bufnr)
-  --       on_attach(client, bufnr)
-  --     end,
-  --     capabilities = capabilities,
-  --   })
-  -- end,
+  ['denols'] = function()
+    require('lspconfig').denols.setup({
+      flags = flags,
+      root_dir = require('lspconfig').util.root_pattern('.git', 'tsconfig.json', 'deno.json', 'deno.jsonc'),
+      filetypes = { 'javascript' },
+      on_attach = function(client, bufnr)
+        on_attach(client, bufnr)
+      end,
+      capabilities = capabilities,
+    })
+  end,
   ['lua_ls'] = function()
     require('lspconfig').lua_ls.setup({
       flags = flags,
@@ -216,14 +218,21 @@ null_ls.setup({
     null_ls.builtins.formatting.markdownlint.with({
       extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.markdownlint.yaml') },
     }),
-    null_ls.builtins.diagnostics.markdownlint.with({
-      extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.markdownlint.yaml') },
-    }),
     null_ls.builtins.formatting.textlint.with({
       extra_args = { '--no-color', '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
     }),
+    null_ls.builtins.diagnostics.jsonlint.with({
+      filetypes = { 'json', 'jsonc' },
+      diagnostic_config = {
+        virtual_text = true,
+        signs = false,
+      },
+    }),
+    null_ls.builtins.diagnostics.markdownlint.with({
+      extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.markdownlint.yaml') },
+    }),
     null_ls.builtins.diagnostics.textlint.with({
-      filetypes = {'text', 'markdown'},
+      filetypes = { 'text', 'markdown' },
       extra_args = { '--no-color', '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
       diagnostic_config = {
         virtual_text = {

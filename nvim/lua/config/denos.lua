@@ -1,6 +1,8 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
+vim.g['denops#deno'] = string.format('%s/packages/deno/deno.exe', vim.env.mason)
+
 ---#Autogroup
 vim.api.nvim_create_augroup('rcDeno', {})
 

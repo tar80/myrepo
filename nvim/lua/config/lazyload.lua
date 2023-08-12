@@ -12,13 +12,13 @@ vim.keymap.set('c', '<CR>', function()
   end
 
   return '<CR>'
-end, { expr = true })
+end, { silent = true, expr = true })
 
 ---@desc Operator-replace {{{2
 vim.keymap.set('n', '_', '"*<Plug>(operator-replace)')
 vim.keymap.set('n', '\\', '"0<Plug>(operator-replace)')
 
--- ##Oparetor-surround {{{2
+---@desc Oparetor-surround {{{2
 -- if pcall(require, 'vim-operator-surround') then
 vim.g['operator#surround#blocks'] = {
   javascript = { { block = { '${', '}' }, motionwise = { 'char', 'line', 'block' }, keys = { '$', '$' } } },

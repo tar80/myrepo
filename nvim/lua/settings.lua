@@ -99,8 +99,8 @@ vim.o.virtualedit = 'block'
 vim.opt.wildmode = { 'longest:full', 'full' }
 vim.opt.wildoptions:remove({ 'tagfile' })
 vim.opt.spelllang:append({ 'cjk' })
-vim.opt.shortmess:append('cs')
-vim.opt.shortmess:remove({ 'F' })
+vim.opt.shortmess:append('csS')
+vim.opt.shortmess:remove({ 'fF' })
 -- vim.opt.fillchars = { vert = "█", vertleft = "█", vertright = "█", verthoriz = "█", horiz = "█", horizup = "█", horizdown = "█", }
 vim.opt.fillchars = { diff = ' ' }
 vim.o.keywordprg = ':help'

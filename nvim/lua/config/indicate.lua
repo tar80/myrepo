@@ -3,6 +3,7 @@
 
 local color_scheme = vim.api.nvim_get_var('use_scheme')
 local colors = require(string.format('feline.themes.%s', color_scheme))
+local bg_color = '#001B1B'
 
 ---@desc Colorscheme {{{1
 ---@desc time-manage {{{2
@@ -10,11 +11,12 @@ local time_manage = (function()
   local h = os.date('*t').hour
   local tbl = {}
   if h > 6 and h < 19 then
+    bg_color = '#103030'
     tbl = {
       theme = 'decay',
       fade = false,
       hl = {
-        Normal = { bg = '#103030' },
+        Normal = { bg = bg_color },
         NormalNC = { bg = '#133939' },
         NormalFloat = { bg = '#102929' },
         CursorLine = { fg = 'NONE', bg = '#A33865' },
@@ -72,9 +74,9 @@ require(color_scheme).setup({
 ---@desc Nvim-Tabline {{{1
 ---@see https://github.com/crispgm
 ---@desc highlights {{{2
-vim.api.nvim_set_hl(0, 'TabLineFill', { fg = colors.theme.fg, bg = colors.theme.bg })
-vim.api.nvim_set_hl(0, 'TabLineSel', { fg = colors.theme.cyan, bg = colors.theme.bg2 })
-vim.api.nvim_set_hl(0, 'TabLine', { fg = colors.theme.green, bg = colors.theme.bg })
+vim.api.nvim_set_hl(0, 'TabLine', { fg = colors.theme.green, bg = colors.theme.bg2, italic = true })
+vim.api.nvim_set_hl(0, 'TabLineSel', { fg = colors.theme.cyan, bg = bg_color, italic = true })
+vim.api.nvim_set_hl(0, 'TabLineFill', { fg = colors.theme.fg, bg = colors.theme.bg2, italic = true })
 
 ---@desc options {{{2
 local options = {
@@ -192,7 +194,8 @@ local mode = {
 }
 ---@desc Diagnostics {{{2
 local function diagnostics_count(severity)
-  return vim.fn.mode() == 'n' and vim.tbl_count(vim.diagnostic.get(0, { severity = vim.diagnostic.severity[severity] }))
+  return vim.api.nvim_get_mode().mode == 'n'
+      and vim.tbl_count(vim.diagnostic.get(0, { severity = vim.diagnostic.severity[severity] }))
     or 0
   -- return vim.tbl_count(vim.diagnostic.get(0, { severity = vim.diagnostic.severity[severity] }))
 end
@@ -246,6 +249,7 @@ local edit = {
     hl = function()
       return {
         fg = require('feline.providers.vi_mode').get_mode_color(),
+        style = 'italic',
       }
     end,
   },
@@ -263,12 +267,20 @@ local edit = {
 ---}}}2
 
 ---@desc Feline Center
+local search = {
+  priority = -2,
+  count = {
+    provider = { name = 'search_count' },
+    hl = { fg = 'olive' },
+    truncate_hide = true,
+  },
+}
 
 ---@desc Feline Right
 ---@desc sepalator {{{2
 local sepalator = {
   str = '  ',
-  hl = { fg = 'bg2' },
+  hl = { fg = 'fg' },
 }
 ---@desc Git {{{2
 local git = {
@@ -280,6 +292,7 @@ local git = {
     short_provider = icon.git[1],
     hl = {
       fg = icon.git[2],
+      style = 'italic',
     },
   },
   info = {
@@ -290,6 +303,7 @@ local git = {
     end,
     hl = {
       fg = icon.git[2],
+      style = 'italic',
     },
   },
   status = {
@@ -300,6 +314,7 @@ local git = {
     end,
     hl = {
       fg = icon.git[2],
+      style = 'italic',
     },
     truncate_hide = true,
   },
@@ -313,7 +328,7 @@ local file = {
       -- return ft .. icon[ff][1]
       -- return vim.bo.filetype .. icon[vim.bo.fileformat][1]
     end,
-    hl = { fg = 'cyan' },
+    hl = { fg = 'cyan', style = 'italic' },
     left_sep = sepalator,
   },
   encode = {
@@ -323,7 +338,7 @@ local file = {
     end,
     hl = function()
       local bufnr = tonumber(vim.api.nvim_get_var('actual_curbuf'))
-      return { fg = icon[vim.api.nvim_get_option_value('fileformat', { buf = bufnr })][2] }
+      return { fg = icon[vim.api.nvim_get_option_value('fileformat', { buf = bufnr })][2], style = 'italic' }
     end,
     left_sep = sepalator,
   },
@@ -333,25 +348,26 @@ local file = {
 local line = {
   priority = -2,
   pos = {
-    provider = {
-      name = 'position',
-      opts = {
-        padding = {
-          col = 3,
-          line = 3,
-        },
-      },
-    },
-    hl = { fg = 'purple' },
+    provider = function()
+      local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+      local before_cursor = vim.api.nvim_get_current_line():sub(1, col)
+      before_cursor = before_cursor:gsub('\t', string.rep(' ', vim.bo.tabstop))
+      col = vim.str_utfindex(before_cursor) + 1
+      local linenr_min_width, colnr_min_width = 3, 3
+      local line_str = string.rep(' ', linenr_min_width - math.floor(math.log10(row)) - 1) .. tostring(row)
+      local col_str = string.rep(' ', colnr_min_width - math.floor(math.log10(col)) - 1) .. tostring(col)
+      return string.format('%s:%s/%s', col_str, line_str, vim.fn.line('$'))
+    end,
+    hl = { fg = 'purple', style = 'italic' },
     left_sep = sepalator,
     truncate_hide = true,
   },
-  percent = {
-    provider = 'line_percentage',
-    hl = { fg = 'purple' },
-    left_sep = sepalator,
-    truncate_hide = true,
-  },
+  -- percent = {
+  --   provider = 'line_percentage',
+  --   hl = { fg = 'purple' },
+  --   left_sep = sepalator,
+  --   truncate_hide = true,
+  -- },
 }
 
 --@desc Feline inactive {{{2
@@ -394,13 +410,13 @@ local active = {
     edit.modified,
     edit.sep,
   },
-  {},
-  { git.branch, git.info, git.status, file.type, file.encode, line.pos, line.percent },
+  { search.count },
+  { git.branch, git.info, git.status, file.type, file.encode, line.pos },
 }
 local inactive = {
   { filetype, filetype.sep, path },
   {},
-  { line.percent },
+  { line.pos },
 }
 ---@desc Feline Setup {{{2
 require('feline').setup({
