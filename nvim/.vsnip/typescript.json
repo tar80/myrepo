@@ -1,13 +1,7 @@
 {
   "Template": {
     "prefix": "temp",
-    "body": [
-      "/* @file $1",
-      " * @return $2",
-      " * @arg $3",
-      " */",
-      "\n'use strict';\n${0}"
-    ]
+    "body": ["/* @file $1", " * @return $2", " * @arg $3", " */", "\n'use strict';\n${0}"]
   },
   "Import": {
     "prefix": "imp",
@@ -99,9 +93,17 @@
     "prefix": "ppmt",
     "body": "ppm.extract('${1:.}', '$2')$0"
   },
-  "Type annotation": {
-    "prefix": "tya",
-    "body": "/** @${1:deprecated} */$0"
+  "Annotation": {
+    "prefix": "an",
+    "body": "/** @$1 */$0"
+  },
+  "Annotation multi line": {
+    "prefix": "ann",
+    "body": ["/**", " * @$1", " */$0"]
+  },
+  "Annotation multi line next": {
+    "prefix": "anmn",
+    "body": ["", "* @$1"]
   },
   "Ts ignore": {
     "prefix": "tsi",

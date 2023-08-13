@@ -18,9 +18,10 @@ end
 M.hl_at_cursor = function()
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
   col = col + 1
-  local hl_name = '(vim-syntax)' .. vim.fn.synIDattr(vim.fn.synIDtrans(vim.fn.synID(row, col, 2)), 'name')
+  local hl_name = vim.fn.synIDattr(vim.fn.synIDtrans(vim.fn.synID(row, col, 2)), 'name')
+  local type = '(vim-syntax)'
 
-  if not hl_name == '' then
+  if hl_name == '' then
     --[[
     -- This code from https://github.com/nvim-treesitter/playground/blob/master/lua/nvim-treesitter-playground/utils.lua
     -- under the Apatch license 2.0
@@ -30,7 +31,7 @@ M.hl_at_cursor = function()
       return
     end
 
-    local ts_utils = require('nvim-treesitter.ts_utils')
+    type = '(treesitter)'
     local highlighter = require('vim.treesitter.highlighter')
 
     local bufnr = vim.api.nvim_get_current_buf()
@@ -69,7 +70,7 @@ M.hl_at_cursor = function()
       for capture, node, _ in iter do
         local hl = query.hl_cache[capture]
 
-        if hl and ts_utils.is_in_node_range(node, row, col) then
+        if hl and vim.treesitter.is_in_node_range(node, row, col) then
           -- name of the capture in the query
           local c = query._query.captures[capture]
           if c ~= nil then
@@ -78,11 +79,11 @@ M.hl_at_cursor = function()
         end
       end
 
-      hl_name = '(treesitter)' .. matche
+      hl_name = matche
     end, true)
   end
 
-  print(hl_name)
+  print(type .. hl_name)
 end
 
 M.shell = function(name)
@@ -117,4 +118,3 @@ M.shell = function(name)
 end
 
 return M
-

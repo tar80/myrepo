@@ -3,10 +3,10 @@
 
 local util = require('module.util')
 
----##Shell
+---@desc Shell
 util.shell('nyagos')
 
----#VARIABLES
+---@desc VARIABLES
 vim.env.myvimrc = vim.uv.fs_readlink(vim.env.myvimrc, nil)
 -- vim.env.myvimrc = vim.uv.fs_realpath(vim.env.myvimrc)
 vim.g.repo = 'c:\\bin\\repository\\tar80'
@@ -18,8 +18,8 @@ local foldmarker = vim.split(vim.api.nvim_win_get_option(0, 'foldmarker'), ',', 
 local tab2space = (' '):rep(vim.api.nvim_buf_get_option(0, 'tabstop'))
 local cms
 
+---@desc Unload {{{2
 ---NOTE: leave it to lazy.nvim
----##Unload {{{2
 -- vim.g.loaded_2html_plugin = true
 -- vim.g.loaded_gzip = true
 -- vim.g.loaded_man = true
@@ -32,16 +32,16 @@ local cms
 -- vim.g.loaded_zipPlugin = true
 --}}}2
 
----#OPTIONS
----##Global {{{2
+---@desc OPTIONS
+---@desc Global {{{2
 vim.api.nvim_set_option('termguicolors', true)
 vim.api.nvim_set_option('foldcolumn', '1')
 vim.api.nvim_set_option('fileformats', 'unix,dos,mac')
 
----##Local {{{2
+---@desc Local {{{2
 --vim.api.nvim_buf_set_option(0, "name", value)
 
----##Both {{{2
+---@Both {{{2
 vim.o.guicursor = 'n:block,i-c-ci-ve:ver50,v-r-cr-o:hor50'
 vim.o.fileencodings = 'utf-8,utf-16le,cp932,euc-jp,sjis'
 -- vim.o.timeoutlen = 1000
@@ -83,7 +83,7 @@ vim.o.signcolumn = 'yes'
 -- vim.o.backspace = { indent = true,eol = true, start = true }
 vim.o.complete = '.,w'
 vim.opt.completeopt = { menu = true, menuone = true, noselect = true }
-vim.o.winblend = 0
+vim.o.winblend = 10
 vim.o.pumblend = 10
 vim.o.pumheight = 10
 vim.o.pumwidth = 20
@@ -164,9 +164,10 @@ vim.api.nvim_create_autocmd('OptionSet', {
   group = 'rcSettings',
   pattern = { 'tabstop', 'foldmarker' },
   callback = function(opts)
-    if opts.match == 'tabstop' then
-      tab2space = (' '):rep(vim.api.nvim_buf_get_option(0, 'tabstop'))
-    elseif opts.match == 'foldmarker' then
+    -- if opts.match == 'tabstop' then
+      -- tab2space = (' '):rep(vim.api.nvim_buf_get_option(0, 'tabstop'))
+    if opts.match == 'foldmarker' then
+    -- elseif opts.match == 'foldmarker' then
       foldmarker = vim.split(vim.api.nvim_win_get_option(0, 'foldmarker'), ',')
     end
   end,
@@ -177,11 +178,11 @@ vim.api.nvim_create_autocmd('OptionSet', {
 ---this code is based on https://github.com/tamton-aquib/essentials.nvim
 _G.Simple_fold = function() -- {{{2
   local open, close = vim.api.nvim_get_vvar('foldstart'), vim.api.nvim_get_vvar('foldend')
-  local line_count = close - open .. ': '
+  local line_count = string.format('%s: ', close -open)
   local forward = unpack(vim.api.nvim_buf_get_lines(0, open - 1, open, false))
   forward = forward:gsub(cms .. foldmarker[1] .. '%d*', '')
   local backward = unpack(vim.api.nvim_buf_get_lines(0, close - 1, close, false))
-  backward = backward:find(foldmarker[2], 1, true) and backward:sub(#backward) or ''
+  backward = backward:find(foldmarker[2], 1, true) and backward:sub(0, backward:find('--', 1, true) - 1) or ''
   local linewise = (line_count .. forward .. FOLD_SEP .. backward):gsub('\t', tab2space)
   local spaces = (' '):rep(vim.o.columns - #linewise)
 
@@ -286,7 +287,7 @@ vim.keymap.set('n', ',', function()
     vim.api.nvim_feedkeys(',', 'n', false)
   end
 end)
-vim.keymap.set('n', '<C-J>', 'i<C-M><ESC>')
+vim.keymap.set('n', '<C-N>', 'i<C-M><ESC>')
 vim.keymap.set('n', '/', function()
   vim.o.hlsearch = true
   return '/\\V'

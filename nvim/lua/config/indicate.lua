@@ -19,8 +19,8 @@ local time_manage = (function()
         Normal = { bg = bg_color },
         NormalNC = { bg = '#133939' },
         NormalFloat = { link = 'Normal' },
-        FloatBorder = { link = 'NormalFloat' },
-        FloatTitle = { link = 'NormalFloat' },
+        FloatBorder = { fg = colors.theme.fg, bg = bg_color },
+        FloatTitle = { link = 'FloatBorder' },
         CursorLine = { fg = 'NONE', bg = '#A33865' },
       },
     }
@@ -31,11 +31,9 @@ local time_manage = (function()
       hl = {
         Normal = { bg = bg_color },
         NormalFloat = { link = 'Normal' },
-        FloatBorder = { link = 'NormalFloat' },
-        FloatTitle = { link = 'NormalFloat' },
-        CursorLine = {
-          fg = 'NONE', bg = '#A33865'
-        },
+        FloatBorder = { fg = colors.theme.fg, bg = bg_color },
+        FloatTitle = { link = 'FloatBorder' },
+        CursorLine = { fg = 'NONE', bg = '#A33865' },
       },
     }
   end

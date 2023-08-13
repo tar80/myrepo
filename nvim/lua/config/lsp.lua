@@ -45,19 +45,19 @@ local popup_rename = function()
   require('mug.module.float').input({
     title = title,
     width = math.max(25, #rename_old + 8),
-    border = 'single',
+    border = 'rounded',
     relative = 'cursor',
     contents = contents,
     post = post,
   })
 end
 
----@desc OPTIONS {{{1
+---@desc OPTIONS {{{2
 vim.lsp.set_log_level = 'OFF'
-vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'single' })
-vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'single' })
+vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'rounded' })
+vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'rounded' })
 
----@desc DIAGNOSTIC {{{1
+---@desc DIAGNOSTIC {{{2
 vim.diagnostic.config({
   virtual_text = false,
   severity_sort = true,
@@ -79,7 +79,7 @@ for type, icon in pairs(signs) do
 end
 
 ---@desc KEYMAPS {{{1
-vim.keymap.set('n', 'gle', function()
+vim.keymap.set('n', 'gld', function()
   local opts = { focusable = false }
   local winblend = vim.o.winblend
   local scope_c = vim.tbl_extend('force', opts, { scope = 'cursor' })
@@ -102,8 +102,8 @@ vim.keymap.set('n', '[d', '<Cmd>lua vim.diagnostic.goto_prev()<CR>')
 
 ---@desc On_attach {{{1
 local on_attach = function(client, bufnr)
-  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration)
-  vim.keymap.set('n', 'gd', vim.lsp.buf.definition)
+  -- vim.keymap.set('n', 'gD', vim.lsp.buf.declaration)
+  vim.keymap.set('n', 'gD', vim.lsp.buf.definition)
   vim.keymap.set('n', 'glh', vim.lsp.buf.signature_help)
   vim.keymap.set('n', 'gll', vim.lsp.buf.hover)
   -- vim.keymap.set("n", "gli", vim.lsp.buf.implementation)

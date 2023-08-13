@@ -15,6 +15,7 @@ local icons = {
   path = 'path',
   cmdline = 'cmd',
 }
+
 ---#Insert-mode {{{2
 cmp.setup({
   enabled = function()
@@ -77,8 +78,8 @@ cmp.setup({
     ['<C-Y>'] = cmp.mapping(function(fallback)
       return cmp.visible() and cmp.close() or fallback()
     end, { 'i' }),
-    ['<Down>'] = cmp.mapping.scroll_docs(-4),
-    ['<Up>'] = cmp.mapping.scroll_docs(4),
+    ['<Down>'] = cmp.mapping.scroll_docs(4),
+    ['<Up>'] = cmp.mapping.scroll_docs(-4),
     ['<CR>'] = function(fallback)
       if cmp.visible() and (cmp.get_selected_entry() ~= nil) then
         return cmp.confirm({ select = false })

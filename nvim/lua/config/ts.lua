@@ -6,7 +6,7 @@ require('nvim-treesitter.configs').setup({
   -- ensure_installed = {"lua", "javascript", "markdown"},
   sync_install = false,
   auto_install = false,
-  ignore_install = { 'help', 'text' },
+  ignore_install = { 'text', 'help' },
   highlight = {
     enable = true,
     disable = { 'help', 'text' },
@@ -16,8 +16,8 @@ require('nvim-treesitter.configs').setup({
     enable = true,
     keymaps = {
       init_selection = '<Space><CR>',
-      node_incremental = '<Leader>n',
-      node_decremental = '<Leader>m',
+      node_incremental = '<C-J>',
+      node_decremental = '<C-K>',
       scope_incremental = '<Space><CR>',
     },
   },

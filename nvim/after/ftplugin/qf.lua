@@ -71,6 +71,7 @@ vim.keymap.set('n', 'k', function()
 end, { buffer = true })
 vim.keymap.set('n', '<C-v>', open_vert, { buffer = true })
 vim.keymap.set('n', '<C-t>', open_tab, { buffer = true })
+vim.keymap.set('n', 'q', '<Cmd>quit<CR>', { buffer = true })
 
 if vim.api.nvim_win_get_position(0)[1] > 1 then
   local au_id = vim.api.nvim_create_augroup('ft_qf', {})
