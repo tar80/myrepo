@@ -45,7 +45,7 @@ local popup_rename = function()
   require('mug.module.float').input({
     title = title,
     width = math.max(25, #rename_old + 8),
-    border = 'rounded',
+    border = 'double',
     relative = 'cursor',
     contents = contents,
     post = post,
@@ -103,7 +103,7 @@ vim.keymap.set('n', '[d', '<Cmd>lua vim.diagnostic.goto_prev()<CR>')
 ---@desc On_attach {{{1
 local on_attach = function(client, bufnr)
   -- vim.keymap.set('n', 'gD', vim.lsp.buf.declaration)
-  vim.keymap.set('n', 'gD', vim.lsp.buf.definition)
+  -- vim.keymap.set('n', 'gD', vim.lsp.buf.definition)
   vim.keymap.set('n', 'glh', vim.lsp.buf.signature_help)
   vim.keymap.set('n', 'gll', vim.lsp.buf.hover)
   -- vim.keymap.set("n", "gli", vim.lsp.buf.implementation)

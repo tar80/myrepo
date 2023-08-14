@@ -6,7 +6,7 @@ local pickers = require('telescope.pickers')
 local finders = require('telescope.finders')
 local make_entry = require('telescope.make_entry')
 local conf = require('telescope.config').values
-local action_state = require('telescope.actions.state')
+-- local action_state = require('telescope.actions.state')
 
 ---@desc SETUP {@@1
 require('telescope').setup({
@@ -62,14 +62,14 @@ require('telescope').setup({
       max_results = 100,
       disable_coordinates = true,
     },
-    current_buffer_fuzzy_find = {
-      skip_empty_lines = true,
-    },
-    lsp_references = {
-      fname_width = 30,
-      show_line = false,
-      trim_text = true,
-    },
+    -- current_buffer_fuzzy_find = {
+    --   skip_empty_lines = true,
+    -- },
+    -- lsp_references = {
+    --   fname_width = 30,
+    --   show_line = false,
+    --   trim_text = true,
+    -- },
     -- diagnostics = {
     --   bufnr = 0,
     --   no_unlisted = true,
@@ -101,6 +101,7 @@ local mr_entries = function(type, opts) -- {@@2
   local safe_opts = opts or {}
   local mr = {
     r = { fn = 'mr#mrr#list', title = 'Most Recently Repository'},
+    u = { fn = 'mr#mru#list', title = 'Most Recently Use'},
     w = { fn = 'mr#mrw#list', title = 'Most Recently Written'},
   }
   local list = vim.fn[mr[type].fn]()
@@ -159,7 +160,7 @@ vim.keymap.set('n', '<Leader><Leader>', function()
   load_telescope('buffers', {})
 end, {})
 vim.keymap.set('n', '<leader>m', function()
-  mr_entries('w', preset_no_preview)
+  mr_entries('u', preset_no_preview)
 end, {})
 vim.keymap.set('n', '<leader>@', function()
   mr_entries('r', preset_no_preview)
@@ -186,13 +187,13 @@ end, {})
 vim.keymap.set('n', '<Leader>c', function()
   load_telescope('git_commits', { layout_config = { mirror = false, preview_width = 0.7, width = 0.9, height = 0.9 } })
 end, {})
--- for lsp
+---@desc for lsp
 -- vim.keymap.set('n', 'gld', function()
 --   load_telescope('diagnostics', { layout_config = { mirror = true, preview_width = 0.5 } })
 -- end, {})
-vim.keymap.set('n', 'glk', function()
-  load_telescope('lsp_references', { layout_config = { mirror = false, preview_width = 0.7 } })
-end, {})
+-- vim.keymap.set('n', 'glk', function()
+--   load_telescope('lsp_references', { layout_config = { mirror = false, preview_width = 0.7 } })
+-- end, {})
 -- vim.keymap.set('n', 'gld', function()
 --   load_telescope('lsp_definitions', { layout_config = { mirror = true, preview_width = 0.5 } })
 -- end, {})

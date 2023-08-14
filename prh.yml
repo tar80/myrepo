@@ -1099,8 +1099,6 @@ rules:
     expected: 汚$1
   - pattern: /果([さしすせそ])/
     expected: 果た$1
-  - pattern: /([^排人])他([^ァ-ヶ社者人方])/
-    expected: $1ほか$2
   - pattern: 後ほど
     expected: のちほど
   - pattern: うしろ
@@ -1918,10 +1916,6 @@ rules:
     pattern:  /ツリー・オブジェクト/
   - expected: ツリーエントリ
     pattern:  /ツリー・エントリ/
-  - expected: テーブル
-    pattern:
-      - table
-      - Table
   - expected: データサービス
     pattern:  /\bData Services\b/
   - expected: データ
@@ -1980,8 +1974,6 @@ rules:
     pattern:  /\bPermalink\b|\bpermalink\b|\bpermanent link\b|パーマネントリンク/
   - expected: バッファ
     pattern:  /バッファー/
-  - expected: パス
-    pattern:  /\bpath\b|\bPath\b/
   - expected: パターン
     pattern:  /パタン/
   - expected: ハッシュ
@@ -2108,8 +2100,6 @@ rules:
     pattern:  /メインテナンス/
   - expected: メンテナンス$1
     pattern:  /メンテ([^ナ])/
-  - expected: モジュール
-    pattern:  /\bmodule\b|\bModule\b/
   - expected: モータ$1
     pattern:  /モーター([^ー])/
   - expected: レジューム
@@ -2641,6 +2631,8 @@ rules:
     pattern:  /\bMongo DB\b/
   - expected: msysGit
     pattern:  /\bmsysGit\b/i
+  - expected: MultiByte
+    pattern:  /\bmultibyte\b|マルチバイト/
   - expected: Munin
     pattern:  /\bMunin\b/i
   - expected: MySQL
@@ -2770,6 +2762,8 @@ rules:
     pattern:  /RFC([0-9])/
   - expected: Roda
     pattern:  /\bRoda\b/i
+  - expected: Rollup
+    pattern:  /\bRollup(js)\b/i
   - expected: RPCサービス
     pattern:  /\bRPC Services\b/
   - expected: RRDtool

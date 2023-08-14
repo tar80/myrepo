@@ -11,7 +11,7 @@ local time_manage = (function()
   local h = os.date('*t').hour
   local tbl = {}
   if h > 6 and h < 19 then
-    bg_color = '#103030'
+    bg_color = '#0A2A2A'
     tbl = {
       theme = 'decay',
       fade = false,
@@ -72,6 +72,7 @@ require(color_scheme).setup({
     gitsigns = true,
     fret = true,
     skkeleton_indicator = true,
+    trouble = true,
     -- notify = true
   },
 })
@@ -82,7 +83,7 @@ require(color_scheme).setup({
 ---@desc highlights {{{2
 vim.api.nvim_set_hl(0, 'TabLine', { fg = colors.theme.green, bg = colors.theme.bg2, italic = true })
 vim.api.nvim_set_hl(0, 'TabLineSel', { fg = colors.theme.cyan, bg = bg_color, italic = true })
-vim.api.nvim_set_hl(0, 'TabLineFill', { fg = colors.theme.fg, bg = colors.theme.bg2, italic = true })
+vim.api.nvim_set_hl(0, 'TabLineFill', { fg = colors.theme.fg, bg = colors.theme.bg2, italic = false })
 
 ---@desc options {{{2
 local options = {

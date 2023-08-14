@@ -361,24 +361,24 @@ require('lazy').setup(
         height = 10,
         width = 50,
         icons = false,
-        mode = 'document_diagnostics',
+        mode = 'workspace_diagnostics',
         fold_open = '',
         fold_closed = '',
-        group = false,
-        padding = true,
+        group = true,
+        padding = false,
         cycle_results = false,
         action_keys = {
           cancel = '<Tab>',
           refresh = '<F5>',
-          jump = { '<CR>', '<2-leftmouse>' },
-          jump_close = { 'o' },
+          jump = { 'o', '<2-leftmouse>' },
+          jump_close = '<CR>',
           toggle_mode = 'm',
           switch_severity = 's',
           open_code_href = 'c',
-          close_folds = { 'zM', 'zm' },
-          open_folds = { 'zR', 'zr' },
+          close_folds = { 'zM', 'zm', '<C-h>' },
+          open_folds = { 'zR', 'zr', '<C-l>' },
           toggle_fold = { 'zA', 'za' },
-          help = '?',
+          help = 'g?',
         },
         multiline = true,
         indent_lines = true,
@@ -387,18 +387,25 @@ require('lazy').setup(
         auto_close = false,
         auto_preview = false,
         auto_fold = false,
-        auto_jump = {},
+        auto_jump = { 'lsp_definitions' },
         include_declaration = { 'lsp_references', 'lsp_implementations', 'lsp_definitions' },
         use_diagnostic_signs = true,
       },
-      keys = { { 'mx', '<Cmd>Trouble<CR>' } },
+      keys = {
+        { 'gle', '<Cmd>Trouble document_diagnostics<CR>' },
+        { 'gd', '<Cmd>Trouble lsp_definitions<CR>' },
+        { 'glk', '<Cmd>Trouble lsp_references<CR>' },
+      },
       cmd = 'Trouble',
     }, ---}}}
     { ---@desc mr {{{2
       'lambdalisue/mr.vim',
       init = function()
-        vim.g.mr_mru_disabled = true
+        vim.g.mr_mru_disabled = false
+        vim.g.mr_mrw_disabled = true
+        vim.g.mr_mrr_disabled = true
         vim.g['mr#threshold'] = 200
+        vim.cmd("let g:mr#mru#predicates=[{filename -> filename !~? '\\/doc\\/\\|\\/\\.git\\/'}]")
       end,
       event = 'User Lazyload',
     }, ---}}}
@@ -420,6 +427,7 @@ require('lazy').setup(
     { 'tyru/open-browser.vim', key = { '<Space>/', { '<Space>/', 'x' } } },
     {
       'sindrets/diffview.nvim',
+      opts = { use_icons = false },
       cmd = { 'DiffviewOpen', 'DiffviewLog', 'DiffviewFocusFiles', 'DiffviewFileHistory' },
     },
     { 'mbbill/undotree', key = '<F7>' },

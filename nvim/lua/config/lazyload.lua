@@ -4,15 +4,16 @@
 ---#AUTOGROUP
 
 ---@desc kensaku-search {{{2
+vim.go.wrapscan = true
 vim.keymap.set('c', '<CR>', function()
   local cmdtype = vim.fn.getcmdtype()
 
   if cmdtype == '/' or cmdtype == '?' then
-    return '<Plug>(kensaku-search-replace)<CR>'
+    return vim.fn['kensaku_search#replace']() .. '<CR>zv'
   end
 
   return '<CR>'
-end, { silent = true, expr = true })
+end, { noremap = true, expr = true, silent = true })
 
 ---@desc Operator-replace {{{2
 vim.keymap.set('n', '_', '"*<Plug>(operator-replace)')

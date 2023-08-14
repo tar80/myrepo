@@ -292,6 +292,8 @@ vim.keymap.set('n', '/', function()
   vim.o.hlsearch = true
   return '/\\V'
 end, { expr = true })
+vim.keymap.set('n', 'n', "'Nn'[v:searchforward]", { noremap = true, silent = true, expr = true })
+vim.keymap.set('n', 'N', "'nN'[v:searchforward]", { noremap = true, silent = true, expr = true })
 ---Move buffer use <SPACE>
 vim.keymap.set('n', '<SPACE>', '<C-W>', { remap = true })
 vim.keymap.set('n', '<SPACE><SPACE>', '<C-W><C-W>')

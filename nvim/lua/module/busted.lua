@@ -178,9 +178,9 @@ _PlenaryBustedOldAssert = _PlenaryBustedOldAssert or assert
 
 describe = mod.describe
 it = mod.it
-pending = mod.pending
+local pending = mod.pending
 before_each = mod.before_each
-after_each = mod.after_each
+local after_each = mod.after_each
 clear = mod.clear
 assert = require('luassert')
 
