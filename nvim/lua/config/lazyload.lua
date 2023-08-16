@@ -1,10 +1,48 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
----#AUTOGROUP
+---@desc Dial {{{2
+local augend = require('dial.augend')
+local default_rules = {
+  augend.semver.alias.semver,
+  augend.integer.alias.decimal_int,
+  augend.integer.alias.hex,
+  augend.decimal_fraction.new({}),
+  augend.date.alias['%Y/%m/%d'],
+  augend.constant.alias.bool,
+  augend.paren.alias.quote,
+}
+local js_rules = {
+  augend.constant.new({ elements = { 'let', 'const' } }),
+}
+require('dial.config').augends:register_group({
+  default = default_rules,
+  case = {
+    augend.case.new({
+      types = { 'camelCase', 'snake_case' },
+      cyclic = true,
+    }),
+  },
+})
+require('dial.config').augends:on_filetype({
+  typescript = vim.tbl_extend('force', default_rules, js_rules),
+  javascript = vim.tbl_extend('force', default_rules, js_rules),
+  -- lua = {},
+  -- markdown = {
+  --   augend.misc.alias.markdown_header,
+  -- },
+})
 
----@desc kensaku-search {{{2
-vim.go.wrapscan = true
+vim.keymap.set('n', '<C-t>', require('dial.map').inc_normal('case'), { silent = true, noremap = true })
+vim.keymap.set('n', '<C-a>', require('dial.map').inc_normal(), { silent = true, noremap = true })
+vim.keymap.set('n', '<C-x>', require('dial.map').dec_normal(), { silent = true, noremap = true })
+vim.keymap.set('v', '<C-a>', require('dial.map').inc_visual(), { silent = true, noremap = true })
+vim.keymap.set('v', '<C.x>', require('dial.map').dec_visual(), { silent = true, noremap = true })
+vim.keymap.set('v', 'g<C-a>', require('dial.map').inc_gvisual(), { silent = true, noremap = true })
+vim.keymap.set('v', 'g<C-x>', require('dial.map').dec_gvisual(), { silent = true, noremap = true })
+
+---@desc Kensaku-search {{{2
+-- vim.go.wrapscan = true
 vim.keymap.set('c', '<CR>', function()
   local cmdtype = vim.fn.getcmdtype()
 
@@ -15,12 +53,23 @@ vim.keymap.set('c', '<CR>', function()
   return '<CR>'
 end, { noremap = true, expr = true, silent = true })
 
+---@desc Nvim-select-multi-line {{{2
+vim.keymap.set('n', '<Leader>v', function()
+  require('nvim-select-multi-line').start()
+end)
+
+---@desc OpenBrowser {{{2
+vim.g.openbrowser_open_vim_command = 'split'
+vim.g.openbrowser_use_vimproc = 0
+vim.keymap.set('n', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('n')<CR>")
+vim.keymap.set('x', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('v')<CR>")
+-- vim.keymap.set({ "n", "x" }, "<SPACE>/", "<Plug>(openbrowser-smart-search)")
+
 ---@desc Operator-replace {{{2
 vim.keymap.set('n', '_', '"*<Plug>(operator-replace)')
 vim.keymap.set('n', '\\', '"0<Plug>(operator-replace)')
 
 ---@desc Oparetor-surround {{{2
--- if pcall(require, 'vim-operator-surround') then
 vim.g['operator#surround#blocks'] = {
   javascript = { { block = { '${', '}' }, motionwise = { 'char', 'line', 'block' }, keys = { '$', '$' } } },
 }
@@ -31,52 +80,6 @@ vim.keymap.set('n', '<Leader>r', '<Plug>(operator-surround-replace)a')
 vim.keymap.set('n', '<Leader>i', '<Plug>(operator-surround-append)i')
 vim.keymap.set('n', '<Leader>a', '<Plug>(operator-surround-append)a')
 vim.keymap.set('n', '<Leader>d', '<Plug>(operator-surround-delete)a')
--- end
-
--- ##Smartword {{{2
--- if pcall(require, 'vim-smartword') then
-vim.keymap.set('n', 'w', '<Plug>(smartword-w)')
-vim.keymap.set('n', 'b', '<Plug>(smartword-b)')
-vim.keymap.set('n', 'e', '<Plug>(smartword-e)')
-vim.keymap.set('n', 'ge', '<Plug>(smartword-ge)')
--- end
-
--- ##Nvim-select-multi-line {{{2
--- if pcall(require, 'nvim-select-multi-line') then
-vim.keymap.set('n', '<Leader>v', function()
-  require('nvim-select-multi-line').start()
-end)
--- end
-
--- ##Translate {{{2
--- if pcall(require, 'translate.nvim') then
-vim.keymap.set({ 'n', 'x' }, 'me', '<Cmd>Translate EN<CR>', { silent = true })
-vim.keymap.set({ 'n', 'x' }, 'mj', '<Cmd>Translate JA<CR>', { silent = true })
-vim.keymap.set({ 'n', 'x' }, 'mE', '<Cmd>Translate EN -output=replace<CR>', { silent = true })
-vim.keymap.set({ 'n', 'x' }, 'mJ', '<Cmd>Translate JA -output=replace<CR>', { silent = true })
-
--- ##Undotree {{{2
--- if pcall(require, 'undotree') then
-vim.keymap.set('n', '<F7>', function()
-  vim.fn['undotree#UndotreeToggle']()
-end)
-vim.g.undotree_WindowLayout = 2
-vim.g.undotree_ShortIndicators = 1
-vim.g.undotree_SplitWidth = 28
-vim.g.undotree_DiffpanelHeight = 6
-vim.g.undotree_DiffAutoOpen = 1
-vim.g.undotree_SetFocusWhenToggle = 1
-vim.g.undotree_TreeNodeShape = '*'
-vim.g.undotree_TreeVertShape = '|'
-vim.g.undotree_DiffCommand = 'diff'
-vim.g.undotree_RelativeTimestamp = 1
-vim.g.undotree_HighlightChangedText = 1
-vim.g.undotree_HighlightChangedWithSign = 1
-vim.g.undotree_HighlightSyntaxAdd = 'DiffAdd'
-vim.g.undotree_HighlightSyntaxChange = 'DiffChange'
-vim.g.undotree_HighlightSyntaxDel = 'DiffDelete'
-vim.g.undotree_HelpLine = 1
-vim.g.undotree_CursorLine = 1
 
 ---@desc Quickrun {{{2
 vim.keymap.set({ 'n', 'v' }, 'mq', function()
@@ -120,10 +123,10 @@ vim.g.quickrun_config = {
             title = ' QuickRun',
           })
         end,
-        on_success = function(session, _)
+        on_success = function(_, _)
           vim.notify('[QuickRun] Success', 'info', { title = ' QuickRun' })
         end,
-        on_failure = function(session, _)
+        on_failure = function(_, _)
           vim.notify('[QuickRun] Error', 'error', { title = ' QuickRun' })
         end,
         on_finish = function(session, _)
@@ -161,16 +164,36 @@ vim.g.quickrun_config = {
   },
 }
 
--- ##OpenBrowser {{{2
--- if pcall(require, 'open-browser.vim') then
-vim.g.openbrowser_open_vim_command = 'split'
-vim.g.openbrowser_use_vimproc = 0
-vim.keymap.set('n', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('n')<CR>")
-vim.keymap.set('x', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('v')<CR>")
--- vim.keymap.set({ "n", "x" }, "<SPACE>/", "<Plug>(openbrowser-smart-search)")
--- end
+---@desc Smartword {{{2
+vim.keymap.set('n', 'w', '<Plug>(smartword-w)')
+vim.keymap.set('n', 'b', '<Plug>(smartword-b)')
+vim.keymap.set('n', 'e', '<Plug>(smartword-e)')
+vim.keymap.set('n', 'ge', '<Plug>(smartword-ge)')
 
--- ##Colorizer {{{2
--- if pcall(require, 'nvim-colorizer.lua') then
--- vim.api.nvim_create_user_command('Colorizer', 'packadd nvim-colorizer.lua|ColorizerAttachToBuffer', {})
--- end
+---@desc Translate {{{2
+vim.keymap.set({ 'n', 'x' }, 'me', '<Cmd>Translate EN<CR>', { silent = true })
+vim.keymap.set({ 'n', 'x' }, 'mj', '<Cmd>Translate JA<CR>', { silent = true })
+vim.keymap.set({ 'n', 'x' }, 'mE', '<Cmd>Translate EN -output=replace<CR>', { silent = true })
+vim.keymap.set({ 'n', 'x' }, 'mJ', '<Cmd>Translate JA -output=replace<CR>', { silent = true })
+
+---@desc Undotree {{{2
+vim.keymap.set('n', '<F7>', function()
+  vim.fn['undotree#UndotreeToggle']()
+end)
+vim.g.undotree_WindowLayout = 2
+vim.g.undotree_ShortIndicators = 1
+vim.g.undotree_SplitWidth = 28
+vim.g.undotree_DiffpanelHeight = 6
+vim.g.undotree_DiffAutoOpen = 1
+vim.g.undotree_SetFocusWhenToggle = 1
+vim.g.undotree_TreeNodeShape = '*'
+vim.g.undotree_TreeVertShape = '|'
+vim.g.undotree_DiffCommand = 'diff'
+vim.g.undotree_RelativeTimestamp = 1
+vim.g.undotree_HighlightChangedText = 1
+vim.g.undotree_HighlightChangedWithSign = 1
+vim.g.undotree_HighlightSyntaxAdd = 'DiffAdd'
+vim.g.undotree_HighlightSyntaxChange = 'DiffChange'
+vim.g.undotree_HighlightSyntaxDel = 'DiffDelete'
+vim.g.undotree_HelpLine = 1
+vim.g.undotree_CursorLine = 1

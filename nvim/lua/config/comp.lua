@@ -30,14 +30,11 @@ cmp.setup({
       return false
     end
     return pcall(require, 'nvim-treesitter')
-    -- return packer_plugins['nvim-treesitter']
-    -- and not context.in_treesitter_capture("comment")
-    -- and not context.in_syntax_group("Comment")
   end,
   -- completion = { keyword_length = 2 },
   performance = { debounce = 100, throttle = 100 },
   --matching = {disallow_prefix_unmatching = false},
-  -- experimental = { ghost_text = {hl_group = '@constant.macro'} },
+  experimental = { ghost_text = { hl_group = 'CmpGhostText' } },
   window = {
     -- completion = cmp.config.window.bordered(),
     documentation = cmp.config.window.bordered(),
@@ -87,24 +84,28 @@ cmp.setup({
       fallback()
     end,
     ['<Tab>'] = cmp.mapping(function(fallback)
-      if vim.fn['vsnip#available'](1) == 1 then
-        feed_key('<Plug>(vsnip-expand-or-jump)', '')
-      elseif cmp.visible() then
+      -- if vim.fn['vsnip#available'](1) == 1 then
+      --   feed_key('<Plug>(vsnip-expand-or-jump)', '')
+      if cmp.visible() then
         cmp.select_next_item()
       else
         fallback()
       end
     end, { 'i', 's' }),
     ['<S-Tab>'] = cmp.mapping(function()
-      if vim.fn['vsnip#jumpable'](-1) == 1 then
-        feed_key('<Plug>(vsnip-jump-prev)', '')
-      elseif cmp.visible() then
+      -- if vim.fn['vsnip#jumpable'](-1) == 1 then
+      --   feed_key('<Plug>(vsnip-jump-prev)', '')
+      if cmp.visible() then
         cmp.select_prev_item()
       end
     end, { 'i', 's' }),
     ['<C-J>'] = cmp.mapping(function(fallback)
       if vim.fn['vsnip#available']() == 1 then
-        feed_key('<Plug>(vsnip-expand-or-jump)', '')
+        if vim.api.nvim_get_mode().mode == 's' then
+          feed_key('<Plug>(vsnip-jump-next)', '')
+        else
+          feed_key('<Plug>(vsnip-expand-or-jump)', '')
+        end
       elseif cmp.visible() then
         cmp.select_next_item({ behavior = true })
       else

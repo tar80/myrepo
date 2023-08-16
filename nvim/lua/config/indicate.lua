@@ -3,7 +3,6 @@
 
 local color_scheme = vim.api.nvim_get_var('use_scheme')
 local colors = require(string.format('feline.themes.%s', color_scheme))
-local bg_color = '#001B1B'
 
 ---@desc Colorscheme {{{1
 ---@desc time-manage {{{2
@@ -11,28 +10,22 @@ local time_manage = (function()
   local h = os.date('*t').hour
   local tbl = {}
   if h > 6 and h < 19 then
-    bg_color = '#0A2A2A'
+    local bg_color = '#002A36'
     tbl = {
       theme = 'decay',
       fade = false,
       hl = {
         Normal = { bg = bg_color },
-        NormalNC = { bg = '#133939' },
         NormalFloat = { link = 'Normal' },
-        FloatBorder = { fg = colors.theme.fg, bg = bg_color },
-        FloatTitle = { link = 'FloatBorder' },
+        NormalNC = { bg = '#133939' },
         CursorLine = { fg = 'NONE', bg = '#A33865' },
       },
     }
   else
     tbl = {
       theme = 'decay',
-      fade = true,
+      fade = false,
       hl = {
-        Normal = { bg = bg_color },
-        NormalFloat = { link = 'Normal' },
-        FloatBorder = { fg = colors.theme.fg, bg = bg_color },
-        FloatTitle = { link = 'FloatBorder' },
         CursorLine = { fg = 'NONE', bg = '#A33865' },
       },
     }
@@ -49,13 +42,13 @@ require(color_scheme).setup({
   fade_no_bg = time_manage.fade,
   -- fade_no_bg = true, -- Enable fade_nc but disable current pane background
   styles = {
-    comments = 'NONE',
+    comments = 'italic',
     strings = 'NONE',
     keywords = 'NONE',
     functions = 'NONE',
     variables = 'NONE',
     diagnostics = 'underline',
-    references = 'NONE',
+    references = 'bold',
   },
   disable = {
     background = false,
@@ -377,7 +370,7 @@ local line = {
   -- },
 }
 
---@desc Feline inactive {{{2
+---@desc Feline inactive {{{2
 local filetype = {
   provider = function()
     return ' ' .. vim.bo.filetype .. ' '

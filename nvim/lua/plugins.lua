@@ -3,11 +3,13 @@
 
 vim.loader.enable()
 
----@desc Variables
+---@desc INITIAL
 vim.g.use_scheme = 'mossco'
+vim.api.nvim_create_augroup('rcPlugin', {})
+
+---@desc Lazy.nvim bootstrap {{{2
 local LAZY_PATH = vim.fn.stdpath('data') .. '\\lazy\\lazy.nvim'
 
----@desc lazy.nvim bootstrap {{{2
 if vim.fn.isdirectory(LAZY_PATH) == 0 then
   vim.fn.system({
     'git',
@@ -21,9 +23,6 @@ end
 
 vim.opt.rtp:prepend(LAZY_PATH)
 
----@desc AutoGroup {{{1
-vim.api.nvim_create_augroup('initLazy', {})
-
 ---@desc AutoCommand {{{2
 if vim.fn.has('vim_starting') then
   vim.defer_fn(function()
@@ -31,7 +30,7 @@ if vim.fn.has('vim_starting') then
   end, 100)
 
   vim.api.nvim_create_autocmd('User', {
-    group = 'initLazy',
+    group = 'rcPlugin',
     pattern = 'LazyLoad',
     once = true,
     callback = function()
@@ -41,10 +40,10 @@ if vim.fn.has('vim_starting') then
   })
 end
 
--- #Plugins {{{1
+---@desc Plugins {{{1
 require('lazy').setup(
   {
-    { ---@desc cellwidths {{{2
+    {-- {{{ cellwidths
       'delphinus/cellwidths.nvim',
       config = function()
         require('cellwidths').setup({
@@ -62,9 +61,9 @@ require('lazy').setup(
       build = function()
         require('cellwidths').remove()
       end,
-    }, ---}}}
+    },-- }}}
     { 'nvim-lua/plenary.nvim', lazy = true },
-    -- { ---@desc notify {{{2
+    -- { -- {{{ notify
     --   "rcarriga/nvim-notify",
     --   event = "User LazyLoad",
     --   dependencies = { "telescope.nvim" },
@@ -80,8 +79,8 @@ require('lazy').setup(
     --       -- stages = "slide",
     --     })
     --   end,
-    -- }, ---}}}
-    -- { ---@desc conflict-marker {{{2
+    -- }, --}}}
+    -- { -- {{{ conflict-marker
     --   dir = 'C:/bin/temp/backup/conflict-marker.vim',
     --   config = function()
     --     vim.api.nvim_set_hl(0, 'ConflictMarkerBegin', { bg = '#2f7366' })
@@ -90,17 +89,17 @@ require('lazy').setup(
     --     vim.api.nvim_set_hl(0, 'ConflictMarkerEnd', { bg = '#2f628e' })
     --     vim.api.nvim_set_hl(0, 'ConflictMarkerCommonAncestorsHunk', { bg = '#754a81' })
     --   end,
-    -- }, ---}}}
+    -- }, --}}}
     { dir = 'C:/bin/repository/tar80/mossco.nvim', name = 'mossco.nvim', lazy = true },
-    { ---@desc feline {{{2
+    { -- {{{ feline
       'feline-nvim/feline.nvim',
       dependencies = { 'mossco.nvim' },
       config = function()
         require('config.indicate')
       end,
       event = 'UIEnter',
-    }, ---}}}
-    { ---@desc mug {{{2
+    }, --}}}
+    { -- {{{ mug
       dir = 'C:/bin/repository/tar80/mug.nvim',
       name = 'mug.nvim',
       config = function()
@@ -140,33 +139,9 @@ require('lazy').setup(
       event = 'UIEnter',
     }, ---}}}
     { 'williamboman/mason-lspconfig.nvim', lazy = true },
-    { ---@desc mason {{{2
-      'williamboman/mason.nvim',
-      lazy = true,
-      config = function()
-        require('mason').setup({
-          ui = {
-            border = 'single',
-            icons = {
-              package_installed = '🟢',
-              package_pending = '🟠',
-              package_uninstalled = '🔘',
-            },
-            keymaps = { apply_language_filter = '<NOP>' },
-          },
-          -- install_root_dir = path.concat { vim.fn.stdpath "data", "mason" },
-          pip = { install_args = {} },
-          -- log_level = vim.log.levels.INFO,
-          -- max_concurrent_installers = 4,
-          github = {},
-        })
-      end,
-    }, ---}}}
-    {
-      'jose-elias-alvarez/null-ls.nvim',
-      lazy = true,
-    },
-    { ---@desc lspconfig {{{2
+    { 'williamboman/mason.nvim', lazy = true },
+    { 'jose-elias-alvarez/null-ls.nvim', lazy = true },
+    { -- {{{ lspconfig
       'neovim/nvim-lspconfig',
       dependencies = { 'williamboman/mason.nvim', 'jose-elias-alvarez/null-ls.nvim', 'hrsh7th/cmp-nvim-lsp' },
       config = function()
@@ -174,7 +149,7 @@ require('lazy').setup(
       end,
       event = 'UIEnter',
     }, ---}}}
-    { ---@desc treesitter {{{
+    { -- {{{ treesitter
       'nvim-treesitter/nvim-treesitter',
       build = ':TSUpdate',
       config = function()
@@ -182,14 +157,15 @@ require('lazy').setup(
       end,
       event = 'UIEnter',
     }, ---}}}
-    { ---@desc ts-textobjects {{{2
+    { -- {{{ ts-textobjects
       'nvim-treesitter/nvim-treesitter-textobjects',
+      dependencies = { 'nvim-treesitter' },
       config = function()
         require('config.ts_textobj')
       end,
-      event = 'User LazyLoad',
+      lazy = true,
     }, ---}}}
-    { ---@ telescope {{{
+    { -- {{{ telescope
       'nvim-telescope/telescope.nvim',
       tag = '0.1.0',
       dependencies = { 'hrsh7th/nvim-cmp', 'kana/vim-smartinput' },
@@ -201,20 +177,21 @@ require('lazy').setup(
     }, ---}}}
     { 'kana/vim-smartword', event = 'User LazyLoad' },
     { 'kana/vim-niceblock', event = 'User LazyLoad' },
-    { ---@desc select-multi-line {{{2
-      dir = 'C:/bin/repository/tar80/nvim-select-multi-line',
-      branch = 'tar80',
-      name = 'nvim-select-multi-line',
-      event = 'User LazyLoad',
-    }, ---}}}
-    { ---@desc comment {{{2
+    { 'monaqa/dial.nvim', event = 'User LazyLoad' },
+    -- { -- {{{ select-multi-line
+    --   dir = 'C:/bin/repository/tar80/nvim-select-multi-line',
+    --   branch = 'tar80',
+    --   name = 'nvim-select-multi-line',
+    --   event = 'User LazyLoad',
+    -- }, ---}}}
+    { -- {{{ comment
       'numToStr/Comment.nvim',
       config = function()
         require('Comment').setup({ ignore = '^$' })
       end,
       event = 'User LazyLoad',
     }, -- }}}
-    { ---@desc denops {{{2
+    { -- {{{ denops
       'vim-denops/denops.vim',
       dependencies = {
         'lambdalisue/kensaku.vim',
@@ -232,7 +209,7 @@ require('lazy').setup(
       end,
       event = 'User LazyLoad',
     }, ---}}}
-    { ---@desc skkeleton_indicator {{{2
+    { -- {{{ skkeleton_indicator
       'delphinus/skkeleton_indicator.nvim',
       config = function()
         require('skkeleton_indicator').setup({
@@ -242,7 +219,7 @@ require('lazy').setup(
       end,
       event = 'InsertEnter',
     }, -- }}}
-    { ---@desc fret {{{2
+    { -- {{{ fret
       dir = 'C:/bin/repository/tar80/fret.nvim',
       name = 'fret.nvim',
       config = function()
@@ -259,7 +236,7 @@ require('lazy').setup(
       end,
       event = 'UIEnter',
     }, ---}}}
-    { ---@desc cmp {{{2
+    { -- {{{ cmp
       'hrsh7th/nvim-cmp',
       dependencies = {
         'hrsh7th/cmp-nvim-lsp',
@@ -292,7 +269,7 @@ require('lazy').setup(
       end,
       event = { 'CursorMoved', 'InsertEnter', 'CmdlineEnter' },
     }, ---}}}
-    { ---@desc operator-user {{{2
+    { -- {{{ operator-user
       'kana/vim-operator-user',
       dependencies = {
         { 'yuki-yano/vim-operator-replace' },
@@ -300,14 +277,14 @@ require('lazy').setup(
       },
       event = 'VeryLazy',
     }, -- }}}
-    { ---@desc smart-input {{{2
+    { -- {{{ smart-input
       'kana/vim-smartinput',
       config = function()
         require('config.input')
       end,
       event = { 'InsertEnter', 'CmdlineEnter' },
     }, -- }}}
-    { ---@desc parenmatch {{{2
+    { -- {{{ parenmatch
       dir = 'C:/bin/repository/tar80/vim-parenmatch',
       name = 'parenmatch',
       config = function()
@@ -320,7 +297,7 @@ require('lazy').setup(
       end,
       event = 'CursorMoved',
     }, -- }}}
-    { ---@desc registers {{{2
+    { -- {{{ registers
       'tversteeg/registers.nvim',
       config = function()
         local registers = require('registers')
@@ -354,7 +331,7 @@ require('lazy').setup(
         { '<C-R>', mode = 'i' },
       },
     }, ---}}}
-    { ---@desc trouble {{{2,
+    { -- {{{ trouble
       'folke/trouble.nvim',
       opts = {
         position = 'bottom',
@@ -398,49 +375,50 @@ require('lazy').setup(
       },
       cmd = 'Trouble',
     }, ---}}}
-    { ---@desc mr {{{2
+    { -- {{{ mr
       'lambdalisue/mr.vim',
       init = function()
         vim.g.mr_mru_disabled = false
         vim.g.mr_mrw_disabled = true
         vim.g.mr_mrr_disabled = true
         vim.g['mr#threshold'] = 200
-        vim.cmd("let g:mr#mru#predicates=[{filename -> filename !~? '\\/doc\\/\\|\\/\\.git\\/'}]")
+        vim.cmd("let g:mr#mru#predicates=[{filename -> filename !~? '\\\\\\|\\/doc\\/\\|\\/\\.git\\/\\|\\.cache'}]")
       end,
       event = 'User Lazyload',
     }, ---}}}
-    {
-      'uga-rosa/translate.nvim',
-      cmd = 'Translate',
-    },
-    {
-      'lewis6991/gitsigns.nvim',
-      event = 'CursorMoved',
-    },
-    {
+    { 'uga-rosa/translate.nvim', cmd = 'Translate' },
+    { 'lewis6991/gitsigns.nvim', event = 'CursorMoved' },
+    { -- {{{ quickrun
       'thinca/vim-quickrun',
       dependencies = {
         { 'tar80/vim-quickrun-neovim-job', branch = 'win-nyagos' },
       },
       cmd = 'QuickRun',
-    },
+    },-- }}}
     { 'tyru/open-browser.vim', key = { '<Space>/', { '<Space>/', 'x' } } },
-    {
+    {-- {{{ diffview
       'sindrets/diffview.nvim',
       opts = { use_icons = false },
       cmd = { 'DiffviewOpen', 'DiffviewLog', 'DiffviewFocusFiles', 'DiffviewFileHistory' },
-    },
+    },-- }}}
     { 'mbbill/undotree', key = '<F7>' },
     { 'norcalli/nvim-colorizer.lua', cmd = 'ColorizerAttachToBuffer' },
     { 'weilbith/nvim-code-action-menu', cmd = 'CodeActionMenu' },
     { 'vim-jp/vimdoc-ja' },
     { 'tar80/vim-PPxcfg', ft = 'PPxcfg' },
   },
-  { -- options {{{2
-    ui = {
+  { -- {{{2 options
+    ui = { -- {{{
       size = { width = 0.8, height = 0.8 },
       wrap = true,
       border = 'single',
+      custom_keys = {
+        ['<leader>g'] = function(plugin)
+          require('lazy.util').float_term({ 'tig' }, {
+            cwd = plugin.dir,
+          })
+        end,
+      },
       icons = {
         cmd = '',
         config = '',
@@ -464,8 +442,8 @@ require('lazy').setup(
           '‒',
         },
       },
-    },
-    performance = {
+    }, -- }}}
+    performance = { -- {{{
       rtp = {
         reset = true,
         paths = {},
@@ -480,6 +458,12 @@ require('lazy').setup(
           'zipPlugin',
         },
       },
+    }, -- }}}
+    diff = {
+      cmd = 'git',
+    },
+    readme = {
+      enabled = false,
     },
   } ---}}}2
 )
