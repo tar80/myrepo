@@ -161,7 +161,8 @@ local dict = require('cmp_dictionary')
 
 dict.switcher({
   filetype = {
-    lua = { vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\lua.dict' },
     javascript = { vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\javascript.dict' },
+    lua = { vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\lua.dict' },
+    PPxcfg = { vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\PPxcfg.dict' },
   },
 })

@@ -187,27 +187,32 @@ require('mason-lspconfig').setup_handlers({
     })
   end, -- }}}
   ['tsserver'] = function() -- {{{
+    local inlayHints = {
+      includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all';
+      includeInlayParameterNameHintsWhenArgumentMatchesName = true, -- ???
+      includeInlayEnumMemberValueHints = true,
+      includeInlayFunctionLikeReturnTypeHints = true,
+      includeInlayFunctionParameterTypeHints = true,
+      includeInlayPropertyDeclarationTypeHints = true,
+      includeInlayVariableTypeHints = false,
+      includeInlayVariableTypeHintsWhenTypeMatchesName = true, -- ???
+    }
     require('lspconfig').tsserver.setup({
       flags = flags,
+      autostart = true,
       root_dir = require('lspconfig').util.root_pattern('tsconfig.json'),
-      filetypes = { 'typescript' },
+      filetypes = { 'typescript', 'javascript' },
       on_attach = function(client, bufnr)
         on_attach(client, bufnr)
       end,
       capabilities = capabilities,
       disable_formatting = true,
       settings = {
+        javascript = {
+          inlayHints = inlayHints,
+        },
         typescript = {
-          inlayHints = {
-            includeInlayParameterNameHints = 'none', -- 'none' | 'literals' | 'all';
-            includeInlayParameterNameHintsWhenArgumentMatchesName = true, -- ???
-            includeInlayEnumMemberValueHints = true,
-            includeInlayFunctionLikeReturnTypeHints = true,
-            includeInlayFunctionParameterTypeHints = true,
-            includeInlayPropertyDeclarationTypeHints = true,
-            includeInlayVariableTypeHints = false,
-            includeInlayVariableTypeHintsWhenTypeMatchesName = true, -- ???
-          },
+          inlayHints = inlayHints,
         },
       },
     })
@@ -216,6 +221,7 @@ require('mason-lspconfig').setup_handlers({
     require('lspconfig').denols.setup({
       flags = flags,
       root_dir = require('lspconfig').util.root_pattern('.git', 'tsconfig.json', 'deno.json', 'deno.jsonc'),
+      autostart = false,
       filetypes = { 'javascript' },
       on_attach = function(client, bufnr)
         on_attach(client, bufnr)
@@ -223,14 +229,14 @@ require('mason-lspconfig').setup_handlers({
       capabilities = capabilities,
       settings = {
         deno = {
-          inlayHints = {
-            parameterNames = { enabled = 'all' },
-            parameterTypes = { enabled = true },
-            variableTypes = { enabled = false },
-            propertyDeclarationTypes = { enabled = true },
-            functionLikeReturnTypes = { enabled = true },
-            enumMemberValues = { enabled = true },
-          },
+          -- inlayHints = {
+          --   parameterNames = { enabled = 'all' },
+          --   parameterTypes = { enabled = true },
+          --   variableTypes = { enabled = false },
+          --   propertyDeclarationTypes = { enabled = true },
+          --   functionLikeReturnTypes = { enabled = true },
+          --   enumMemberValues = { enabled = true },
+          -- },
         },
       },
     })

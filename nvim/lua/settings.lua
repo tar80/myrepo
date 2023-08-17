@@ -3,10 +3,9 @@
 
 local util = require('module.util')
 
----@desc Shell
+---@desc INITIAL
 util.shell('nyagos')
 
----@desc VARIABLES
 vim.env.myvimrc = vim.uv.fs_readlink(vim.env.myvimrc, nil)
 -- vim.env.myvimrc = vim.uv.fs_realpath(vim.env.myvimrc)
 vim.g.repo = 'c:\\bin\\repository\\tar80'
@@ -40,7 +39,7 @@ vim.api.nvim_set_option('fileformats', 'unix,dos,mac')
 ---@desc Local {{{2
 --vim.api.nvim_buf_set_option(0, "name", value)
 
----@Both {{{2
+---@desc Both {{{2
 vim.o.guicursor = 'n:block,i-c-ci-ve:ver50,v-r-cr-o:hor50'
 vim.o.fileencodings = 'utf-8,utf-16le,cp932,euc-jp,sjis'
 -- vim.o.timeoutlen = 1000
@@ -161,7 +160,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
 })
 vim.api.nvim_create_autocmd('OptionSet', {
   group = 'rcSettings',
-  pattern = { 'tabstop', 'foldmarker' },
+  pattern = 'foldmarker',
   callback = function(opts)
     if opts.match == 'foldmarker' then
       foldmarker = vim.split(vim.api.nvim_win_get_option(0, 'foldmarker'), ',')
@@ -170,16 +169,16 @@ vim.api.nvim_create_autocmd('OptionSet', {
 })
 --}}}2
 
----#FUNCTIONS
----this code is based on https://github.com/tamton-aquib/essentials.nvim
+---@desc FUNCTIONS
 _G.Simple_fold = function() -- {{{2
+  ---this code is based on https://github.com/tamton-aquib/essentials.nvim
   local open, close = vim.api.nvim_get_vvar('foldstart'), vim.api.nvim_get_vvar('foldend')
   local line_count = string.format('%s lines', close - open)
   local forward = unpack(vim.api.nvim_buf_get_lines(0, open - 1, open, false))
   forward = forward:gsub(string.format('%s%%s*%s%%d*', cms, foldmarker[1]), '')
   local backward = unpack(vim.api.nvim_buf_get_lines(0, close - 1, close, false))
   backward = backward:find(foldmarker[2], 1, true) and backward:sub(0, backward:find(cms, 1, true) - 1) or ''
-  local linewise = string.format('%s%s%s%s', forward, FOLD_SEP, line_count, backward)
+  local linewise = string.format('%s%s%s %s', forward, FOLD_SEP, line_count, backward)
   local spaces = (' '):rep(vim.o.columns - #linewise)
 
   return linewise .. spaces
@@ -227,28 +226,32 @@ local ppcust_load = function() -- {{{2
   print('PPcust CA ' .. vim.fn.expand('%:t'))
 end ---}}}
 
----#KEYMAPS
+---@desc KEYMAPS
 vim.g.mapleader = ';'
 
----##Normal {{{2
--- vim.keymap.set('n', '<leader>t', function()
---   ---this code excerpt from essentials.nvim(https://github.com/tamton-aquib/essentials.nvim)
---   local cword = vim.fn.expand('<cword>')
---   local line = vim.api.nvim_get_current_line()
---   if cword == 'true' then
---     vim.api.nvim_command('normal viwcfalse')
---   elseif cword == 'false' then
---     vim.api.nvim_command('normal viwctrue')
---   else
---     local t = line:find('true', 1, true) or 1000
---     local f = line:find('false', 1, true) or 1000
---     if (t + f) == 2000 then
---       return
---     end
---     local subs = t < f and line:gsub('true', 'false', 1) or line:gsub('false', 'true', 1)
---     vim.api.nvim_set_current_line(subs)
---   end
--- end)
+---@desc Normal {{{2
+vim.keymap.set('n', '<C-t>', function()
+  ---this code excerpt from essentials.nvim(https://github.com/tamton-aquib/essentials.nvim)
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+  local cword = vim.fn.expand('<cword>')
+  local line = vim.api.nvim_get_current_line()
+  local keycmd = util.getchr() == ' ' and 'v2iwc ' or 'viwc'
+  if cword == 'true' then
+    vim.api.nvim_command(string.format('normal %sfalse', keycmd))
+    vim.api.nvim_win_set_cursor(0, { row, col })
+  elseif cword == 'false' then
+    vim.api.nvim_command(string.format('normal %strue', keycmd))
+    vim.api.nvim_win_set_cursor(0, { row, col })
+  else
+    local t = line:find('true', 1, true) or 10000
+    local f = line:find('false', 1, true) or 10000
+    if (t + f) == 20000 then
+      return
+    end
+    local subs = t < f and line:gsub('true', 'false', 1) or line:gsub('false', 'true', 1)
+    vim.api.nvim_set_current_line(subs)
+  end
+end)
 vim.keymap.set('n', '<F1>', function()
   return os.execute('c:/bin/cltc/cltc.exe')
 end)
@@ -287,9 +290,20 @@ vim.keymap.set('n', '<C-N>', 'i<C-M><ESC>')
 vim.keymap.set('n', '/', function()
   vim.o.hlsearch = true
   return '/\\V'
-end, { expr = true })
+end, { noremap = true, expr = true })
 vim.keymap.set('n', 'n', "'Nn'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
 vim.keymap.set('n', 'N', "'nN'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
+if not vim.g.loaded_kensaku_search then
+  vim.keymap.set('c', '<CR>', function()
+    local cmdtype = vim.fn.getcmdtype()
+
+    if cmdtype == '/' or cmdtype == '?' then
+      return '<CR>zv'
+    end
+
+    return '<CR>'
+  end, { noremap = true, expr = true, silent = true })
+end
 ---Move buffer use <SPACE>
 vim.keymap.set('n', '<SPACE>', '<C-W>', { remap = true })
 vim.keymap.set('n', '<SPACE><SPACE>', '<C-W><C-W>')
@@ -319,7 +333,7 @@ vim.keymap.set('n', '<SPACE>z', function()
   util.feedkey('<C-w><C-z>', 'n')
 end)
 
----##Insert & Command {{{2
+---@desc Insert & Command {{{2
 vim.keymap.set('i', '<C-J>', '<DOWN>')
 vim.keymap.set('i', '<C-K>', '<UP>')
 vim.keymap.set('i', '<C-D>', '<DELETE>')
@@ -329,7 +343,7 @@ vim.keymap.set('!', '<C-B>', '<LEFT>')
 vim.keymap.set('!', '<C-V>u', '<C-R>=nr2char(0x)<LEFT>')
 vim.keymap.set('c', '<C-A>', '<HOME>')
 
----##Visual {{{2
+---@desc Visual {{{2
 ---clipbord yank
 vim.keymap.set('v', '<C-insert>', '"*y')
 vim.keymap.set('v', '<C-delete>', '"*ygvd')
@@ -348,18 +362,17 @@ vim.keymap.set('x', '*', function()
 end, { expr = true })
 --}}}2
 
----##Commands
----##"Busted" {{{2
-vim.api.nvim_create_user_command('Busted', function()
+---@desc Commands
+vim.api.nvim_create_user_command('Busted', function() -- {{{2
   local path = string.gsub(vim.fn.expand('%'), '\\', '/')
   require('module.busted').run(path)
-end, {})
+end, {}) -- }}}
 
----#"Z <filepath>" zoxide query {{{2
+---@desc "Z <filepath>" zoxide query
 vim.api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " . <q-args>)', { nargs = 1 })
 
----#"UTSetup" Unit-test compose multi-panel {{{2
-vim.api.nvim_create_user_command('UTSetup', function()
+---@desc "UTSetup" Unit-test compose multi-panel
+vim.api.nvim_create_user_command('UTSetup', function() -- {{{2
   if vim.b.mug_branch_name == nil then
     return print('Not a repository')
   end
@@ -379,10 +392,8 @@ vim.api.nvim_create_user_command('UTSetup', function()
 
     vim.api.nvim_command('bot split ' .. testpath .. '|set fenc=utf-8|set ff=unix')
   end
-end, {})
-
--- #"UTDo <arguments>" Unit-test doing {{{2
-vim.api.nvim_create_user_command('UTDo', function(...)
+end, {}) -- }}}
+vim.api.nvim_create_user_command('UTDo', function(...) -- {{{2
   local args = table.concat((...).fargs, ',')
   os.execute(
     os.getenv('PPX_DIR')
@@ -391,10 +402,10 @@ vim.api.nvim_create_user_command('UTDo', function(...)
       .. '%:*cd %*extract(C,"%%1")%:*script %*getcust(S_ppm#plugins:ppm-test)/script/jscript/ppmtest_run.js,'
       .. args
   )
-end, { nargs = '*' })
+end, { nargs = '*' }) -- }}}
 
----#"JestSetup" Unit-test compose multi-panel {{{2
-vim.api.nvim_create_user_command('JestSetup', function()
+---@desc "JestSetup" Unit-test compose multi-panel
+vim.api.nvim_create_user_command('JestSetup', function() -- {{{2
   local has_config = vim.fn.filereadable('jest.config.js') + vim.fn.filereadable('package.json')
   if has_config == 0 then
     print('Config file not found')
@@ -425,4 +436,4 @@ vim.api.nvim_create_user_command('JestSetup', function()
 
     vim.api.nvim_command(string.format('bot split %s|set fenc=utf-8|set ff=unix%s', test_path, insert_string))
   end
-end, {})
+end, {}) -- }}}

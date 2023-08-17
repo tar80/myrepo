@@ -2,56 +2,44 @@
 --------------------------------------------------------------------------------
 
 ---@desc Dial {{{2
-local augend = require('dial.augend')
-local default_rules = {
-  augend.semver.alias.semver,
-  augend.integer.alias.decimal_int,
-  augend.integer.alias.hex,
-  augend.decimal_fraction.new({}),
-  augend.date.alias['%Y/%m/%d'],
-  augend.constant.alias.bool,
-  augend.paren.alias.quote,
-}
-local js_rules = {
-  augend.constant.new({ elements = { 'let', 'const' } }),
-}
-require('dial.config').augends:register_group({
-  default = default_rules,
-  case = {
-    augend.case.new({
-      types = { 'camelCase', 'snake_case' },
-      cyclic = true,
-    }),
-  },
-})
-require('dial.config').augends:on_filetype({
-  typescript = vim.tbl_extend('force', default_rules, js_rules),
-  javascript = vim.tbl_extend('force', default_rules, js_rules),
-  -- lua = {},
-  -- markdown = {
-  --   augend.misc.alias.markdown_header,
-  -- },
-})
+-- local augend = require('dial.augend')
+-- local default_rules = {
+--   augend.semver.alias.semver,
+--   augend.integer.alias.decimal_int,
+--   augend.integer.alias.hex,
+--   augend.decimal_fraction.new({}),
+--   augend.date.alias['%Y/%m/%d'],
+--   augend.constant.alias.bool,
+--   augend.paren.alias.quote,
+-- }
+-- local js_rules = {
+--   augend.constant.new({ elements = { 'let', 'const' } }),
+-- }
+-- require('dial.config').augends:register_group({
+--   default = default_rules,
+--   case = {
+--     augend.case.new({
+--       types = { 'camelCase', 'snake_case' },
+--       cyclic = true,
+--     }),
+--   },
+-- })
+-- require('dial.config').augends:on_filetype({
+--   typescript = vim.tbl_extend('force', default_rules, js_rules),
+--   javascript = vim.tbl_extend('force', default_rules, js_rules),
+--   -- lua = {},
+--   -- markdown = {
+--   --   augend.misc.alias.markdown_header,
+--   -- },
+-- })
 
-vim.keymap.set('n', '<C-t>', require('dial.map').inc_normal('case'), { silent = true, noremap = true })
-vim.keymap.set('n', '<C-a>', require('dial.map').inc_normal(), { silent = true, noremap = true })
-vim.keymap.set('n', '<C-x>', require('dial.map').dec_normal(), { silent = true, noremap = true })
-vim.keymap.set('v', '<C-a>', require('dial.map').inc_visual(), { silent = true, noremap = true })
-vim.keymap.set('v', '<C.x>', require('dial.map').dec_visual(), { silent = true, noremap = true })
-vim.keymap.set('v', 'g<C-a>', require('dial.map').inc_gvisual(), { silent = true, noremap = true })
-vim.keymap.set('v', 'g<C-x>', require('dial.map').dec_gvisual(), { silent = true, noremap = true })
-
----@desc Kensaku-search {{{2
--- vim.go.wrapscan = true
-vim.keymap.set('c', '<CR>', function()
-  local cmdtype = vim.fn.getcmdtype()
-
-  if cmdtype == '/' or cmdtype == '?' then
-    return vim.fn['kensaku_search#replace']() .. '<CR>zv'
-  end
-
-  return '<CR>'
-end, { noremap = true, expr = true, silent = true })
+-- vim.keymap.set('n', '<C-t>', require('dial.map').inc_normal('case'), { silent = true, noremap = true })
+-- vim.keymap.set('n', '<C-a>', require('dial.map').inc_normal(), { silent = true, noremap = true })
+-- vim.keymap.set('n', '<C-x>', require('dial.map').dec_normal(), { silent = true, noremap = true })
+-- vim.keymap.set('v', '<C-a>', require('dial.map').inc_visual(), { silent = true, noremap = true })
+-- vim.keymap.set('v', '<C.x>', require('dial.map').dec_visual(), { silent = true, noremap = true })
+-- vim.keymap.set('v', 'g<C-a>', require('dial.map').inc_gvisual(), { silent = true, noremap = true })
+-- vim.keymap.set('v', 'g<C-x>', require('dial.map').dec_gvisual(), { silent = true, noremap = true })
 
 ---@desc Nvim-select-multi-line {{{2
 vim.keymap.set('n', '<Leader>v', function()

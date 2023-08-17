@@ -10,10 +10,9 @@ local time_manage = (function()
   local h = os.date('*t').hour
   local tbl = {}
   if h > 6 and h < 19 then
-    local bg_color = '#002A36'
+    local bg_color = '#002A2A'
     tbl = {
       theme = 'decay',
-      fade = false,
       hl = {
         Normal = { bg = bg_color },
         NormalFloat = { link = 'Normal' },
@@ -24,7 +23,6 @@ local time_manage = (function()
   else
     tbl = {
       theme = 'decay',
-      fade = false,
       hl = {
         CursorLine = { fg = 'NONE', bg = '#A33865' },
       },
@@ -39,16 +37,16 @@ require(color_scheme).setup({
   theme = time_manage.theme,
   borders = true, -- Split window borders
   fade_nc = true, -- Fade non-current windows, making them more distinguishable
-  fade_no_bg = time_manage.fade,
+  fade_no_bg = true,
   -- fade_no_bg = true, -- Enable fade_nc but disable current pane background
   styles = {
     comments = 'italic',
     strings = 'NONE',
-    keywords = 'NONE',
+    keywords = 'bold',
     functions = 'NONE',
     variables = 'NONE',
     diagnostics = 'underline',
-    references = 'bold',
+    references = 'bold,underline',
   },
   disable = {
     background = false,

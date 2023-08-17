@@ -43,7 +43,7 @@ end
 ---@desc Plugins {{{1
 require('lazy').setup(
   {
-    {-- {{{ cellwidths
+    { -- {{{ cellwidths
       'delphinus/cellwidths.nvim',
       config = function()
         require('cellwidths').setup({
@@ -61,7 +61,7 @@ require('lazy').setup(
       build = function()
         require('cellwidths').remove()
       end,
-    },-- }}}
+    }, -- }}}
     { 'nvim-lua/plenary.nvim', lazy = true },
     -- { -- {{{ notify
     --   "rcarriga/nvim-notify",
@@ -163,7 +163,7 @@ require('lazy').setup(
       config = function()
         require('config.ts_textobj')
       end,
-      lazy = true,
+      event = 'UIEnter',
     }, ---}}}
     { -- {{{ telescope
       'nvim-telescope/telescope.nvim',
@@ -177,7 +177,7 @@ require('lazy').setup(
     }, ---}}}
     { 'kana/vim-smartword', event = 'User LazyLoad' },
     { 'kana/vim-niceblock', event = 'User LazyLoad' },
-    { 'monaqa/dial.nvim', event = 'User LazyLoad' },
+    --    { 'monaqa/dial.nvim', event = 'User LazyLoad' },
     -- { -- {{{ select-multi-line
     --   dir = 'C:/bin/repository/tar80/nvim-select-multi-line',
     --   branch = 'tar80',
@@ -195,7 +195,7 @@ require('lazy').setup(
       'vim-denops/denops.vim',
       dependencies = {
         'lambdalisue/kensaku.vim',
-        'lambdalisue/kensaku-search.vim',
+        -- 'lambdalisue/kensaku-search.vim',
         'yuki-yano/fuzzy-motion.vim',
         'vim-skk/skkeleton',
       },
@@ -222,18 +222,16 @@ require('lazy').setup(
     { -- {{{ fret
       dir = 'C:/bin/repository/tar80/fret.nvim',
       name = 'fret.nvim',
-      config = function()
-        require('fret.config').setup({
-          fret_enable_kana = true,
-          fret_timeout = 9000,
-          mapkeys = {
-            fret_f = 'f',
-            fret_F = 'F',
-            fret_t = 't',
-            fret_T = 'T',
-          },
-        })
-      end,
+      opts = {
+        fret_enable_kana = true,
+        fret_timeout = 9000,
+        mapkeys = {
+          fret_f = 'f',
+          fret_F = 'F',
+          fret_t = 't',
+          fret_T = 'T',
+        },
+      },
       event = 'UIEnter',
     }, ---}}}
     { -- {{{ cmp
@@ -246,23 +244,7 @@ require('lazy').setup(
         'hrsh7th/cmp-buffer',
         'hrsh7th/cmp-path',
         'hrsh7th/cmp-cmdline',
-        {
-          'uga-rosa/cmp-dictionary',
-          config = function()
-            require('cmp_dictionary').setup({
-              dic = {
-                ['javascript'] = { vim.g.repo .. '/myrepo/nvim/after/dict/ppx.dict' },
-                ['PPxcfg'] = { vim.g.repo .. '/myrepo/nvim/after/dict/xcfg.dict' },
-              },
-              -- exact = 2,
-              first_case_insensitive = true,
-              document = false,
-              max_items = -1,
-              capacity = 5,
-            })
-            require('cmp_dictionary').update()
-          end,
-        },
+        { 'uga-rosa/cmp-dictionary', opts = { first_case_insensitive = true } },
       },
       config = function()
         require('config.comp')
@@ -394,13 +376,13 @@ require('lazy').setup(
         { 'tar80/vim-quickrun-neovim-job', branch = 'win-nyagos' },
       },
       cmd = 'QuickRun',
-    },-- }}}
+    }, -- }}}
     { 'tyru/open-browser.vim', key = { '<Space>/', { '<Space>/', 'x' } } },
-    {-- {{{ diffview
+    { -- {{{ diffview
       'sindrets/diffview.nvim',
       opts = { use_icons = false },
       cmd = { 'DiffviewOpen', 'DiffviewLog', 'DiffviewFocusFiles', 'DiffviewFileHistory' },
-    },-- }}}
+    }, -- }}}
     { 'mbbill/undotree', key = '<F7>' },
     { 'norcalli/nvim-colorizer.lua', cmd = 'ColorizerAttachToBuffer' },
     { 'weilbith/nvim-code-action-menu', cmd = 'CodeActionMenu' },
@@ -463,7 +445,7 @@ require('lazy').setup(
       cmd = 'git',
     },
     readme = {
-      enabled = false,
+      enabled = true,
     },
   } ---}}}2
 )
