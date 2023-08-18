@@ -42,6 +42,7 @@ require('telescope').setup({
     },
     mappings = {
       i = {
+        ['<C-S>'] = require('telescope.actions').file_split,
         ['<C-K>'] = require('telescope.actions').preview_scrolling_up,
         ['<C-J>'] = require('telescope.actions').preview_scrolling_down,
         ['<C-G>'] = require('telescope.actions').close,

@@ -189,13 +189,13 @@ require('mason-lspconfig').setup_handlers({
   ['tsserver'] = function() -- {{{
     local inlayHints = {
       includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all';
-      includeInlayParameterNameHintsWhenArgumentMatchesName = true, -- ???
+      includeInlayParameterNameHintsWhenArgumentMatchesName = true,
       includeInlayEnumMemberValueHints = true,
       includeInlayFunctionLikeReturnTypeHints = true,
       includeInlayFunctionParameterTypeHints = true,
       includeInlayPropertyDeclarationTypeHints = true,
       includeInlayVariableTypeHints = false,
-      includeInlayVariableTypeHintsWhenTypeMatchesName = true, -- ???
+      includeInlayVariableTypeHintsWhenTypeMatchesName = true,
     }
     require('lspconfig').tsserver.setup({
       flags = flags,

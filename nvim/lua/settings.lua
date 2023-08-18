@@ -153,6 +153,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 ---@desc Supports changing options that affect Simple_fold() {{{2
 vim.api.nvim_create_autocmd('BufWinEnter', {
   group = 'rcSettings',
+  buffer = 0,
   callback = function()
     cms = vim.api.nvim_buf_get_option(0, 'commentstring')
     cms = cms:gsub('(%S+)%s*%%s.*', '%1')
@@ -172,9 +173,9 @@ vim.api.nvim_create_autocmd('OptionSet', {
 ---@desc FUNCTIONS
 _G.Simple_fold = function() -- {{{2
   ---this code is based on https://github.com/tamton-aquib/essentials.nvim
-  local open, close = vim.api.nvim_get_vvar('foldstart'), vim.api.nvim_get_vvar('foldend')
+  local open, close = vim.v.foldstart, vim.v.foldend
   local line_count = string.format('%s lines', close - open)
-  local forward = unpack(vim.api.nvim_buf_get_lines(0, open - 1, open, false))
+  local forward = vim.api.nvim_buf_get_lines(0, open - 1, open, false)[1]
   forward = forward:gsub(string.format('%s%%s*%s%%d*', cms, foldmarker[1]), '')
   local backward = unpack(vim.api.nvim_buf_get_lines(0, close - 1, close, false))
   backward = backward:find(foldmarker[2], 1, true) and backward:sub(0, backward:find(cms, 1, true) - 1) or ''

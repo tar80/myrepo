@@ -14,8 +14,10 @@ require('nvim-treesitter.configs').setup({
       lookahead = true,
       keymaps = {
         ---You can use the capture groups defined in textobjects.scm
-        ['af'] = '@function.outer',
+        ['ii'] = '@conditional.inner',
+        ['ai'] = '@conditional.outer',
         ['if'] = '@function.inner',
+        ['af'] = '@function.outer',
         -- ["ib"] = "@parameter.inner",
       },
       ---You can choose the select mode (default is charwise 'v')

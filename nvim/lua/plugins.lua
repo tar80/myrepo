@@ -177,7 +177,6 @@ require('lazy').setup(
     }, ---}}}
     { 'kana/vim-smartword', event = 'User LazyLoad' },
     { 'kana/vim-niceblock', event = 'User LazyLoad' },
-    --    { 'monaqa/dial.nvim', event = 'User LazyLoad' },
     -- { -- {{{ select-multi-line
     --   dir = 'C:/bin/repository/tar80/nvim-select-multi-line',
     --   branch = 'tar80',
@@ -255,10 +254,16 @@ require('lazy').setup(
       'kana/vim-operator-user',
       dependencies = {
         { 'yuki-yano/vim-operator-replace' },
-        { 'rhysd/vim-operator-surround' },
       },
       event = 'VeryLazy',
     }, -- }}}
+    { -- {{{ vim-sandwich
+      'machakann/vim-sandwich',
+      init = function()
+        vim.g.sandwich_no_default_key_mappings = true
+      end,
+      event = 'UIEnter',
+    },-- }}}
     { -- {{{ smart-input
       'kana/vim-smartinput',
       config = function()

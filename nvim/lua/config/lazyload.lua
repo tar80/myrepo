@@ -1,46 +1,6 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
----@desc Dial {{{2
--- local augend = require('dial.augend')
--- local default_rules = {
---   augend.semver.alias.semver,
---   augend.integer.alias.decimal_int,
---   augend.integer.alias.hex,
---   augend.decimal_fraction.new({}),
---   augend.date.alias['%Y/%m/%d'],
---   augend.constant.alias.bool,
---   augend.paren.alias.quote,
--- }
--- local js_rules = {
---   augend.constant.new({ elements = { 'let', 'const' } }),
--- }
--- require('dial.config').augends:register_group({
---   default = default_rules,
---   case = {
---     augend.case.new({
---       types = { 'camelCase', 'snake_case' },
---       cyclic = true,
---     }),
---   },
--- })
--- require('dial.config').augends:on_filetype({
---   typescript = vim.tbl_extend('force', default_rules, js_rules),
---   javascript = vim.tbl_extend('force', default_rules, js_rules),
---   -- lua = {},
---   -- markdown = {
---   --   augend.misc.alias.markdown_header,
---   -- },
--- })
-
--- vim.keymap.set('n', '<C-t>', require('dial.map').inc_normal('case'), { silent = true, noremap = true })
--- vim.keymap.set('n', '<C-a>', require('dial.map').inc_normal(), { silent = true, noremap = true })
--- vim.keymap.set('n', '<C-x>', require('dial.map').dec_normal(), { silent = true, noremap = true })
--- vim.keymap.set('v', '<C-a>', require('dial.map').inc_visual(), { silent = true, noremap = true })
--- vim.keymap.set('v', '<C.x>', require('dial.map').dec_visual(), { silent = true, noremap = true })
--- vim.keymap.set('v', 'g<C-a>', require('dial.map').inc_gvisual(), { silent = true, noremap = true })
--- vim.keymap.set('v', 'g<C-x>', require('dial.map').dec_gvisual(), { silent = true, noremap = true })
-
 ---@desc Nvim-select-multi-line {{{2
 vim.keymap.set('n', '<Leader>v', function()
   require('nvim-select-multi-line').start()
@@ -57,17 +17,36 @@ vim.keymap.set('x', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('v')
 vim.keymap.set('n', '_', '"*<Plug>(operator-replace)')
 vim.keymap.set('n', '\\', '"0<Plug>(operator-replace)')
 
----@desc Oparetor-surround {{{2
-vim.g['operator#surround#blocks'] = {
-  javascript = { { block = { '${', '}' }, motionwise = { 'char', 'line', 'block' }, keys = { '$', '$' } } },
-}
-vim.keymap.set('x', '<Leader>r', '<Plug>(operator-surround-replace)')
-vim.keymap.set('x', '<Leader>a', '<Plug>(operator-surround-append)')
-vim.keymap.set('x', '<Leader>d', '<Plug>(operator-surround-delete)')
-vim.keymap.set('n', '<Leader>r', '<Plug>(operator-surround-replace)a')
-vim.keymap.set('n', '<Leader>i', '<Plug>(operator-surround-append)i')
-vim.keymap.set('n', '<Leader>a', '<Plug>(operator-surround-append)a')
-vim.keymap.set('n', '<Leader>d', '<Plug>(operator-surround-delete)a')
+---@desc Vim-sandwich {{{2
+if vim.g.loaded_sandwich then
+  vim.keymap.set({ 'n' }, '<Leader>i', '<Plug>(operator-sandwich-add)i')
+  vim.keymap.set({ 'n' }, '<Leader>a', '<Plug>(operator-sandwich-add)a')
+  vim.keymap.set({ 'x' }, '<Leader>a', '<Plug>(operator-sandwich-add)')
+  vim.keymap.set({ 'n', 'x' }, '<Leader>r', '<Plug>(sandwich-replace)')
+  vim.keymap.set({ 'n' }, '<Leader>rr', '<Plug>(sandwich-replace-auto)')
+  vim.keymap.set({ 'n', 'x' }, '<Leader>d', '<Plug>(sandwich-delete)')
+  vim.keymap.set({ 'n' }, '<Leader>dd', '<Plug>(sandwich-delete-auto)')
+  vim.keymap.set({ 'o', 'x' }, 'ib', '<Plug>(textobj-sandwich-auto-i)')
+  vim.keymap.set({ 'o', 'x' }, 'ab', '<Plug>(textobj-sandwich-auto-a)')
+
+  local recipes = vim.deepcopy(vim.g['sandwich#default_recipes'])
+  recipes = vim.list_extend(recipes, {
+    { buns = { "\\'", "\\'" }, input = { "\\'" } },
+    { buns = { '\\"', '\\"' }, input = { '\\"' } },
+    { buns = { '【', '】' }, input = { ']' }, filetype = { 'markdown' } },
+    { buns = { '${', '}' }, input = { '$' }, filetype = { 'typescript', 'javascript' } },
+    { buns = { '%(', '%)' }, input = { '%' }, filetype = { 'typescript', 'javascript' } },
+  })
+  vim.g['sandwich#recipes'] = recipes
+  vim.g['sandwich#magicchar#f#patterns'] = {
+    {
+      header = [[\<\%(\h\k*\.\)*\h\k*]],
+      bra = '(',
+      ket = ')',
+      footer = '',
+    },
+  }
+end
 
 ---@desc Quickrun {{{2
 vim.keymap.set({ 'n', 'v' }, 'mq', function()
