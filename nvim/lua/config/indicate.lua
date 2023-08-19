@@ -3,6 +3,7 @@
 
 local color_scheme = vim.api.nvim_get_var('use_scheme')
 local colors = require(string.format('feline.themes.%s', color_scheme))
+local bg_color = '#002A2A'
 
 ---@desc Colorscheme {{{1
 ---@desc time-manage {{{2
@@ -10,7 +11,6 @@ local time_manage = (function()
   local h = os.date('*t').hour
   local tbl = {}
   if h > 6 and h < 19 then
-    local bg_color = '#002A2A'
     tbl = {
       theme = 'decay',
       hl = {

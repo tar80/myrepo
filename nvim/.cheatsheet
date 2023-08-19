@@ -16,7 +16,6 @@ cdo リストに対してコマンドを実行
 # SmartinputCommand
 eu8 open file encode utf8
 eu16 open file encode utf16
-gs gitsigns
 sc set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb
 scn set<Space>noscb
 dd diff

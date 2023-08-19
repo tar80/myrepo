@@ -14,7 +14,6 @@ vim.api.nvim_command('language message C')
 
 local FOLD_SEP = ' » '
 local foldmarker = vim.split(vim.api.nvim_win_get_option(0, 'foldmarker'), ',', { plain = true })
-local cms
 
 ---@desc Unload {{{2
 ---NOTE: leave it to lazy.nvim
@@ -151,14 +150,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 ---@desc Supports changing options that affect Simple_fold() {{{2
-vim.api.nvim_create_autocmd('BufWinEnter', {
-  group = 'rcSettings',
-  buffer = 0,
-  callback = function()
-    cms = vim.api.nvim_buf_get_option(0, 'commentstring')
-    cms = cms:gsub('(%S+)%s*%%s.*', '%1')
-  end,
-})
 vim.api.nvim_create_autocmd('OptionSet', {
   group = 'rcSettings',
   pattern = 'foldmarker',
@@ -173,13 +164,15 @@ vim.api.nvim_create_autocmd('OptionSet', {
 ---@desc FUNCTIONS
 _G.Simple_fold = function() -- {{{2
   ---this code is based on https://github.com/tamton-aquib/essentials.nvim
-  local open, close = vim.v.foldstart, vim.v.foldend
+  local cms = vim.api.nvim_buf_get_option(0, 'commentstring')
+  cms = cms:gsub('(%S+)%s*%%s.*', '%1')
+  local open, close = vim.api.nvim_get_vvar('foldstart'), vim.api.nvim_get_vvar('foldend')
   local line_count = string.format('%s lines', close - open)
   local forward = vim.api.nvim_buf_get_lines(0, open - 1, open, false)[1]
   forward = forward:gsub(string.format('%s%%s*%s%%d*', cms, foldmarker[1]), '')
-  local backward = unpack(vim.api.nvim_buf_get_lines(0, close - 1, close, false))
+  local backward = vim.api.nvim_buf_get_lines(0, close - 1, close, false)[1]
   backward = backward:find(foldmarker[2], 1, true) and backward:sub(0, backward:find(cms, 1, true) - 1) or ''
-  local linewise = string.format('%s%s%s %s', forward, FOLD_SEP, line_count, backward)
+  local linewise = string.format('%s%s%s... %s', forward, FOLD_SEP, line_count, backward)
   local spaces = (' '):rep(vim.o.columns - #linewise)
 
   return linewise .. spaces
@@ -231,28 +224,28 @@ end ---}}}
 vim.g.mapleader = ';'
 
 ---@desc Normal {{{2
-vim.keymap.set('n', '<C-t>', function()
-  ---this code excerpt from essentials.nvim(https://github.com/tamton-aquib/essentials.nvim)
-  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-  local cword = vim.fn.expand('<cword>')
-  local line = vim.api.nvim_get_current_line()
-  local keycmd = util.getchr() == ' ' and 'v2iwc ' or 'viwc'
-  if cword == 'true' then
-    vim.api.nvim_command(string.format('normal %sfalse', keycmd))
-    vim.api.nvim_win_set_cursor(0, { row, col })
-  elseif cword == 'false' then
-    vim.api.nvim_command(string.format('normal %strue', keycmd))
-    vim.api.nvim_win_set_cursor(0, { row, col })
-  else
-    local t = line:find('true', 1, true) or 10000
-    local f = line:find('false', 1, true) or 10000
-    if (t + f) == 20000 then
-      return
-    end
-    local subs = t < f and line:gsub('true', 'false', 1) or line:gsub('false', 'true', 1)
-    vim.api.nvim_set_current_line(subs)
-  end
-end)
+-- vim.keymap.set('n', '<C-t>', function()
+--   ---this code excerpt from essentials.nvim(https://github.com/tamton-aquib/essentials.nvim)
+--   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+--   local cword = vim.fn.expand('<cword>')
+--   local line = vim.api.nvim_get_current_line()
+--   local keycmd = util.getchr() == ' ' and 'v2iwc ' or 'viwc'
+--   if cword == 'true' then
+--     vim.api.nvim_command(string.format('normal %sfalse', keycmd))
+--     vim.api.nvim_win_set_cursor(0, { row, col })
+--   elseif cword == 'false' then
+--     vim.api.nvim_command(string.format('normal %strue', keycmd))
+--     vim.api.nvim_win_set_cursor(0, { row, col })
+--   else
+--     local t = line:find('true', 1, true) or 10000
+--     local f = line:find('false', 1, true) or 10000
+--     if (t + f) == 20000 then
+--       return
+--     end
+--     local subs = t < f and line:gsub('true', 'false', 1) or line:gsub('false', 'true', 1)
+--     vim.api.nvim_set_current_line(subs)
+--   end
+-- end)
 vim.keymap.set('n', '<F1>', function()
   return os.execute('c:/bin/cltc/cltc.exe')
 end)
