@@ -369,7 +369,7 @@ end)
 ---@desc Insert & Command {{{2
 mapset('i', '<M-j>', '<DOWN>')
 mapset('i', '<M-k>', '<UP>')
-mapset('i', '<C-l>', '<DELETE>')
+mapset('i', '<C-k>', '<DELETE>')
 mapset('i', '<C-f>', '<RIGHT>')
 mapset('i', '<S-DELETE>', '<C-O>D')
 mapset('!', '<C-b>', '<LEFT>')

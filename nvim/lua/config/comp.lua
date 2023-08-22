@@ -117,8 +117,8 @@ cmp.setup({
         feed_key('<Plug>(vsnip-jump-prev)', '')
       elseif vim.fn['vsnip#available']() == 1 then
         feed_key('<Plug>(vsnip-expand-or-jump)', '')
-      elseif cmp.visible() then
-        cmp.select_prev_item({ behavior = true })
+      -- elseif cmp.visible() then
+      --   cmp.select_prev_item({ behavior = true })
       else
         fallback()
       end

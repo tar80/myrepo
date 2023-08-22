@@ -108,6 +108,7 @@ require('lazy').setup(
     ---@desc modules
     { 'nvim-lua/plenary.nvim', module = true },
     { 'kana/vim-operator-user', module = true },
+    -- { 'nvim-tree/nvim-web-devicons', module = true },
 
     ---@desc scheme
     { dir = 'C:/bin/repository/tar80/mossco.nvim', name = 'mossco.nvim', lazy = true },
@@ -375,10 +376,23 @@ require('lazy').setup(
       end,
       event = 'InsertEnter',
     }, -- }}}
-    { -- {{{ smart-input
-      'kana/vim-smartinput',
+    { -- {{{ insx
+      'hrsh7th/nvim-insx',
       config = function()
-        require('config.input')
+        vim.o.wrapscan = true
+        -- Alias <C-h> to <BS>
+        setmap({ 'i', 'c' }, '<C-h>', '<BS>', { remap = true })
+
+        require('config.insx').setup({
+          cmdline = false,
+          fast_break = true,
+          fast_wrap = true,
+          pair = { ['<'] = '>' },
+          lua = true,
+          markdown = true,
+          javascript = true,
+          misc = true,
+        })
       end,
       event = { 'InsertEnter', 'CmdlineEnter' },
     }, -- }}}
