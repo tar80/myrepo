@@ -35,5 +35,11 @@ else
 end --}}}2
 
 -- #Requires
-require('settings')
-require('plugins')
+local minimal = false
+
+if minimal then
+  require('minimal')
+else
+  require('settings')
+  require('plugins')
+end
