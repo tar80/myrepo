@@ -24,20 +24,6 @@ vim.api.nvim_create_autocmd('User', { -- {{{2
   end,
 }) -- }}}
 
----@desc Kensaku-search {{{2
-if vim.g.loaded_kensaku_search then
-  -- vim.go.wrapscan = true
-  vim.keymap.set('c', '<CR>', function()
-    local cmdtype = vim.fn.getcmdtype()
-
-    if cmdtype == '/' or cmdtype == '?' then
-      return vim.fn['kensaku_search#replace']() .. '<CR>zv'
-    end
-
-    return '<CR>'
-  end, { noremap = true, expr = true, silent = true })
-end
-
 ---@desc FuzzyMotion {{{2
 if vim.g.fuzzy_motion_labels then
   vim.g.fuzzy_motion_matchers = { 'fzf', 'kensaku' }

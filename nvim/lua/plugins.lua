@@ -386,8 +386,18 @@ require('lazy').setup(
     ---@desc keys
     { -- {{{ telescope
       'nvim-telescope/telescope.nvim',
-      tag = '0.1.0',
-      dependencies = { 'hrsh7th/nvim-cmp', 'kana/vim-smartinput' },
+      tag = '0.1.2',
+      dependencies = {
+        'hrsh7th/nvim-cmp',
+        'kana/vim-smartinput',
+        'plenary.nvim',
+        {
+          'Allianaab2m/telescope-kensaku.nvim',
+          config = function()
+            require('telescope').load_extension('kensaku') -- :Telescope kensaku
+          end,
+        },
+      },
       config = function()
         require('config.finder')
       end,
