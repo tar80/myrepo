@@ -65,14 +65,14 @@ cmp.setup({
     end,
   },
   mapping = {
-    ['<C-P>'] = cmp.mapping(function()
+    ['<C-p>'] = cmp.mapping(function()
       return cmp.visible() and cmp.select_prev_item() or cmp.complete()
     end, { 'i', 'c' }),
-    ['<C-N>'] = cmp.mapping(function()
+    ['<C-n>'] = cmp.mapping(function()
       return cmp.visible() and cmp.select_next_item() or cmp.complete()
     end, { 'i', 'c' }),
-    ['<C-E>'] = cmp.mapping.abort(),
-    ['<C-Y>'] = cmp.mapping(function(fallback)
+    ['<C-e>'] = cmp.mapping.abort(),
+    ['<C-y>'] = cmp.mapping(function(fallback)
       return cmp.visible() and cmp.close() or fallback()
     end, { 'i' }),
     ['<Down>'] = cmp.mapping.scroll_docs(4),
@@ -99,7 +99,7 @@ cmp.setup({
         cmp.select_prev_item()
       end
     end, { 'i', 's' }),
-    ['<C-J>'] = cmp.mapping(function(fallback)
+    ['<C-j>'] = cmp.mapping(function(fallback)
       if vim.fn['vsnip#available']() == 1 then
         if vim.api.nvim_get_mode().mode == 's' then
           feed_key('<Plug>(vsnip-jump-next)', '')

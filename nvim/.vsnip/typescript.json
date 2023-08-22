@@ -5,11 +5,11 @@
   },
   "Import": {
     "prefix": "imp",
-    "body": "import ${1} from '${2:@ppmdev/modules/}';"
+    "body": "import ${1} from '${2:@ppmdev/modules/}';${0}"
   },
   "Import polyfill": {
     "prefix": "impp",
-    "body": "import '@ppmdev/polyfills/${1}';\n${0}"
+    "body": "import '@ppmdev/polyfills/${1}';${0}"
   },
   "Args": {
     "prefix": "ar",

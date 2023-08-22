@@ -3,9 +3,10 @@
 
 ---@desc INITIAL
 local api = vim.api
+local setmap = vim.keymap.set
 vim.g.use_scheme = 'mossco'
 vim.loader.enable()
-api.nvim_create_augroup('rcPlugin', {})
+api.nvim_create_augroup('rcPlugins', {})
 
 do -- {{{2 Lazy.nvim bootstrap
   local LAZY_PATH = vim.fn.stdpath('data') .. '\\lazy\\lazy.nvim'
@@ -31,12 +32,11 @@ if vim.fn.has('vim_starting') then -- {{{2
   end, 100)
 
   api.nvim_create_autocmd('User', {
-    group = 'rcPlugin',
+    group = 'rcPlugins',
     pattern = 'LazyLoad',
     once = true,
     callback = function()
       vim.g.loaded_matchit = nil
-      -- require('config.lazyload')
     end,
   })
 end -- }}}
@@ -77,7 +77,7 @@ require('lazy').setup(
     --   branch = 'tar80',
     --   name = 'nvim-select-multi-line',
     --   config = function()
-    --     vim.keymap.set('n', '<Leader>v', function()
+    --     setmap('n', '<Leader>v', function()
     --       require('nvim-select-multi-line').start()
     --     end)
     --   end,
@@ -154,9 +154,9 @@ require('lazy').setup(
           },
           highlights = {},
         })
-        vim.keymap.set('n', 'md', '<Cmd>MugDiff<cr>')
-        vim.keymap.set('n', 'mi', '<Cmd>MugIndex<cr>')
-        vim.keymap.set('n', 'mc', '<Cmd>MugCommit<cr>')
+        setmap('n', 'md', '<Cmd>MugDiff<cr>')
+        setmap('n', 'mi', '<Cmd>MugIndex<cr>')
+        setmap('n', 'mc', '<Cmd>MugCommit<cr>')
       end,
       event = 'UIEnter',
     }, ---}}}
@@ -174,25 +174,28 @@ require('lazy').setup(
     { -- {{{ treesitter
       'nvim-treesitter/nvim-treesitter',
       build = ':TSUpdate',
-      opts = {
-        sync_install = false,
-        auto_install = false,
-        ignore_install = { 'text', 'help' },
-        highlight = {
-          enable = true,
-          disable = { 'help', 'text' },
-          additional_vim_regex_highlighting = false,
-        },
-        incremental_selection = {
-          enable = true,
-          keymaps = {
-            init_selection = '<Space><CR>',
-            node_incremental = '<C-J>',
-            node_decremental = '<C-K>',
-            scope_incremental = '<Space><CR>',
+      config = function()
+        require('nvim-treesitter.configs').setup({
+          -- ensure_installed = {"lua", "javascript", "markdown"},
+          sync_install = false,
+          auto_install = false,
+          ignore_install = { 'text', 'help' },
+          highlight = {
+            enable = true,
+            disable = { 'help', 'text' },
+            additional_vim_regex_highlighting = false,
           },
-        },
-      },
+          incremental_selection = {
+            enable = true,
+            keymaps = {
+              init_selection = '<Space><CR>',
+              scope_incremental = '<Space><CR>',
+              node_incremental = '<C-j>',
+              node_decremental = '<C-k>',
+            },
+          },
+        })
+      end,
       event = 'UIEnter',
     }, ---}}}
     { -- {{{ ts-textobjects
@@ -211,22 +214,22 @@ require('lazy').setup(
         vim.g.openbrowser_open_vim_command = 'split'
         vim.g.openbrowser_use_vimproc = 0
         vim.g.openbrowser_no_default_menus = 1
-        vim.keymap.set('n', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('n')<CR>")
-        vim.keymap.set('x', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('v')<CR>")
+        setmap('n', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('n')<CR>")
+        setmap('x', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('v')<CR>")
         vim.opt.rtp:append(vim.fn.stdpath('data') .. '\\lazy\\open-browser.vim')
       end,
       lazy = true,
     }, -- }}}
 
     ---@desc User LazyLoad
-    { 'kana/vim-niceblock', event = 'User LazyLoad' },
+    { 'kana/vim-niceblock', event = 'ModeChanged' },
     { -- {{{ smartword
       'kana/vim-smartword',
       init = function()
-        vim.keymap.set('n', 'w', '<Plug>(smartword-w)')
-        vim.keymap.set('n', 'b', '<Plug>(smartword-b)')
-        vim.keymap.set('n', 'e', '<Plug>(smartword-e)')
-        vim.keymap.set('n', 'ge', '<Plug>(smartword-ge)')
+        setmap('n', 'w', '<Plug>(smartword-w)')
+        setmap('n', 'b', '<Plug>(smartword-b)')
+        setmap('n', 'e', '<Plug>(smartword-e)')
+        setmap('n', 'ge', '<Plug>(smartword-ge)')
       end,
       event = 'User LazyLoad',
     }, -- }}}
@@ -249,21 +252,22 @@ require('lazy').setup(
       'machakann/vim-sandwich',
       init = function()
         vim.g.sandwich_no_default_key_mappings = true
-        vim.keymap.set({ 'n' }, '<Leader>i', '<Plug>(operator-sandwich-add)i')
-        vim.keymap.set({ 'n' }, '<Leader>a', '<Plug>(operator-sandwich-add)a')
-        vim.keymap.set({ 'x' }, '<Leader>a', '<Plug>(operator-sandwich-add)')
-        vim.keymap.set({ 'n', 'x' }, '<Leader>r', '<Plug>(sandwich-replace)')
-        vim.keymap.set({ 'n' }, '<Leader>rr', '<Plug>(sandwich-replace-auto)')
-        vim.keymap.set({ 'n', 'x' }, '<Leader>d', '<Plug>(sandwich-delete)')
-        vim.keymap.set({ 'n' }, '<Leader>dd', '<Plug>(sandwich-delete-auto)')
-        vim.keymap.set({ 'o', 'x' }, 'ib', '<Plug>(textobj-sandwich-auto-i)')
-        vim.keymap.set({ 'o', 'x' }, 'ab', '<Plug>(textobj-sandwich-auto-a)')
+        setmap({ 'n' }, '<Leader>i', '<Plug>(operator-sandwich-add)i')
+        setmap({ 'n' }, '<Leader>a', '<Plug>(operator-sandwich-add)a')
+        setmap({ 'x' }, '<Leader>a', '<Plug>(operator-sandwich-add)')
+        setmap({ 'n', 'x' }, '<Leader>r', '<Plug>(sandwich-replace)')
+        setmap({ 'n' }, '<Leader>rr', '<Plug>(sandwich-replace-auto)')
+        setmap({ 'n', 'x' }, '<Leader>d', '<Plug>(sandwich-delete)')
+        setmap({ 'n' }, '<Leader>dd', '<Plug>(sandwich-delete-auto)')
+        setmap({ 'o', 'x' }, 'ib', '<Plug>(textobj-sandwich-auto-i)')
+        setmap({ 'o', 'x' }, 'ab', '<Plug>(textobj-sandwich-auto-a)')
       end,
       config = function()
         local recipes = vim.deepcopy(vim.g['sandwich#default_recipes'])
+        local esc_quote = { s = [[\']], d = [[\"]] }
         recipes = vim.list_extend(recipes, {
-          { buns = { "\\'", "\\'" }, input = { "\\'" } },
-          { buns = { '\\"', '\\"' }, input = { '\\"' } },
+          { buns = { esc_quote.s, esc_quote.s }, input = { esc_quote.s } },
+          { buns = { esc_quote.d, esc_quote.d }, input = { esc_quote.d } },
           { buns = { '【', '】' }, input = { ']' }, filetype = { 'markdown' } },
           { buns = { '${', '}' }, input = { '$' }, filetype = { 'typescript', 'javascript' } },
           { buns = { '%(', '%)' }, input = { '%' }, filetype = { 'typescript', 'javascript' } },
@@ -291,8 +295,8 @@ require('lazy').setup(
       'yuki-yano/vim-operator-replace',
       dependencies = { 'vim-operator-user' },
       init = function()
-        vim.keymap.set('n', '_', '"*<Plug>(operator-replace)')
-        vim.keymap.set('n', '\\', '"0<Plug>(operator-replace)')
+        setmap('n', '_', '"*<Plug>(operator-replace)')
+        setmap('n', '\\', '"0<Plug>(operator-replace)')
       end,
       event = 'User LazyLoad',
     }, -- }}}
@@ -311,7 +315,6 @@ require('lazy').setup(
       'vim-denops/denops.vim',
       dependencies = {
         'lambdalisue/kensaku.vim',
-        -- 'lambdalisue/kensaku-search.vim',
         'yuki-yano/fuzzy-motion.vim',
         'vim-skk/skkeleton',
       },
@@ -459,13 +462,13 @@ require('lazy').setup(
           -- },
         })
 
-        vim.keymap.set('n', '<C-t>', require('dial.map').inc_normal('case'), { silent = true, noremap = true })
-        vim.keymap.set('n', '<C-a>', require('dial.map').inc_normal(), { silent = true, noremap = true })
-        vim.keymap.set('n', '<C-x>', require('dial.map').dec_normal(), { silent = true, noremap = true })
-        vim.keymap.set('v', '<C-a>', require('dial.map').inc_visual(), { silent = true, noremap = true })
-        vim.keymap.set('v', '<C.x>', require('dial.map').dec_visual(), { silent = true, noremap = true })
-        vim.keymap.set('v', 'g<C-a>', require('dial.map').inc_gvisual(), { silent = true, noremap = true })
-        vim.keymap.set('v', 'g<C-x>', require('dial.map').dec_gvisual(), { silent = true, noremap = true })
+        setmap('n', '<C-t>', require('dial.map').inc_normal('case'), { silent = true, noremap = true })
+        setmap('n', '<C-a>', require('dial.map').inc_normal(), { silent = true, noremap = true })
+        setmap('n', '<C-x>', require('dial.map').dec_normal(), { silent = true, noremap = true })
+        setmap('v', '<C-a>', require('dial.map').inc_visual(), { silent = true, noremap = true })
+        setmap('v', '<C.x>', require('dial.map').dec_visual(), { silent = true, noremap = true })
+        setmap('v', 'g<C-a>', require('dial.map').inc_gvisual(), { silent = true, noremap = true })
+        setmap('v', 'g<C-x>', require('dial.map').dec_gvisual(), { silent = true, noremap = true })
       end,
       keys = { '<C-a>', '<C-x>', '<C-t>', { 'g<C-a>', mode = 'x' }, { 'g<C-x>', mode = 'x' } },
     }, -- }}}
@@ -506,11 +509,6 @@ require('lazy').setup(
         include_declaration = { 'lsp_references', 'lsp_implementations', 'lsp_definitions' },
         use_diagnostic_signs = true,
       },
-      keys = {
-        { 'gle', '<Cmd>Trouble document_diagnostics<CR>' },
-        { 'gd', '<Cmd>Trouble lsp_definitions<CR>' },
-        { 'glk', '<Cmd>Trouble lsp_references<CR>' },
-      },
       cmd = 'Trouble',
     }, ---}}}
 
@@ -524,7 +522,7 @@ require('lazy').setup(
 
           local function map(mode, l, r, opts)
             opts = opts or {}
-            vim.keymap.set(mode, l, r, opts)
+            setmap(mode, l, r, opts)
           end
 
           -- Navigation
@@ -590,10 +588,10 @@ require('lazy').setup(
     { -- {{{ translate
       'uga-rosa/translate.nvim',
       init = function()
-        vim.keymap.set({ 'n', 'x' }, 'me', '<Cmd>Translate EN<CR>', { silent = true })
-        vim.keymap.set({ 'n', 'x' }, 'mj', '<Cmd>Translate JA<CR>', { silent = true })
-        vim.keymap.set({ 'n', 'x' }, 'mE', '<Cmd>Translate EN -output=replace<CR>', { silent = true })
-        vim.keymap.set({ 'n', 'x' }, 'mJ', '<Cmd>Translate JA -output=replace<CR>', { silent = true })
+        setmap({ 'n', 'x' }, 'me', '<Cmd>Translate EN<CR>', { silent = true })
+        setmap({ 'n', 'x' }, 'mj', '<Cmd>Translate JA<CR>', { silent = true })
+        setmap({ 'n', 'x' }, 'mE', '<Cmd>Translate EN -output=replace<CR>', { silent = true })
+        setmap({ 'n', 'x' }, 'mJ', '<Cmd>Translate JA -output=replace<CR>', { silent = true })
       end,
       cmd = 'Translate',
     }, -- }}}
@@ -608,7 +606,7 @@ require('lazy').setup(
         { 'tar80/vim-quickrun-neovim-job', branch = 'win-nyagos' },
       },
       init = function()
-        vim.keymap.set({ 'n', 'v' }, 'mq', function()
+        setmap({ 'n', 'v' }, 'mq', function()
           local prefix = ''
           local mode = api.nvim_get_mode().mode
 
@@ -713,14 +711,16 @@ require('lazy').setup(
         vim.g.undotree_HelpLine = 1
         vim.g.undotree_CursorLine = 1
 
-        vim.keymap.set('n', '<F7>', '<Cmd>UndotreeToggle<CR>')
+        setmap('n', '<F7>', '<Cmd>UndotreeToggle<CR>')
       end,
       cmd = 'UndotreeToggle',
     }, -- }}}
     { 'norcalli/nvim-colorizer.lua', cmd = 'ColorizerAttachToBuffer' },
     { 'weilbith/nvim-code-action-menu', cmd = 'CodeActionMenu' },
-    { 'vim-jp/vimdoc-ja' },
+
+    ---@desc filetype
     { 'tar80/vim-PPxcfg', ft = 'PPxcfg' },
+    { 'vim-jp/vimdoc-ja' },
   }, -- }}}
   { -- {{{ options
     ui = { -- {{{

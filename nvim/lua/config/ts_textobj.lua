@@ -35,10 +35,10 @@ require('nvim-treesitter.configs').setup({
     swap = {
       enable = true,
       swap_next = {
-        ['<C-K>'] = '@parameter.inner',
+        ['<C-k>'] = '@parameter.inner',
       },
       swap_previous = {
-        ['<C-J>'] = '@parameter.inner',
+        ['<C-j>'] = '@parameter.inner',
       },
     },
     move = {

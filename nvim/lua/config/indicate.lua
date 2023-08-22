@@ -13,6 +13,7 @@ local time_manage = (function()
   if h > 6 and h < 19 then
     tbl = {
       theme = 'decay',
+      no_bg = false,
       hl = {
         Normal = { bg = bg_color },
         NormalFloat = { link = 'Normal' },
@@ -23,6 +24,7 @@ local time_manage = (function()
   else
     tbl = {
       theme = 'decay',
+      no_bg = true,
       hl = {
         CursorLine = { fg = 'NONE', bg = '#A33865' },
       },
@@ -37,7 +39,7 @@ require(color_scheme).setup({
   theme = time_manage.theme,
   borders = true, -- Split window borders
   fade_nc = true, -- Fade non-current windows, making them more distinguishable
-  fade_no_bg = true,
+  fade_no_bg = time_manage.no_bg,
   -- fade_no_bg = true, -- Enable fade_nc but disable current pane background
   styles = {
     comments = 'italic',

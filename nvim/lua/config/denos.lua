@@ -67,7 +67,7 @@ if vim.g.loaded_skkeleton then
       markerHenkanSelect = '🐥',
     })
 
-    vim.fn['skkeleton#register_keymap']('input', ';', 'henkanPoint')
+    -- vim.fn['skkeleton#register_keymap']('input', ';', 'henkanPoint')
     vim.fn['skkeleton#register_keymap']('input', '@', 'cancel')
     vim.fn['skkeleton#register_keymap']('input', '<Up>', 'disable')
     vim.fn['skkeleton#register_keymap']('input', '<Down>', 'disable')

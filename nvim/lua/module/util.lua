@@ -1,3 +1,5 @@
+--- vim:textwidth=0:foldmethod=marker:foldlevel=1:
+-------------------------------------------------------------------------------
 local M = {}
 
 M.getchr = function()
@@ -15,7 +17,7 @@ M.feedkey = function(key, mode)
   return vim.fn.feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), mode)
 end
 
-M.hl_at_cursor = function()
+M.hl_at_cursor = function() -- {{{2
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
   col = col + 1
   local hl_name = vim.fn.synIDattr(vim.fn.synIDtrans(vim.fn.synID(row, col, 2)), 'name')
@@ -84,9 +86,9 @@ M.hl_at_cursor = function()
   end
 
   print(type .. hl_name)
-end
+end -- }}}
 
-M.shell = function(name)
+M.shell = function(name) -- {{{2
   local scoop = os.getenv('scoop'):gsub('\\', '/')
   local s = {
     cmd = { path = 'cmd.exe', flag = '/c', pipe = '>%s 2>&1', quote = '', xquote = '"', slash = false },
@@ -115,6 +117,6 @@ M.shell = function(name)
   set('shellquote', cui.quote)
   set('shellxquote', cui.xquote)
   set('shellslash', cui.slash)
-end
+end -- }}}
 
 return M
