@@ -65,6 +65,7 @@ require(color_scheme).setup({
     gitsigns = true,
     fret = true,
     skkeleton_indicator = true,
+    sandwich = true,
     trouble = true,
     -- notify = true
   },
