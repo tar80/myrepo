@@ -380,14 +380,12 @@ require('lazy').setup(
       'hrsh7th/nvim-insx',
       config = function()
         vim.o.wrapscan = true
-        -- Alias <C-h> to <BS>
         setmap({ 'i', 'c' }, '<C-h>', '<BS>', { remap = true })
 
         require('config.insx').setup({
           cmdline = false,
           fast_break = true,
           fast_wrap = true,
-          pair = { ['<'] = '>' },
           lua = true,
           markdown = true,
           javascript = true,

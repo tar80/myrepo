@@ -11,10 +11,10 @@ local user = {
     fast_wrap = false,
     quote = { '"', "'", '`' },
     pair = { ['('] = ')', ['['] = ']', ['{'] = '}' },
-    lua = true,
+    lua = false,
     markdown = false,
     javascript = false,
-    misc = true,
+    misc = false,
   },
 }
 
@@ -179,6 +179,7 @@ user.setup_markdown = function(self, priority) -- {@@2
   end
 
   insx.add('`', {
+    priority = priority,
     enabled = function(ctx)
       return ctx.match([[`\%#`]]) and ctx.filetype == 'markdown'
     end,
@@ -232,6 +233,7 @@ user.setup_lua = function(self, priority) -- {@@2
 
   -- annotation
   insx.add('<Tab>', {
+    priority = priority,
     enabled = function(ctx)
       return ctx.match([[^\s*@\%#]])
     end,
@@ -242,11 +244,11 @@ user.setup_lua = function(self, priority) -- {@@2
 
   -- fold
   insx.add('{', {
+    priority = priority,
     enabled = function(ctx)
       return ctx.match([[{{\%#]])
     end,
     action = function(ctx)
-      print(1)
       if ctx.match([[\S{{\%#]]) then
         ctx.send('<BS><BS><Del><Del><Space>{{{')
       else
@@ -264,6 +266,7 @@ user.setup_javascript = function(self, priority) -- {@@2
   local option = { mode = 'i' }
 
   insx.add('.', {
+    priority = priority,
     enabled = function(ctx)
       return ctx.match([[\%(^\|\s\|(\)log\%#]]) and (ctx.filetype == 'javascript' or ctx.filetype == 'typescript')
     end,
@@ -272,6 +275,7 @@ user.setup_javascript = function(self, priority) -- {@@2
     end,
   }, option)
   insx.add('.', {
+    priority = priority,
     enabled = function(ctx)
       return ctx.match([=[\%(^\|\s\|(\)pp[aetwx]\%#]=]) and (ctx.filetype == 'javascript' or ctx.filetype == 'typescript')
     end,
@@ -307,9 +311,10 @@ user.setup_misc = function(self, priority) -- {@@2
       require('insx.recipe.jump_next')({
         jump_pat = {
           [=[\%#['"`]\+[)}\]]\zs]=],
+          [=[\%#[)}\]]\+\zs]=]
         },
       }),
-      { insx.with.priority(priority + 1), insx.with.match([=[\%#['"`]\+[)}\]]]=]) }
+      { insx.with.priority(priority + 1), insx.with.match([=[\%#['"`)}\]]\+]=]) }
     ),
     option
   )
@@ -337,72 +342,3 @@ user.setup_misc = function(self, priority) -- {@@2
 end -- @@}
 
 return user
-
---[=[
-
--- Leave Tab
-rule({ at = '\\%#', char = '<C-f>', input = '<Right>' })
-multi_at({ '\\%#[\'`"])', '\\%#[\'`"]}' }, { char = '<C-f>', input = '<C-g>U<Right><Right>' })
-
--- #nodejs {@@3
-rule({ at = 'log\\%#', char = '.', input = '<C-w>console.log()<Left>', filetype = { 'javascript', 'typescript' } })
-
--- ##PPx {@@3
--- ppx -> . -> PPx.
-rule({
-  at = '\\(^\\|\\s\\|(\\)ppx\\%#',
-  char = '.',
-  input = '<BS><BS><BS>PPx.',
-})
- })
--- ppa| -> . -> PPx.Arguments(|);
-rule({ at = 'ppa\\%#', char = '.', input = '<C-w>PPx.Arguments', filetype = { 'javascript', 'typescript' } })
--- ppe| -> . -> PPx.Execute(|);
-rule({ at = 'ppe\\%#', char = '.', input = '<C-w>PPx.Execute()<Left>', filetype = { 'javascript', 'typescript' } })
--- ppt| -> . -> PPx.Extract(|);
-rule({ at = 'ppt\\%#', char = '.', input = '<C-w>PPx.Extract()<Left>', filetype = { 'javascript', 'typescript' } })
--- ppq| -> . -> PPx.Quit(|1);
-rule({
-  at = 'ppq\\%#',
-  char = '.',
-  input = '<C-w>PPx.Quit(1);<Left><Left><Left>',
-})
--- ppw| -> . -> PPx.Echo(|);
-rule({ at = 'ppw\\%#', char = '.', input = '<C-w>PPx.Echo();<Left><Left>', filetype = { 'javascript', 'typescript' } })
--- mmw| -> . -> msg.echo(|);
-rule({ at = 'mmw\\%#', char = '.', input = '<C-w>msg.echo();<Left><Left>', filetype = { 'javascript', 'typescript' } })
-
-
--- ##Folding {@@3
-rule({ at = '\\s"{{\\%#"', char = '{', input = '{2<Del>', mode = 'i', filetype = { 'vim', 'lua' } })
-rule({ at = '\\S{{\\%#}}', char = '{', input = '<BS><BS><Space>{@@<Del><Del>', filetype = { 'vim', 'lua' } })
-rule({ at = '\\s{{\\%#}}', char = '{', input = '{<Del><Del>', filetype = { 'vim', 'lua' } })
-
--- ##Bracket {@@3
-local bracketList = { { '(', ')' }, { '{', '}' }, { '[', ']' } }
-
-for _, v in ipairs(bracketList) do
-  -- Behavior when there are letters behind
-  rule({ at = '\\%#\\()\\|}\\|]\\|\\s\\|$\\)\\@!', char = v[1], input = v[1] })
-  -- Input bracket without Leave-Block
-  rule({ at = '\\%#\\n\\s*', char = v[2], input = v[2] })
-end
-
--- Individualized responses
---  (|) -> <Space> -> ( | )
-multi_at({ '(\\s*\\%#\\s*)', '{\\s*\\%#\\s*}', '\\[\\s*\\%#\\s*]' }, { char = '<Tab>', input = '<Space><Space><Left>' })
--- ( | ) -> <BS> -> (|)
-multi_at({ '(\\s*\\%#\\s*)', '{\\s*\\%#\\s*}', '\\[\\s*\\%#\\s*]' }, { char = '<BS>', input = '<BS><Del>' })
-
--- ##Quote {@@3
-local quoteList = { '"', '`', "'" }
-
-for _, quote in ipairs(quoteList) do
-  multi_at(
-    { '\\s\\%#\\(\\s\\|$\\)', '(\\%#)', '{\\%#}', '\\[\\%#]' },
-    { char = quote, input = quote .. quote .. '<left>' }
-  )
-  rule({ at = '\\%#', char = quote, input = quote })
-end
---@@}2
---]=]

@@ -44,7 +44,8 @@ api.nvim_set_option('fileformats', 'unix,dos,mac')
 
 ---@desc Both {{{2
 o.guicursor = 'n:block,i-c-ci-ve:ver50,v-r-cr-o:hor50'
-o.fileencodings = 'utf-8,utf-16le,cp932,euc-jp,sjis'
+-- o.fileencodings = 'utf-8,utf-16le,cp932,euc-jp,sjis'
+o.fileencodings = 'utf-8,cp932,euc-jp,utf-16le'
 -- o.timeoutlen = 1000
 o.updatetime = vim.g.update_time
 -- o.autochdir = true
@@ -242,6 +243,7 @@ vim.cmd.abbreviate('retrun', 'return')
 cmd_abbrev("'<,'>", [['<,'>s/\\//\\\\\\\\/|nohlsearch]], true)
 cmd_abbrev('s', '%s///<Left>', true)
 cmd_abbrev('ms', 'MugShow', true)
+cmd_abbrev('es', 'e<Space>++enc=cp932<CR>')
 cmd_abbrev('e8', 'e<Space>++enc=utf-8<CR>')
 cmd_abbrev('e16', 'e<Space>++enc=utf-16le<CR>')
 cmd_abbrev('sc', 'set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb<CR>')

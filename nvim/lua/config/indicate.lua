@@ -37,10 +37,9 @@ end)()
 ---@cast color_scheme -nil
 require(color_scheme).setup({
   theme = time_manage.theme,
-  borders = true, -- Split window borders
-  fade_nc = true, -- Fade non-current windows, making them more distinguishable
+  borders = true,
+  fade_nc = true,
   fade_no_bg = time_manage.no_bg,
-  -- fade_no_bg = true, -- Enable fade_nc but disable current pane background
   styles = {
     comments = 'italic',
     strings = 'NONE',

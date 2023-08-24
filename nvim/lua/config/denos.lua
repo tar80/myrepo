@@ -8,13 +8,15 @@ vim.api.nvim_create_augroup('rcDeno', {})
 ---@desc Autocommand
 vim.api.nvim_create_autocmd('BufEnter', { -- {{{2
   group = 'rcDeno',
-  pattern = '.md',
-  command = 'call skkeleton#config({"KeepState": v:true})',
+  pattern = { '*.md', '*.txt' },
+  command = 'call skkeleton#config({"keepState": v:true})',
+  desc = 'skkeleton keep state',
 }) -- }}}
 vim.api.nvim_create_autocmd('BufLeave', { -- {{{2
   group = 'rcDeno',
-  pattern = '.md',
-  command = 'call skkeleton#config({"KeepState": v:false})',
+  pattern = { '*.md', '*.txt' },
+  command = 'call skkeleton#config({"keepState": v:false})',
+  desc = 'skkeleton keep state',
 }) -- }}}
 vim.api.nvim_create_autocmd('User', { -- {{{2
   group = 'rcDeno',
@@ -41,7 +43,7 @@ end
 
 ---@desc Skkeleton {{{2
 if vim.g.loaded_skkeleton then
-  vim.keymap.set({'i', 'c'}, '<C-l>', '<Plug>(skkeleton-enable)')
+  vim.keymap.set({ 'i', 'c' }, '<C-l>', '<Plug>(skkeleton-enable)')
 
   function Skkeleton_init()
     vim.fn['skkeleton#config']({

@@ -192,7 +192,7 @@ end, {})
 setmap('n', '<leader>m', function()
   load_telescope('mr', 'no', {})
 end, {})
-setmap('n', '<leader><S-o>', function()
+setmap('n', '<leader>p', function()
   load_telescope('find_files', 'no', { cwd = vim.fn.expand('%:p:h'), hidden = true, no_ignore = true })
 end, {})
 setmap('n', '<leader>o', function()
@@ -219,6 +219,13 @@ setmap('n', '<Leader>b', function()
   load_telescope('git_branches', 'ver', {})
 end, {})
 setmap('n', '<Leader>c', function()
+  load_telescope(
+    'git_commits',
+    'ver',
+    { layout_config = { mirror = false, preview_width = 0.7, width = 0.9, height = 0.9 } }
+  )
+end, {})
+setmap('n', '<Leader>C', function()
   load_telescope(
     'git_bcommits',
     'ver',
