@@ -3,22 +3,25 @@
 
 local color_scheme = vim.api.nvim_get_var('use_scheme')
 local colors = require(string.format('feline.themes.%s', color_scheme))
-local bg_color = '#002A2A'
+local bg_color = '#001B1B'
+local cursor_color = '#A33856'
 
 ---@desc Colorscheme {{{1
 ---@desc time-manage {{{2
 local time_manage = (function()
   local h = os.date('*t').hour
   local tbl = {}
-  if h > 6 and h < 19 then
+  if h > 6 and h < 18 then
+    bg_color = '#114444'
     tbl = {
       theme = 'decay',
       no_bg = false,
       hl = {
         Normal = { bg = bg_color },
         NormalFloat = { link = 'Normal' },
-        NormalNC = { bg = '#133939' },
-        CursorLine = { fg = 'NONE', bg = '#A33865' },
+        NormalNC = { bg = '#235B5B' },
+        LspInlayHint = { fg = '#556677' },
+        CursorLine = { fg = 'NONE', bg = cursor_color },
       },
     }
   else
@@ -26,7 +29,7 @@ local time_manage = (function()
       theme = 'decay',
       no_bg = true,
       hl = {
-        CursorLine = { fg = 'NONE', bg = '#A33865' },
+        CursorLine = { fg = 'NONE', bg = cursor_color },
       },
     }
   end
@@ -47,7 +50,7 @@ require(color_scheme).setup({
     functions = 'NONE',
     variables = 'NONE',
     diagnostics = 'underline',
-    references = 'bold,underline',
+    references = 'underline',
   },
   disable = {
     background = false,

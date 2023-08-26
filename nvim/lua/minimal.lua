@@ -120,10 +120,11 @@ api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " . <q-
 vim.cmd [[set runtimepath=$VIMRUNTIME]]
 
 ---@desc TEMPORARY {{{2
--- local plugin_name = 'nvim-insx'
--- opt.runtimepath:append(string.format('%s\\%s', pack_path, plugin_name))
+local plugin_name = 'telescope.nvim'
+opt.runtimepath:append(string.format('%s\\%s', pack_path, 'plenary.nvim'))
+opt.runtimepath:append(string.format('%s\\%s', pack_path, plugin_name))
 
--- require('insx.preset.standard').setup()
+require('telescope').setup()
 
 ---@desc COLORSCHEME {{{1
 vim.cmd('colorscheme habamax')

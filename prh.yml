@@ -3004,14 +3004,9 @@ rules:
     pattern:  /がが/
   - expected: する
     pattern:  /するする/
-  - expected: て
-    pattern:  /(当)?てて/
-    regexpMustEmpty: $1
   - expected: で
     pattern:  /でで/
   - expected: $1の
     pattern:  /([^も])のの/
   - expected: は
     pattern:  /はは/
-  - expected: "WEB+DB PRESS"
-    pattern:  /WEB\+DB PRESS/i

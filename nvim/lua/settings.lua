@@ -328,17 +328,15 @@ mapset('n', '/', function()
 end, { noremap = true, expr = true })
 mapset('n', 'n', "'Nn'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
 mapset('n', 'N', "'nN'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
-if not vim.g.loaded_kensaku_search then
-  mapset('c', '<CR>', function()
-    local cmdtype = vim.fn.getcmdtype()
+mapset('c', '<CR>', function()
+  local cmdtype = vim.fn.getcmdtype()
 
-    if cmdtype == '/' or cmdtype == '?' then
-      return '<CR>zv'
-    end
+  if cmdtype == '/' or cmdtype == '?' then
+    return '<CR>zv'
+  end
 
-    return '<CR>'
-  end, { noremap = true, expr = true, silent = true })
-end
+  return '<CR>'
+end, { noremap = true, expr = true, silent = true })
 ---Move buffer use <SPACE>
 mapset('n', '<SPACE>', '<C-W>', { remap = true })
 mapset('n', '<SPACE><SPACE>', '<C-W><C-W>')

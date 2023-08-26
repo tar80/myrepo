@@ -69,7 +69,7 @@ require('telescope').setup({
     previewer = false,
     cache_picker = false,
     color_devicons = false,
-    file_ignore_patterns = { '.git\\', '^node_modules\\', '^%.bundle\\', '^vendor\\', '^migemo\\' },
+    file_ignore_patterns = { 'lazy-lock.json', '.git\\', '^node_modules\\', '^%.bundle\\', '^vendor\\', '^migemo\\' },
     prompt_title = false,
     prompt_prefix = ' ',
     selection_caret = ' ',
@@ -205,7 +205,10 @@ setmap('n', '<leader>l', function()
   -- load_telescope('live_grep', 'ver', { layout_config = { preview_width = 0.5, width = 0.9, height = 0.9 } })
 end, {})
 setmap('n', '<leader>h', function()
-  load_telescope('help_tags', 'ver', {})
+  local slash = vim.o.shellslash
+  vim.o.shellslash = false
+  load_telescope('help_tags', 'ver', { layout_config = { preview_width = 0.7, width = 0.8, height = 0.9 } })
+  vim.o.shellslash = slash
 end, {})
 setmap('n', '<leader>:', function()
   load_telescope(

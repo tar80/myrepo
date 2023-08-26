@@ -401,7 +401,6 @@ require('lazy').setup(
       tag = '0.1.2',
       dependencies = {
         'hrsh7th/nvim-cmp',
-        'kana/vim-smartinput',
         'plenary.nvim',
         {
           'Allianaab2m/telescope-kensaku.nvim',
