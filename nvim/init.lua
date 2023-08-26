@@ -7,14 +7,14 @@ vim.scriptencoding = 'utf-8'
 -- ##Echo message vim startup time {{{2
 if vim.fn.has('vim_starting') then
   local pre = vim.fn.reltime()
-  vim.api.nvim_create_augroup('Startup', {})
+  local augroup = vim.api.nvim_create_augroup('rcInit', {})
   vim.api.nvim_create_autocmd('UIEnter', {
-    group = 'Startup',
+    group = augroup,
     once = true,
     callback = function()
       local post = vim.fn.reltime(pre)
       print('StartupTime:' .. vim.fn.reltimestr(post))
-      vim.api.nvim_del_augroup_by_name('Startup')
+      vim.api.nvim_del_augroup_by_id(augroup)
     end,
   })
 end

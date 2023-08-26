@@ -3,23 +3,23 @@
 
 ---@desc Initial
 vim.g['denops#deno'] = string.format('%s/packages/deno/deno.exe', vim.env.mason)
-vim.api.nvim_create_augroup('rcDeno', {})
+local augroup = vim.api.nvim_create_augroup('rcDeno', {})
 
 ---@desc Autocommand
 vim.api.nvim_create_autocmd('BufEnter', { -- {{{2
-  group = 'rcDeno',
+  group = augroup,
   pattern = { '*.md', '*.txt' },
   command = 'call skkeleton#config({"keepState": v:true})',
   desc = 'skkeleton keep state',
 }) -- }}}
 vim.api.nvim_create_autocmd('BufLeave', { -- {{{2
-  group = 'rcDeno',
+  group = augroup,
   pattern = { '*.md', '*.txt' },
   command = 'call skkeleton#config({"keepState": v:false})',
   desc = 'skkeleton keep state',
 }) -- }}}
 vim.api.nvim_create_autocmd('User', { -- {{{2
-  group = 'rcDeno',
+  group = augroup,
   pattern = 'skkeleton-initialize-pre',
   callback = function()
     Skkeleton_init()

@@ -9,7 +9,7 @@ local border = 'rounded'
 local signs = { Error = '', Warn = '', Hint = '', Info = '' }
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
-api.nvim_create_augroup('rcLsp', {})
+local augroup = api.nvim_create_augroup('rcLsp', {})
 
 for type, icon in pairs(signs) do
   local hl = 'DiagnosticSign' .. type
@@ -84,7 +84,7 @@ local on_attach = function(client, bufnr) --- {{{2
   api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   ---@desc Under cursor Symbol highlight -- {{{
   api.nvim_create_autocmd({ 'CursorHold' }, {
-    group = 'rcLsp',
+    group = augroup,
     buffer = 0,
     callback = function()
       -- if client.config.root_dir ~= vim.fs.normalize(vim.uv.cwd()) then
@@ -94,7 +94,7 @@ local on_attach = function(client, bufnr) --- {{{2
     end,
   })
   api.nvim_create_autocmd({ 'CursorMoved' }, {
-    group = 'rcLsp',
+    group = augroup,
     buffer = 0,
     callback = function()
       -- if client.config.root_dir ~= vim.fs.normalize(vim.uv.cwd()) then
@@ -105,14 +105,14 @@ local on_attach = function(client, bufnr) --- {{{2
   }) ---}}}
   ---@desc Show inlay_hints when not in insert mode {{{
   -- api.nvim_create_autocmd({ 'InsertEnter' }, {
-  --   group = 'rcLsp',
+  --   group = augroup,
   --   buffer = 0,
   --   callback = function()
   --     vim.lsp.inlay_hint(0, false)
   --   end,
   -- })
   -- api.nvim_create_autocmd({ 'InsertLeave' }, {
-  --   group = 'rcLsp',
+  --   group = augroup,
   --   buffer = 0,
   --   callback = function()
   --     vim.lsp.inlay_hint(0, true)

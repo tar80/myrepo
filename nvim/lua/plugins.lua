@@ -6,7 +6,7 @@ local api = vim.api
 local setmap = vim.keymap.set
 vim.g.use_scheme = 'mossco'
 vim.loader.enable()
-api.nvim_create_augroup('rcPlugins', {})
+local augroup = api.nvim_create_augroup('rcPlugins', {})
 
 do -- {{{2 Lazy.nvim bootstrap
   local LAZY_PATH = vim.fn.stdpath('data') .. '\\lazy\\lazy.nvim'
@@ -32,7 +32,7 @@ if vim.fn.has('vim_starting') then -- {{{2
   end, 100)
 
   api.nvim_create_autocmd('User', {
-    group = 'rcPlugins',
+    group = augroup,
     pattern = 'LazyLoad',
     once = true,
     callback = function()

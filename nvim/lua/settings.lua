@@ -113,11 +113,11 @@ opt.path = { '.', '' }
 --}}}2
 
 ---@desc AUTOGROUP
-api.nvim_create_augroup('rcSettings', {})
+local augroup = api.nvim_create_augroup('rcSettings', {})
 
 ---@desc Editing line highlighting rules {{{2
 api.nvim_create_autocmd('CursorHoldI', {
-  group = 'rcSettings',
+  group = augroup,
   callback = function()
     if vim.bo.filetype ~= 'TelescopePrompt' then
       api.nvim_win_set_option(0, 'cursorline', true)
@@ -126,7 +126,7 @@ api.nvim_create_autocmd('CursorHoldI', {
 })
 ---NOTE: FocusLost does not work mounted in the WindowsTereminal.
 api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
-  group = 'rcSettings',
+  group = augroup,
   callback = function()
     if vim.fn.mode() == 'i' and vim.bo.filetype ~= 'TelescopePrompt' then
       api.nvim_win_set_option(0, 'cursorline', true)
@@ -134,21 +134,21 @@ api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
   end,
 })
 api.nvim_create_autocmd({ 'BufEnter', 'CursorMovedI', 'InsertLeave' }, {
-  group = 'rcSettings',
+  group = augroup,
   command = 'setl nocursorline',
 })
 ---@desc Insert-Mode, we want a longer updatetime {{{2
 api.nvim_create_autocmd('InsertEnter', {
-  group = 'rcSettings',
+  group = augroup,
   command = 'set updatetime=4000',
 })
 api.nvim_create_autocmd('InsertLeave', {
-  group = 'rcSettings',
+  group = augroup,
   command = 'setl iminsert=0|execute "set updatetime=" . g:update_time',
 })
 ---@desc Yanked, it shines {{{2
 api.nvim_create_autocmd('TextYankPost', {
-  group = 'rcSettings',
+  group = augroup,
   pattern = '*',
   callback = function()
     vim.highlight.on_yank({ higroup = 'PmenuSel', on_visual = false, timeout = 150 })
@@ -156,7 +156,7 @@ api.nvim_create_autocmd('TextYankPost', {
 })
 ---@desc Supports changing options that affect Simple_fold() {{{2
 api.nvim_create_autocmd('OptionSet', {
-  group = 'rcSettings',
+  group = augroup,
   pattern = 'foldmarker',
   callback = function(opts)
     if opts.match == 'foldmarker' then

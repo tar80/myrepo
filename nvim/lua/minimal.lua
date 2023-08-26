@@ -53,7 +53,7 @@ o.previewheight = 8
 --}}}2
 
 ---@desc AUTOGROUP
-api.nvim_create_augroup('rcMinimal', {})
+-- local augroup = api.nvim_create_augroup('rcMinimal', {})
 
 ---@desc KEYMAPS {{{2
 vim.g.mapleader = ';'
