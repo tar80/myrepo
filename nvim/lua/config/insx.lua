@@ -39,7 +39,7 @@ local general_pair = function(option, open, close, withs) -- {@@2
     insx.with(
       require('insx.recipe.jump_next')({
         jump_pat = {
-          [[\%#\s*]] .. esc(close) .. [[\zs]]
+          [[\%#\s*]] .. esc(close) .. [[\zs]],
         },
       }),
       withs
@@ -277,7 +277,8 @@ user.setup_javascript = function(self, priority) -- {@@2
   insx.add('.', {
     priority = priority,
     enabled = function(ctx)
-      return ctx.match([=[\%(^\|\s\|(\)pp[aetwx]\%#]=]) and (ctx.filetype == 'javascript' or ctx.filetype == 'typescript')
+      return ctx.match([=[\%(^\|\s\|(\)pp[aeqtwx]\%#]=])
+        and (ctx.filetype == 'javascript' or ctx.filetype == 'typescript')
     end,
     action = function(ctx)
       local row, col = ctx.row(), ctx.col()
@@ -289,6 +290,8 @@ user.setup_javascript = function(self, priority) -- {@@2
         ctx.send('<C-w>PPx.Execute()<Left>')
       elseif chr == 't' then
         ctx.send('<C-w>PPx.Extract()<Left>')
+      elseif chr == 'q' then
+        ctx.send('<C-w>PPx.Quit(1);<Left><Left><Left>')
       elseif chr == 'x' then
         ctx.send('<C-w>PPx.')
       elseif chr == 'w' then
@@ -311,10 +314,23 @@ user.setup_misc = function(self, priority) -- {@@2
       require('insx.recipe.jump_next')({
         jump_pat = {
           [=[\%#['"`]\+[)}\]]\zs]=],
-          [=[\%#[)}\]]\+\zs]=]
+          [=[\%#[)}\]]\+\zs]=],
         },
       }),
       { insx.with.priority(priority + 1), insx.with.match([=[\%#['"`)}\]]\+]=]) }
+    ),
+    option
+  )
+
+  insx.add(
+    '<C-f>',
+    insx.with(
+      require('insx.recipe.jump_next')({
+        jump_pat = {
+          [=[\%#\s*=>\?\zs]=],
+        },
+      }),
+      { insx.with.priority(priority + 1), insx.with.match([=[\%#\s*=]=]) }
     ),
     option
   )

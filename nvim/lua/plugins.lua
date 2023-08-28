@@ -302,18 +302,19 @@ require('lazy').setup(
         operator_replace.new = function(self, input)
           local row, col = unpack(api.nvim_win_get_cursor(0))
           local reg_str = vim.fn.getreg(input, 1, true)
-          if vim.tbl_isempty(reg_str)  then
-            reg_str = vim.fn.getreg('"', 1, true)
+          if vim.tbl_isempty(reg_str) then
+            input = '0'
+            reg_str = vim.fn.getreg(input, 1, true)
           end
           reg_str = #reg_str > 1 and string.format('(@%s)%s', #reg_str, reg_str[1]) or reg_str[1]
           api.nvim_buf_set_extmark(0, operator_replace.ns, row - 1, col, {
             id = self.extID,
-            virt_text = { { reg_str, 'FretCandidate' } },
+            virt_text = { { reg_str, 'NormalMode' } },
             virt_text_pos = 'inline',
             hl_mode = 'combine',
             ephemeral = false,
           })
-          api.nvim_create_autocmd({'ModeChanged'}, {
+          api.nvim_create_autocmd({ 'ModeChanged' }, {
             group = augroup,
             pattern = 'no:n',
             once = true,
@@ -321,16 +322,17 @@ require('lazy').setup(
               api.nvim_buf_del_extmark(0, operator_replace.ns, operator_replace.extID)
             end,
           })
+          return input
         end
         setmap('n', '_', function()
           local input = '*'
-          operator_replace:new(input)
+          input = operator_replace:new(input)
           return string.format('"%s<Plug>(operator-replace)', input)
         end, { expr = true })
         setmap('n', '\\', function()
           local input = vim.fn.nr2char(vim.fn.getchar())
           input = input == '\\' and '0' or input
-          operator_replace:new(input)
+          input = operator_replace:new(input)
           return string.format('"%s<Plug>(operator-replace)', input)
         end, { expr = true })
       end,
@@ -343,7 +345,9 @@ require('lazy').setup(
         vim.g.mr_mrw_disabled = true
         vim.g.mr_mrr_disabled = true
         vim.g['mr#threshold'] = 200
-        vim.cmd("let g:mr#mru#predicates=[{filename -> filename !~? '\\\\\\|\\/doc\\/\\|\\/\\.git\\/\\|\\.cache'}]")
+        vim.cmd(
+          "let g:mr#mru#predicates=[{filename -> filename !~? '\\\\\\|\\/doc\\/\\|\\/dist\\/\\|\\/dev\\/\\|\\/\\.git\\/\\|\\.cache'}]"
+        )
       end,
       event = 'User Lazyload',
     }, ---}}}
@@ -369,14 +373,12 @@ require('lazy').setup(
     { -- {{{ parenmatch
       dir = 'C:/bin/repository/tar80/vim-parenmatch',
       name = 'parenmatch',
-      config = function()
-        require('parenmatch.config').setup({
-          highlight = { fg = '#D6B87B', underline = true },
-          ignore_filetypes = { 'TelescopePrompt', 'cmp-menu', 'help' },
-          ignore_buftypes = { 'nofile' },
-          itmatch = { enable = true },
-        })
-      end,
+      opts = {
+        highlight = { fg = '#D6B87B', underline = true },
+        ignore_filetypes = { 'TelescopePrompt', 'cmp-menu', 'help' },
+        ignore_buftypes = { 'nofile' },
+        itmatch = { enable = true },
+      },
       event = 'CursorMoved',
     }, -- }}}
     { -- {{{ cmp
