@@ -439,15 +439,11 @@ require('lazy').setup(
       dependencies = {
         'hrsh7th/nvim-cmp',
         'plenary.nvim',
-        {
-          'Allianaab2m/telescope-kensaku.nvim',
-          config = function()
-            require('telescope').load_extension('kensaku') -- :Telescope kensaku
-          end,
-        },
+        'nvim-telescope/telescope-ui-select.nvim',
+        'Allianaab2m/telescope-kensaku.nvim',
       },
       config = function()
-        require('config.finder')
+        require('config.telescope')
       end,
       cmd = 'Telescope',
       keys = { '<Leader>', 'gl' },
