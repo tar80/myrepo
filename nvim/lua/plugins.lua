@@ -296,43 +296,52 @@ require('lazy').setup(
       'yuki-yano/vim-operator-replace',
       dependencies = { 'vim-operator-user' },
       init = function()
-        local operator_replace = {}
-        operator_replace.ns = api.nvim_create_namespace('rcOperatorReplace')
-        operator_replace.extID = 1
-        operator_replace.new = function(self, input)
-          local row, col = unpack(api.nvim_win_get_cursor(0))
+        -- local operator_replace = {}
+        -- operator_replace.ns = api.nvim_create_namespace('rcOperatorReplace')
+        -- operator_replace.extID = 1
+        local operator_replace = function(self, input)
           local reg_str = vim.fn.getreg(input, 1, true)
           if vim.tbl_isempty(reg_str) then
             input = '0'
             reg_str = vim.fn.getreg(input, 1, true)
           end
-          reg_str = #reg_str > 1 and string.format('(@%s)%s', #reg_str, reg_str[1]) or reg_str[1]
-          api.nvim_buf_set_extmark(0, operator_replace.ns, row - 1, col, {
-            id = self.extID,
-            virt_text = { { reg_str, 'NormalMode' } },
-            virt_text_pos = 'inline',
-            hl_mode = 'combine',
-            ephemeral = false,
-          })
-          api.nvim_create_autocmd({ 'ModeChanged' }, {
-            group = augroup,
-            pattern = 'no:n',
-            once = true,
-            callback = function()
-              api.nvim_buf_del_extmark(0, operator_replace.ns, operator_replace.extID)
-            end,
-          })
+          vim.schedule(function()
+            local bufnr = require('module.float').popup(reg_str)
+            api.nvim_create_autocmd({ 'ModeChanged' }, {
+              group = augroup,
+              pattern = 'no:n',
+              once = true,
+              callback = function()
+                vim.cmd('bwipeout' .. bufnr)
+              end,
+            })
+          end)
+          -- api.nvim_buf_set_extmark(0, operator_replace.ns, row - 1, col, {
+          --   id = self.extID,
+          --   virt_text = { { reg_str, 'NormalMode' } },
+          --   virt_text_pos = 'inline',
+          --   hl_mode = 'combine',
+          --   ephemeral = false,
+          -- })
+          -- api.nvim_create_autocmd({ 'ModeChanged' }, {
+          --   group = augroup,
+          --   pattern = 'no:n',
+          --   once = true,
+          --   callback = function()
+          --     api.nvim_buf_del_extmark(0, operator_replace.ns, operator_replace.extID)
+          --   end,
+          -- })
           return input
         end
         setmap('n', '_', function()
           local input = '*'
-          input = operator_replace:new(input)
+          input = operator_replace(input)
           return string.format('"%s<Plug>(operator-replace)', input)
         end, { expr = true })
         setmap('n', '\\', function()
           local input = vim.fn.nr2char(vim.fn.getchar())
           input = input == '\\' and '0' or input
-          input = operator_replace:new(input)
+          input = operator_replace(input)
           return string.format('"%s<Plug>(operator-replace)', input)
         end, { expr = true })
       end,
@@ -493,7 +502,7 @@ require('lazy').setup(
           augend.decimal_fraction.new({}),
           augend.date.alias['%Y/%m/%d'],
           augend.constant.alias.bool,
-          augend.paren.alias.quote,
+          -- augend.paren.alias.quote,
         }
         local js_rules = {
           augend.constant.new({ elements = { 'let', 'const' } }),
