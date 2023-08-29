@@ -44,7 +44,8 @@ local float = {
 
 M.popup = function(contents)
   local winblend = api.nvim_get_option_value('winblend', {})
-  local row, col = unpack(api.nvim_win_get_cursor(0))
+  local row = vim.fn.winline()
+  local col = api.nvim_win_get_cursor(0)[2]
   local limit_width, limit_height = max_height(row, col)
   local buf_height
 
@@ -74,7 +75,9 @@ M.popup = function(contents)
     api.nvim_buf_set_lines(bufnr, 0, buf_height, false, contents)
   end
 
+  vim.print(limit_height .. ' l:b ' .. buf_height)
   if (limit_height - buf_height) < 0 then
+    vim.print('@'..limit_height - buf_height)
     float.height = buf_height
     float.anchor = 'SW'
     float.row = 0

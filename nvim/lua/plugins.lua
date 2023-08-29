@@ -299,7 +299,7 @@ require('lazy').setup(
         -- local operator_replace = {}
         -- operator_replace.ns = api.nvim_create_namespace('rcOperatorReplace')
         -- operator_replace.extID = 1
-        local operator_replace = function(self, input)
+        local operator_replace = function(input)
           local reg_str = vim.fn.getreg(input, 1, true)
           if vim.tbl_isempty(reg_str) then
             input = '0'
