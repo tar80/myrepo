@@ -11,6 +11,7 @@ local icons = {
   vsnip = '  ',
   dictionary = ' ',
   nvim_lsp = ' ',
+  nvim_lua = '',
   buffer = ' ',
   path = 'path',
   cmdline = 'cmd',
@@ -48,7 +49,7 @@ cmp.setup({
     { name = 'vsnip' },
     { name = 'nvim_lsp', keyword_length = 2, max_item_count = 10 },
     { name = 'nvim_lsp_signature_help' },
-    { name = 'dictionary', keyword_length = 1 },
+    { name = 'dictionary', keyword_length = 2 },
     {
       name = 'buffer',
       option = {
@@ -57,6 +58,7 @@ cmp.setup({
         end,
       },
     },
+    { name = 'nvim_lua', keyword_length = 2 },
   }),
   formatting = {
     format = function(entry, item)
