@@ -2,9 +2,6 @@
 --------------------------------------------------------------------------------
 
 ---@desc INITIAL
-local setmap = vim.keymap.set
-
----@desc Telescope
 local actions = require('telescope.actions')
 local action_state = require('telescope.actions.state')
 local pickers = require('telescope.pickers')
@@ -12,6 +9,8 @@ local finders = require('telescope.finders')
 local make_entry = require('telescope.make_entry')
 local conf = require('telescope.config').values
 local builtin = require('telescope.builtin')
+
+local setmap = vim.keymap.set
 
 ---@see https://scrapbox.io/vim-jp/mr.vim%E3%82%92%E5%A5%BD%E3%81%8D%E3%81%AAFuzzy_Finder%E3%81%8B%E3%82%89%E4%BD%BF%E3%81%86_%28telescope%29
 builtin.mr = function(opts) -- {@@2
@@ -49,15 +48,7 @@ builtin.mr = function(opts) -- {@@2
       }),
       previewer = conf.file_previewer(safe_opts),
       sorter = recent_file_sorter(list),
-      mappings = {
-        i = {
-          ['<C-D>'] = function(_)
-            local filename = action_state.get_selected_entry()[1]
-            vim.print(string.format('[mr%s] delete %s', type, filename))
-            vim.fn[mr[type].del](filename)
-          end,
-        },
-      },
+      -- sorter = require('telescope.sorters').fuzzy_with_index_bias(list),
     })
     :find()
 end -- @@}
@@ -69,7 +60,16 @@ require('telescope').setup({
     previewer = false,
     cache_picker = false,
     color_devicons = false,
-    file_ignore_patterns = { 'lazy-lock.json', '.git\\', '^node_modules\\', '^%.bundle\\', '^vendor\\', '^migemo\\' },
+    file_ignore_patterns = { -- {@@3
+      'lazy-lock.json',
+      '^%.git[/\\]',
+      '[/\\]%.git[/\\]',
+      '^%.bundle[/\\]',
+      '[/\\]%.bundle[/\\]',
+      'node_modules[/\\]',
+      'vendor[/\\]',
+      'migemo[/\\]',
+    }, -- @@}
     prompt_title = false,
     prompt_prefix = ' ',
     selection_caret = ' ',
@@ -83,7 +83,7 @@ require('telescope').setup({
       height = 0.7,
       width = 0.7,
     },
-    vimgrep_arguments = {
+    vimgrep_arguments = { -- {@@3
       'rg',
       '--color=never',
       '--no-heading',
@@ -93,30 +93,41 @@ require('telescope').setup({
       '--smart-case',
       '--trim',
       '--glob=!{node_modules,vendor,migemo,.bundle,.git}/',
-    },
-    mappings = {
+    }, -- @@}
+    mappings = { -- {@@3
       i = {
-        ['<C-S>'] = actions.file_split,
-        ['<C-K>'] = actions.preview_scrolling_up,
-        ['<C-J>'] = actions.preview_scrolling_down,
-        ['<C-G>'] = actions.close,
-        ['<C-A>'] = { '<Home>', type = 'command' },
-        ['<C-E>'] = { '<End>', type = 'command' },
-        ['<C-D>'] = function(_)
-          local filename = action_state.get_selected_entry()[1]
-          vim.print(string.format('[mru] delete %s', filename))
-          vim.fn['mr#mru#delete'](filename)
+        ['<C-s>'] = actions.file_split,
+        ['<C-k>'] = actions.preview_scrolling_up,
+        ['<C-j>'] = actions.preview_scrolling_down,
+        ['<C-g>'] = actions.close,
+        ['<C-a>'] = { '<Home>', type = 'command' },
+        ['<C-e>'] = { '<End>', type = 'command' },
+        ['<C-d>'] = function(prompt_bufnr)
+          local current_picker = action_state.get_current_picker(prompt_bufnr)
+          vim.print(current_picker)
+          if current_picker.prompt_title == 'Most Recently Use' then
+            local filename = action_state.get_selected_entry()[1]
+            current_picker:remove_selection(current_picker:get_selection_row())
+            vim.notify(string.format('[mru] cache deleted "%s"', filename), 3)
+            vim.fn['mr#mru#delete'](filename)
+          end
         end,
       },
       n = {
-        ['<C-G>'] = actions.close,
+        ['<C-g>'] = actions.close,
       },
-    },
+    }, -- @@}
   }, ---@@}
   pickers = { -- {@@2
     buffers = {
       sort_mru = true,
       mappings = { i = { ['<C-D>'] = actions.delete_buffer } },
+    },
+    find_files = {
+      find_command = function()
+          return { 'rg', '--files', '--color', 'never' }
+        --   return { 'fd', '--type', 'f', '--color', 'never' }
+      end,
     },
     live_grep = {
       max_results = 100,
@@ -124,6 +135,26 @@ require('telescope').setup({
     },
     current_buffer_fuzzy_find = {
       skip_empty_lines = true,
+    },
+    git_bcommits = {
+      mappings = {
+        i = {
+          ['<C-x>'] = function(bufnr)
+            local hash = action_state.get_selected_entry().value
+            vim.schedule(function()
+              vim.cmd('MugDiff bottom ' .. hash)
+            end)
+            return actions.close(bufnr)
+          end,
+          ['<C-v>'] = function(bufnr)
+            local hash = action_state.get_selected_entry().value
+            vim.schedule(function()
+              vim.cmd('MugDiff right ' .. hash)
+            end)
+            return actions.close(bufnr)
+          end,
+        },
+      },
     },
     -- lsp_references = {
     --   fname_width = 30,
@@ -136,7 +167,7 @@ require('telescope').setup({
     --   line_width = 50,
     -- },
   }, -- @@}
-  extensions = {
+  extensions = { -- {@@2
     extensions = {
       ['ui-select'] = {
         require('telescope.themes').get_dropdown({
@@ -158,18 +189,18 @@ require('telescope').setup({
         -- }
       },
     },
-  },
+  }, -- @@}
 })
 require('telescope').load_extension('ui-select')
-require('telescope').load_extension('kensaku') -- :Telescope kensaku
+require('telescope').load_extension('kensaku')
 
----@desc Previewer {@@2
-local preset_no_preview = {
+---@desc PREVIEWER {@@1
+local preset_no_preview = { -- {@@2
   results_title = false,
   previewer = false,
   layout_config = { height = 0.7, width = 0.6 },
-}
-local preset_preview_hor = {
+} -- @@}
+local preset_preview_hor = { -- {@@2
   previewer = true,
   layout_config = {
     anchor = 'N',
@@ -181,30 +212,27 @@ local preset_preview_hor = {
   path_display = function(_, path)
     return string.format('%s', path)
   end,
-}
-local preset_preview_ver = {
+} -- @@}
+local preset_preview_ver = { -- {@@2
   -- winblend = 9,
   results_title = false,
   path_display = function(_, path)
     return string.format('%s ', path)
   end,
-}
-local no_preview = function(add)
-  return require('telescope.themes').get_dropdown(vim.tbl_deep_extend('force', preset_no_preview, add))
-end
-local preview_hor = function(add)
-  return require('telescope.themes').get_dropdown(vim.tbl_deep_extend('force', preset_preview_hor, add))
-end
-local preview_ver = function(add)
-  return vim.tbl_deep_extend('force', preset_preview_ver, add)
-end
+} -- @@}
 
+local no_preview = function(add) -- {@@2
+  return require('telescope.themes').get_dropdown(vim.tbl_deep_extend('force', preset_no_preview, add))
+end -- @@}
+local preview_hor = function(add) -- {@@2
+  return require('telescope.themes').get_dropdown(vim.tbl_deep_extend('force', preset_preview_hor, add))
+end -- @@}
+local preview_ver = function(add) -- {@@2
+  return vim.tbl_deep_extend('force', preset_preview_ver, add)
+end -- @@}
+
+local layout = { no = no_preview, hor = preview_hor, ver = preview_ver }
 local load_telescope = function(picker, preview, add) -- {@@2
-  local layout = {
-    no = no_preview,
-    hor = preview_hor,
-    ver = preview_ver,
-  }
   local sub_window = layout[preview]
   builtin[picker](sub_window(add))
 end -- @@}
@@ -217,12 +245,13 @@ setmap('n', '<leader>m', function()
   load_telescope('mr', 'no', {})
 end, {})
 setmap('n', '<leader>p', function()
-  load_telescope('find_files', 'no', { cwd = vim.fn.expand('%:p:h'), hidden = true, no_ignore = true })
+  local path = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
+  load_telescope('find_files', 'no', { cwd = path, hidden = true, no_ignore = true })
 end, {})
 setmap('n', '<leader>o', function()
   load_telescope('find_files', 'no', { hidden = true, no_ignore = true })
 end, {})
-setmap('n', '<leader>l', function()
+setmap('n', '<leader>k', function()
   vim.cmd(
     'Telescope kensaku theme=dropdown previewer=true layout_strategy=center layout_config={anchor="N",prompt_position="top",height=0.3,width=0.7}'
   )
@@ -234,7 +263,7 @@ setmap('n', '<leader>h', function()
   load_telescope('help_tags', 'ver', { layout_config = { preview_width = 0.7, width = 0.8, height = 0.9 } })
   vim.o.shellslash = slash
 end, {})
-setmap('n', '<leader>:', function()
+setmap('n', '<leader>l', function()
   load_telescope(
     'current_buffer_fuzzy_find',
     'ver',
@@ -242,17 +271,17 @@ setmap('n', '<leader>:', function()
   )
 end, {})
 -- for git
-setmap('n', '<Leader>b', function()
+setmap('n', '<Leader>gb', function()
   load_telescope('git_branches', 'ver', {})
 end, {})
-setmap('n', '<Leader>c', function()
+setmap('n', '<Leader>gc', function()
   load_telescope(
     'git_commits',
     'ver',
     { layout_config = { mirror = false, preview_width = 0.7, width = 0.9, height = 0.9 } }
   )
 end, {})
-setmap('n', '<Leader>C', function()
+setmap('n', '<Leader>gC', function()
   load_telescope(
     'git_bcommits',
     'ver',
@@ -265,9 +294,6 @@ end, {})
 -- end, {})
 -- setmap('n', 'glk', function()
 --   load_telescope('lsp_references', { layout_config = { mirror = false, preview_width = 0.7 } })
--- end, {})
--- setmap('n', 'gld', function()
---   load_telescope('lsp_definitions', { layout_config = { mirror = true, preview_width = 0.5 } })
 -- end, {})
 setmap('n', 'glj', function()
   load_telescope('lsp_dynamic_workspace_symbols', 'ver', { layout_config = { mirror = true, preview_width = 0.5 } })
