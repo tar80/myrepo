@@ -5,6 +5,7 @@
 local util = require('module.util')
 local api = vim.api
 local keymap = vim.keymap
+local lsp = vim.lsp
 local border = 'rounded'
 local signs = { Error = '', Warn = '', Hint = '', Info = '' }
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -17,9 +18,9 @@ for type, icon in pairs(signs) do
 end
 
 ---@desc Options
-vim.lsp.set_log_level = 'OFF'
-vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = border })
-vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = border })
+lsp.set_log_level = 'OFF'
+lsp.handlers['textDocument/hover'] = lsp.with(lsp.handlers.hover, { border = border })
+lsp.handlers['textDocument/signatureHelp'] = lsp.with(lsp.handlers.signature_help, { border = border })
 vim.diagnostic.config({ -- {{{2
   virtual_text = false,
   severity_sort = true,
@@ -41,7 +42,7 @@ local popup_rename = function() -- {{{2
   local bufnr = api.nvim_get_current_buf()
   local title = 'Lsp-rename'
 
-  if vim.tbl_isempty(vim.lsp.get_clients({ bufnr = bufnr })) then
+  if vim.tbl_isempty(lsp.get_clients({ bufnr = bufnr })) then
     vim.notify('Language server is not attached this buffer', 3, { title = title })
     return
   end
@@ -64,7 +65,7 @@ local popup_rename = function() -- {{{2
     keymap.set('i', '<CR>', function()
       local input = api.nvim_get_current_line()
       api.nvim_command('quit|stopinsert!')
-      vim.lsp.buf.rename(vim.trim(input))
+      lsp.buf.rename(vim.trim(input))
       vim.notify(rename_old .. ' -> ' .. input, 2, { title = title })
     end, { buffer = true })
   end
@@ -80,7 +81,7 @@ local popup_rename = function() -- {{{2
 end -- }}}
 
 local on_attach = function(client, bufnr) --- {{{2
-  -- vim.lsp.inlay_hint(0, true)
+  -- lsp.inlay_hint(0, true)
   api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   ---@desc Under cursor Symbol highlight -- {{{
   api.nvim_create_autocmd({ 'CursorHold' }, {
@@ -90,7 +91,7 @@ local on_attach = function(client, bufnr) --- {{{2
       -- if client.config.root_dir ~= vim.fs.normalize(vim.uv.cwd()) then
       --   return
       -- end
-      vim.lsp.buf.document_highlight()
+      lsp.buf.document_highlight()
     end,
   })
   api.nvim_create_autocmd({ 'CursorMoved' }, {
@@ -100,7 +101,7 @@ local on_attach = function(client, bufnr) --- {{{2
       -- if client.config.root_dir ~= vim.fs.normalize(vim.uv.cwd()) then
       --   return
       -- end
-      vim.lsp.buf.clear_references()
+      lsp.buf.clear_references()
     end,
   }) ---}}}
   ---@desc Show inlay_hints when not in insert mode {{{
@@ -108,14 +109,14 @@ local on_attach = function(client, bufnr) --- {{{2
   --   group = augroup,
   --   buffer = 0,
   --   callback = function()
-  --     vim.lsp.inlay_hint(0, false)
+  --     lsp.inlay_hint(0, false)
   --   end,
   -- })
   -- api.nvim_create_autocmd({ 'InsertLeave' }, {
   --   group = augroup,
   --   buffer = 0,
   --   callback = function()
-  --     vim.lsp.inlay_hint(0, true)
+  --     lsp.inlay_hint(0, true)
   --   end,
   -- }) ---}}}
   ---@desc Keymap {{{3
@@ -126,7 +127,7 @@ local on_attach = function(client, bufnr) --- {{{2
     local opts = { focusable = false }
     local winblend = vim.o.winblend
     local scope_c = vim.tbl_extend('force', opts, { scope = 'cursor' })
-    api.nvim_win_set_option(0, 'winblend', 0)
+    api.nvim_set_option_value('winblend', 0, {})
     local resp = vim.diagnostic.open_float(0, scope_c)
 
     if not resp then
@@ -134,13 +135,13 @@ local on_attach = function(client, bufnr) --- {{{2
       vim.diagnostic.open_float(0, scope_l)
     end
 
-    api.nvim_win_set_option(0, 'winblend', winblend)
+    api.nvim_set_option_value('winblend', winblend, {})
   end) -- }}}
-  keymap.set('n', 'glh', vim.lsp.buf.signature_help)
+  keymap.set('n', 'glh', lsp.buf.signature_help)
   keymap.set('n', 'gli', function()
-    vim.lsp.inlay_hint(0)
+    lsp.inlay_hint(0)
   end)
-  keymap.set('n', 'gll', vim.lsp.buf.hover)
+  keymap.set('n', 'gll', lsp.buf.hover)
   keymap.set('n', 'glr', function()
     popup_rename()
   end)
@@ -148,20 +149,38 @@ local on_attach = function(client, bufnr) --- {{{2
     local toggle_vt = not vim.diagnostic.config().virtual_text
     vim.diagnostic.config({ virtual_text = toggle_vt })
   end)
-  -- keymap.set('n', 'gD', vim.lsp.buf.declaration)
-  -- keymap.set('n', 'gD', vim.lsp.buf.definition)
-  -- keymap.set("n", "gli", vim.lsp.buf.implementation)
-  -- keymap.set("n", "glt", vim.lsp.buf.type_definition)
-  -- keymap.set("n", "glj", vim.lsp.buf.references)
+  keymap.set('n', 'gd', function()
+    lsp.buf.definition({
+      reuse_win = true,
+      on_list = function(opts)
+        if #opts.items == 2 then
+          local item1 = opts.items[1]
+          local item2 = opts.items[2]
+
+          if item1.filename == item2.filename and item1.lnum == item2.lnum then
+            api.nvim_win_set_cursor(0, { item1.lnum, item1.col })
+            return
+          end
+        end
+
+        vim.cmd([[Trouble lsp_definitions]])
+      end,
+    })
+  end)
+  -- keymap.set('n', 'gd', lsp.buf.definition)
+  -- keymap.set('n', 'gD', lsp.buf.declaration)
+  -- keymap.set("n", "gli", lsp.buf.implementation)
+  -- keymap.set("n", "glt", lsp.buf.type_definition)
+  -- keymap.set("n", "glj", lsp.buf.references)
 
   ---@desc trouble.nvim
-  keymap.set('n', 'gd', '<Cmd>Trouble lsp_definitions<CR>', {})
+  -- keymap.set('n', 'gd', '<Cmd>Trouble lsp_definitions<CR>', {})
   keymap.set('n', 'gle', '<Cmd>Trouble document_diagnostics<CR>', {})
   keymap.set('n', 'glk', '<Cmd>Trouble lsp_references<CR>', {})
 
   ---@desc map automatically added by lsp
-  ---@see nvim/runtime/lua/vim/lsp.lua#1208
-  keymap.del('n', 'K', { buffer = bufnr})
+  ---@source nvim/runtime/lua/vim/lsp.lua:1208
+  keymap.del('n', 'K', { buffer = bufnr })
   ---}}}3
 end ---}}}
 
@@ -295,7 +314,7 @@ require('mason-lspconfig').setup_handlers({
 
 ---@desc NULL_LS {{{1
 keymap.set('n', 'glf', function(bufnr)
-  vim.lsp.buf.format({
+  lsp.buf.format({
     async = true,
     timeout_ms = 3000,
     filter = function(client)
