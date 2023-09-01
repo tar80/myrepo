@@ -115,6 +115,20 @@ opt.path = { '.', '' }
 ---@desc AUTOGROUP
 local augroup = api.nvim_create_augroup('rcSettings', {})
 
+---@desc Remove ignore history from cmdline history
+---@see https://blog.atusy.net/2023/07/24/vim-clean-history/
+local ignore_history = [=[^\c\(\_[efqw]!\?\|qa!\?\|mes\|h\s.*\)]=]
+vim.api.nvim_create_autocmd('CmdlineEnter', {
+  group = augroup,
+  callback = function()
+    local hist = vim.fn.histget('cmd', -1)
+    vim.schedule(function()
+      if vim.regex(ignore_history):match_str(hist) then
+        vim.fn.histdel(':', -1)
+      end
+    end)
+  end,
+})
 ---@desc Editing line highlighting rules {{{2
 api.nvim_create_autocmd('CursorHoldI', {
   group = augroup,
