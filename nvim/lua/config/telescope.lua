@@ -14,23 +14,6 @@ local setmap = vim.keymap.set
 
 ---@see https://scrapbox.io/vim-jp/mr.vim%E3%82%92%E5%A5%BD%E3%81%8D%E3%81%AAFuzzy_Finder%E3%81%8B%E3%82%89%E4%BD%BF%E3%81%86_%28telescope%29
 builtin.mr = function(opts) -- {@@2
-  local recent_file_sorter = function(list) -- {@@2
-    local indices = {}
-    for i, line in ipairs(list) do
-      indices[line] = i
-    end
-    local file_sorter = conf.file_sorter(opts)
-    local base_scorer = file_sorter.scoring_function
-    file_sorter.scoring_function = function(self, prompt, line)
-      local score = base_scorer(self, prompt, line)
-      if score <= 0 then
-        return -1
-      else
-        return indices[line]
-      end
-    end
-    return file_sorter
-  end -- @@}
   local safe_opts = opts or {}
   local type = 'u'
   local mr = {
@@ -47,8 +30,7 @@ builtin.mr = function(opts) -- {@@2
         entry_maker = make_entry.gen_from_file(safe_opts),
       }),
       previewer = conf.file_previewer(safe_opts),
-      sorter = recent_file_sorter(list),
-      -- sorter = require('telescope.sorters').fuzzy_with_index_bias(list),
+      sorter = require('telescope.sorters').fuzzy_with_index_bias(list),
     })
     :find()
 end -- @@}
@@ -125,7 +107,7 @@ require('telescope').setup({
     },
     find_files = {
       find_command = function()
-          return { 'rg', '--files', '--color', 'never' }
+        return { 'rg', '--files', '--color', 'never' }
         --   return { 'fd', '--type', 'f', '--color', 'never' }
       end,
     },

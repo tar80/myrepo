@@ -158,6 +158,10 @@ local on_attach = function(client, bufnr) --- {{{2
           local item2 = opts.items[2]
 
           if item1.filename == item2.filename and item1.lnum == item2.lnum then
+            if vim.fs.normalize(item1.filename) ~= vim.fs.normalize(api.nvim_buf_get_name(0)) then
+              vim.cmd.edit({item1.filename})
+            end
+
             api.nvim_win_set_cursor(0, { item1.lnum, item1.col })
             return
           end

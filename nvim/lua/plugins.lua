@@ -296,9 +296,6 @@ require('lazy').setup(
       'yuki-yano/vim-operator-replace',
       dependencies = { 'vim-operator-user' },
       init = function()
-        -- local operator_replace = {}
-        -- operator_replace.ns = api.nvim_create_namespace('rcOperatorReplace')
-        -- operator_replace.extID = 1
         local operator_replace = function(input)
           local reg_str = vim.fn.getreg(input, 1, true)
           if vim.tbl_isempty(reg_str) then
@@ -316,21 +313,6 @@ require('lazy').setup(
               end,
             })
           end)
-          -- api.nvim_buf_set_extmark(0, operator_replace.ns, row - 1, col, {
-          --   id = self.extID,
-          --   virt_text = { { reg_str, 'NormalMode' } },
-          --   virt_text_pos = 'inline',
-          --   hl_mode = 'combine',
-          --   ephemeral = false,
-          -- })
-          -- api.nvim_create_autocmd({ 'ModeChanged' }, {
-          --   group = augroup,
-          --   pattern = 'no:n',
-          --   once = true,
-          --   callback = function()
-          --     api.nvim_buf_del_extmark(0, operator_replace.ns, operator_replace.extID)
-          --   end,
-          -- })
           return input
         end
         setmap('n', '_', function()
