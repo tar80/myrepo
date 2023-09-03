@@ -253,22 +253,34 @@ setmap('n', '<leader>l', function()
   )
 end, {})
 -- for git
+local is_repo = function()
+  local name = vim.b.mug_branch_name
+  if name == _G.Mug.symbol_not_repository then
+    vim.notify('Not repository', 3)
+    return false
+  end
+  return true
+end
 setmap('n', '<Leader>gb', function()
-  load_telescope('git_branches', 'ver', {})
+  if is_repo() then
+    load_telescope('git_branches', 'ver', {})
+  end
 end, {})
 setmap('n', '<Leader>gc', function()
-  load_telescope(
-    'git_commits',
-    'ver',
-    { layout_config = { mirror = false, preview_width = 0.7, width = 0.9, height = 0.9 } }
-  )
+  if is_repo() then
+    load_telescope('git_commits', 'ver', {
+      git_command = { 'git', 'log', '--oneline', '-20', '--abbrev-commit', '--', '.' },
+      layout_config = { mirror = false, preview_width = 0.55, width = 0.9, height = 0.9 },
+    })
+  end
 end, {})
 setmap('n', '<Leader>gC', function()
-  load_telescope(
-    'git_bcommits',
-    'ver',
-    { layout_config = { mirror = false, preview_width = 0.7, width = 0.9, height = 0.9 } }
-  )
+  if is_repo() then
+    load_telescope('git_bcommits', 'ver', {
+      git_command = { 'git', 'log', '--oneline', '-20', '--abbrev-commit', '--', '.' },
+      layout_config = { mirror = false, preview_width = 0.55, width = 0.9, height = 0.9 },
+    })
+  end
 end, {})
 ---@desc for lsp
 -- setmap('n', 'gld', function()

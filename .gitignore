@@ -1,4 +1,5 @@
 node_modules/
+images/
 theme/
 logs/
 log/
@@ -12,8 +13,8 @@ t/
 package-lock.json
 index.js
 cryptrclone.js
+minimal.lua
 quickmarks
-images
 *.png
 *.jpg
 *.bmp

@@ -1,7 +1,7 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
-if not package.loaded["nvim-treesitter"] then
+if not package.loaded['nvim-treesitter'] then
   return
 end
 
@@ -13,23 +13,21 @@ require('nvim-treesitter.configs').setup({
       ---Automatically jump forward to textobj, similar to targets.vim
       lookahead = true,
       keymaps = {
-        ---You can use the capture groups defined in textobjects.scm
+        ['ir'] = '@loop.inner',
+        ['ar'] = '@loop.outer',
         ['ii'] = '@conditional.inner',
         ['ai'] = '@conditional.outer',
         ['if'] = '@function.inner',
         ['af'] = '@function.outer',
         -- ["ib"] = "@parameter.inner",
       },
-      ---You can choose the select mode (default is charwise 'v')
       selection_modes = {
         ['@parameter.outer'] = 'v', -- charwise
+        ['@loop.outer'] = 'V', -- linewise
+        ['@conditional.outer'] = 'V', -- linewise
         ['@function.outer'] = 'V', -- linewise
-        ['@class.outer'] = '<c-v>', -- blockwise
+        -- ['@class.outer'] = '<c-v>', -- blockwise
       },
-      ---If you set this to `true` (default is `false`) then any textobject is
-      ---extended to include preceding xor succeeding whitespace. Succeeding
-      ---whitespace has priority in order to act similarly to eg the built-in
-      ---`ap`.
       include_surrounding_whitespace = false,
     },
     swap = {

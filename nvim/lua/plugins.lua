@@ -303,13 +303,13 @@ require('lazy').setup(
             reg_str = vim.fn.getreg(input, 1, true)
           end
           vim.schedule(function()
-            local bufnr = require('module.float').popup(reg_str)
+            local bufnr = require('module.float').popup({contents = reg_str})
             api.nvim_create_autocmd({ 'ModeChanged' }, {
               group = augroup,
               pattern = 'no:n',
               once = true,
               callback = function()
-                vim.cmd('bwipeout' .. bufnr)
+                vim.cmd.bwipeout(bufnr)
               end,
             })
           end)
@@ -444,18 +444,15 @@ require('lazy').setup(
       'tversteeg/registers.nvim',
       config = function()
         local registers = require('registers')
+        setmap({ 'n', 'x' }, '<Space>2', registers.show_window({ mode = 'motion' }), { silent = true, noremap = true })
         registers.setup({
           show_empty = false,
           register_user_command = false,
           system_clipboard = false,
-          show_register_types = false,
+          show_register_types = true,
           symbols = { tab = '~' },
           bind_keys = {
-            registers = registers.apply_register({ delay = 0.1 }),
-            normal = registers.show_window({
-              mode = 'motion',
-              delay = 1,
-            }),
+            normal = false,
             insert = registers.show_window({
               mode = 'insert',
               delay = 1,
@@ -469,8 +466,9 @@ require('lazy').setup(
           },
         })
       end,
+      lazy = true,
       keys = {
-        { '"', mode = { 'n', 'x' } },
+        { '<Space>2', mode = { 'n', 'x' } },
         { '<C-R>', mode = 'i' },
       },
     }, ---}}}
@@ -503,9 +501,7 @@ require('lazy').setup(
           typescript = vim.tbl_extend('force', default_rules, js_rules),
           javascript = vim.tbl_extend('force', default_rules, js_rules),
           -- lua = {},
-          -- markdown = {
-          --   augend.misc.alias.markdown_header,
-          -- },
+          -- markdown = { augend.misc.alias.markdown_header, },
         })
 
         setmap('n', '<C-t>', require('dial.map').inc_normal('case'), { silent = true, noremap = true })
@@ -533,14 +529,14 @@ require('lazy').setup(
         cycle_results = false,
         action_keys = {
           cancel = '<Tab>',
-          refresh = '<F5>',
+          refresh = '<C-l>',
           jump = { 'o', '<2-leftmouse>' },
           jump_close = '<CR>',
           toggle_mode = 'm',
           switch_severity = 's',
           open_code_href = 'c',
-          close_folds = { 'zM', 'zm', '<C-h>' },
-          open_folds = { 'zR', 'zr', '<C-l>' },
+          close_folds = { 'zM', 'zm', '<left>' },
+          open_folds = { 'zR', 'zr', '<right>' },
           toggle_fold = { 'zA', 'za' },
           help = 'g?',
         },

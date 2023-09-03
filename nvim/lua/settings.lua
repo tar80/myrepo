@@ -5,19 +5,20 @@
 ---@Variables {{{2
 local util = require('module.util')
 local api = vim.api
-local mapset = vim.keymap.set
+local cmd = vim.cmd
 local o = vim.o
 local opt = vim.opt
+local mapset = vim.keymap.set
 
 util.shell('nyagos')
 vim.env.myvimrc = vim.uv.fs_readlink(vim.env.myvimrc, nil)
 -- vim.env.myvimrc = vim.uv.fs_realpath(vim.env.myvimrc)
 vim.g.repo = 'c:\\bin\\repository\\tar80'
 vim.g.update_time = 700
-api.nvim_command('language message C')
+cmd('language message C')
 
 local FOLD_SEP = ' » '
-local foldmarker = vim.split(api.nvim_win_get_option(0, 'foldmarker'), ',', { plain = true })
+local foldmarker = vim.split(api.nvim_get_option_value('foldmarker', { win = 0 }), ',', { plain = true })
 
 ---@desc Unload {{{2
 ---NOTE: leave it to lazy.nvim
@@ -35,12 +36,12 @@ local foldmarker = vim.split(api.nvim_win_get_option(0, 'foldmarker'), ',', { pl
 
 ---@desc OPTIONS
 ---@desc Global {{{2
-api.nvim_set_option('termguicolors', true)
-api.nvim_set_option('foldcolumn', '1')
-api.nvim_set_option('fileformats', 'unix,dos,mac')
+api.nvim_set_option_value('termguicolors', true, { scope = 'global' })
+api.nvim_set_option_value('foldcolumn', '1', { scope = 'global' })
+api.nvim_set_option_value('fileformats', 'unix,dos,mac', { scope = 'global' })
 
 ---@desc Local {{{2
---api.nvim_buf_set_option(0, "name", value)
+-- api.nvim_set_option_value('name', value, { scope = 'local' })
 
 ---@desc Both {{{2
 o.guicursor = 'n:block,i-c-ci-ve:ver50,v-r-cr-o:hor50'
@@ -117,7 +118,7 @@ local augroup = api.nvim_create_augroup('rcSettings', {})
 
 ---@desc Remove ignore history from cmdline history
 ---@see https://blog.atusy.net/2023/07/24/vim-clean-history/
-local ignore_history = [=[^\c\(\_[efqw]!\?\|qa!\?\|mes\|h\s.*\)]=]
+local ignore_history = [=[^\c\(\_[efqw]!\?\|qa!\?\|mes\|h\s.*\)$]=]
 vim.api.nvim_create_autocmd('CmdlineEnter', {
   group = augroup,
   callback = function()
@@ -134,7 +135,7 @@ api.nvim_create_autocmd('CursorHoldI', {
   group = augroup,
   callback = function()
     if vim.bo.filetype ~= 'TelescopePrompt' then
-      api.nvim_win_set_option(0, 'cursorline', true)
+      api.nvim_set_option_value('cursorline', true, { win = 0 })
     end
   end,
 })
@@ -143,7 +144,7 @@ api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
   group = augroup,
   callback = function()
     if vim.fn.mode() == 'i' and vim.bo.filetype ~= 'TelescopePrompt' then
-      api.nvim_win_set_option(0, 'cursorline', true)
+      api.nvim_set_option_value('cursorline', true, { win = 0 })
     end
   end,
 })
@@ -174,7 +175,7 @@ api.nvim_create_autocmd('OptionSet', {
   pattern = 'foldmarker',
   callback = function(opts)
     if opts.match == 'foldmarker' then
-      foldmarker = vim.split(api.nvim_win_get_option(0, 'foldmarker'), ',')
+      foldmarker = vim.split(api.nvim_get_option_value('foldmarker', { win = 0 }), ',')
     end
   end,
 })
@@ -183,7 +184,7 @@ api.nvim_create_autocmd('OptionSet', {
 ---@desc FUNCTIONS
 _G.Simple_fold = function() -- {{{2
   ---this code is based on https://github.com/tamton-aquib/essentials.nvim
-  local cms = api.nvim_buf_get_option(0, 'commentstring')
+  local cms = api.nvim_get_option_value('commentstring', { buf = 0 })
   cms = cms:gsub('(%S+)%s*%%s.*', '%1')
   local open, close = api.nvim_get_vvar('foldstart'), api.nvim_get_vvar('foldend')
   local line_count = string.format('%s lines', close - open)
@@ -196,12 +197,12 @@ _G.Simple_fold = function() -- {{{2
 
   return linewise .. spaces
 end
-api.nvim_win_set_option(0, 'foldtext', 'v:lua.Simple_fold()')
+api.nvim_set_option_value('foldtext', 'v:lua.Simple_fold()', { win = 0 })
 
 local toggleShellslash = function() -- {{{2
-  vim.opt_local.shellslash = not api.nvim_get_option('shellslash')
-  api.nvim_command('redrawstatus')
-  api.nvim_command('redrawtabline')
+  vim.opt_local.shellslash = not api.nvim_get_option_value('shellslash', { scope = 'global' })
+  cmd.redrawstatus()
+  cmd.redrawtabline()
 end
 
 local search_star = function(g, mode) -- {{{2
@@ -236,7 +237,7 @@ local ppcust_load = function() -- {{{2
   end
 
   vim.fn.system({ os.getenv('PPX_DIR') .. '\\ppcustw.exe', 'CA', api.nvim_buf_get_name(0) })
-  print('PPcust CA ' .. vim.fn.expand('%:t'))
+  vim.notify('PPcust CA ' .. vim.fn.expand('%:t'), 3)
 end ---}}}
 local cmd_abbrev = function(key, rep, space) -- {{{2
   ---@see https://zenn.dev/vim_jp/articles/2023-06-30-vim-substitute-tips
@@ -279,17 +280,17 @@ cmd_abbrev('hl', "lua<Space>print(require('module.util').hl_at_cursor())<CR>")
 vim.g.mapleader = ';'
 
 ---@desc Normal {{{2
--- mapset('n', '<C-t>', function()
+-- mapset('n', '<C-t>', function() {{{2
 --   ---this code excerpt from essentials.nvim(https://github.com/tamton-aquib/essentials.nvim)
 --   local row, col = unpack(api.nvim_win_get_cursor(0))
 --   local cword = vim.fn.expand('<cword>')
 --   local line = api.nvim_get_current_line()
 --   local keycmd = util.getchr() == ' ' and 'v2iwc ' or 'viwc'
 --   if cword == 'true' then
---     api.nvim_command(string.format('normal %sfalse', keycmd))
+--     cmd(string.format('normal %sfalse', keycmd))
 --     api.nvim_win_set_cursor(0, { row, col })
 --   elseif cword == 'false' then
---     api.nvim_command(string.format('normal %strue', keycmd))
+--     cmd(string.format('normal %strue', keycmd))
 --     api.nvim_win_set_cursor(0, { row, col })
 --   else
 --     local t = line:find('true', 1, true) or 10000
@@ -300,7 +301,7 @@ vim.g.mapleader = ';'
 --     local subs = t < f and line:gsub('true', 'false', 1) or line:gsub('false', 'true', 1)
 --     api.nvim_set_current_line(subs)
 --   end
--- end)
+-- end) }}}
 mapset('n', '<F1>', function()
   return os.execute('c:/bin/cltc/cltc.exe')
 end)
@@ -319,9 +320,9 @@ mapset('n', '<F12>', function()
   -- local wrap = o.wrap ~= true and "wrap" or "nowrap"
   if o.diff == true then
     local cur = api.nvim_win_get_number(0)
-    api.nvim_command('windo setlocal wrap!|' .. cur .. 'wincmd w')
+    cmd('windo setlocal wrap!|' .. cur .. 'wincmd w')
   else
-    api.nvim_command('setl wrap! wrap?')
+    cmd('setl wrap! wrap?')
   end
   return ''
 end)
@@ -352,25 +353,27 @@ mapset('c', '<CR>', function()
   return '<CR>'
 end, { noremap = true, expr = true, silent = true })
 ---Move buffer use <SPACE>
-mapset('n', '<SPACE>', '<C-W>', { remap = true })
-mapset('n', '<SPACE><SPACE>', '<C-W><C-W>')
+mapset('n', '<SPACE>', '<C-w>', { remap = true })
+mapset('n', '<SPACE><SPACE>', '<C-w><C-w>')
 mapset('n', '<SPACE>n', function()
   local i = 1
 
   while vim.fn.bufnr('Scratch' .. i) ~= -1 do
     i = i + 1
   end
-
-  api.nvim_command('new Scratch' .. i)
-  api.nvim_buf_set_option(0, 'buftype', 'nofile')
-  api.nvim_buf_set_option(0, 'bufhidden', 'wipe')
+  cmd.new('Scratch' .. i)
+  api.nvim_set_option_value('buftype', 'nofile', { buf = 0 })
+  api.nvim_set_option_value('bufhidden', 'wipe', { buf = 0 })
 end)
-mapset('n', '<SPACE>a', '<Cmd>bwipeout<CR>')
+mapset('n', '<SPACE>Q', '<Cmd>bwipeout<CR>')
 mapset('n', '<SPACE>c', '<Cmd>tabclose<CR>')
 ---close nofile|qf|preview window
 mapset('n', '<SPACE>z', function()
+  if api.nvim_get_option_value('buftype', { buf = 0 }) == 'nofile' then
+    return api.nvim_buf_delete(0, { force = true })
+  end
   local altnr = vim.fn.bufnr('#')
-  if altnr ~= -1 and api.nvim_buf_get_option(altnr, 'buftype') == 'nofile' then
+  if altnr ~= -1 and api.nvim_get_option_value('buftype', { buf = altnr }) == 'nofile' then
     return api.nvim_buf_delete(altnr, { force = true })
   end
   local qfnr = vim.fn.getqflist({ qfbufnr = 0 }).qfbufnr
@@ -424,7 +427,7 @@ api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " . <q-
 ---@desc "UTSetup" Unit-test compose multi-panel
 api.nvim_create_user_command('UTSetup', function() -- {{{2
   if vim.b.mug_branch_name == nil then
-    return print('Not a repository')
+    return vim.notify('Not a repository', 3)
   end
 
   os.execute(os.getenv('PPX_DIR') .. '/pptrayw.exe -c *deletecust _WinPos:BT')
@@ -434,13 +437,14 @@ api.nvim_create_user_command('UTSetup', function() -- {{{2
   local name = vim.fn.expand('%:t')
 
   if not name:find('utp_', 1, 'plain') then
-    local testpath = vim.fs.normalize('t/utp_' .. name)
+    local test_path = vim.fs.normalize('t/utp_' .. name)
 
     if vim.fn.isdirectory(path) ~= 1 then
       vim.fn.mkdir(path)
     end
 
-    api.nvim_command('bot split ' .. testpath .. '|set fenc=utf-8|set ff=unix')
+    -- cmd('bot split ' .. testpath .. '|set fenc=utf-8|set ff=unix')
+    cmd(string.format('bot split %s|set fenc=utf-8|set ff=unix', test_path))
   end
 end, {}) -- }}}
 api.nvim_create_user_command('UTDo', function(...) -- {{{2
@@ -458,18 +462,18 @@ end, { nargs = '*' }) -- }}}
 api.nvim_create_user_command('JestSetup', function() -- {{{2
   local has_config = vim.fn.filereadable('jest.config.js') + vim.fn.filereadable('package.json')
   if has_config == 0 then
-    print('Config file not found')
+    vim.notify('Config file not found', 3)
   end
 
   os.execute('wt -w 1 sp -V --size 0.4 nyagos -k wt -w 1 mf left')
 
   local symbol = 'test'
   local sym_dir = string.format('__%ss__', symbol)
-  local parent = vim.fs.dirname(api.nvim_buf_get_name(0))
-  local test_dir = vim.fs.joinpath(parent, sym_dir)
+  local parent_dir = vim.fs.dirname(api.nvim_buf_get_name(0))
+  local test_dir = vim.fs.joinpath(parent_dir, sym_dir)
   local name = vim.fn.expand('%:t:r')
 
-  if not parent:find(sym_dir, 1, true) then
+  if not parent_dir:find(sym_dir, 1, true) then
     local test_path = string.format('%s/%s.%s.ts', test_dir, name, symbol)
     local insert_string = ''
 
@@ -484,6 +488,6 @@ api.nvim_create_user_command('JestSetup', function() -- {{{2
       vim.fn.mkdir(test_dir)
     end
 
-    api.nvim_command(string.format('bot split %s|set fenc=utf-8|set ff=unix%s', test_path, insert_string))
+    cmd(string.format('bot split %s|set fenc=utf-8|set ff=unix%s', test_path, insert_string))
   end
 end, {}) -- }}}

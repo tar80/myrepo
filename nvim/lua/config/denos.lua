@@ -6,18 +6,18 @@ vim.g['denops#deno'] = string.format('%s/packages/deno/deno.exe', vim.env.mason)
 local augroup = vim.api.nvim_create_augroup('rcDeno', {})
 
 ---@desc Autocommand
-vim.api.nvim_create_autocmd('BufEnter', { -- {{{2
-  group = augroup,
-  pattern = { '*.md', '*.txt' },
-  command = 'call skkeleton#config({"keepState": v:true})',
-  desc = 'skkeleton keep state',
-}) -- }}}
-vim.api.nvim_create_autocmd('BufLeave', { -- {{{2
-  group = augroup,
-  pattern = { '*.md', '*.txt' },
-  command = 'call skkeleton#config({"keepState": v:false})',
-  desc = 'skkeleton keep state',
-}) -- }}}
+-- vim.api.nvim_create_autocmd('BufEnter', { -- {{{2
+--   group = augroup,
+--   pattern = { '*.md', '*.txt' },
+--   command = 'call skkeleton#config({"keepState": v:true})',
+--   desc = 'skkeleton keep state',
+-- }) -- }}}
+-- vim.api.nvim_create_autocmd('BufLeave', { -- {{{2
+--   group = augroup,
+--   pattern = { '*.md', '*.txt' },
+--   command = 'call skkeleton#config({"keepState": v:false})',
+--   desc = 'skkeleton keep state',
+-- }) -- }}}
 vim.api.nvim_create_autocmd('User', { -- {{{2
   group = augroup,
   pattern = 'skkeleton-initialize-pre',
@@ -43,23 +43,42 @@ end
 
 ---@desc Skkeleton {{{2
 if vim.g.loaded_skkeleton then
-  vim.keymap.set({ 'i', 'c' }, '<C-l>', '<Plug>(skkeleton-enable)')
+  ---@desc keymaps {{{3
+  local feedkey = require('module.util').feedkey
+  vim.keymap.set({ 'i', 'c', 't' }, '<C-l>', '<Plug>(skkeleton-enable)')
+  vim.keymap.set({ 'n' }, '<Space>i', function()
+    vim.fn['skkeleton#handle']('enable', {})
+    vim.cmd.startinsert()
+  end)
+  vim.keymap.set({ 'n' }, '<Space>I', function()
+    vim.fn['skkeleton#handle']('enable', {})
+    feedkey('I', 'n')
+  end)
+  vim.keymap.set({ 'n' }, '<Space>a', function()
+    vim.fn['skkeleton#handle']('enable', {})
+    feedkey('a', 'n')
+  end)
+  vim.keymap.set({ 'n' }, '<Space>A', function()
+    vim.fn['skkeleton#handle']('enable', {})
+    vim.cmd.startinsert({ bang = true })
+  end)
+  ---}}}
 
   function Skkeleton_init()
-    vim.fn['skkeleton#config']({
+    vim.fn['skkeleton#config']({ -- {{{3
       globalJisyo = os.getenv('HOME') .. '/.skk/SKK-JISYO.L',
       eggLikeNewline = true,
       usePopup = true,
       showCandidatesCount = 1,
       markerHenkan = '🐤',
       markerHenkanSelect = '🐥',
-    })
+    }) -- }}}
 
     -- vim.fn['skkeleton#register_keymap']('input', ';', 'henkanPoint')
     vim.fn['skkeleton#register_keymap']('input', '@', 'cancel')
     vim.fn['skkeleton#register_keymap']('input', '<Up>', 'disable')
     vim.fn['skkeleton#register_keymap']('input', '<Down>', 'disable')
-    vim.fn['skkeleton#register_kanatable']('rom', {
+    vim.fn['skkeleton#register_kanatable']('rom', { -- {{{3
       [':'] = { 'っ', '' },
       ['bd'] = { 'べん', '' },
       ['bj'] = { 'ぶん', '' },
@@ -186,6 +205,6 @@ if vim.g.loaded_skkeleton then
       ['z.'] = { '.', '' },
       ['z['] = { '【', '' },
       ['z]'] = { '】', '' },
-    })
+    }) -- }}}
   end
 end

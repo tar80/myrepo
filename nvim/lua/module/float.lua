@@ -35,45 +35,46 @@ local float = {
   row = 1,
   col = 1,
   style = 'minimal',
-  border = 'rounded',
+  border = 'single',
   relative = 'cursor',
   anchor = 'NW',
   -- forcusable = false,
   noautocmd = true,
 }
 
-M.popup = function(contents)
+M.popup = function(opts)
   local winblend = api.nvim_get_option_value('winblend', {})
   local row = vim.fn.winline()
   local col = api.nvim_win_get_cursor(0)[2]
   local limit_width, limit_height = max_height(row, col)
   local buf_height
+  float.border = opts.border or float.border
   float.anchor = 'NW'
 
   api.nvim_set_option_value('winblend', 0, {})
   local bufnr = api.nvim_create_buf(false, true)
 
-  if type(contents) ~= 'table' then
-    api.nvim_buf_set_lines(bufnr, 0, 1, false, { contents })
-    float.width = #contents
+  if type(opts.contents) ~= 'table' then
+    api.nvim_buf_set_lines(bufnr, 0, 1, false, { opts.contents })
+    float.width = #opts.contents
   else
-    if vim.tbl_isempty(contents) == 0 then
+    if vim.tbl_isempty(opts.contents) == 0 then
       return
     end
 
-    if vim.tbl_count(contents) <= 1 and table.concat(contents, ''):match('^%s*$') then
+    if vim.tbl_count(opts.contents) <= 1 and table.concat(opts.contents, ''):match('^%s*$') then
       return
     end
 
     local max_digit = 1
 
-    for _, value in pairs(contents) do
+    for _, value in pairs(opts.contents) do
       max_digit = math.max(max_digit, api.nvim_strwidth(value) + 1)
     end
 
     float.width = math.min(max_digit, limit_width)
-    buf_height = vim.tbl_count(contents)
-    api.nvim_buf_set_lines(bufnr, 0, buf_height, false, contents)
+    buf_height = vim.tbl_count(opts.contents)
+    api.nvim_buf_set_lines(bufnr, 0, buf_height, false, opts.contents)
   end
 
   if (limit_height - buf_height) < 0 then
