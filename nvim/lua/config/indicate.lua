@@ -29,6 +29,7 @@ local time_manage = (function()
       theme = 'decay',
       no_bg = true,
       hl = {
+        Normal = { bg = bg_color },
         CursorLine = { fg = 'NONE', bg = cursor_color },
       },
     }

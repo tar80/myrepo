@@ -17,6 +17,42 @@ M.feedkey = function(key, mode)
   return vim.fn.feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), mode)
 end
 
+M.normalize = function (path)
+  path = path:sub(1,1):upper() .. path:sub(2)
+  return vim.fs.normalize(path)
+end
+
+M.shell = function(name) -- {{{2
+  local scoop = os.getenv('scoop'):gsub('\\', '/')
+  local s = {
+    cmd = { path = 'cmd.exe', flag = '/c', pipe = '>%s 2>&1', quote = '', xquote = '"', slash = false },
+    nyagos = {
+      path = scoop .. '/apps/nyagos/current/nyagos.exe',
+      flag = '-c',
+      pipe = '|& tee',
+      quote = '',
+      xquote = '',
+      slash = true,
+    },
+    bash = {
+      path = scoop .. '/apps/git/current/bin/bash.exe',
+      flag = '-c',
+      pipe = '2>1| tee',
+      quote = '"',
+      xquote = '"',
+      slash = true,
+    },
+  }
+  local cui = s[name]
+  local set = vim.api.nvim_set_option
+  set('shell', cui.path)
+  set('shellcmdflag', cui.flag)
+  set('shellpipe', cui.pipe)
+  set('shellquote', cui.quote)
+  set('shellxquote', cui.xquote)
+  set('shellslash', cui.slash)
+end -- }}}
+
 M.hl_at_cursor = function() -- {{{2
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
   col = col + 1
@@ -85,38 +121,7 @@ M.hl_at_cursor = function() -- {{{2
     end, true)
   end
 
-  print(type .. hl_name)
-end -- }}}
-
-M.shell = function(name) -- {{{2
-  local scoop = os.getenv('scoop'):gsub('\\', '/')
-  local s = {
-    cmd = { path = 'cmd.exe', flag = '/c', pipe = '>%s 2>&1', quote = '', xquote = '"', slash = false },
-    nyagos = {
-      path = scoop .. '/apps/nyagos/current/nyagos.exe',
-      flag = '-c',
-      pipe = '|& tee',
-      quote = '',
-      xquote = '',
-      slash = true,
-    },
-    bash = {
-      path = scoop .. '/apps/git/current/bin/bash.exe',
-      flag = '-c',
-      pipe = '2>1| tee',
-      quote = '"',
-      xquote = '"',
-      slash = true,
-    },
-  }
-  local cui = s[name]
-  local set = vim.api.nvim_set_option
-  set('shell', cui.path)
-  set('shellcmdflag', cui.flag)
-  set('shellpipe', cui.pipe)
-  set('shellquote', cui.quote)
-  set('shellxquote', cui.xquote)
-  set('shellslash', cui.slash)
+  vim.notify(type .. hl_name, 3)
 end -- }}}
 
 return M

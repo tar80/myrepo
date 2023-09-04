@@ -48,13 +48,13 @@ local popup_rename = function() -- {{{2
   end
 
   if adjust_cursor then
-    api.nvim_command('normal h')
+    vim.cmd.normal('h')
   end
 
   local rename_old = vim.fn.expand('<cword>')
 
   if adjust_cursor or not util.has_words_before() then
-    api.nvim_command('normal l')
+    vim.cmd.normal('l')
   end
 
   local contents = function()
@@ -63,10 +63,12 @@ local popup_rename = function() -- {{{2
 
   local post = function()
     keymap.set('i', '<CR>', function()
+      vim.cmd.stopinsert({bang = true})
       local input = api.nvim_get_current_line()
-      api.nvim_command('quit|stopinsert!')
+      local msg = string.format('%s -> %s', rename_old, input)
+      api.nvim_win_close(0, false)
       lsp.buf.rename(vim.trim(input))
-      vim.notify(rename_old .. ' -> ' .. input, 2, { title = title })
+      vim.notify(msg, 2, { title = title })
     end, { buffer = true })
   end
 
@@ -158,8 +160,11 @@ local on_attach = function(client, bufnr) --- {{{2
           local item2 = opts.items[2]
 
           if item1.filename == item2.filename and item1.lnum == item2.lnum then
-            if vim.fs.normalize(item1.filename) ~= vim.fs.normalize(api.nvim_buf_get_name(0)) then
-              vim.cmd.edit({item1.filename})
+            local filename = util.normalize(item1.filename)
+            if
+              filename ~= util.normalize(api.nvim_buf_get_name(0))
+            then
+              vim.cmd.edit(filename)
             end
 
             api.nvim_win_set_cursor(0, { item1.lnum, item1.col })
@@ -167,7 +172,8 @@ local on_attach = function(client, bufnr) --- {{{2
           end
         end
 
-        vim.cmd([[Trouble lsp_definitions]])
+        vim.cmd.Trouble('lsp_definitions')
+        -- vim.cmd([[Trouble lsp_definitions]])
       end,
     })
   end)

@@ -87,7 +87,7 @@ o.signcolumn = 'yes'
 o.complete = '.,w'
 opt.completeopt = { menu = true, menuone = true, noselect = true }
 o.winblend = 10
-o.pumblend = 10
+o.pumblend = 20
 o.pumheight = 10
 o.pumwidth = 20
 o.matchtime = 2
@@ -345,11 +345,9 @@ mapset('n', 'n', "'Nn'[v:searchforward].'zv'", { noremap = true, silent = true, 
 mapset('n', 'N', "'nN'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
 mapset('c', '<CR>', function()
   local cmdtype = vim.fn.getcmdtype()
-
   if cmdtype == '/' or cmdtype == '?' then
     return '<CR>zv'
   end
-
   return '<CR>'
 end, { noremap = true, expr = true, silent = true })
 ---Move buffer use <SPACE>
@@ -357,7 +355,6 @@ mapset('n', '<SPACE>', '<C-w>', { remap = true })
 mapset('n', '<SPACE><SPACE>', '<C-w><C-w>')
 mapset('n', '<SPACE>n', function()
   local i = 1
-
   while vim.fn.bufnr('Scratch' .. i) ~= -1 do
     i = i + 1
   end

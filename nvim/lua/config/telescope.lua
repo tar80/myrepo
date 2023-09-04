@@ -86,7 +86,6 @@ require('telescope').setup({
         ['<C-e>'] = { '<End>', type = 'command' },
         ['<C-d>'] = function(prompt_bufnr)
           local current_picker = action_state.get_current_picker(prompt_bufnr)
-          vim.print(current_picker)
           if current_picker.prompt_title == 'Most Recently Use' then
             local filename = action_state.get_selected_entry()[1]
             current_picker:remove_selection(current_picker:get_selection_row())
