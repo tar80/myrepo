@@ -166,7 +166,7 @@
                 "experimental.retroTerminalEffect": false,
                 "font": 
                 {
-                    "face": "HackGen Console NF",
+                    "face": "PlemolJP Console NF",
                     "size": 13,
                     "weight": "normal"
                 },
@@ -179,7 +179,7 @@
                 "scrollbarState": "hidden",
                 "startingDirectory": null,
                 "suppressApplicationTitle": true,
-                "tabColor": "#173334",
+                "tabColor": "#215053",
                 "useAcrylic": false
             },
             {
@@ -188,11 +188,13 @@
                 "backgroundImageStretchMode": "uniformToFill",
                 "colorScheme": "clover",
                 "commandline": "%scoop%\\apps\\nyagos\\current\\nyagos.exe",
+                "cursorShape": "bar",
                 "experimental.retroTerminalEffect": false,
                 "font": 
                 {
-                    "face": "HackGen Console NF",
-                    "size": 13
+                    "face": "PlemolJP Console NF",
+                    "size": 13,
+                    "weight": "normal"
                 },
                 "guid": "{54d1e30c-4952-4c32-a77d-e59b7d87e759}",
                 "hidden": false,
@@ -493,7 +495,7 @@
             "yellow": "#FFD768"
         },
         {
-            "background": "#001B1B",
+            "background": "#002525",
             "black": "#001616",
             "blue": "#547BA8",
             "brightBlack": "#1E5248",

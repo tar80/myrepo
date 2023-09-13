@@ -16,7 +16,7 @@ do
   }
 
   for _, v in ipairs(items) do
-    api.nvim_set_hl(float_popup, v, { link = 'WarningMsg' })
+    api.nvim_set_hl(float_popup, v, { link = 'note' })
   end
 end
 
@@ -38,7 +38,7 @@ local float = {
   border = 'single',
   relative = 'cursor',
   anchor = 'NW',
-  -- forcusable = false,
+  focusable = false,
   noautocmd = true,
 }
 

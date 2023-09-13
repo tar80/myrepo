@@ -2,13 +2,13 @@
   "URL link": {
     "prefix": "url",
     "body": [
-        "[$1]($2)\n\n$0"
+        "[$1]($2)$0"
     ]
   },
   "IMG link": {
     "prefix": "img",
     "body": [
-        "![$1]($2)\n\n$0"
+        "![$1]($2)$0"
     ]
   },
   "Pages URL link": {

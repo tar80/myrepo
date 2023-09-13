@@ -1,49 +1,37 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
-local color_scheme = vim.api.nvim_get_var('use_scheme')
-local colors = require(string.format('feline.themes.%s', color_scheme))
-local bg_color = '#001B1B'
-local cursor_color = '#A33856'
+---@desc Transparent background
+---@type boolean|nil
+local tr = vim.g.tr_bg
+vim.g.tr_bg = nil
 
 ---@desc Colorscheme {{{1
+local color_scheme = 'loose'
+---@type string, string, string
+local cursor_color, background, theme_name;
 ---@desc time-manage {{{2
-local time_manage = (function()
+(function()
   local h = os.date('*t').hour
-  local tbl = {}
   if h > 6 and h < 18 then
-    bg_color = '#114444'
-    tbl = {
-      theme = 'decay',
-      no_bg = false,
-      hl = {
-        Normal = { bg = bg_color },
-        NormalFloat = { link = 'Normal' },
-        NormalNC = { bg = '#235B5B' },
-        LspInlayHint = { fg = '#556677' },
-        CursorLine = { fg = 'NONE', bg = cursor_color },
-      },
-    }
+    cursor_color = '#FA8699'
+    background = 'light'
+    theme_name = 'light'
   else
-    tbl = {
-      theme = 'decay',
-      no_bg = true,
-      hl = {
-        Normal = { bg = bg_color },
-        CursorLine = { fg = 'NONE', bg = cursor_color },
-      },
-    }
+    cursor_color = '#A33856'
+    background = 'dark'
+    theme_name = 'mossco'
   end
-  return tbl
 end)()
 
 ---@desc ColorScheme Setup {{{2
 ---@cast color_scheme -nil
 require(color_scheme).setup({
-  theme = time_manage.theme,
+  background = background,
+  theme = theme_name,
   borders = true,
   fade_nc = true,
-  fade_no_bg = time_manage.no_bg,
+  fade_tr = false,
   styles = {
     comments = 'italic',
     strings = 'NONE',
@@ -54,15 +42,19 @@ require(color_scheme).setup({
     references = 'underline',
   },
   disable = {
-    background = false,
+    background = tr,
     cursorline = false,
     eob_lines = true,
   },
-  custom_highlights = time_manage.hl,
+  custom_highlights = {
+    CursorLine = { fg = 'NONE', bg = cursor_color },
+  },
   plugins = {
     lsp = true,
+    lazy = true,
+    lspconfig = true,
     treesitter = true,
-    telescope = true,
+    telescope = 'border_fade',
     fuzzy_motion = true,
     cmp = true,
     gitsigns = true,
@@ -70,17 +62,22 @@ require(color_scheme).setup({
     skkeleton_indicator = true,
     sandwich = true,
     trouble = true,
+    dap = true,
+    ['dap-virtual-text'] = true,
     -- notify = true
   },
 })
 ---}}}2
 
+local colors = require(string.format('feline.themes.%s', theme_name))
+local palette = require('loose').colors(theme_name)
+
 ---@desc Nvim-Tabline {{{1
 ---@see https://github.com/crispgm
 ---@desc highlights {{{2
 vim.api.nvim_set_hl(0, 'TabLine', { fg = colors.theme.green, bg = colors.theme.bg2, italic = true })
-vim.api.nvim_set_hl(0, 'TabLineSel', { fg = colors.theme.cyan, bg = bg_color, italic = true })
-vim.api.nvim_set_hl(0, 'TabLineFill', { fg = colors.theme.fg, bg = colors.theme.bg2, italic = false })
+vim.api.nvim_set_hl(0, 'TabLineSel', { fg = colors.theme.cyan, bg = palette.bg, italic = false })
+vim.api.nvim_set_hl(0, 'TabLineFill', { fg = colors.theme.fg, bg = colors.theme.bg2, italic = true })
 
 ---@desc options {{{2
 local options = {
@@ -131,10 +128,10 @@ local icon = {
   dos = { '', 'blue' },
   unix = { '', 'olive' },
   mac = { '', 'pink' },
-  ERROR = { '', 'pink' },
-  WARN = { '', 'olive' },
-  INFO = { '', 'blue' },
-  HINT = { '', 'purple' },
+  ERROR = { '', palette.error },
+  WARN = { '', palette.warn },
+  INFO = { '', palette.info },
+  HINT = { '', palette.hint },
   git = { '', 'green' },
   stage = {},
   unstage = {},
@@ -303,7 +300,6 @@ local git = {
     provider = function()
       local info = vim.b.mug_branch_info or ''
       return info ~= '' and string.format('(%s)', info) or ' '
-      -- return info ~= '' and '(' .. info .. ') ' or ' '
     end,
     hl = {
       fg = icon.git[2],
@@ -314,7 +310,6 @@ local git = {
     provider = function()
       local state = vim.b.mug_branch_stats
       return state and string.format('+%s ~%s !%s', state.s, state.u, state.c) or ''
-      -- return state and '+' .. state.s .. ' ~' .. state.u .. ' !' .. state.c or ''
     end,
     hl = {
       fg = icon.git[2],
@@ -442,5 +437,3 @@ require('feline').setup({
   },
 })
 --}}}
-
-color_scheme = nil

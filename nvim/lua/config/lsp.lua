@@ -63,7 +63,7 @@ local popup_rename = function() -- {{{2
 
   local post = function()
     keymap.set('i', '<CR>', function()
-      vim.cmd.stopinsert({bang = true})
+      vim.cmd.stopinsert({ bang = true })
       local input = api.nvim_get_current_line()
       local msg = string.format('%s -> %s', rename_old, input)
       api.nvim_win_close(0, false)
@@ -161,9 +161,7 @@ local on_attach = function(client, bufnr) --- {{{2
 
           if item1.filename == item2.filename and item1.lnum == item2.lnum then
             local filename = util.normalize(item1.filename)
-            if
-              filename ~= util.normalize(api.nvim_buf_get_name(0))
-            then
+            if filename ~= util.normalize(api.nvim_buf_get_name(0)) then
               vim.cmd.edit(filename)
             end
 
@@ -217,6 +215,7 @@ local flags = {
   allow_incremental_sync = false,
   debounce_text_changes = 700,
 }
+require('lspconfig.ui.windows').default_options.border = 'rounded'
 
 require('mason-lspconfig').setup_handlers({
   function(server_name) -- {{{
@@ -310,9 +309,10 @@ require('mason-lspconfig').setup_handlers({
             setType = false,
             arrayIndex = 'disable',
           },
-          -- workspace = {
-          --   library = api.nvim_get_runtime_file("", true),
-          -- },
+          workspace = {
+            checkThirdParty = false,
+            --   library = api.nvim_get_runtime_file("", true),
+          },
           telemetry = {
             enable = false,
           },
@@ -337,15 +337,16 @@ end)
 local null_ls = require('null-ls')
 null_ls.setup({ -- {{{2
   debounce = 500,
+  temp_dir = vim.fn.tempname():gsub('^(.+)[/\\].*', '%1'),
   sources = {
     null_ls.builtins.formatting.prettier,
     null_ls.builtins.formatting.stylua,
     null_ls.builtins.formatting.markdownlint.with({
       extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.markdownlint.yaml') },
     }),
-    null_ls.builtins.formatting.textlint.with({
-      extra_args = { '--no-color', '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
-    }),
+    -- null_ls.builtins.formatting.textlint.with({
+    --   extra_args = { '--no-color', '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
+    -- }),
     null_ls.builtins.diagnostics.jsonlint.with({
       filetypes = { 'json', 'jsonc' },
       diagnostic_config = {

@@ -39,6 +39,7 @@ local foldmarker = vim.split(api.nvim_get_option_value('foldmarker', { win = 0 }
 api.nvim_set_option_value('termguicolors', true, { scope = 'global' })
 api.nvim_set_option_value('foldcolumn', '1', { scope = 'global' })
 api.nvim_set_option_value('fileformats', 'unix,dos,mac', { scope = 'global' })
+api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
 
 ---@desc Local {{{2
 -- api.nvim_set_option_value('name', value, { scope = 'local' })
@@ -86,8 +87,8 @@ o.signcolumn = 'yes'
 -- o.backspace = { indent = true,eol = true, start = true }
 o.complete = '.,w'
 opt.completeopt = { menu = true, menuone = true, noselect = true }
-o.winblend = 10
-o.pumblend = 20
+o.winblend = 12
+o.pumblend = 12
 o.pumheight = 10
 o.pumwidth = 20
 o.matchtime = 2
@@ -305,11 +306,11 @@ vim.g.mapleader = ';'
 mapset('n', '<F1>', function()
   return os.execute('c:/bin/cltc/cltc.exe')
 end)
-mapset('n', '<F5>', function()
-  if o.diff == true then
-    api.nvim_command('diffupdate')
-  end
-end)
+-- mapset('n', '<F5>', function()
+--   if o.diff == true then
+--     cmd('diffupdate')
+--   end
+-- end)
 mapset({ 'n', 'c' }, '<F4>', function()
   toggleShellslash()
 end)
@@ -381,14 +382,15 @@ mapset('n', '<SPACE>z', function()
 end)
 
 ---@desc Insert & Command {{{2
-mapset('i', '<M-j>', '<DOWN>')
-mapset('i', '<M-k>', '<UP>')
-mapset('i', '<C-k>', '<DELETE>')
-mapset('i', '<C-f>', '<RIGHT>')
-mapset('i', '<S-DELETE>', '<C-O>D')
-mapset('!', '<C-b>', '<LEFT>')
-mapset('!', '<C-v>u', '<C-R>=nr2char(0x)<LEFT>')
-mapset('c', '<C-a>', '<HOME>')
+mapset('i', '<S-Delete>', '<C-O>D')
+mapset('i', '<M-j>', '<Down>')
+mapset('i', '<M-k>', '<Up>')
+mapset('i', '<C-k>', '<Delete>')
+mapset('i', '<C-e>', '<C-g>U<End>')
+mapset('i', '<C-f>', '<C-g>U<Right>')
+mapset('!', '<C-b>', '<C-g>U<Left>')
+mapset('!', '<C-v>u', '<C-R>=nr2char(0x)<Left>')
+mapset('c', '<C-a>', '<Home>')
 
 ---@desc Visual {{{2
 ---clipbord yank
@@ -485,6 +487,6 @@ api.nvim_create_user_command('JestSetup', function() -- {{{2
       vim.fn.mkdir(test_dir)
     end
 
-    cmd(string.format('bot split %s|set fenc=utf-8|set ff=unix%s', test_path, insert_string))
+    api.nvim_command(string.format('bot split %s|set fenc=utf-8|set ff=unix%s', test_path, insert_string))
   end
 end, {}) -- }}}

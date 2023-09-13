@@ -12,6 +12,7 @@ local icons = {
   dictionary = ' ',
   nvim_lsp = ' ',
   nvim_lua = '',
+  nvim_lsp_signature_help = '',
   buffer = ' ',
   path = 'path',
   cmdline = 'cmd',
@@ -73,7 +74,9 @@ cmp.setup({
     ['<C-n>'] = cmp.mapping(function()
       return cmp.visible() and cmp.select_next_item() or cmp.complete()
     end, { 'i', 'c' }),
-    ['<C-e>'] = cmp.mapping.abort(),
+    ['<C-e>'] = cmp.mapping(function(fallback)
+      return cmp.visible() and cmp.abort() or fallback()
+    end, { 'i' }),
     ['<C-y>'] = cmp.mapping(function(fallback)
       return cmp.visible() and cmp.close() or fallback()
     end, { 'i' }),
@@ -119,8 +122,8 @@ cmp.setup({
         feed_key('<Plug>(vsnip-jump-prev)', '')
       elseif vim.fn['vsnip#available']() == 1 then
         feed_key('<Plug>(vsnip-expand-or-jump)', '')
-      elseif cmp.visible() then
-        cmp.select_prev_item({ behavior = true })
+      -- elseif cmp.visible() then
+      --   cmp.select_prev_item({ behavior = true })
       else
         fallback()
       end

@@ -1,6 +1,7 @@
 "# vim:textwidth=0:foldmethod=marker:foldlevel=1:
 "===============================================================================
 
+setlocal colorcolumn=80
 setlocal comments=nb:>
         \ comments+=b:-\ [\ ],b:-\ [x],b:-
         \ comments+=b:1.\ [\ ],b:1.\ [x],b:1.

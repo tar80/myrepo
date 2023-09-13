@@ -265,7 +265,7 @@ setmap('n', '<Leader>gb', function()
     load_telescope('git_branches', 'ver', {})
   end
 end, {})
-setmap('n', '<Leader>gc', function()
+setmap('n', '<Leader>gC', function()
   if is_repo() then
     load_telescope('git_commits', 'ver', {
       git_command = { 'git', 'log', '--oneline', '-20', '--abbrev-commit', '--', '.' },
@@ -273,10 +273,10 @@ setmap('n', '<Leader>gc', function()
     })
   end
 end, {})
-setmap('n', '<Leader>gC', function()
+setmap('n', '<Leader>gc', function()
   if is_repo() then
     load_telescope('git_bcommits', 'ver', {
-      git_command = { 'git', 'log', '--oneline', '-20', '--abbrev-commit', '--', '.' },
+      git_command = { 'git', 'log', '--oneline', '-20' },
       layout_config = { mirror = false, preview_width = 0.55, width = 0.9, height = 0.9 },
     })
   end

@@ -144,8 +144,8 @@ nyagos.alias.__dump_history = function()
 end
 
 nyagos.alias.pca = 'cd c:\\bin\\repository\\tar80\\pages-pca && bundle exec jekyll s --future'
-
 nyagos.alias.keyp = 'C:\\bin\\Keypirinha\\keypirinha.exe'
+nyagos.alias.nvim = 'nvim --cmd "let g:tr_bg=v:true"'
 
 nyagos.alias.zi = function()
   local path = nyagos.eval('zoxide query -i')

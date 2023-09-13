@@ -4,7 +4,6 @@
 ---@desc INITIAL
 local api = vim.api
 local setmap = vim.keymap.set
-vim.g.use_scheme = 'mossco'
 vim.loader.enable()
 local augroup = api.nvim_create_augroup('rcPlugins', {})
 
@@ -111,10 +110,10 @@ require('lazy').setup(
     -- { 'nvim-tree/nvim-web-devicons', module = true },
 
     ---@desc scheme
-    { dir = 'C:/bin/repository/tar80/mossco.nvim', name = 'mossco.nvim', lazy = true },
+    { dir = 'C:/bin/repository/tar80/loose.nvim', name = 'loose.nvim', lazy = true },
     { -- {{{ feline
       'feline-nvim/feline.nvim',
-      dependencies = { 'mossco.nvim' },
+      dependencies = { 'loose.nvim' },
       config = function()
         require('config.indicate')
       end,
@@ -247,7 +246,7 @@ require('lazy').setup(
           fret_T = 'T',
         },
       },
-      event = 'User LazyLoad',
+      event = 'UIEnter',
     }, ---}}}
     { -- {{{ sandwich
       'machakann/vim-sandwich',
@@ -303,7 +302,7 @@ require('lazy').setup(
             reg_str = vim.fn.getreg(input, 1, true)
           end
           vim.schedule(function()
-            local bufnr = require('module.float').popup({contents = reg_str})
+            local bufnr = require('module.float').popup({ contents = reg_str })
             api.nvim_create_autocmd({ 'ModeChanged' }, {
               group = augroup,
               pattern = 'no:n',
@@ -365,7 +364,7 @@ require('lazy').setup(
       dir = 'C:/bin/repository/tar80/vim-parenmatch',
       name = 'parenmatch',
       opts = {
-        highlight = { fg = '#D6B87B', underline = true },
+        highlight = { link = 'MatchParen' },
         ignore_filetypes = { 'TelescopePrompt', 'cmp-menu', 'help' },
         ignore_buftypes = { 'nofile' },
         itmatch = { enable = true },
@@ -759,6 +758,24 @@ require('lazy').setup(
     }, -- }}}
     { 'norcalli/nvim-colorizer.lua', cmd = 'ColorizerAttachToBuffer' },
     { 'weilbith/nvim-code-action-menu', cmd = 'CodeActionMenu' },
+
+    ---@desc dap
+    {
+      'mfussenegger/nvim-dap',
+      dependencies = {
+        'rcarriga/nvim-dap-ui',
+        'theHamsta/nvim-dap-virtual-text',
+        'mxsdev/nvim-dap-vscode-js',
+      },
+      init = function()
+        setmap('n', '<F5>', function()
+          require('config.dap')
+          vim.notify('Dap session ready', 3)
+        end)
+      end,
+      key = { '<F5>' },
+      lazy = true,
+    },
 
     ---@desc filetype
     { 'tar80/vim-PPxcfg', ft = 'PPxcfg' },

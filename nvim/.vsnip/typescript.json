@@ -95,7 +95,7 @@
   },
   "Annotation": {
     "prefix": "an",
-    "body": "/** @$1 */$0"
+    "body": "/** ${1:@} */$0"
   },
   "Annotation multi line": {
     "prefix": "ann",

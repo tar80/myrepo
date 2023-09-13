@@ -226,7 +226,7 @@ user.setup_lua = function(self, priority) -- {@@2
           [[\[\[.*\%#\]\]\zs]],
         },
       }),
-      { insx.with.priority(priority + 1), insx.with.match([=[\%#\]]=]) }
+      { insx.with.priority(priority + 1), insx.with.match([=[\%#\]]=]), insx.with.undopoint(false) }
     ),
     option
   )
@@ -317,7 +317,7 @@ user.setup_misc = function(self, priority) -- {@@2
           [=[\%#[)}\]]\+\zs]=],
         },
       }),
-      { insx.with.priority(priority + 1), insx.with.match([=[\%#['"`)}\]]\+]=]) }
+      { insx.with.priority(priority + 1), insx.with.match([=[\%#['"`)}\]]\+]=]), insx.with.undopoint(false) }
     ),
     option
   )
@@ -330,7 +330,7 @@ user.setup_misc = function(self, priority) -- {@@2
           [=[\%#\s*=>\?\zs]=],
         },
       }),
-      { insx.with.priority(priority + 1), insx.with.match([=[\%#\s*=]=]) }
+      { insx.with.priority(priority + 1), insx.with.match([=[\%#\s*=]=]), insx.with.undopoint(false) }
     ),
     option
   )
