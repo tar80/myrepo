@@ -7,7 +7,7 @@ vim.g.vsnip_snippet_dir = vim.g.repo .. '\\myrepo\\nvim\\.vsnip'
 ---#Setup
 local cmp = require('cmp')
 local feed_key = require('module.util').feedkey
-local icons = {
+local icons = {-- {{{2
   vsnip = '  ',
   dictionary = ' ',
   nvim_lsp = ' ',
@@ -16,7 +16,7 @@ local icons = {
   buffer = ' ',
   path = 'path',
   cmdline = 'cmd',
-}
+}-- }}}
 
 ---#Insert-mode {{{2
 cmp.setup({
@@ -128,6 +128,9 @@ cmp.setup({
         fallback()
       end
     end, { 'i', 's' }),
+    ['<C-a>'] = cmp.mapping(function()
+        feed_key('<Esc>a', '')
+    end, { 's' }),
   },
 })
 --}}}2

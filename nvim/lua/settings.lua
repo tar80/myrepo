@@ -117,7 +117,7 @@ opt.path = { '.', '' }
 ---@desc AUTOGROUP
 local augroup = api.nvim_create_augroup('rcSettings', {})
 
----@desc Remove ignore history from cmdline history
+---@desc Remove ignore history from cmdline history{{{2
 ---@see https://blog.atusy.net/2023/07/24/vim-clean-history/
 local ignore_history = [=[^\c\(\_[efqw]!\?\|qa!\?\|mes\|h\s.*\)$]=]
 vim.api.nvim_create_autocmd('CmdlineEnter', {
@@ -130,7 +130,7 @@ vim.api.nvim_create_autocmd('CmdlineEnter', {
       end
     end)
   end,
-})
+})-- }}}
 ---@desc Editing line highlighting rules {{{2
 api.nvim_create_autocmd('CursorHoldI', {
   group = augroup,
@@ -259,9 +259,9 @@ vim.cmd.abbreviate('retrun', 'return')
 cmd_abbrev("'<,'>", [['<,'>s/\\//\\\\\\\\/|nohlsearch]], true)
 cmd_abbrev('s', '%s///<Left>', true)
 cmd_abbrev('ms', 'MugShow', true)
-cmd_abbrev('es', 'e<Space>++enc=cp932<CR>')
+cmd_abbrev('es', 'e<Space>++enc=cp932 ++ff=dos<CR>')
 cmd_abbrev('e8', 'e<Space>++enc=utf-8<CR>')
-cmd_abbrev('e16', 'e<Space>++enc=utf-16le<CR>')
+cmd_abbrev('e16', 'e<Space>++enc=utf-16le ++ff=dos<CR>')
 cmd_abbrev('sc', 'set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb<CR>')
 cmd_abbrev('scn', 'set<Space>noscb<CR>')
 cmd_abbrev('del', [[call<Space>delete(expand('%'))]])
@@ -363,7 +363,7 @@ mapset('n', '<SPACE>n', function()
   api.nvim_set_option_value('buftype', 'nofile', { buf = 0 })
   api.nvim_set_option_value('bufhidden', 'wipe', { buf = 0 })
 end)
-mapset('n', '<SPACE>Q', '<Cmd>bwipeout<CR>')
+mapset('n', '<SPACE>Q', '<Cmd>bwipeout!<CR>')
 mapset('n', '<SPACE>c', '<Cmd>tabclose<CR>')
 ---close nofile|qf|preview window
 mapset('n', '<SPACE>z', function()
@@ -385,6 +385,8 @@ end)
 mapset('i', '<S-Delete>', '<C-O>D')
 mapset('i', '<M-j>', '<Down>')
 mapset('i', '<M-k>', '<Up>')
+mapset('i', '<M-h>', '<Left>')
+mapset('i', '<M-l>', '<Right>')
 mapset('i', '<C-k>', '<Delete>')
 mapset('i', '<C-e>', '<C-g>U<End>')
 mapset('i', '<C-f>', '<C-g>U<Right>')
@@ -416,9 +418,6 @@ api.nvim_create_user_command('Busted', function() -- {{{2
   local path = string.gsub(vim.fn.expand('%'), '\\', '/')
   require('module.busted').run(path)
 end, {}) -- }}}
-
----@desc "G <subcommand>" git
-api.nvim_create_user_command('G', '!git -c core.editor=false <args>', { nargs = 1 })
 
 ---@desc "Z <filepath>" zoxide query
 api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " . <q-args>)', { nargs = 1 })

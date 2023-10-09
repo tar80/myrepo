@@ -374,13 +374,13 @@ local filetype = {
   provider = function()
     return ' ' .. vim.bo.filetype .. ' '
   end,
-  hl = { fg = 'cyan', bg = 'bg2' },
+  hl = { fg = 'bg', bg = 'fg' },
   sep = {
     provider = '',
     hl = function()
       return {
         fg = 'bg',
-        bg = 'bg2',
+        bg = 'fg',
       }
     end,
   },

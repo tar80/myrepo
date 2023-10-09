@@ -241,6 +241,7 @@ require('mason-lspconfig').setup_handlers({
     require('lspconfig').tsserver.setup({
       flags = flags,
       autostart = true,
+      single_file_support = false,
       root_dir = require('lspconfig').util.root_pattern('tsconfig.json'),
       filetypes = { 'typescript', 'javascript' },
       on_attach = function(client, bufnr)
@@ -285,6 +286,7 @@ require('mason-lspconfig').setup_handlers({
   ['lua_ls'] = function() -- {{{
     require('lspconfig').lua_ls.setup({
       flags = flags,
+      single_file_support = false,
       root_dir = require('lspconfig').util.root_pattern('.git'),
       -- single_file_support = false,
       on_attach = function(client, bufnr)
@@ -374,4 +376,4 @@ null_ls.setup({ -- {{{2
 }) -- }}}
 ---}}}1
 
-api.nvim_command('LspStart')
+vim.cmd.LspStart()

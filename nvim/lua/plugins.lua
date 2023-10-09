@@ -27,7 +27,10 @@ end -- }}}
 ---@desc AutoCommand
 if vim.fn.has('vim_starting') then -- {{{2
   vim.defer_fn(function()
-    api.nvim_command('doautocmd User LazyLoad')
+    api.nvim_exec_autocmds('User', {
+      group = augroup,
+      pattern = 'LazyLoad',
+    })
   end, 100)
 
   api.nvim_create_autocmd('User', {
@@ -135,11 +138,13 @@ require('lazy').setup(
           mkrepo = true,
           rebase = true,
           show = true,
+          subcommand = true,
           terminal = true,
           variables = {
             edit_command = 'E',
             file_command = 'F',
             write_command = 'W',
+            sub_command = 'G',
             -- symbol_not_repository = '',
             root_patterns = { '.gitignore', '.git/' },
             index_auto_update = true,
@@ -763,14 +768,13 @@ require('lazy').setup(
     {
       'mfussenegger/nvim-dap',
       dependencies = {
-        'rcarriga/nvim-dap-ui',
         'theHamsta/nvim-dap-virtual-text',
         'mxsdev/nvim-dap-vscode-js',
       },
       init = function()
         setmap('n', '<F5>', function()
           require('config.dap')
-          vim.notify('Dap session ready', 3)
+          vim.notify('[Dap] ready', 2)
         end)
       end,
       key = { '<F5>' },

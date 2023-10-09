@@ -1769,10 +1769,6 @@ rules:
     pattern:  /コンマ/
   - expected: キャラクタ
     pattern:  /キャラクター/
-  - expected: キャッシュ
-    pattern:
-      - /cache(?![^a-zA-Z\-])/
-      - /Cache(?![^a-zA-Z\-])/
   - expected: クエリ文字列
     pattern:
       - QueryString
@@ -2113,8 +2109,6 @@ rules:
     pattern:  /ライブラリー/
   - expected: ラスタ
     pattern:  /ラスター/
-  - expected: ラッパ
-    pattern:  /ラッパー/
   - expected: リガチャ
     pattern:  /リガチャー/
   - expected: リグレッション
@@ -2213,10 +2207,6 @@ rules:
     pattern:  /プランナ([^ー])/
   - expected: $1マスタ$2
     pattern:  /(?:([^ム])マスター)|(?:マスター([^.]))/
-  - expected: $1マスタ$2
-    pattern:  /(?:([^ム])\bMaster)|(?:Master\b([^.]))/
-  - expected: $1マスタ$2
-    pattern:  /(?:([^ム])\bmaster)|(?:master\b([^.]))/
   - expected: マネージャー$1
     pattern:  /マネージャ([^ー])/
   - expected: メンテナー$1

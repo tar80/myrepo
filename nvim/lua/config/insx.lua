@@ -268,7 +268,7 @@ user.setup_javascript = function(self, priority) -- {@@2
   insx.add('.', {
     priority = priority,
     enabled = function(ctx)
-      return ctx.match([[\%(^\|\s\|(\)log\%#]]) and (ctx.filetype == 'javascript' or ctx.filetype == 'typescript')
+      return ctx.match([[\%(^\|\s\|(\)con\%#]]) and (ctx.filetype == 'javascript' or ctx.filetype == 'typescript')
     end,
     action = function(ctx)
       ctx.send('<BS><BS><BS>console.log()<Left>')

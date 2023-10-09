@@ -91,8 +91,8 @@
     "body": "/**\n * $1\n */"
   },
   "FileSystemObject": {
-    "prefix": "fso",
-    "body": "${1:const} fso = PPx.CreateObject('Scripting.FileSystemObject');\n$0"
+    "prefix": "fs",
+    "body": "${1:const} fs = PPx.CreateObject('Scripting.FileSystemObject');\n$0"
   },
   "Object inline": {
     "prefix": "obji",
@@ -120,12 +120,12 @@
   },
   "For loop": {
     "prefix": "for",
-    "body": ["for (let ${1:i} = ${2:0}; ${1:i} < ${3:l}; ${1:i}++) {", "\t$4", "}", "\n$0"]
+    "body": ["for (let ${1:i} = ${2:0}; ${1:i} < ${3:k}; ${1:i}++) {", "\t$4", "}", "\n$0"]
   },
   "For loop limit": {
     "prefix": "forl",
     "body": [
-      "for (let ${1:i} = ${2:0}, ${3:l} = ${4:array}.length; ${1:i} < ${3}; ${1:i}++) {",
+      "for (let ${1:i} = ${2:0}, ${3:k} = ${4:array}.length; ${1:i} < ${3}; ${1:i}++) {",
       "\tconst ${5:element} = ${4:array}[${1:i}];",
       "\t$0",
       "}"
@@ -133,12 +133,12 @@
   },
   "For loop var": {
     "prefix": "forj",
-    "body": ["for (var ${1:i} = 0; ${1:i} < ${2:l}; ${1:i}++) {", "\t$3", "}", "\n$0"]
+    "body": ["for (var ${1:i} = 0; ${1:i} < ${2:k}; ${1:i}++) {", "\t$3", "}", "\n$0"]
   },
   "For loop var limit": {
     "prefix": "forjl",
     "body": [
-      "for (var ${1:i} = ${2:0}, ${3:l} = ${4:array}.length; ${1:i} < ${3:l}; ${1:i}++) {",
+      "for (var ${1:i} = ${2:0}, ${3:k} = ${4:array}.length; ${1:i} < ${3:l}; ${1:i}++) {",
       "\tvar ${5:element} = ${4:array}[${1:i}];",
       "\t$0",
       "}"
@@ -198,35 +198,35 @@
     "body": ["it('$1', function () {", "\t$2", "});"]
   },
   "PPx arguments ECMA": {
-    "prefix": "argse",
+    "prefix": "ar",
     "body": [
-      "const adjustArg = (args) => {",
-      "\tconst arr = [${1}];",
+      "const adjustArg = (args = PPx.Arguments) => {",
+      "\tconst arr = [$1];",
       "",
-      "\tfor (let i = 0, l = args.length; i < l; i++) {",
-      "\t\tarr[i] = args(i);",
+      "\tfor (;!args.atEnd();args.atNext()) {",
+      "\t\tarr.push(args.Item())",
       "\t}",
-      "${2}",
+      "$2",
       "\treturn {",
-      "\t\t${3}: arr[0],",
+      "\t\t$3,",
       "\t}",
-      "}${0}"
+      "}$0"
     ]
   },
   "PPx arguments JS": {
-    "prefix": "argsj",
+    "prefix": "arj",
     "body": [
       "var adjustArg = function(args) {",
-      "\tvar arr = [${1}];",
+      "\tvar arr = [$1];",
       "",
-      "\tfor (var i = 0, l = args.length; i < l; i++) {",
-      "\t\tarr[i] = args(i);",
+      "\tfor (;!args.atEnd();args.atNext()) {",
+      "\t\tarr.push(args.Item())",
       "\t}",
-      "${2}",
+      "$2",
       "\treturn {",
-      "\t\t${3}: arr[0],",
+      "\t\t$3,",
       "\t}",
-      "}${0}"
+      "}$0"
     ]
   }
 }

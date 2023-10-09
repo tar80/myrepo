@@ -5,22 +5,34 @@
   },
   "Import": {
     "prefix": "imp",
-    "body": "import ${1} from '${2:@ppmdev/modules/}';${0}"
+    "body": "import ${1} from '${2:@ppmdev/modules/}${3:$1}';${0}"
   },
   "Import polyfill": {
     "prefix": "impp",
     "body": "import '@ppmdev/polyfills/${1}';${0}"
   },
-  "Args": {
+  "Args iterable": {
+    "prefix": "arr",
+    "body": [
+      "const adjustArgs = (args = PPx.Arguments) => {",
+      "\tconst arr: string[] = [$1];",
+      "\n\tfor (; !args.atEnd(); moveNext()) {",
+      "\t\tarr.push(args.Item());",
+      "\t}",
+      "\n\t$2",
+      "\n\treturn $3;",
+      "};$0"
+    ]
+  },
+  "Args with initial value": {
     "prefix": "ar",
     "body": [
-      "type Args = {$1}",
-      "const adjustArgs = (args = PPx.Arguments): Args => {",
-      "\tconst arr: string[] = [$2];",
-      "\n\tfor (let i = 0, k = args.length; i < l; i++) {",
-      "\t\tarr[i] = args(i);",
+      "const adjustArgs = (args = PPx.Arguments): {$1} => {",
+      "\tconst arr: $2 = [$3];",
+      "\n\tfor (let i = 0, k = args.length; i < k; i++) {",
+      "\t\tarr[i] = args.Item(i);",
       "\t}",
-      "\n\treturn {$1};",
+      "\n\treturn {$4$1};",
       "};$0"
     ]
   },
@@ -30,7 +42,7 @@
   },
   "FileSystemObject": {
     "prefix": "fs",
-    "body": "const fso = PPx.CreateObject('Scripting.FileSystemObject');\n$0"
+    "body": "const fs = PPx.CreateObject('Scripting.FileSystemObject');\n$0"
   },
   "Object inline": {
     "prefix": "obji",
@@ -63,7 +75,7 @@
   },
   "For of": {
     "prefix": "forof",
-    "body": "for (const ${1:item} of ${1}s${2}) {\n\t$0\n}"
+    "body": "for (const ${1:item} of ${2:${1}s}) {\n\t$0\n}"
   },
   "Arrow function": {
     "prefix": "af",
@@ -95,7 +107,7 @@
   },
   "Annotation": {
     "prefix": "an",
-    "body": "/** ${1:@} */$0"
+    "body": "/*$1 */$0"
   },
   "Annotation multi line": {
     "prefix": "ann",
