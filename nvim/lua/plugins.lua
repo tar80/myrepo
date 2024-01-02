@@ -116,6 +116,7 @@ require('lazy').setup(
     { dir = 'C:/bin/repository/tar80/loose.nvim', name = 'loose.nvim', lazy = true },
     { -- {{{ feline
       'feline-nvim/feline.nvim',
+      -- 'freddiehaddad/feline.nvim',
       dependencies = { 'loose.nvim' },
       config = function()
         require('config.indicate')
@@ -167,7 +168,7 @@ require('lazy').setup(
     }, ---}}}
     { 'williamboman/mason-lspconfig.nvim', lazy = true },
     { 'williamboman/mason.nvim', lazy = true },
-    { 'jose-elias-alvarez/null-ls.nvim', lazy = true },
+    { 'nvimtools/none-ls.nvim', lazy = true },
     { -- {{{ lspconfig
       'neovim/nvim-lspconfig',
       dependencies = { 'williamboman/mason.nvim', 'jose-elias-alvarez/null-ls.nvim', 'hrsh7th/cmp-nvim-lsp' },
@@ -301,6 +302,10 @@ require('lazy').setup(
       dependencies = { 'vim-operator-user' },
       init = function()
         local operator_replace = function(input)
+          local mode = vim.api.nvim_get_mode().mode
+          if mode == 'V' then
+            return input
+          end
           local reg_str = vim.fn.getreg(input, 1, true)
           if vim.tbl_isempty(reg_str) then
             input = '0'
@@ -319,12 +324,12 @@ require('lazy').setup(
           end)
           return input
         end
-        setmap('n', '_', function()
+        setmap('', '_', function()
           local input = '*'
           input = operator_replace(input)
           return string.format('"%s<Plug>(operator-replace)', input)
         end, { expr = true })
-        setmap('n', '\\', function()
+        setmap('', '\\', function()
           local input = vim.fn.nr2char(vim.fn.getchar())
           input = input == '\\' and '0' or input
           input = operator_replace(input)
@@ -448,7 +453,7 @@ require('lazy').setup(
       'tversteeg/registers.nvim',
       config = function()
         local registers = require('registers')
-        setmap({ 'n', 'x' }, '<Space>2', registers.show_window({ mode = 'motion' }), { silent = true, noremap = true })
+        setmap({ 'n', 'x' }, '<Leader>2', registers.show_window({ mode = 'motion' }), { silent = true, noremap = true })
         registers.setup({
           show_empty = false,
           register_user_command = false,
@@ -472,7 +477,7 @@ require('lazy').setup(
       end,
       lazy = true,
       keys = {
-        { '<Space>2', mode = { 'n', 'x' } },
+        { '<Leader>2', mode = { 'n', 'x' } },
         { '<C-R>', mode = 'i' },
       },
     }, ---}}}

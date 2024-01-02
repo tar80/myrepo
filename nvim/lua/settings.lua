@@ -12,7 +12,6 @@ local mapset = vim.keymap.set
 
 util.shell('nyagos')
 vim.env.myvimrc = vim.uv.fs_readlink(vim.env.myvimrc, nil)
--- vim.env.myvimrc = vim.uv.fs_realpath(vim.env.myvimrc)
 vim.g.repo = 'c:\\bin\\repository\\tar80'
 vim.g.update_time = 700
 cmd('language message C')
@@ -43,6 +42,8 @@ api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
 
 ---@desc Local {{{2
 -- api.nvim_set_option_value('name', value, { scope = 'local' })
+---NOTE:Avoided a bug in neovim itself that causes errors when colons are mixed in spellfile option
+vim.opt_local.isfname:append(':')
 
 ---@desc Both {{{2
 o.guicursor = 'n:block,i-c-ci-ve:ver50,v-r-cr-o:hor50'
@@ -87,8 +88,8 @@ o.signcolumn = 'yes'
 -- o.backspace = { indent = true,eol = true, start = true }
 o.complete = '.,w'
 opt.completeopt = { menu = true, menuone = true, noselect = true }
-o.winblend = 12
-o.pumblend = 12
+o.winblend = 10
+o.pumblend = 10
 o.pumheight = 10
 o.pumwidth = 20
 o.matchtime = 2
@@ -130,7 +131,7 @@ vim.api.nvim_create_autocmd('CmdlineEnter', {
       end
     end)
   end,
-})-- }}}
+}) -- }}}
 ---@desc Editing line highlighting rules {{{2
 api.nvim_create_autocmd('CursorHoldI', {
   group = augroup,
@@ -256,7 +257,7 @@ vim.cmd.abbreviate('fuction', 'function')
 vim.cmd.abbreviate('stirng', 'string')
 vim.cmd.abbreviate('retrun', 'return')
 
-cmd_abbrev("'<,'>", [['<,'>s/\\//\\\\\\\\/|nohlsearch]], true)
+cmd_abbrev("'<,'>", [['<,'>s///|nohls<Left><Left><Left><Left><Left><Left><Left>]], true)
 cmd_abbrev('s', '%s///<Left>', true)
 cmd_abbrev('ms', 'MugShow', true)
 cmd_abbrev('es', 'e<Space>++enc=cp932 ++ff=dos<CR>')

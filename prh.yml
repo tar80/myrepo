@@ -313,10 +313,6 @@ rules:
     expected: いっこうに
   - pattern: 一旦
     expected: いったん
-  - pattern: 如何
-    expected: いかが
-  - pattern: 如何に
-    expected: いかに
   - pattern:
       - ゆきま
       - 行きま
@@ -457,8 +453,6 @@ rules:
     expected: さら$1
   - pattern: 仕掛け
     expected: しかけ
-  - pattern: 仕方
-    expected: しかた
   - pattern: /([^正率垂安素愚])直に/
     expected: $1じかに
   - pattern: /仕組([^み])/
@@ -668,14 +662,10 @@ rules:
     expected: なにがしか
   - pattern: /成り?済ま?([さしすせそ])|成り?すま([さしすせそ])/
     expected: なりすま$1
-  - pattern: なので、
-    expected: ですので、
   - pattern: 何となく
     expected: なんとなく
   - pattern: /に当た([っらりるれろ])/
     expected: にあた$1
-  - pattern: /難([いく])/
-    expected: にく$1
   - pattern: /の様([なにだで])/
     expected: のよう$1
   - pattern: /育([まみむめもん])/
@@ -1327,7 +1317,7 @@ rules:
     expected: 内蔵
   - pattern: /なか([かでに])/
     expected: 中$1
-  - pattern: /なら(ば(?!、)|[びぶべぼん])/
+  - pattern: /なら([びぶべぼん])/
     expected: 並$1
     specs:
       - from: ならびに
@@ -1781,7 +1771,7 @@ rules:
     pattern:  /クォート|クオーテーション|クォーテーション/
   - expected: クオリティ
     pattern:  /クオリティー|クォリティ|クォリティー/
-  - expected: クライアント／サーバ
+  - expected: クライアントサーバ
     pattern:
       - クライアント/サーバー
       - クライアント/サーバ
@@ -1791,7 +1781,7 @@ rules:
       - クライアントサーバ
     specs:
       - from: クライアント/サーバー
-        to:   クライアント／サーバ
+        to:   クライアントサーバ
   - expected: クラスタ
     pattern:  /クラスター/
   - expected: グラウンド
@@ -2575,8 +2565,6 @@ rules:
     pattern:  /\bKyotoTycoon\b|Tokyo *Tycoon/
   - expected: LESS
     pattern:  /\bLESS\b/i
-  - expected: LINE
-    pattern:  /\bLINE\b/i
   - expected: LinkedIn
     pattern:  /\bLinked In\b/
   - expected: LL
@@ -2897,7 +2885,7 @@ rules:
   - expected: UNIX
     pattern:  /\bUnix\b/
   - expected: UTF-8
-    pattern:  /UTF8|UTF 8|utf8/
+    pattern:  /UTF8|UTF 8/
   - expected: Veritrans
     pattern:  /ベリトランス/
   - expected: VirtualBox

@@ -1656,6 +1656,7 @@ c.url.searchengines = {
         'p': 'https://www.pixiv.net/tags/{}/artworks?s_mode=s_tag',
         'pu': 'https://www.pixiv.net/search_user.php?nick={}&s_mode=s_usr',
         'y': 'https://www.youtube.com/results?search_query={}',
+        'z': 'https://zenn.dev/topics/{}?order=latest',
         }
 
 ## Page(s) to open at the start.

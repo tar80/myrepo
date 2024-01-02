@@ -341,7 +341,7 @@ user.setup_misc = function(self, priority) -- {@@2
         -- path completion
         ctx.send('<C-g>u<C-x><C-f>')
         return
-      elseif ctx.match([[^\s\+\%#]]) and ctx.filetype == 'text' then
+      elseif ctx.match([[^\s\+\%#]]) and (ctx.filetype == 'cfg' or ctx.filetype == 'text') then
         -- convert indent spaces to tabs
         local line = vim.api.nvim_get_current_line():sub(0, vim.api.nvim_win_get_cursor(0)[2])
         local col = vim.fn.strdisplaywidth(line)

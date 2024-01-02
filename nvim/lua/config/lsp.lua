@@ -141,7 +141,8 @@ local on_attach = function(client, bufnr) --- {{{2
   end) -- }}}
   keymap.set('n', 'glh', lsp.buf.signature_help)
   keymap.set('n', 'gli', function()
-    lsp.inlay_hint(0)
+    local bool = lsp.inlay_hint.is_enabled() == false
+    lsp.inlay_hint.enable(0, bool)
   end)
   keymap.set('n', 'gll', lsp.buf.hover)
   keymap.set('n', 'glr', function()

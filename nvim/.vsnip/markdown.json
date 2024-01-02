@@ -14,7 +14,7 @@
   "Pages URL link": {
     "prefix": "siteu",
     "body": [
-        "[$1](({{ site.baseurl }}{% post_url $2 %})\n$0"
+        "[$1]({{ site.baseurl }}{% post_url $2 %})\n$0"
     ]
   },
   "Pages IMG link": {

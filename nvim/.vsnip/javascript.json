@@ -198,7 +198,7 @@
     "body": ["it('$1', function () {", "\t$2", "});"]
   },
   "PPx arguments ECMA": {
-    "prefix": "ar",
+    "prefix": "arr",
     "body": [
       "const adjustArg = (args = PPx.Arguments) => {",
       "\tconst arr = [$1];",
@@ -211,6 +211,18 @@
       "\t\t$3,",
       "\t}",
       "}$0"
+    ]
+  },
+  "Args with initial value": {
+    "prefix": "ar",
+    "body": [
+      "const adjustArgs = (args = PPx.Arguments) => {",
+      "\tconst arr = [$1];",
+      "\n\tfor (let i = 0, k = args.length; i < k; i++) {",
+      "\t\tarr[i] = args.Item(i);",
+      "\t}",
+      "\n\treturn {$2$1};",
+      "};$0"
     ]
   },
   "PPx arguments JS": {
