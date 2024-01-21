@@ -12,7 +12,7 @@ local mapset = vim.keymap.set
 
 util.shell('nyagos')
 vim.env.myvimrc = vim.uv.fs_readlink(vim.env.myvimrc, nil)
-vim.g.repo = 'c:\\bin\\repository\\tar80'
+vim.g.repo = 'c:/bin/repository/tar80'
 vim.g.update_time = 700
 cmd('language message C')
 

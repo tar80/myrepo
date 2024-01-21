@@ -1652,7 +1652,7 @@ c.url.searchengines = {
         'd': 'https://duckduckgo.com/?kl=jp-jp&kad=ja_JP&kp=-2&kz=-1&kc=-1&k1=-1&kk=-1&kaj=m&kak=-1&kax=-1&kaq=-1&kap=-1&kao=-1&kau=-1&ko=-1&kt=Yu+Gothic+UI&kae=-1&ka=Yu+Gothic+UI&q={}',
         'di': 'https://duckduckgo.com/?kae=c&kl=jp-jp&kad=ja_JP&kc=-1&kav=1&kz=-1&k1=-1&kk=-1&kaj=m&kak=-1&kax=-1&kaq=-1&kap=-1&kao=-1&kau=-1&ks=n&ko=-1&kp=-2&kw=w&kai=-1&kx=3d646c&k8=637a6c&kaa=675c9b&kt=Yu+Gothic+UI&k9=163347&k18=-1&ka=Yu+Gothic+UI&k7=45554e&k21=bccac4&kj=6e7984&ia=images&iax=images&q={}',
         'g': 'https://www.google.co.jp/search?hl=ja&as_q={}',
-        'q': 'https://qiita.com/search?q={}',
+        'q': 'https://qiita.com/search?q={}&sort=created',
         'p': 'https://www.pixiv.net/tags/{}/artworks?s_mode=s_tag',
         'pu': 'https://www.pixiv.net/search_user.php?nick={}&s_mode=s_usr',
         'y': 'https://www.youtube.com/results?search_query={}',

@@ -1,4 +1,5 @@
-;<directory>;&a:d,
+;<migemo>; o:edw,r:
+;<directory>; &a:d,
 ;<date>; &d<1
 ;<executable>; .bat;.cmd;.com;.exe;.lnk;.sh
 ;<picture>; .avif;.bmp;.gif;.heic;.jp2;.jpc;.jpeg;.jpf;.jpg;.png;.psb;.psd;.svg;.tga;.tif*;.webp
@@ -10,4 +11,3 @@
 ;<archive>; .7z;.arj;.bz2;.bzip2;.cab;.dmz;.gz;.iso;.lzh;.lzma;.rar;.tar;.xz;.vhd;.vhdx;.zip
 ;<date after>; &d>=2023-1-1
 ;<size>; &s:<=1M
-;<migemo>; o:edw,r:
