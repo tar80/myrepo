@@ -97,6 +97,10 @@
     "prefix": "do",
     "body": "do{\n\t$1\n} while($0);"
   },
+  "While": {
+    "prefix": "while",
+    "body": "while ($1) {\n\t$2\n}"
+  },
   "ppm.execute": {
     "prefix": "ppme",
     "body": "ppm.execute('${1:.}', '$2')$0"

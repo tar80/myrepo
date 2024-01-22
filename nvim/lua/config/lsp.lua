@@ -28,9 +28,14 @@ vim.diagnostic.config({ -- {{{2
     focusable = true,
     style = 'minimal',
     border = border,
-    source = 'always',
+    source = false,
     header = '',
     prefix = '',
+    suffix = '',
+    format = function(diagnostic)
+      local symbol = { [1] = signs.Error, [2] = signs.Warn, [3] = signs.Info, [4] = signs.Hint }
+      return string.format('%s %s (%s)', symbol[diagnostic.severity], diagnostic.message, diagnostic.source)
+    end,
   },
   signs = true,
   update_in_insert = false,
@@ -84,7 +89,7 @@ end -- }}}
 
 local on_attach = function(client, bufnr) --- {{{2
   -- lsp.inlay_hint(0, true)
-  api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+  api.nvim_set_option_value('omnifunc', 'v:lua.ivm.lsp.omnifunc', { buf = bufnr })
   ---@desc Under cursor Symbol highlight -- {{{
   api.nvim_create_autocmd({ 'CursorHold' }, {
     group = augroup,
@@ -126,15 +131,15 @@ local on_attach = function(client, bufnr) --- {{{2
   keymap.set('n', '[d', '<Cmd>lua vim.diagnostic.goto_prev()<CR>')
   keymap.set('n', 'gla', '<Cmd>CodeActionMenu<CR>')
   keymap.set('n', 'gld', function() -- {{{
-    local opts = { focusable = false }
+    local opts = { bufnr = 0, focusable = false }
+    local opts_cursor = vim.tbl_extend('force', opts, { scope = 'cursor' })
     local winblend = vim.o.winblend
-    local scope_c = vim.tbl_extend('force', opts, { scope = 'cursor' })
     api.nvim_set_option_value('winblend', 0, {})
-    local resp = vim.diagnostic.open_float(0, scope_c)
+    local resp = vim.diagnostic.open_float(opts_cursor, {})
 
     if not resp then
-      local scope_l = vim.tbl_extend('force', opts, { scope = 'line' })
-      vim.diagnostic.open_float(0, scope_l)
+      local opts_line = vim.tbl_extend('force', opts, { scope = 'line' })
+      vim.diagnostic.open_float(opts_line, {})
     end
 
     api.nvim_set_option_value('winblend', winblend, {})
@@ -289,7 +294,6 @@ require('mason-lspconfig').setup_handlers({
       flags = flags,
       single_file_support = false,
       root_dir = require('lspconfig').util.root_pattern('.git'),
-      -- single_file_support = false,
       on_attach = function(client, bufnr)
         on_attach(client, bufnr)
       end,
@@ -303,6 +307,8 @@ require('mason-lspconfig').setup_handlers({
           },
           runtime = {
             version = 'LuaJIT',
+            pathStrict = true,
+            path = { '?.lua', '?/init.lua' },
           },
           diagnostics = {
             globals = { 'vim', 'nyagos', 'describe', 'it', 'before_each', 'after_each' },
@@ -310,11 +316,11 @@ require('mason-lspconfig').setup_handlers({
           hint = {
             enable = true,
             setType = false,
-            arrayIndex = 'disable',
+            arrayIndex = 'Disable',
           },
           workspace = {
-            checkThirdParty = false,
-            --   library = api.nvim_get_runtime_file("", true),
+            checkThirdParty = 'Disable',
+            library = { vim.fs.joinpath(vim.env.VIMRUNTIME, 'lua') },
           },
           telemetry = {
             enable = false,
