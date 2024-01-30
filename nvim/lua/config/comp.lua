@@ -7,7 +7,7 @@ vim.g.vsnip_snippet_dir = vim.g.repo .. '\\myrepo\\nvim\\.vsnip'
 ---#Setup
 local cmp = require('cmp')
 local feed_key = require('module.util').feedkey
-local icons = {-- {{{2
+local icons = { -- {{{2
   vsnip = '  ',
   dictionary = ' ',
   nvim_lsp = ' ',
@@ -16,7 +16,7 @@ local icons = {-- {{{2
   buffer = ' ',
   path = 'path',
   cmdline = 'cmd',
-}-- }}}
+} -- }}}
 
 ---#Insert-mode {{{2
 cmp.setup({
@@ -129,7 +129,7 @@ cmp.setup({
       end
     end, { 'i', 's' }),
     ['<C-a>'] = cmp.mapping(function()
-        feed_key('<Esc>a', '')
+      feed_key('<Esc>a', '')
     end, { 's' }),
   },
 })
@@ -165,12 +165,16 @@ cmp.setup.cmdline(':', {
 })
 --}}}2
 -- #cmp-dictionary {{{2
-local dict = require('cmp_dictionary')
-
-dict.switcher({
-  filetype = {
-    javascript = { vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\javascript.dict' },
-    lua = { vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\lua.dict' },
-    PPxcfg = { vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\PPxcfg.dict' },
+require('cmp_dictionary').setup({
+  paths = {
+    vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\javascript.dict',
+    vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\lua.dict',
+    vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\PPxcfg.dict',
   },
+  exact_length = 2,
+  first_case_insensitive = true,
+  -- document = {
+  --   enable = true,
+  --   command = { 'wn', '${label}', '-over' },
+  -- },
 })

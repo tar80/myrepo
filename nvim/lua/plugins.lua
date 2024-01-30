@@ -306,10 +306,11 @@ require('lazy').setup(
           if mode == 'V' then
             return input
           end
-          local reg_str = vim.fn.getreg(input, 1, true)
+          local reg_str = vim.fn.getreg(input, 1, 1)
+          ---@cast reg_str -string
           if vim.tbl_isempty(reg_str) then
             input = '0'
-            reg_str = vim.fn.getreg(input, 1, true)
+            reg_str = vim.fn.getreg(input, 1, 1)
           end
           vim.schedule(function()
             local bufnr = require('module.float').popup({ contents = reg_str })
@@ -360,6 +361,8 @@ require('lazy').setup(
       },
       init = function()
         api.nvim_set_var('denops_disable_version_check', 1)
+        api.nvim_set_var('denops#deno', string.format('%s/apps/deno/current/deno.exe', vim.env.scoop))
+        api.nvim_set_var('denops#server#deno_args', { '-q', '--no-lock', '-A', '--unstable-kv' })
         api.nvim_set_var('denops#server#retry_threshold', 1)
         api.nvim_set_var('denops#server#reconnect_threshold', 1)
       end,
@@ -694,15 +697,15 @@ require('lazy').setup(
                     jobs[job_id] = { finish = false }
                   end
 
-                  vim.notify(string.format('[QuickRun] Running %s ...', session.config.command), 'warn', {
+                  vim.notify(string.format('[QuickRun] Running %s ...', session.config.command), vim.log.levels.WARN, {
                     title = ' QuickRun',
                   })
                 end,
                 on_success = function(_, _)
-                  vim.notify('[QuickRun] Success', 'info', { title = ' QuickRun' })
+                  vim.notify('[QuickRun] Success', vim.log.levels.INFO, { title = ' QuickRun' })
                 end,
                 on_failure = function(_, _)
-                  vim.notify('[QuickRun] Error', 'error', { title = ' QuickRun' })
+                  vim.notify('[QuickRun] Error', vim.log.levels.ERROR, { title = ' QuickRun' })
                 end,
                 on_finish = function(session, _)
                   if session._temp_names then
@@ -716,7 +719,7 @@ require('lazy').setup(
           typescript = { type = 'deno' },
           deno = {
             command = 'deno',
-            cmdopt = '--no-check --allow-all --unstable',
+            cmdopt = '--no-check --allow-all',
             tempfile = '%{tempname()}.ts',
             exec = { '%c run %o %S' },
           },

@@ -248,7 +248,7 @@ require('mason-lspconfig').setup_handlers({
       flags = flags,
       autostart = true,
       single_file_support = false,
-      root_dir = require('lspconfig').util.root_pattern('tsconfig.json'),
+      root_dir = require('lspconfig').util.root_pattern('.git', 'tsconfig.json'),
       filetypes = { 'typescript', 'javascript' },
       on_attach = function(client, bufnr)
         on_attach(client, bufnr)
@@ -265,30 +265,30 @@ require('mason-lspconfig').setup_handlers({
       },
     })
   end, -- }}}
-  ['denols'] = function() -- {{{
-    require('lspconfig').denols.setup({
-      flags = flags,
-      root_dir = require('lspconfig').util.root_pattern('.git', 'tsconfig.json', 'deno.json', 'deno.jsonc'),
-      autostart = false,
-      filetypes = { 'javascript' },
-      on_attach = function(client, bufnr)
-        on_attach(client, bufnr)
-      end,
-      capabilities = capabilities,
-      settings = {
-        deno = {
-          -- inlayHints = {
-          --   parameterNames = { enabled = 'all' },
-          --   parameterTypes = { enabled = true },
-          --   variableTypes = { enabled = false },
-          --   propertyDeclarationTypes = { enabled = true },
-          --   functionLikeReturnTypes = { enabled = true },
-          --   enumMemberValues = { enabled = true },
-          -- },
-        },
-      },
-    })
-  end, -- }}}
+  -- ['denols'] = function() -- {{{
+  --   require('lspconfig').denols.setup({
+  --     flags = flags,
+  --     root_dir = require('lspconfig').util.root_pattern('.git', 'tsconfig.json', 'deno.json', 'deno.jsonc'),
+  --     autostart = false,
+  --     filetypes = { 'javascript' },
+  --     on_attach = function(client, bufnr)
+  --       on_attach(client, bufnr)
+  --     end,
+  --     capabilities = capabilities,
+  --     settings = {
+  --       deno = {
+  --         -- inlayHints = {
+  --         --   parameterNames = { enabled = 'all' },
+  --         --   parameterTypes = { enabled = true },
+  --         --   variableTypes = { enabled = false },
+  --         --   propertyDeclarationTypes = { enabled = true },
+  --         --   functionLikeReturnTypes = { enabled = true },
+  --         --   enumMemberValues = { enabled = true },
+  --         -- },
+  --       },
+  --     },
+  --   })
+  -- end, -- }}}
   ['lua_ls'] = function() -- {{{
     require('lspconfig').lua_ls.setup({
       flags = flags,
@@ -320,7 +320,7 @@ require('mason-lspconfig').setup_handlers({
           },
           workspace = {
             checkThirdParty = 'Disable',
-            library = { vim.fs.joinpath(vim.env.VIMRUNTIME, 'lua') },
+            library = { vim.fs.joinpath(vim.env.VIMRUNTIME, '${3rd}/luassert/library') },
           },
           telemetry = {
             enable = false,

@@ -2,7 +2,8 @@
 --------------------------------------------------------------------------------
 
 ---@desc Initial
-vim.g['denops#deno'] = string.format('%s/apps/deno/current/deno.exe', vim.env.scoop)
+-- vim.g['denops#deno'] = string.format('%s/apps/deno/current/deno.exe', vim.env.scoop)
+-- vim.g['denops#server#deno_args'] = {'--unstable-kv', unpack(vim.g['denops#server#deno_args'])}
 local augroup = vim.api.nvim_create_augroup('rcDeno', {})
 
 ---@desc Autocommand
@@ -66,23 +67,25 @@ if vim.g.loaded_skkeleton then
 
   function Skkeleton_init()
     vim.fn['skkeleton#config']({ -- {{{3
-      databasePath = '~/.skk/denokv/db',
+      databasePath = '~/.skk/db/jisyo.db',
       globalDictionaries = { '~/.skk/SKK-JISYO.L' },
       globalKanaTableFiles = { vim.g.repo .. '/myrepo/nvim/skk/azik_us.rule' },
       eggLikeNewline = true,
       usePopup = true,
-      showCandidatesCount = 1,
+      showCandidatesCount = 2,
       markerHenkan = '🐤',
       markerHenkanSelect = '🐥',
-      sources = {'deno_kv'}
+      sources = { 'deno_kv' },
+      -- sources = { 'deno_kv', 'skk_dictionary' },
     }) -- }}}
 
     -- vim.fn['skkeleton#register_keymap']('input', ';', 'henkanPoint')
     vim.fn['skkeleton#register_keymap']('input', '@', 'cancel')
+    vim.fn['skkeleton#register_keymap']('input', ':', 'katakana')
     vim.fn['skkeleton#register_keymap']('input', '<Up>', 'disable')
     vim.fn['skkeleton#register_keymap']('input', '<Down>', 'disable')
     vim.fn['skkeleton#register_kanatable']('rom', { -- {{{3
-      [':'] = { 'っ', '' },
+      ['q'] = { 'っ', '' },
       ['xq'] = 'hankatakana',
       ['vh'] = { '←', '' },
       ['vj'] = { '↓', '' },

@@ -435,7 +435,7 @@ api.nvim_create_user_command('UTSetup', function() -- {{{2
   local path = vim.fs.normalize(vim.uv.cwd() .. '/t')
   local name = vim.fn.expand('%:t')
 
-  if not name:find('utp_', 1, 'plain') then
+  if not name:find('utp_', 1, true) then
     local test_path = vim.fs.normalize('t/utp_' .. name)
 
     if vim.fn.isdirectory(path) ~= 1 then
@@ -472,7 +472,7 @@ api.nvim_create_user_command('JestSetup', function() -- {{{2
   local test_dir = vim.fs.joinpath(parent_dir, sym_dir)
   local name = vim.fn.expand('%:t:r')
 
-  if not parent_dir:find(sym_dir, 1, true) then
+  if parent_dir and not parent_dir:find(sym_dir, 1, true) then
     local test_path = string.format('%s/%s.%s.ts', test_dir, name, symbol)
     local insert_string = ''
 
