@@ -59,6 +59,7 @@ cmp.setup({
         end,
       },
     },
+    { name = 'path', keyword_length = 2 },
     { name = 'nvim_lua', keyword_length = 2 },
   }),
   formatting = {

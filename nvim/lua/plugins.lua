@@ -347,7 +347,7 @@ require('lazy').setup(
         vim.g.mr_mrr_disabled = true
         vim.g['mr#threshold'] = 200
         vim.cmd(
-          "let g:mr#mru#predicates=[{filename -> filename !~? '\\\\\\|\\/doc\\/\\|\\/dist\\/\\|\\/dev\\/\\|\\/\\.git\\/\\|\\.cache'}]"
+          "let g:mr#mru#predicates=[{filename -> filename !~? '\\\\\\|\\/dist\\/\\|\\/dev\\/\\|\\/\\.git\\/\\|\\.cache'}]"
         )
       end,
       event = 'User Lazyload',

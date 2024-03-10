@@ -247,15 +247,15 @@ rules:
     expected: $1ヵ所
   - pattern: /([何数\\d一二三四五六七八九十０-９])個所/
     expected: $1ヵ所
-  - pattern: ヶ
-    expected: ヵ
+  - pattern: ヵ
+    expected: ヶ
   - pattern:
       - 箇月
       - か月
       - 個月
       - ケ月
       - カ月
-    expected: ヵ月
+    expected: ヶ月
   - pattern:
       - 箇国
       - か国

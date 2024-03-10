@@ -243,6 +243,13 @@ nyagos.bindkey('M_G', function()
   return string.match(result, '^%S+') or ''
 end)
 
+-- nyagos.skk{
+--     user="~\\.skk_nyagos",
+--     "~\\.skk\\SKK-JISYO.L",
+--     "~\\.skk\\SKK-JISYO.emoji",
+--     export="GOREADLINESKK",
+-- }
+
 use('git')
 
 -- vim: set ft=lua:

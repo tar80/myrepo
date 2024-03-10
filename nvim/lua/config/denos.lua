@@ -68,7 +68,7 @@ if vim.g.loaded_skkeleton then
   function Skkeleton_init()
     vim.fn['skkeleton#config']({ -- {{{3
       databasePath = '~/.skk/db/jisyo.db',
-      globalDictionaries = { '~/.skk/SKK-JISYO.L' },
+      globalDictionaries = { '~/.skk/SKK-JISYO.L', '~/.skk/SKK-JISYO.emoji' },
       globalKanaTableFiles = { vim.g.repo .. '/myrepo/nvim/skk/azik_us.rule' },
       eggLikeNewline = true,
       usePopup = true,
@@ -81,11 +81,11 @@ if vim.g.loaded_skkeleton then
 
     -- vim.fn['skkeleton#register_keymap']('input', ';', 'henkanPoint')
     vim.fn['skkeleton#register_keymap']('input', '@', 'cancel')
-    vim.fn['skkeleton#register_keymap']('input', ':', 'katakana')
+    -- vim.fn['skkeleton#register_keymap']('input', ':', 'katakana')
     vim.fn['skkeleton#register_keymap']('input', '<Up>', 'disable')
     vim.fn['skkeleton#register_keymap']('input', '<Down>', 'disable')
     vim.fn['skkeleton#register_kanatable']('rom', { -- {{{3
-      ['q'] = { 'っ', '' },
+      [':'] = { 'っ', '' },
       ['xq'] = 'hankatakana',
       ['vh'] = { '←', '' },
       ['vj'] = { '↓', '' },

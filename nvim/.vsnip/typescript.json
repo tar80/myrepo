@@ -7,6 +7,10 @@
     "prefix": "imp",
     "body": "import ${1} from '${2:@ppmdev/modules/}${3:$1}';${0}"
   },
+  "Import relative": {
+    "prefix": "impr",
+    "body": "import ${1} from './${2}${3:$1}';${0}"
+  },
   "Import polyfill": {
     "prefix": "impp",
     "body": "import '@ppmdev/polyfills/${1}';${0}"
