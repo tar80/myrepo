@@ -95,9 +95,8 @@ require('lazy').setup(
           name = 'user/custom',
           fallback = function(cw)
             cw.load('sfmono_square')
-            -- cw.add({
-            --   { 0xF000, 0xFD46, 2 },
-            -- })
+            -- cw.add({ { 0xF000, 0xFD46, 2 }, })
+            -- cw.add({ 0x1F424, 0x1F425, 3 })
             cw.delete({ 0xE0B4, 0xE0B6, 0xE0B8, 0xE0BA, 0xE0BC, 0xE0BD, 0xE0BE, 0xE0BF, 0xE285, 0xE725 })
           end,
         })
@@ -119,7 +118,7 @@ require('lazy').setup(
       -- 'freddiehaddad/feline.nvim',
       dependencies = { 'loose.nvim' },
       config = function()
-        require('config.indicate')
+        require('config.display')
       end,
       event = 'UIEnter',
     }, -- }}}
@@ -171,7 +170,7 @@ require('lazy').setup(
     { 'nvimtools/none-ls.nvim', lazy = true },
     { -- {{{ lspconfig
       'neovim/nvim-lspconfig',
-      dependencies = { 'williamboman/mason.nvim', 'jose-elias-alvarez/null-ls.nvim', 'hrsh7th/cmp-nvim-lsp' },
+      dependencies = { 'williamboman/mason.nvim', 'nvimtools/none-ls.nvim', 'hrsh7th/cmp-nvim-lsp' },
       config = function()
         require('config.lsp')
       end,
@@ -292,9 +291,7 @@ require('lazy').setup(
     }, -- }}}
     { -- {{{ comment
       'numToStr/Comment.nvim',
-      config = function()
-        require('Comment').setup({ ignore = '^$' })
-      end,
+      opts = { ignore = '^$' },
       event = 'User LazyLoad',
     }, -- }}}
     { -- {{{ operator-replace
@@ -409,12 +406,10 @@ require('lazy').setup(
       dependencies = {
         'vim-skk/skkeleton',
       },
-      config = function()
-        require('skkeleton_indicator').setup({
-          alwaysShown = false,
-          fadeOutMs = 0,
-        })
-      end,
+      opts = {
+        alwaysShown = false,
+        fadeOutMs = 0,
+      },
       event = 'InsertEnter',
     }, -- }}}
     { -- {{{ insx
@@ -439,10 +434,11 @@ require('lazy').setup(
     ---@desc keys
     { -- {{{ telescope
       'nvim-telescope/telescope.nvim',
-      tag = '0.1.2',
+      -- tag = '0.1.6',
       dependencies = {
         'hrsh7th/nvim-cmp',
         'plenary.nvim',
+        'nvim-telescope/telescope-file-browser.nvim',
         'nvim-telescope/telescope-ui-select.nvim',
         'Allianaab2m/telescope-kensaku.nvim',
       },
@@ -565,7 +561,31 @@ require('lazy').setup(
       },
       cmd = 'Trouble',
     }, ---}}}
-
+    {
+      'nvimdev/lspsaga.nvim',
+      dependencies = {
+        'nvim-treesitter/nvim-treesitter',
+      },
+      opts = {
+        ui = {
+          title = false,
+          expand = '',
+          collapse = '',
+          code_action = '',
+          lines = { '└', '├', '│', '─', '┌' },
+        },
+        lightbulb = { enable = false },
+        symbol_in_winbar = { enable = false },
+        finder = {
+          keys = {
+            split = 's',
+            vsplit = 'v',
+            tabe = 't',
+          },
+        },
+      },
+      cmd = 'Lspsaga',
+    },
     ---@desc cmd
     { -- {{{ gitsigns
       'lewis6991/gitsigns.nvim',
@@ -769,8 +789,34 @@ require('lazy').setup(
       end,
       cmd = 'UndotreeToggle',
     }, -- }}}
+    { -- {{{ actions-preview
+      'aznhe21/actions-preview.nvim',
+      dependencies = {
+        'nvim-telescope/telescope.nvim',
+      },
+      config = function()
+        setmap('n', 'gla', function()
+          require('actions-preview').code_actions()
+        end)
+        require('actions-preview').setup({
+          telescope = {
+            sorting_strategy = 'ascending',
+            layout_strategy = 'vertical',
+            layout_config = {
+              width = 0.8,
+              height = 0.9,
+              prompt_position = 'bottom',
+              preview_cutoff = 20,
+              preview_height = function(_, _, max_lines)
+                return max_lines - 15
+              end,
+            },
+          },
+        })
+      end,
+      keys = { 'gla' },
+    }, -- }}}
     { 'norcalli/nvim-colorizer.lua', cmd = 'ColorizerAttachToBuffer' },
-    { 'weilbith/nvim-code-action-menu', cmd = 'CodeActionMenu' },
 
     ---@desc dap
     {

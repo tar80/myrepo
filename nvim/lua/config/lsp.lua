@@ -7,7 +7,7 @@ local api = vim.api
 local keymap = vim.keymap
 local lsp = vim.lsp
 local border = 'rounded'
-local signs = { Error = '', Warn = '', Hint = '', Info = '' }
+local signs = { Error = '', Warn = '', Hint = '', Info = '' }
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 local augroup = api.nvim_create_augroup('rcLsp', {})
@@ -88,7 +88,6 @@ local popup_rename = function() -- {{{2
 end -- }}}
 
 local on_attach = function(client, bufnr) --- {{{2
-  -- lsp.inlay_hint(0, true)
   api.nvim_set_option_value('omnifunc', 'v:lua.ivm.lsp.omnifunc', { buf = bufnr })
   ---@desc Under cursor Symbol highlight -- {{{
   api.nvim_create_autocmd({ 'CursorHold' }, {
@@ -111,25 +110,9 @@ local on_attach = function(client, bufnr) --- {{{2
       lsp.buf.clear_references()
     end,
   }) ---}}}
-  ---@desc Show inlay_hints when not in insert mode {{{
-  -- api.nvim_create_autocmd({ 'InsertEnter' }, {
-  --   group = augroup,
-  --   buffer = 0,
-  --   callback = function()
-  --     lsp.inlay_hint(0, false)
-  --   end,
-  -- })
-  -- api.nvim_create_autocmd({ 'InsertLeave' }, {
-  --   group = augroup,
-  --   buffer = 0,
-  --   callback = function()
-  --     lsp.inlay_hint(0, true)
-  --   end,
-  -- }) ---}}}
   ---@desc Keymap {{{3
-  keymap.set('n', ']d', '<Cmd>lua vim.diagnostic.goto_next()<CR>')
-  keymap.set('n', '[d', '<Cmd>lua vim.diagnostic.goto_prev()<CR>')
-  keymap.set('n', 'gla', '<Cmd>CodeActionMenu<CR>')
+  -- keymap.set('n', ']d', '<Cmd>lua vim.diagnostic.goto_next()<CR>')
+  -- keymap.set('n', '[d', '<Cmd>lua vim.diagnostic.goto_prev()<CR>')
   keymap.set('n', 'gld', function() -- {{{
     local opts = { bufnr = 0, focusable = false }
     local opts_cursor = vim.tbl_extend('force', opts, { scope = 'cursor' })
@@ -157,7 +140,7 @@ local on_attach = function(client, bufnr) --- {{{2
     local toggle_vt = not vim.diagnostic.config().virtual_text
     vim.diagnostic.config({ virtual_text = toggle_vt })
   end)
-  keymap.set('n', 'gd', function()
+  keymap.set('n', 'gd', function()-- {{{
     lsp.buf.definition({
       reuse_win = true,
       on_list = function(opts)
@@ -177,10 +160,9 @@ local on_attach = function(client, bufnr) --- {{{2
         end
 
         vim.cmd.Trouble('lsp_definitions')
-        -- vim.cmd([[Trouble lsp_definitions]])
       end,
     })
-  end)
+  end)-- }}}
   -- keymap.set('n', 'gd', lsp.buf.definition)
   -- keymap.set('n', 'gD', lsp.buf.declaration)
   -- keymap.set("n", "gli", lsp.buf.implementation)
@@ -191,6 +173,12 @@ local on_attach = function(client, bufnr) --- {{{2
   -- keymap.set('n', 'gd', '<Cmd>Trouble lsp_definitions<CR>', {})
   keymap.set('n', 'gle', '<Cmd>Trouble document_diagnostics<CR>', {})
   keymap.set('n', 'glk', '<Cmd>Trouble lsp_references<CR>', {})
+
+  ---@desc lspsaga.nvim
+  keymap.set('n', ']d', '<Cmd>Lspsaga diagnostic_jump_next<CR>', {})
+  keymap.set('n', '[d', '<Cmd>Lspsaga diagnostic_jump_prev<CR>', {})
+  keymap.set('n', 'glt', '<Cmd>Lspsaga peek_type_definition<CR>', {})
+  -- keymap.set('n', 'glk', '<Cmd>Lspsaga finder<CR>', {})
 
   ---@desc map automatically added by lsp
   ---@source nvim/runtime/lua/vim/lsp.lua:1208
@@ -356,13 +344,13 @@ null_ls.setup({ -- {{{2
     -- null_ls.builtins.formatting.textlint.with({
     --   extra_args = { '--no-color', '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
     -- }),
-    null_ls.builtins.diagnostics.jsonlint.with({
-      filetypes = { 'json', 'jsonc' },
-      diagnostic_config = {
-        virtual_text = true,
-        signs = false,
-      },
-    }),
+    -- null_ls.builtins.diagnostics.jsonlint.with({
+    --   filetypes = { 'json', 'jsonc' },
+    --   diagnostic_config = {
+    --     virtual_text = true,
+    --     signs = false,
+    --   },
+    -- }),
     null_ls.builtins.diagnostics.markdownlint.with({
       extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.markdownlint.yaml') },
     }),

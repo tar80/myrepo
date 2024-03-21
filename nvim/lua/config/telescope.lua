@@ -9,10 +9,29 @@ local finders = require('telescope.finders')
 local make_entry = require('telescope.make_entry')
 local conf = require('telescope.config').values
 local builtin = require('telescope.builtin')
+local fb_actions = require('telescope').extensions.file_browser.actions
 
 local setmap = vim.keymap.set
 
 ---@see https://scrapbox.io/vim-jp/mr.vim%E3%82%92%E5%A5%BD%E3%81%8D%E3%81%AAFuzzy_Finder%E3%81%8B%E3%82%89%E4%BD%BF%E3%81%86_%28telescope%29
+local function recent_file_sorter(opts, list)
+  local indices = {}
+  for i, line in ipairs(list) do
+    indices[line] = i
+  end
+  local file_sorter = conf.file_sorter(opts)
+  local base_scorer = file_sorter.scoring_function
+  file_sorter.scoring_function = function(self, prompt, line)
+    local score = base_scorer(self, prompt, line)
+    if score <= 0 then
+      return -1
+    else
+      return indices[line]
+    end
+  end
+  return file_sorter
+end
+
 builtin.mr = function(opts) -- {@@2
   local safe_opts = opts or {}
   local type = 'u'
@@ -30,7 +49,8 @@ builtin.mr = function(opts) -- {@@2
         entry_maker = make_entry.gen_from_file(safe_opts),
       }),
       previewer = conf.file_previewer(safe_opts),
-      sorter = require('telescope.sorters').fuzzy_with_index_bias(list),
+      sorter = recent_file_sorter(safe_opts, list),
+      -- sorter = require('telescope.sorters').get_fzy_sorter(list),
     })
     :find()
 end -- @@}
@@ -149,29 +169,50 @@ require('telescope').setup({
     -- },
   }, -- @@}
   extensions = { -- {@@2
-    extensions = {
-      ['ui-select'] = {
-        require('telescope.themes').get_dropdown({
-          -- even more opts
-        }),
-
-        -- pseudo code / specification for writing custom displays, like the one
-        -- for "codeactions"
-        -- specific_opts = {
-        --   [kind] = {
-        --     make_indexed = function(items) -> indexed_items, width,
-        --     make_displayer = function(widths) -> displayer
-        --     make_display = function(displayer) -> function(e)
-        --     make_ordinal = function(e) -> string
-        --   },
-        --   -- for example to disable the custom builtin "codeactions" display
-        --      do the following
-        --   codeactions = false,
-        -- }
+    file_browser = {
+      grouped = true,
+      hidden = { file_browser = true, folder_browser = true },
+      respect_gitignore = true,
+      follow_symlinks = true,
+      -- quiet = false,
+      -- dir_icon = '',
+      dir_icon_hl = 'Directory',
+      display_stat = false,
+      git_status = false,
+      prompt_path = true,
+      mappings = {
+        ['i'] = {
+          ['<C-h>'] = fb_actions.goto_parent_dir,
+          ['<C-l>'] = fb_actions.change_cwd,
+          ['<C-t>'] = actions.file_tab,
+          ['<C-k>'] = actions.preview_scrolling_up,
+          ['<C-j>'] = actions.preview_scrolling_down,
+        },
+        ['n'] = {},
       },
+    },
+    ['ui-select'] = {
+      require('telescope.themes').get_dropdown({
+        -- even more opts
+      }),
+
+      -- pseudo code / specification for writing custom displays, like the one
+      -- for "codeactions"
+      -- specific_opts = {
+      --   [kind] = {
+      --     make_indexed = function(items) -> indexed_items, width,
+      --     make_displayer = function(widths) -> displayer
+      --     make_display = function(displayer) -> function(e)
+      --     make_ordinal = function(e) -> string
+      --   },
+      --   -- for example to disable the custom builtin "codeactions" display
+      --      do the following
+      --   codeactions = false,
+      -- }
     },
   }, -- @@}
 })
+require('telescope').load_extension('file_browser')
 require('telescope').load_extension('ui-select')
 require('telescope').load_extension('kensaku')
 
@@ -227,8 +268,12 @@ setmap('n', '<leader>m', function()
 end, {})
 setmap('n', '<leader>p', function()
   local path = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
-  load_telescope('find_files', 'no', { cwd = path, hidden = true, no_ignore = true })
+  require('telescope').extensions.file_browser.file_browser({ path = path })
 end, {})
+-- setmap('n', '<leader>p', function()
+--   local path = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
+--   load_telescope('find_files', 'no', { cwd = path, hidden = true, no_ignore = true })
+-- end, {})
 setmap('n', '<leader>o', function()
   load_telescope('find_files', 'no', { hidden = true, no_ignore = true })
 end, {})
@@ -254,6 +299,7 @@ end, {})
 -- for git
 local is_repo = function()
   local name = vim.b.mug_branch_name
+  ---@diagnostic disable-next-line: undefined-field
   if name == _G.Mug.symbol_not_repository then
     vim.notify('Not repository', 3)
     return false
@@ -288,6 +334,6 @@ end, {})
 -- setmap('n', 'glk', function()
 --   load_telescope('lsp_references', { layout_config = { mirror = false, preview_width = 0.7 } })
 -- end, {})
-setmap('n', 'glj', function()
-  load_telescope('lsp_dynamic_workspace_symbols', 'ver', { layout_config = { mirror = true, preview_width = 0.5 } })
-end, {})
+-- setmap('n', 'glj', function()
+--   load_telescope('lsp_dynamic_workspace_symbols', 'ver', { layout_config = { mirror = true, preview_width = 0.5 } })
+-- end, {})

@@ -145,7 +145,7 @@ end
 
 nyagos.alias.pca = 'cd c:\\bin\\repository\\tar80\\pages-pca && bundle exec jekyll s --future'
 nyagos.alias.keyp = 'C:\\bin\\Keypirinha\\keypirinha.exe'
-nyagos.alias.nvim = 'nvim --cmd "let g:tr_bg=v:true"'
+-- nyagos.alias.nvim = 'nvim --cmd "let g:tr_bg=v:true"'
 
 nyagos.alias.zi = function()
   local path = nyagos.eval('zoxide query -i')
@@ -209,20 +209,20 @@ nyagos.key['F9'] = function()
   nyagos.exec('nvim %tar80%\\myrepo\\nyagos\\.nyagos')
 end
 
-nyagos.bindkey('C_N', function()
-  local ok, path = detect_marker(nyagos.getwd(), 'package.json')
-  if not ok then
-    print(hint_msg('Not exist package.json'))
-    return ''
-  end
-  path = string.format('%s\\package.json', path)
-  local cmd = string.format('cat %s|jq -r ".scripts|to_entries|.[]|.key + ""   "" + .value"|%s', path, fzf.cmd)
-  local stdout = nyagos.eval(cmd)
-  if stdout == '' then
-    return ''
-  end
-  return string.format('npm run %s', stdout:sub(1, stdout:find('%s')))
-end)
+-- nyagos.bindkey('C_N', function()
+--   local ok, path = detect_marker(nyagos.getwd(), 'package.json')
+--   if not ok then
+--     print(hint_msg('Not exist package.json'))
+--     return ''
+--   end
+--   path = string.format('%s\\package.json', path)
+--   local cmd = string.format('cat %s|jq -r ".scripts|to_entries|.[]|.key + ""   "" + .value"|%s', path, fzf.cmd)
+--   local stdout = nyagos.eval(cmd)
+--   if stdout == '' then
+--     return ''
+--   end
+--   return string.format('npm run %s', stdout:sub(1, stdout:find('%s')))
+-- end)
 
 nyagos.bindkey('C_R', function()
   local select = nyagos.eval('__dump_history | ' .. fzf.cmd)

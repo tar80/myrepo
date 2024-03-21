@@ -15,6 +15,10 @@
     "prefix": "impp",
     "body": "import '@ppmdev/polyfills/${1}';${0}"
   },
+  "Main function": {
+    "prefix": "ma",
+    "body": "const main = () => {\n\t$1\n}\n\nmain()"
+  },
   "Args iterable": {
     "prefix": "arr",
     "body": [

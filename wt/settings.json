@@ -4,28 +4,6 @@
     "actions": 
     [
         {
-            "command": 
-            {
-                "action": "splitPane",
-                "commandline": "%PPX_DIR%\\ppbw.exe -bootid:t",
-                "size": 0.45000000000000001,
-                "split": "right"
-            },
-            "keys": "ctrl+shift+b"
-        },
-        {
-            "command": 
-            {
-                "action": "moveFocus",
-                "direction": "up"
-            },
-            "keys": "alt+k"
-        },
-        {
-            "command": "closePane",
-            "keys": "ctrl+shift+q"
-        },
-        {
             "command": "unbound",
             "keys": "ctrl+plus"
         },
@@ -50,12 +28,24 @@
             "keys": "alt+shift+plus"
         },
         {
+            "command": "paste",
+            "keys": "shift+insert"
+        },
+        {
             "command": 
             {
                 "action": "moveFocus",
-                "direction": "right"
+                "direction": "left"
             },
-            "keys": "alt+l"
+            "keys": "alt+h"
+        },
+        {
+            "command": 
+            {
+                "action": "moveFocus",
+                "direction": "up"
+            },
+            "keys": "alt+k"
         },
         {
             "command": 
@@ -69,17 +59,9 @@
             "command": 
             {
                 "action": "moveFocus",
-                "direction": "left"
+                "direction": "right"
             },
-            "keys": "alt+h"
-        },
-        {
-            "command": 
-            {
-                "action": "splitPane",
-                "split": "down"
-            },
-            "keys": "ctrl+shift+s"
+            "keys": "alt+l"
         },
         {
             "command": 
@@ -94,6 +76,36 @@
             "keys": "ctrl+z"
         },
         {
+            "command": "closePane",
+            "keys": "ctrl+shift+q"
+        },
+        {
+            "command": 
+            {
+                "action": "splitPane",
+                "commandline": "%PPX_DIR%\\ppbw.exe -bootid:t",
+                "size": 0.45,
+                "split": "right"
+            },
+            "keys": "ctrl+shift+b"
+        },
+        {
+            "command": 
+            {
+                "action": "splitPane",
+                "split": "down"
+            },
+            "keys": "ctrl+shift+s"
+        },
+        {
+            "command": 
+            {
+                "action": "splitPane",
+                "split": "right"
+            },
+            "keys": "ctrl+shift+v"
+        },
+        {
             "command": 
             {
                 "action": "splitPane",
@@ -105,24 +117,13 @@
         {
             "command": 
             {
-                "action": "splitPane",
-                "split": "right"
-            },
-            "keys": "ctrl+shift+v"
-        },
-        {
-            "command": "paste",
-            "keys": "shift+insert"
-        },
-        {
-            "command": 
-            {
                 "action": "nextTab"
             },
             "keys": "ctrl+shift+tab"
         }
     ],
     "alwaysShowNotificationIcon": false,
+    "compatibility.reloadEnvironmentVariables": false,
     "confirmCloseAllTabs": false,
     "copyFormatting": "none",
     "copyOnSelect": false,
@@ -135,23 +136,35 @@
     "initialRows": 25,
     "language": "en-US",
     "minimizeToNotificationArea": false,
+    "newTabMenu": 
+    [
+        {
+            "type": "remainingProfiles"
+        }
+    ],
+    "newTabPosition": "afterCurrentTab",
     "profiles": 
     {
         "defaults": 
         {
-            "altGrAliasing": true,
+            "adjustIndistinguishableColors": "never",
             "antialiasingMode": "cleartype",
             "bellStyle": "none",
+            "closeOnExit": "graceful",
             "colorScheme": "bongu16",
+            "compatibility.reloadEnvironmentVariables": false,
             "font": 
             {
                 "face": "HackGen Console NF",
-                "size": 13,
+                "size": 13.0,
                 "weight": "normal"
             },
             "historySize": 1000,
+            "intenseTextStyle": "bold",
+            "opacity": 100,
             "padding": "3",
-            "selectionBackground": "#4682B4"
+            "selectionBackground": "#4682B4",
+            "useAcrylic": false
         },
         "list": 
         [
@@ -159,15 +172,16 @@
                 "altGrAliasing": false,
                 "antialiasingMode": "cleartype",
                 "backgroundImage": null,
-                "backgroundImageOpacity": 0.89000000000000001,
-                "closeOnExit": "automatic",
+                "backgroundImageOpacity": 0.89,
+                "closeOnExit": "always",
                 "colorScheme": "clover",
                 "commandline": "%Scoop%\\apps\\neovim-nightly\\current\\bin\\nvim.exe --listen \"\\\\.\\pipe\\nvim.100.0\"",
+                "compatibility.reloadEnvironmentVariables": false,
                 "experimental.retroTerminalEffect": false,
                 "font": 
                 {
                     "face": "PlemolJP Console NF",
-                    "size": 13,
+                    "size": 13.0,
                     "weight": "normal"
                 },
                 "guid": "{82304bab-2dc5-4825-9d56-d73787cd1a41}",
@@ -184,16 +198,17 @@
             },
             {
                 "backgroundImage": "C:\\bin\\repository\\tar80\\myrepo\\images\\bg_clover1a.png",
-                "backgroundImageOpacity": 0.83999999999999997,
+                "backgroundImageOpacity": 0.96,
                 "backgroundImageStretchMode": "uniformToFill",
                 "colorScheme": "clover",
                 "commandline": "%scoop%\\apps\\nyagos\\current\\nyagos.exe",
+                "compatibility.reloadEnvironmentVariables": false,
                 "cursorShape": "bar",
                 "experimental.retroTerminalEffect": false,
                 "font": 
                 {
                     "face": "PlemolJP Console NF",
-                    "size": 13,
+                    "size": 13.0,
                     "weight": "normal"
                 },
                 "guid": "{54d1e30c-4952-4c32-a77d-e59b7d87e759}",
@@ -201,7 +216,7 @@
                 "historySize": 1000,
                 "icon": "C:\\bin\\repository\\tar80\\myrepo\\nyagos\\nyagosico.png",
                 "name": "Nyagos",
-                "opacity": 99,
+                "opacity": 0,
                 "padding": "6",
                 "startingDirectory": "C:\\bin\\repository\\tar80",
                 "suppressApplicationTitle": true,
@@ -209,8 +224,8 @@
             },
             {
                 "antialiasingMode": "cleartype",
-                "backgroundImage": "C:\\bin\\repository\\tar80\\myrepo\\images\\aqua.jpg",
-                "backgroundImageOpacity": 0.47999999999999998,
+                "backgroundImage": "C:\\bin\\repository\\tar80\\myrepo\\images\\bg_aqua.jpg",
+                "backgroundImageOpacity": 0.48,
                 "backgroundImageStretchMode": "none",
                 "closeOnExit": "always",
                 "commandline": "%PPX_DIR%\\ppbw.exe",
@@ -495,7 +510,7 @@
             "yellow": "#FFD768"
         },
         {
-            "background": "#002525",
+            "background": "#112222",
             "black": "#001616",
             "blue": "#547BA8",
             "brightBlack": "#1E5248",
@@ -524,6 +539,7 @@
     "tabSwitcherMode": "disabled",
     "tabWidthMode": "equal",
     "theme": "dark",
+    "themes": [],
     "trimBlockSelection": true,
     "useAcrylicInTabRow": true,
     "windowingBehavior": "useExisting"
