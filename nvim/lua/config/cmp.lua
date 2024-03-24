@@ -7,16 +7,25 @@ vim.g.vsnip_snippet_dir = vim.g.repo .. '\\myrepo\\nvim\\.vsnip'
 ---#Setup
 local cmp = require('cmp')
 local feed_key = require('module.util').feedkey
-local icons = { -- {{{2
-  vsnip = '  ',
-  dictionary = ' ',
-  nvim_lsp = ' ',
-  nvim_lua = '',
-  nvim_lsp_signature_help = '',
-  buffer = ' ',
-  path = 'path',
-  cmdline = 'cmd',
+local kind = { -- {{{2
+  vsnip = { icon = '', alias = 'V-snip' },
+  dictionary = { icon = '', alias = 'Dictionary' },
+  nvim_lsp = { icon = '', alias = nil },
+  nvim_lua = { icon = '', alias = nil },
+  nvim_lsp_signature_help = { icon = '', alias = nil },
+  buffer = { icon = '', alias = 'Buffer' },
+  path = { icon = '', alias = nil },
+  cmdline = { icon = '', alias = nil },
 } -- }}}
+local display_kind = function(entry, item)
+  local v = kind[entry.source.name]
+  item.kind = string.format('%s%s', v.icon, v.alias or item.kind)
+  return item
+end
+local undisplay_kind = function(_, item)
+  item.kind = ''
+  return item
+end
 
 ---#Insert-mode {{{2
 cmp.setup({
@@ -34,10 +43,11 @@ cmp.setup({
     return pcall(require, 'nvim-treesitter')
   end,
   -- completion = { keyword_length = 2 },
-  performance = { debounce = 100, throttle = 100 },
+  performance = { debounce = 10, throttle = 100 },
   --matching = {disallow_prefix_unmatching = false},
   -- experimental = { ghost_text = { hl_group = 'CmpGhostText' } },
   window = {
+    completion = { scrolloff = 1 },
     -- completion = cmp.config.window.bordered(),
     documentation = cmp.config.window.bordered(),
   },
@@ -64,8 +74,7 @@ cmp.setup({
   }),
   formatting = {
     format = function(entry, item)
-      item.kind = string.format('%s%s', icons[entry.source.name], item.kind)
-      return item
+      return display_kind(entry, item)
     end,
   },
   mapping = {
@@ -141,25 +150,30 @@ cmp.setup.cmdline('/', {
   sources = cmp.config.sources({
     { name = 'buffer' },
   }),
+  formatting = {
+    format = function(entry, item)
+      return undisplay_kind(entry, item)
+    end,
+  },
   mapping = cmp.mapping.preset.cmdline(),
 })
 --}}}2
 -- #Command-mode {{{2
 cmp.setup.cmdline(':', {
   window = {
+    completion = { scrolloff = 1 },
     -- completion = cmp.config.window.bordered(),
     -- documentation = cmp.config.window.bordered(),
   },
   completion = { keyword_length = 2 },
-  sources = cmp.config.sources({
-    { name = 'path', max_item_count = 20 },
-  }, {
-    { name = 'cmdline', max_item_count = 30 },
-  }),
+  sources = cmp.config.sources(
+    { { name = 'path', max_item_count = 30 } },
+    { { name = 'cmdline', max_item_count = 50 } },
+    { { name = 'cmdline_history', max_item_count = 100 } }
+  ),
   formatting = {
-    format = function(_, item)
-      item.kind = string.format('%s', item.kind)
-      return item
+    format = function(entry, item)
+      return undisplay_kind(entry, item)
     end,
   },
   mapping = cmp.mapping.preset.cmdline(),

@@ -14,19 +14,16 @@ local fb_actions = require('telescope').extensions.file_browser.actions
 local setmap = vim.keymap.set
 
 ---@see https://scrapbox.io/vim-jp/mr.vim%E3%82%92%E5%A5%BD%E3%81%8D%E3%81%AAFuzzy_Finder%E3%81%8B%E3%82%89%E4%BD%BF%E3%81%86_%28telescope%29
-local function recent_file_sorter(opts, list)
-  local indices = {}
-  for i, line in ipairs(list) do
-    indices[line] = i
-  end
+local function simple_sorter(opts)
   local file_sorter = conf.file_sorter(opts)
   local base_scorer = file_sorter.scoring_function
+  local score_match = require('telescope.sorters').empty().scoring_function()
   file_sorter.scoring_function = function(self, prompt, line)
     local score = base_scorer(self, prompt, line)
     if score <= 0 then
       return -1
     else
-      return indices[line]
+      return score_match
     end
   end
   return file_sorter
@@ -49,7 +46,7 @@ builtin.mr = function(opts) -- {@@2
         entry_maker = make_entry.gen_from_file(safe_opts),
       }),
       previewer = conf.file_previewer(safe_opts),
-      sorter = recent_file_sorter(safe_opts, list),
+      sorter = simple_sorter(safe_opts),
       -- sorter = require('telescope.sorters').get_fzy_sorter(list),
     })
     :find()
@@ -172,12 +169,13 @@ require('telescope').setup({
     file_browser = {
       grouped = true,
       hidden = { file_browser = true, folder_browser = true },
-      respect_gitignore = true,
-      follow_symlinks = true,
+      respect_gitignore = false,
+      follow_symlinks = false,
       -- quiet = false,
       -- dir_icon = '',
       dir_icon_hl = 'Directory',
       display_stat = false,
+      use_fd = true,
       git_status = false,
       prompt_path = true,
       mappings = {
@@ -254,43 +252,48 @@ local preview_ver = function(add) -- {@@2
 end -- @@}
 
 local layout = { no = no_preview, hor = preview_hor, ver = preview_ver }
-local load_telescope = function(picker, preview, add) -- {@@2
+local load_builtin = function(picker, preview, add) -- {@@2
   local sub_window = layout[preview]
   builtin[picker](sub_window(add))
+end -- @@}
+local load_extension = function(picker, preview, add) -- {@@2
+  local sub_window = layout[preview]
+  require('telescope').extensions[picker][picker](sub_window(add))
 end -- @@}
 
 ---@desc KEYMAP {@@2
 setmap('n', '<Leader><Leader>', function()
-  load_telescope('buffers', 'no', { ignore_current_buffer = true })
+  load_builtin('buffers', 'no', { ignore_current_buffer = true })
 end, {})
 setmap('n', '<leader>m', function()
-  load_telescope('mr', 'no', {})
+  load_builtin('mr', 'no', {})
 end, {})
 setmap('n', '<leader>p', function()
   local path = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
-  require('telescope').extensions.file_browser.file_browser({ path = path })
+  load_extension('file_browser', 'no', { path = path })
 end, {})
 -- setmap('n', '<leader>p', function()
 --   local path = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
 --   load_telescope('find_files', 'no', { cwd = path, hidden = true, no_ignore = true })
 -- end, {})
 setmap('n', '<leader>o', function()
-  load_telescope('find_files', 'no', { hidden = true, no_ignore = true })
+  load_builtin('find_files', 'no', { hidden = true, no_ignore = true })
 end, {})
 setmap('n', '<leader>k', function()
-  vim.cmd(
-    'Telescope kensaku theme=dropdown previewer=true layout_strategy=center layout_config={anchor="N",prompt_position="top",height=0.3,width=0.7}'
-  )
-  -- load_telescope('live_grep', 'ver', { layout_config = { preview_width = 0.5, width = 0.9, height = 0.9 } })
+  local path = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
+  load_extension('kensaku', 'hor', {cwd = path})
+end, {})
+setmap('n', '<leader>K', function()
+  load_extension('kensaku', 'hor', {})
 end, {})
 setmap('n', '<leader>h', function()
   local slash = vim.o.shellslash
   vim.o.shellslash = false
-  load_telescope('help_tags', 'ver', { layout_config = { preview_width = 0.7, width = 0.8, height = 0.9 } })
+  load_builtin('help_tags', 'ver', { layout_config = { preview_width = 0.7, width = 0.8, height = 0.9 } })
   vim.o.shellslash = slash
 end, {})
 setmap('n', '<leader>l', function()
-  load_telescope(
+  load_builtin(
     'current_buffer_fuzzy_find',
     'ver',
     { layout_config = { preview_width = 0.5, width = 0.9, height = 0.9 } }
@@ -308,12 +311,12 @@ local is_repo = function()
 end
 setmap('n', '<Leader>gb', function()
   if is_repo() then
-    load_telescope('git_branches', 'ver', {})
+    load_builtin('git_branches', 'ver', {})
   end
 end, {})
 setmap('n', '<Leader>gC', function()
   if is_repo() then
-    load_telescope('git_commits', 'ver', {
+    load_builtin('git_commits', 'ver', {
       git_command = { 'git', 'log', '--oneline', '-20', '--abbrev-commit', '--', '.' },
       layout_config = { mirror = false, preview_width = 0.55, width = 0.9, height = 0.9 },
     })
@@ -321,7 +324,7 @@ setmap('n', '<Leader>gC', function()
 end, {})
 setmap('n', '<Leader>gc', function()
   if is_repo() then
-    load_telescope('git_bcommits', 'ver', {
+    load_builtin('git_bcommits', 'ver', {
       git_command = { 'git', 'log', '--oneline', '-20' },
       layout_config = { mirror = false, preview_width = 0.55, width = 0.9, height = 0.9 },
     })

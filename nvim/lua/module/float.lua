@@ -85,11 +85,11 @@ M.popup = function(opts)
     float.height = math.min(buf_height, limit_height)
   end
 
-  local handle = vim.api.nvim_open_win(bufnr, false, float)
-  vim.api.nvim_win_set_hl_ns(handle, float_popup)
+  local winid = vim.api.nvim_open_win(bufnr, false, float)
+  vim.api.nvim_win_set_hl_ns(winid, float_popup)
   api.nvim_set_option_value('winblend', winblend, {})
 
-  return bufnr
+  return { bufnr, winid }
 end
 
 return M

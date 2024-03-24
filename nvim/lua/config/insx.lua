@@ -314,10 +314,10 @@ user.setup_misc = function(self, priority) -- {@@2
       require('insx.recipe.jump_next')({
         jump_pat = {
           [=[\%#['"`]\+[)}\]]\zs]=],
-          [=[\%#[)}\]]\+\zs]=],
+          [=[\%#\s*[)}\]]\+\zs]=],
         },
       }),
-      { insx.with.priority(priority + 1), insx.with.match([=[\%#['"`)}\]]\+]=]), insx.with.undopoint(false) }
+      { insx.with.priority(priority + 1), insx.with.match([=[\%#\s*['"`)}\]]\+]=]), insx.with.undopoint(false) }
     ),
     option
   )

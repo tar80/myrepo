@@ -310,10 +310,12 @@ require('lazy').setup(
             reg_str = vim.fn.getreg(input, 1, 1)
           end
           vim.schedule(function()
-            local bufnr = require('module.float').popup({ contents = reg_str })
+            local float = require('module.float')
+            local bufnr = float.popup({ contents = reg_str })
+            -- local bufnr, winid = unpack(float.popup({ contents = reg_str }))
             api.nvim_create_autocmd({ 'ModeChanged' }, {
               group = augroup,
-              pattern = 'no:n',
+              pattern = 'no:[nc]*',
               once = true,
               callback = function()
                 vim.cmd.bwipeout(bufnr)
@@ -364,7 +366,7 @@ require('lazy').setup(
         api.nvim_set_var('denops#server#reconnect_threshold', 1)
       end,
       config = function()
-        require('config.denos')
+        require('config.denops')
       end,
       event = 'User LazyLoad',
     }, ---}}}
@@ -392,10 +394,11 @@ require('lazy').setup(
         'hrsh7th/cmp-nvim-lua',
         'hrsh7th/cmp-path',
         'hrsh7th/cmp-cmdline',
+        'dmitmel/cmp-cmdline-history',
         { 'uga-rosa/cmp-dictionary', opts = { first_case_insensitive = true } },
       },
       config = function()
-        require('config.comp')
+        require('config.cmp')
       end,
       event = { 'CursorMoved', 'InsertEnter', 'CmdlineEnter' },
     }, ---}}}
@@ -553,9 +556,9 @@ require('lazy').setup(
         win_config = { border = 'rounded' },
         auto_open = false,
         auto_close = false,
-        auto_preview = false,
+        auto_preview = true,
         auto_fold = false,
-        auto_jump = { 'lsp_definitions' },
+        auto_jump = { 'lps_type_definitions', 'lsp_definitions' },
         include_declaration = { 'lsp_references', 'lsp_implementations', 'lsp_definitions' },
         use_diagnostic_signs = true,
       },
@@ -789,33 +792,6 @@ require('lazy').setup(
       end,
       cmd = 'UndotreeToggle',
     }, -- }}}
-    { -- {{{ actions-preview
-      'aznhe21/actions-preview.nvim',
-      dependencies = {
-        'nvim-telescope/telescope.nvim',
-      },
-      config = function()
-        setmap('n', 'gla', function()
-          require('actions-preview').code_actions()
-        end)
-        require('actions-preview').setup({
-          telescope = {
-            sorting_strategy = 'ascending',
-            layout_strategy = 'vertical',
-            layout_config = {
-              width = 0.8,
-              height = 0.9,
-              prompt_position = 'bottom',
-              preview_cutoff = 20,
-              preview_height = function(_, _, max_lines)
-                return max_lines - 15
-              end,
-            },
-          },
-        })
-      end,
-      keys = { 'gla' },
-    }, -- }}}
     { 'norcalli/nvim-colorizer.lua', cmd = 'ColorizerAttachToBuffer' },
 
     ---@desc dap
@@ -845,7 +821,7 @@ require('lazy').setup(
       wrap = true,
       border = 'single',
       custom_keys = {
-        ['<leader>g'] = function(plugin)
+        ['p'] = function(plugin)
           require('lazy.util').float_term({ 'tig' }, {
             cwd = plugin.dir,
           })
@@ -853,25 +829,25 @@ require('lazy').setup(
       },
       icons = {
         cmd = '',
-        config = '',
+        config = '',
         event = '',
-        ft = '',
-        init = '',
-        import = '',
-        keys = ' ',
+        ft = '',
+        init = '',
+        import = '',
+        keys = '',
         lazy = '',
-        loaded = '●',
-        not_loaded = '○',
+        loaded = '',
+        not_loaded = '',
         plugin = '',
-        runtime = '',
-        source = '',
-        start = '',
-        task = '✔',
+        runtime = '',
+        source = '',
+        start = '',
+        task = '',
         list = {
-          '●',
-          '➜',
-          '★',
-          '‒',
+          '',
+          '',
+          '',
+          '',
         },
       },
     }, -- }}}

@@ -87,6 +87,7 @@ local popup_rename = function() -- {{{2
   })
 end -- }}}
 
+---@diagnostic disable-next-line: unused-local
 local on_attach = function(client, bufnr) --- {{{2
   api.nvim_set_option_value('omnifunc', 'v:lua.ivm.lsp.omnifunc', { buf = bufnr })
   ---@desc Under cursor Symbol highlight -- {{{
@@ -116,13 +117,14 @@ local on_attach = function(client, bufnr) --- {{{2
   keymap.set('n', 'gld', function() -- {{{
     local opts = { bufnr = 0, focusable = false }
     local opts_cursor = vim.tbl_extend('force', opts, { scope = 'cursor' })
-    local winblend = vim.o.winblend
+    local winblend = api.nvim_get_option_value('winblend', {})
     api.nvim_set_option_value('winblend', 0, {})
     local resp = vim.diagnostic.open_float(opts_cursor, {})
 
     if not resp then
-      local opts_line = vim.tbl_extend('force', opts, { scope = 'line' })
-      vim.diagnostic.open_float(opts_line, {})
+      vim.cmd.Lspsaga('show_line_diagnostics')
+      -- local opts_line = vim.tbl_extend('force', opts, { scope = 'line' })
+      -- vim.diagnostic.open_float(opts_line, {})
     end
 
     api.nvim_set_option_value('winblend', winblend, {})
@@ -140,6 +142,13 @@ local on_attach = function(client, bufnr) --- {{{2
     local toggle_vt = not vim.diagnostic.config().virtual_text
     vim.diagnostic.config({ virtual_text = toggle_vt })
   end)
+  -- keymap.set('n', 'gd', lsp.buf.definition)
+  -- keymap.set('n', 'gD', lsp.buf.declaration)
+  -- keymap.set("n", "gli", lsp.buf.implementation)
+  -- keymap.set("n", "glt", lsp.buf.type_definition)
+  -- keymap.set("n", "glj", lsp.buf.references)
+
+  ---@desc trouble.nvim
   keymap.set('n', 'gd', function()-- {{{
     lsp.buf.definition({
       reuse_win = true,
@@ -163,22 +172,15 @@ local on_attach = function(client, bufnr) --- {{{2
       end,
     })
   end)-- }}}
-  -- keymap.set('n', 'gd', lsp.buf.definition)
-  -- keymap.set('n', 'gD', lsp.buf.declaration)
-  -- keymap.set("n", "gli", lsp.buf.implementation)
-  -- keymap.set("n", "glt", lsp.buf.type_definition)
-  -- keymap.set("n", "glj", lsp.buf.references)
-
-  ---@desc trouble.nvim
-  -- keymap.set('n', 'gd', '<Cmd>Trouble lsp_definitions<CR>', {})
   keymap.set('n', 'gle', '<Cmd>Trouble document_diagnostics<CR>', {})
   keymap.set('n', 'glk', '<Cmd>Trouble lsp_references<CR>', {})
 
   ---@desc lspsaga.nvim
   keymap.set('n', ']d', '<Cmd>Lspsaga diagnostic_jump_next<CR>', {})
   keymap.set('n', '[d', '<Cmd>Lspsaga diagnostic_jump_prev<CR>', {})
-  keymap.set('n', 'glt', '<Cmd>Lspsaga peek_type_definition<CR>', {})
+  -- keymap.set('n', 'gd', '<Cmd>Lspsaga goto_definition<CR>', {})
   -- keymap.set('n', 'glk', '<Cmd>Lspsaga finder<CR>', {})
+  keymap.set('n', 'glt', '<Cmd>Lspsaga peek_type_definition<CR>', {})
 
   ---@desc map automatically added by lsp
   ---@source nvim/runtime/lua/vim/lsp.lua:1208
@@ -319,7 +321,7 @@ require('mason-lspconfig').setup_handlers({
   end, -- }}}
 })
 
----@desc NULL_LS {{{1
+---@desc NONE_LS {{{1
 keymap.set('n', 'glf', function(bufnr)
   lsp.buf.format({
     async = true,

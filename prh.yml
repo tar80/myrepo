@@ -419,7 +419,7 @@ rules:
     expected: きれい
   - pattern: 下さい
     expected: ください
-  - pattern: /([^解])決して|([^解])けして/
+  - pattern: /([^解])決して/
     expected: $1けっして
   - pattern: /拘([らりるれろっ])/
     expected: こだわ$1

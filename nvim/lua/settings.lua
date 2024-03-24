@@ -39,6 +39,7 @@ api.nvim_set_option_value('termguicolors', true, { scope = 'global' })
 api.nvim_set_option_value('foldcolumn', '1', { scope = 'global' })
 api.nvim_set_option_value('fileformats', 'unix,dos,mac', { scope = 'global' })
 api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
+api.nvim_set_option_value('shada', "'50,<500,/10,:100,h", { scope = 'global' })
 
 ---@desc Local {{{2
 -- api.nvim_set_option_value('name', value, { scope = 'local' })
@@ -89,7 +90,7 @@ o.signcolumn = 'yes'
 o.complete = '.,w'
 opt.completeopt = { menu = true, menuone = true, noselect = true }
 o.winblend = 10
-o.pumblend = 10
+o.pumblend = 12
 o.pumheight = 10
 o.pumwidth = 20
 o.matchtime = 2
@@ -120,8 +121,9 @@ local augroup = api.nvim_create_augroup('rcSettings', {})
 
 ---@desc Remove ignore history from cmdline history{{{2
 ---@see https://blog.atusy.net/2023/07/24/vim-clean-history/
-local ignore_history = [=[^\c\(\_[efqw]!\?\|qa!\?\|mes\|h\s.*\)$]=]
-vim.api.nvim_create_autocmd('CmdlineEnter', {
+local ignore_history = [=[^\c\(\_[efqw]!\?\|qa!\?\|echo\|mes\|h\s.*\)$]=]
+vim.api.nvim_create_autocmd('ModeChanged', {
+  pattern = 'c:*',
   group = augroup,
   callback = function()
     local hist = vim.fn.histget('cmd', -1)
@@ -131,7 +133,24 @@ vim.api.nvim_create_autocmd('CmdlineEnter', {
       end
     end)
   end,
-}) -- }}}
+})
+---@desc Delete current line from cmdline-history {{{2
+vim.api.nvim_create_autocmd('CmdWinEnter', {
+  group = augroup,
+  callback = function()
+    mapset('n', 'D', function()
+      local line = vim.fn.line('.') - vim.fn.line('$')
+      vim.fn.histdel(':', line)
+      api.nvim_del_current_line()
+    end, { buffer = 0 })
+  end,
+})
+vim.api.nvim_create_autocmd('CmdWinLeave', {
+  group = augroup,
+  callback = function()
+    vim.cmd.wshada({ bang = true })
+  end,
+})
 ---@desc Editing line highlighting rules {{{2
 api.nvim_create_autocmd('CursorHoldI', {
   group = augroup,
@@ -282,28 +301,6 @@ cmd_abbrev('hl', "lua<Space>print(require('module.util').hl_at_cursor())<CR>")
 vim.g.mapleader = ';'
 
 ---@desc Normal {{{2
--- mapset('n', '<C-t>', function() {{{2
---   ---this code excerpt from essentials.nvim(https://github.com/tamton-aquib/essentials.nvim)
---   local row, col = unpack(api.nvim_win_get_cursor(0))
---   local cword = vim.fn.expand('<cword>')
---   local line = api.nvim_get_current_line()
---   local keycmd = util.getchr() == ' ' and 'v2iwc ' or 'viwc'
---   if cword == 'true' then
---     cmd(string.format('normal %sfalse', keycmd))
---     api.nvim_win_set_cursor(0, { row, col })
---   elseif cword == 'false' then
---     cmd(string.format('normal %strue', keycmd))
---     api.nvim_win_set_cursor(0, { row, col })
---   else
---     local t = line:find('true', 1, true) or 10000
---     local f = line:find('false', 1, true) or 10000
---     if (t + f) == 20000 then
---       return
---     end
---     local subs = t < f and line:gsub('true', 'false', 1) or line:gsub('false', 'true', 1)
---     api.nvim_set_current_line(subs)
---   end
--- end) }}}
 mapset('n', '<F1>', function()
   return os.execute('c:/bin/cltc/cltc.exe')
 end)
@@ -329,8 +326,16 @@ mapset('n', '<F12>', function()
   return ''
 end)
 mapset('n', '<C-z>', '<NOP>')
-mapset('n', 'q', '<NOP>')
+
+--@see https://github.com/atusy/dotfiles/blob/787634e1444eb5473a08b9965552eea6942437c1/dot_config/nvim/lua/atusy/init.lua#L173
+mapset('n', 'q', '<Nop>')
 mapset('n', 'Q', 'q')
+mapset('n', 'q', function()
+  return vim.fn.reg_recording() == '' and '<Plug>(q)' or 'q'
+end, { expr = true })
+mapset('n', '<Plug>(q):', 'q:')
+mapset('n', '<Plug>(q)/', 'q/')
+mapset('n', '<Plug>(q)?', 'q?')
 mapset('n', ',', function()
   if o.hlsearch then
     o.hlsearch = false
@@ -341,7 +346,7 @@ end)
 mapset('n', '<C-m>', 'i<C-M><ESC>')
 mapset('n', '/', function()
   o.hlsearch = true
-  return '/\\V'
+  return '/'
 end, { noremap = true, expr = true })
 mapset('n', 'n', "'Nn'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
 mapset('n', 'N', "'nN'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
@@ -352,10 +357,11 @@ mapset('c', '<CR>', function()
   end
   return '<CR>'
 end, { noremap = true, expr = true, silent = true })
----Move buffer use <SPACE>
-mapset('n', '<SPACE>', '<C-w>', { remap = true })
-mapset('n', '<SPACE><SPACE>', '<C-w><C-w>')
-mapset('n', '<SPACE>n', function()
+
+---Move buffer use <Space>
+mapset('n', '<Space>', '<C-w>', { remap = true })
+mapset('n', '<Space><Space>', '<C-w><C-w>')
+mapset('n', '<Space>n', function()
   local i = 1
   while vim.fn.bufnr('Scratch' .. i) ~= -1 do
     i = i + 1
@@ -364,10 +370,11 @@ mapset('n', '<SPACE>n', function()
   api.nvim_set_option_value('buftype', 'nofile', { buf = 0 })
   api.nvim_set_option_value('bufhidden', 'wipe', { buf = 0 })
 end)
-mapset('n', '<SPACE>Q', '<Cmd>bwipeout!<CR>')
-mapset('n', '<SPACE>c', '<Cmd>tabclose<CR>')
----close nofile|qf|preview window
-mapset('n', '<SPACE>z', function()
+mapset('n', '<Space>Q', '<Cmd>bwipeout!<CR>')
+mapset('n', '<Space>c', '<Cmd>tabclose<CR>')
+
+---Close nofile|qf|preview window
+mapset('n', '<Space>z', function()
   if api.nvim_get_option_value('buftype', { buf = 0 }) == 'nofile' then
     return api.nvim_buf_delete(0, { force = true })
   end
