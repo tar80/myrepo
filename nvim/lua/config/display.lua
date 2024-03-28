@@ -24,6 +24,9 @@ local cursor_color, background, theme_name;
   end
 end)()
 
+local colors = require(string.format('feline.themes.%s', theme_name))
+local palette = require('loose').colors(theme_name)
+
 ---@desc ColorScheme Setup {{{2
 ---@cast color_scheme -nil
 require(color_scheme).setup({
@@ -39,7 +42,7 @@ require(color_scheme).setup({
     functions = 'NONE',
     variables = 'NONE',
     diagnostics = 'underline',
-    references = 'underline',
+    references = 'NONE',
   },
   disable = {
     background = tr,
@@ -48,6 +51,9 @@ require(color_scheme).setup({
   },
   custom_highlights = {
     CursorLine = { fg = 'NONE', bg = cursor_color },
+    LspReferenceText = { bg =  palette.nc},
+    LspReferenceRead = { bg =  palette.nc},
+    LspReferenceWrite = { bg =  palette.nc},
   },
   plugins = {
     lazy = true,
@@ -64,14 +70,11 @@ require(color_scheme).setup({
     sandwich = true,
     trouble = true,
     dap = true,
-    ['dap-virtual-text'] = true,
+    dap_virtual_text = true,
     -- notify = true
   },
 })
 ---}}}2
-
-local colors = require(string.format('feline.themes.%s', theme_name))
-local palette = require('loose').colors(theme_name)
 
 ---@desc Nvim-Tabline {{{1
 ---@see https://github.com/crispgm
@@ -96,7 +99,7 @@ local function tabline(opts)
     local buflist = vim.fn.tabpagebuflist(index)
     local bufnr = buflist[winnr]
     local bufname = vim.fn.bufname(bufnr)
-    local bufmodified = vim.api.nvim_buf_get_option(bufnr, 'modified')
+    local bufmodified = vim.api.nvim_get_option_value('modified', { buf = bufnr })
 
     local color = index == vim.fn.tabpagenr() and '%#TabLineSel#' or '%#TabLineFill#'
     local idx = opts.show_index and index or ''
@@ -324,7 +327,7 @@ local file = {
   priority = -2,
   type = {
     provider = function()
-      return vim.api.nvim_buf_get_option(0, 'filetype')
+      return vim.api.nvim_get_option_value('filetype', {})
       -- return ft .. icon[ff][1]
       -- return vim.bo.filetype .. icon[vim.bo.fileformat][1]
     end,
@@ -333,8 +336,8 @@ local file = {
   },
   encode = {
     provider = function()
-      local ff = vim.api.nvim_buf_get_option(0, 'fileformat')
-      return string.format('%s %s', vim.api.nvim_buf_get_option(0, 'fileencoding'), icon[ff][1])
+      local ff = vim.api.nvim_get_option_value('fileformat', {})
+      return string.format('%s %s', vim.api.nvim_get_option_value('fileencoding', {}), icon[ff][1])
     end,
     hl = function()
       local bufnr = tonumber(vim.api.nvim_get_var('actual_curbuf'))

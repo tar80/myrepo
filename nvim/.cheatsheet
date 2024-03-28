@@ -10,10 +10,11 @@ g, 次の履歴
 if,af function-block
 i%,a% any-block
 
-# Quickfix
+# quickfix
 cdo リストに対してコマンドを実行
 
-# SmartinputCommand
+# abbrev-command
+shadad !rm main.shada.tmp*
 eu8 open file encode utf8
 eu16 open file encode utf16
 sc set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb

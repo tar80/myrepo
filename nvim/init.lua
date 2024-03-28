@@ -2,7 +2,7 @@
 --------------------------------------------------------------------------------
 
 vim.api.nvim_set_option_value('encoding', 'utf-8', {})
-vim.scriptencoding = 'utf-8'
+-- vim.scriptencoding = 'utf-8'
 
 -- ##Echo message vim startup time {{{2
 if vim.fn.has('vim_starting') then

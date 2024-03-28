@@ -256,7 +256,7 @@ local load_builtin = function(picker, preview, add) -- {@@2
   local sub_window = layout[preview]
   builtin[picker](sub_window(add))
 end -- @@}
-local load_extension = function(picker, preview, add) -- {@@2
+local load_ext = function(picker, preview, add) -- {@@2
   local sub_window = layout[preview]
   require('telescope').extensions[picker][picker](sub_window(add))
 end -- @@}
@@ -270,21 +270,17 @@ setmap('n', '<leader>m', function()
 end, {})
 setmap('n', '<leader>p', function()
   local path = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
-  load_extension('file_browser', 'no', { path = path })
+  load_ext('file_browser', 'no', { path = path })
 end, {})
--- setmap('n', '<leader>p', function()
---   local path = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
---   load_telescope('find_files', 'no', { cwd = path, hidden = true, no_ignore = true })
--- end, {})
 setmap('n', '<leader>o', function()
   load_builtin('find_files', 'no', { hidden = true, no_ignore = true })
 end, {})
 setmap('n', '<leader>k', function()
   local path = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
-  load_extension('kensaku', 'hor', {cwd = path})
+  load_ext('kensaku', 'hor', { cwd = path })
 end, {})
 setmap('n', '<leader>K', function()
-  load_extension('kensaku', 'hor', {})
+  load_ext('kensaku', 'hor', {})
 end, {})
 setmap('n', '<leader>h', function()
   local slash = vim.o.shellslash
@@ -330,13 +326,14 @@ setmap('n', '<Leader>gc', function()
     })
   end
 end, {})
----@desc for lsp
--- setmap('n', 'gld', function()
---   load_telescope('diagnostics', { layout_config = { mirror = true, preview_width = 0.5 } })
--- end, {})
--- setmap('n', 'glk', function()
---   load_telescope('lsp_references', { layout_config = { mirror = false, preview_width = 0.7 } })
--- end, {})
--- setmap('n', 'glj', function()
---   load_telescope('lsp_dynamic_workspace_symbols', 'ver', { layout_config = { mirror = true, preview_width = 0.5 } })
--- end, {})
+
+---@desc "Z <filepath>" zoxide query
+vim.api.nvim_create_user_command('Z', function(opts)
+  vim.system({ 'zoxide', 'query', opts.nargs }, { text = true }, function(data)
+    if data.code == 0 then
+      vim.schedule(function()
+        load_ext('file_browser', 'no', { path = data.stdout:gsub('\n', '') })
+      end)
+    end
+  end)
+end, { nargs = 1 })

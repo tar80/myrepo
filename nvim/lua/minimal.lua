@@ -69,8 +69,6 @@ mapset('n', '<F12>', function()
   return ''
 end)
 mapset('n', '<C-Z>', '<NOP>')
-mapset('n', 'q', '<NOP>')
-mapset('n', 'Q', 'q')
 mapset('n', ',', function()
   if o.hlsearch then
     o.hlsearch = false
@@ -89,8 +87,8 @@ mapset('n', '<SPACE>n', function()
   end
 
   api.nvim_command('new Scratch' .. i)
-  api.nvim_buf_set_option(0, 'buftype', 'nofile')
-  api.nvim_buf_set_option(0, 'bufhidden', 'wipe')
+  api.nvim_set_option_value('buftype', 'nofile', { buf = 0 })
+  api.nvim_set_option_value('bufhidden', 'wipe', { buf = 0 })
 end)
 mapset('n', '<SPACE>a', '<Cmd>bwipeout<CR>')
 mapset('n', '<SPACE>c', '<Cmd>tabclose<CR>')
@@ -116,16 +114,6 @@ mapset('x', '>', '>gv')
 ---@desc Commands
 ---@desc "Z <filepath>" zoxide query
 api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " . <q-args>)', { nargs = 1 })
-
-vim.cmd [[set runtimepath=$VIMRUNTIME]]
-
----@desc TEMPORARY {{{2
-local plugin_name1 = 'lualine.nvim'
--- local plugin_name2 = 'telescope.nvim'
-opt.runtimepath:append(string.format('%s\\%s', pack_path, plugin_name1))
--- opt.runtimepath:append(string.format('%s\\%s', pack_path, plugin_name2))
-
----require('telescope').setup()
 
 ---@desc COLORSCHEME {{{1
 vim.cmd('colorscheme habamax')

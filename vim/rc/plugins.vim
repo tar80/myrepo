@@ -43,14 +43,14 @@ if has('vim_starting')
     if jetpack#tap('lexima.vim')
       source $REPO\myrepo\vim\rc\config\input.vim
     endif
-endfunction
+  endfunction
 
-augroup rcPlugins
-  autocmd!
-  autocmd User LazyLoad ++once call s:load_sources()
-augroup End
+  augroup rcPlugins
+    autocmd!
+    autocmd User LazyLoad ++once call s:load_sources()
+  augroup End
 
-call timer_start(100, 'Lazyload')
+  call timer_start(100, 'Lazyload')
 endif
 
 "##Pre-load plugins {{{1

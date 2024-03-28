@@ -1,5 +1,6 @@
 --- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 -------------------------------------------------------------------------------
+---@diagnostic disable: missing-fields, redundant-parameter, undefined-field
 
 ---@desc INITIAL
 local api = vim.api
@@ -24,32 +25,13 @@ do -- {{{2 Lazy.nvim bootstrap
   vim.opt.rtp:prepend(LAZY_PATH)
 end -- }}}
 
----@desc AutoCommand
-if vim.fn.has('vim_starting') then -- {{{2
-  vim.defer_fn(function()
-    api.nvim_exec_autocmds('User', {
-      group = augroup,
-      pattern = 'LazyLoad',
-    })
-  end, 100)
-
-  api.nvim_create_autocmd('User', {
-    group = augroup,
-    pattern = 'LazyLoad',
-    once = true,
-    callback = function()
-      vim.g.loaded_matchit = nil
-    end,
-  })
-end -- }}}
-
 ---@desc Setup {{{1
 require('lazy').setup(
   { -- {{{ plugins
 
     -- { -- {{{ notify
     --   "rcarriga/nvim-notify",
-    --   event = "User LazyLoad",
+    --   event = "VeryLazy",
     --   dependencies = { "telescope.nvim" },
     --   config = function()
     --     vim.notify = require("notify")
@@ -98,17 +80,19 @@ require('lazy').setup(
             -- cw.add({ { 0xF000, 0xFD46, 2 }, })
             -- cw.add({ 0x1F424, 0x1F425, 3 })
             cw.delete({ 0xE0B4, 0xE0B6, 0xE0B8, 0xE0BA, 0xE0BC, 0xE0BD, 0xE0BE, 0xE0BF, 0xE285, 0xE725 })
+            return cw
           end,
         })
       end,
       build = function()
+        ---@diagnostic disable-next-line: missing-parameter
         require('cellwidths').remove()
       end,
     }, -- }}}
 
     ---@desc modules
-    { 'nvim-lua/plenary.nvim', module = true },
-    { 'kana/vim-operator-user', module = true },
+    { 'nvim-lua/plenary.nvim', module = false },
+    { 'kana/vim-operator-user', lazy = true, module = false },
     -- { 'nvim-tree/nvim-web-devicons', module = true },
 
     ---@desc scheme
@@ -163,7 +147,7 @@ require('lazy').setup(
         setmap('n', 'mi', '<Cmd>MugIndex<cr>')
         setmap('n', 'mc', '<Cmd>MugCommit<cr>')
       end,
-      event = 'UIEnter',
+      event = 'VeryLazy',
     }, ---}}}
     { 'williamboman/mason-lspconfig.nvim', lazy = true },
     { 'williamboman/mason.nvim', lazy = true },
@@ -174,34 +158,39 @@ require('lazy').setup(
       config = function()
         require('config.lsp')
       end,
-      event = 'UIEnter',
+      event = 'VeryLazy',
     }, ---}}}
     { -- {{{ treesitter
       'nvim-treesitter/nvim-treesitter',
       build = ':TSUpdate',
       config = function()
         require('nvim-treesitter.configs').setup({
-          -- ensure_installed = {"lua", "javascript", "markdown"},
+          -- ensure_installed = {'lua', 'typescript', 'javascript', 'markdown'},
           sync_install = false,
-          auto_install = false,
           ignore_install = { 'text', 'help' },
           highlight = {
             enable = true,
-            disable = { 'help', 'text' },
+            disable = function(lang, buf)
+              local max_filesize = 100 * 1024
+              local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
+              if ok and stats and stats.size > max_filesize then
+                return true
+              end
+            end,
             additional_vim_regex_highlighting = false,
           },
           incremental_selection = {
             enable = true,
             keymaps = {
-              init_selection = '<Space><CR>',
-              scope_incremental = '<Space><CR>',
+              -- init_selection = '<CR>',
+              -- scope_incremental = '<CR>',
               node_incremental = '<C-j>',
               node_decremental = '<C-k>',
             },
           },
         })
       end,
-      event = 'UIEnter',
+      event = 'VeryLazy',
     }, ---}}}
     { -- {{{ ts-textobjects
       'nvim-treesitter/nvim-treesitter-textobjects',
@@ -209,7 +198,7 @@ require('lazy').setup(
       config = function()
         require('config.ts_textobj')
       end,
-      event = 'UIEnter',
+      event = 'VeryLazy',
     }, ---}}}
 
     ---@desc lazy(direct read)
@@ -226,8 +215,7 @@ require('lazy').setup(
       lazy = true,
     }, -- }}}
 
-    ---@desc User LazyLoad
-    { 'kana/vim-niceblock', event = 'ModeChanged' },
+    ---@desc VeryLazy
     { -- {{{ smartword
       'kana/vim-smartword',
       init = function()
@@ -236,7 +224,7 @@ require('lazy').setup(
         setmap('n', 'e', '<Plug>(smartword-e)')
         setmap('n', 'ge', '<Plug>(smartword-ge)')
       end,
-      event = 'User LazyLoad',
+      event = 'VeryLazy',
     }, -- }}}
     { -- {{{ fret
       dir = 'C:/bin/repository/tar80/fret.nvim',
@@ -244,14 +232,9 @@ require('lazy').setup(
       opts = {
         fret_enable_kana = true,
         fret_timeout = 9000,
-        mapkeys = {
-          fret_f = 'f',
-          fret_F = 'F',
-          fret_t = 't',
-          fret_T = 'T',
-        },
+        mapkeys = { fret_f = 'f', fret_F = 'F', fret_t = 't', fret_T = 'T' },
       },
-      event = 'UIEnter',
+      event = 'VeryLazy',
     }, ---}}}
     { -- {{{ sandwich
       'machakann/vim-sandwich',
@@ -287,12 +270,12 @@ require('lazy').setup(
           },
         }
       end,
-      event = 'User LazyLoad',
+      event = 'VeryLazy',
     }, -- }}}
     { -- {{{ comment
       'numToStr/Comment.nvim',
       opts = { ignore = '^$' },
-      event = 'User LazyLoad',
+      event = 'VeryLazy',
     }, -- }}}
     { -- {{{ operator-replace
       'yuki-yano/vim-operator-replace',
@@ -311,7 +294,7 @@ require('lazy').setup(
           end
           vim.schedule(function()
             local float = require('module.float')
-            local bufnr = float.popup({ contents = reg_str })
+            local bufnr = float.popup({ contents = reg_str, hl = { link = 'Special' } })
             -- local bufnr, winid = unpack(float.popup({ contents = reg_str }))
             api.nvim_create_autocmd({ 'ModeChanged' }, {
               group = augroup,
@@ -336,7 +319,7 @@ require('lazy').setup(
           return string.format('"%s<Plug>(operator-replace)', input)
         end, { expr = true })
       end,
-      event = 'User LazyLoad',
+      event = 'VeryLazy',
     }, -- }}}
     { -- {{{ mr
       'lambdalisue/mr.vim',
@@ -349,7 +332,7 @@ require('lazy').setup(
           "let g:mr#mru#predicates=[{filename -> filename !~? '\\\\\\|\\/dist\\/\\|\\/dev\\/\\|\\/\\.git\\/\\|\\.cache'}]"
         )
       end,
-      event = 'User Lazyload',
+      event = 'VeryLazy',
     }, ---}}}
     { -- {{{ denops
       'vim-denops/denops.vim',
@@ -368,7 +351,7 @@ require('lazy').setup(
       config = function()
         require('config.denops')
       end,
-      event = 'User LazyLoad',
+      event = 'VeryLazy',
     }, ---}}}
 
     ---@desc CursorMoved
@@ -403,7 +386,7 @@ require('lazy').setup(
       event = { 'CursorMoved', 'InsertEnter', 'CmdlineEnter' },
     }, ---}}}
 
-    ---@desc InsertEnter, CmdlineEnter
+    ---@desc InsertEnter, CmdlineEnter, ModeChanged
     { -- {{{ skkeleton_indicator
       'delphinus/skkeleton_indicator.nvim',
       dependencies = {
@@ -433,14 +416,15 @@ require('lazy').setup(
       end,
       event = { 'InsertEnter', 'CmdlineEnter' },
     }, -- }}}
+    { 'kana/vim-niceblock', event = 'ModeChanged' },
 
     ---@desc keys
     { -- {{{ telescope
       'nvim-telescope/telescope.nvim',
-      -- tag = '0.1.6',
       dependencies = {
         'hrsh7th/nvim-cmp',
         'plenary.nvim',
+        'lambdalisue/kensaku.vim',
         'nvim-telescope/telescope-file-browser.nvim',
         'nvim-telescope/telescope-ui-select.nvim',
         'Allianaab2m/telescope-kensaku.nvim',
@@ -455,7 +439,7 @@ require('lazy').setup(
       'tversteeg/registers.nvim',
       config = function()
         local registers = require('registers')
-        setmap({ 'n', 'x' }, '<Leader>2', registers.show_window({ mode = 'motion' }), { silent = true, noremap = true })
+        setmap({ 'n', 'x' }, '""', registers.show_window({ mode = 'motion' }), { silent = true, noremap = true })
         registers.setup({
           show_empty = false,
           register_user_command = false,
@@ -479,7 +463,7 @@ require('lazy').setup(
       end,
       lazy = true,
       keys = {
-        { '<Leader>2', mode = { 'n', 'x' } },
+        { '""', mode = { 'n', 'x' } },
         { '<C-R>', mode = 'i' },
       },
     }, ---}}}
@@ -525,71 +509,6 @@ require('lazy').setup(
       end,
       keys = { '<C-a>', '<C-x>', '<C-t>', { 'g<C-a>', mode = 'x' }, { 'g<C-x>', mode = 'x' } },
     }, -- }}}
-    { -- {{{ trouble
-      'folke/trouble.nvim',
-      opts = {
-        position = 'bottom',
-        height = 10,
-        width = 50,
-        icons = false,
-        mode = 'workspace_diagnostics',
-        fold_open = '',
-        fold_closed = '',
-        group = true,
-        padding = false,
-        cycle_results = false,
-        action_keys = {
-          cancel = '<Tab>',
-          refresh = '<C-l>',
-          jump = { 'o', '<2-leftmouse>' },
-          jump_close = '<CR>',
-          toggle_mode = 'm',
-          switch_severity = 's',
-          open_code_href = 'c',
-          close_folds = { 'zM', 'zm', '<left>' },
-          open_folds = { 'zR', 'zr', '<right>' },
-          toggle_fold = { 'zA', 'za' },
-          help = 'g?',
-        },
-        multiline = true,
-        indent_lines = true,
-        win_config = { border = 'rounded' },
-        auto_open = false,
-        auto_close = false,
-        auto_preview = true,
-        auto_fold = false,
-        auto_jump = { 'lps_type_definitions', 'lsp_definitions' },
-        include_declaration = { 'lsp_references', 'lsp_implementations', 'lsp_definitions' },
-        use_diagnostic_signs = true,
-      },
-      cmd = 'Trouble',
-    }, ---}}}
-    {
-      'nvimdev/lspsaga.nvim',
-      dependencies = {
-        'nvim-treesitter/nvim-treesitter',
-      },
-      opts = {
-        ui = {
-          title = false,
-          expand = '',
-          collapse = '',
-          code_action = '',
-          lines = { '└', '├', '│', '─', '┌' },
-        },
-        lightbulb = { enable = false },
-        symbol_in_winbar = { enable = false },
-        finder = {
-          keys = {
-            split = 's',
-            vsplit = 'v',
-            tabe = 't',
-          },
-        },
-      },
-      cmd = 'Lspsaga',
-    },
-    ---@desc cmd
     { -- {{{ gitsigns
       'lewis6991/gitsigns.nvim',
       init = function() -- {{{
@@ -661,6 +580,67 @@ require('lazy').setup(
         trouble = true,
       },
       keys = { { 'gss', '<Cmd>GitsignsAttach<CR>' } },
+    }, -- }}}
+
+    ---@desc cmd
+    { -- {{{ trouble
+      'folke/trouble.nvim',
+      opts = {
+        position = 'bottom',
+        height = 10,
+        width = 50,
+        icons = false,
+        mode = 'workspace_diagnostics',
+        fold_open = '',
+        fold_closed = '',
+        group = true,
+        padding = false,
+        cycle_results = false,
+        action_keys = {
+          cancel = '<Tab>',
+          refresh = '<C-l>',
+          jump = { 'o', '<2-leftmouse>' },
+          jump_close = '<CR>',
+          toggle_mode = 'm',
+          switch_severity = 's',
+          open_code_href = 'c',
+          close_folds = { 'zM', 'zm', '<left>' },
+          open_folds = { 'zR', 'zr', '<right>' },
+          toggle_fold = { 'zA', 'za' },
+          help = 'g?',
+        },
+        multiline = true,
+        indent_lines = true,
+        win_config = { border = 'rounded' },
+        auto_open = false,
+        auto_close = false,
+        auto_preview = false,
+        auto_fold = false,
+        auto_jump = { 'lps_type_definitions', 'lsp_definitions' },
+        include_declaration = { 'lsp_references', 'lsp_implementations', 'lsp_definitions' },
+        use_diagnostic_signs = true,
+      },
+      cmd = 'Trouble',
+    }, ---}}}
+    { -- {{{ lspsaga
+      'nvimdev/lspsaga.nvim',
+      -- dependencies = {
+      --   'nvim-treesitter/nvim-treesitter',
+      -- },
+      opts = {
+        ui = {
+          title = true,
+          expand = '',
+          collapse = '',
+          code_action = '',
+          lines = { '└', '├', '│', '─', '┌' },
+        },
+        beacon = { enable = false },
+        lightbulb = { enable = false },
+        symbol_in_winbar = { enable = false },
+        finder = { keys = { split = 's', vsplit = 'v', tabe = 't' } },
+      },
+      cmd = 'Lspsaga',
     }, -- }}}
     { -- {{{ translate
       'uga-rosa/translate.nvim',
@@ -795,7 +775,7 @@ require('lazy').setup(
     { 'norcalli/nvim-colorizer.lua', cmd = 'ColorizerAttachToBuffer' },
 
     ---@desc dap
-    {
+    { -- {{{ nvim-dap
       'mfussenegger/nvim-dap',
       dependencies = {
         'theHamsta/nvim-dap-virtual-text',
@@ -809,7 +789,7 @@ require('lazy').setup(
       end,
       key = { '<F5>' },
       lazy = true,
-    },
+    }, -- }}}
 
     ---@desc filetype
     { 'tar80/vim-PPxcfg', ft = 'PPxcfg' },

@@ -40,10 +40,10 @@ cmp.setup({
     if vim.g['skkeleton#enabled'] then
       return false
     end
-    return pcall(require, 'nvim-treesitter')
+    return true
   end,
   -- completion = { keyword_length = 2 },
-  performance = { debounce = 10, throttle = 100 },
+  performance = { debounce = 10, throttle = 50 },
   --matching = {disallow_prefix_unmatching = false},
   -- experimental = { ghost_text = { hl_group = 'CmpGhostText' } },
   window = {
@@ -167,9 +167,9 @@ cmp.setup.cmdline(':', {
   },
   completion = { keyword_length = 2 },
   sources = cmp.config.sources(
-    { { name = 'path', max_item_count = 30 } },
-    { { name = 'cmdline', max_item_count = 50 } },
-    { { name = 'cmdline_history', max_item_count = 100 } }
+    { { name = 'path', max_item_count = 20 } },
+    { { name = 'cmdline', max_item_count = 20 } },
+    { { name = 'cmdline_history', max_item_count = 20 } }
   ),
   formatting = {
     format = function(entry, item)
@@ -188,8 +188,4 @@ require('cmp_dictionary').setup({
   },
   exact_length = 2,
   first_case_insensitive = true,
-  -- document = {
-  --   enable = true,
-  --   command = { 'wn', '${label}', '-over' },
-  -- },
 })

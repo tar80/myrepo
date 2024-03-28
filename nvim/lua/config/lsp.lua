@@ -4,6 +4,7 @@
 ---@desc INITIAL {{{1
 local util = require('module.util')
 local api = vim.api
+local uv = vim.uv
 local keymap = vim.keymap
 local lsp = vim.lsp
 local border = 'rounded'
@@ -95,9 +96,6 @@ local on_attach = function(client, bufnr) --- {{{2
     group = augroup,
     buffer = 0,
     callback = function()
-      -- if client.config.root_dir ~= vim.fs.normalize(vim.uv.cwd()) then
-      --   return
-      -- end
       lsp.buf.document_highlight()
     end,
   })
@@ -122,9 +120,8 @@ local on_attach = function(client, bufnr) --- {{{2
     local resp = vim.diagnostic.open_float(opts_cursor, {})
 
     if not resp then
-      vim.cmd.Lspsaga('show_line_diagnostics')
-      -- local opts_line = vim.tbl_extend('force', opts, { scope = 'line' })
-      -- vim.diagnostic.open_float(opts_line, {})
+      local opts_line = vim.tbl_extend('force', opts, { scope = 'line' })
+      vim.diagnostic.open_float(opts_line, {})
     end
 
     api.nvim_set_option_value('winblend', winblend, {})
@@ -149,7 +146,7 @@ local on_attach = function(client, bufnr) --- {{{2
   -- keymap.set("n", "glj", lsp.buf.references)
 
   ---@desc trouble.nvim
-  keymap.set('n', 'gd', function()-- {{{
+  keymap.set('n', 'gd', function() -- {{{
     lsp.buf.definition({
       reuse_win = true,
       on_list = function(opts)
@@ -171,7 +168,7 @@ local on_attach = function(client, bufnr) --- {{{2
         vim.cmd.Trouble('lsp_definitions')
       end,
     })
-  end)-- }}}
+  end) -- }}}
   keymap.set('n', 'gle', '<Cmd>Trouble document_diagnostics<CR>', {})
   keymap.set('n', 'glk', '<Cmd>Trouble lsp_references<CR>', {})
 
@@ -283,7 +280,7 @@ require('mason-lspconfig').setup_handlers({
     require('lspconfig').lua_ls.setup({
       flags = flags,
       single_file_support = false,
-      root_dir = require('lspconfig').util.root_pattern('.git'),
+      root_dir = require('lspconfig').util.find_git_ancestor(uv.cwd()),
       on_attach = function(client, bufnr)
         on_attach(client, bufnr)
       end,
@@ -310,7 +307,11 @@ require('mason-lspconfig').setup_handlers({
           },
           workspace = {
             checkThirdParty = 'Disable',
-            library = { vim.fs.joinpath(vim.env.VIMRUNTIME, '${3rd}/luassert/library') },
+            library = {
+              '$VIMRUNTIME/lua/vim',
+              '${3rd}/luv/library',
+              '${3rd}/busted/library',
+            },
           },
           telemetry = {
             enable = false,
@@ -334,8 +335,15 @@ keymap.set('n', 'glf', function(bufnr)
 end)
 
 local null_ls = require('null-ls')
+local attach_filetypes = {'lua', 'javascript', 'typescript', 'text', 'markdown'}
 null_ls.setup({ -- {{{2
   debounce = 500,
+  root_dir = function()
+    return uv.cwd()
+  end,
+  should_attach = function(bufnr)
+    return vim.tbl_contains(attach_filetypes, vim.bo[bufnr].filetype)
+  end,
   temp_dir = vim.fn.tempname():gsub('^(.+)[/\\].*', '%1'),
   sources = {
     null_ls.builtins.formatting.prettier,

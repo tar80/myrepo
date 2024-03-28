@@ -8,18 +8,6 @@ local get_global = function(name)
 end
 local float_popup = api.nvim_create_namespace('float_popup')
 
-do
-  local items = {
-    'NormalNC',
-    'NormalFloat',
-    'FloatBorder',
-  }
-
-  for _, v in ipairs(items) do
-    api.nvim_set_hl(float_popup, v, { link = 'note' })
-  end
-end
-
 local function max_height(row, col)
   local lastline = get_global('cmdheight')
     + (get_global('laststatus') == 0 and 0 or 1)
@@ -41,6 +29,22 @@ local float = {
   focusable = false,
   noautocmd = true,
 }
+
+local set_hl = function(hl)
+  hl = hl or { link = 'Normal' }
+
+  do
+    local items = {
+      'NormalNC',
+      'NormalFloat',
+      'FloatBorder',
+    }
+
+    for _, v in ipairs(items) do
+      api.nvim_set_hl(float_popup, v, hl)
+    end
+  end
+end
 
 M.popup = function(opts)
   local winblend = api.nvim_get_option_value('winblend', {})
@@ -86,6 +90,7 @@ M.popup = function(opts)
   end
 
   local winid = vim.api.nvim_open_win(bufnr, false, float)
+  set_hl(opts.hl)
   vim.api.nvim_win_set_hl_ns(winid, float_popup)
   api.nvim_set_option_value('winblend', winblend, {})
 

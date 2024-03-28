@@ -4,6 +4,22 @@
     "actions": 
     [
         {
+            "command": 
+            {
+                "action": "swapPane",
+                "direction": "previousInOrder"
+            },
+            "keys": "alt+g"
+        },
+        {
+            "command": 
+            {
+                "action": "splitPane",
+                "split": "down"
+            },
+            "keys": "ctrl+shift+s"
+        },
+        {
             "command": "unbound",
             "keys": "ctrl+plus"
         },
@@ -28,8 +44,28 @@
             "keys": "alt+shift+plus"
         },
         {
+            "command": 
+            {
+                "action": "moveFocus",
+                "direction": "up"
+            },
+            "keys": "alt+k"
+        },
+        {
             "command": "paste",
             "keys": "shift+insert"
+        },
+        {
+            "command": "togglePaneZoom",
+            "keys": "ctrl+z"
+        },
+        {
+            "command": 
+            {
+                "action": "moveFocus",
+                "direction": "right"
+            },
+            "keys": "alt+l"
         },
         {
             "command": 
@@ -43,37 +79,9 @@
             "command": 
             {
                 "action": "moveFocus",
-                "direction": "up"
-            },
-            "keys": "alt+k"
-        },
-        {
-            "command": 
-            {
-                "action": "moveFocus",
                 "direction": "down"
             },
             "keys": "alt+j"
-        },
-        {
-            "command": 
-            {
-                "action": "moveFocus",
-                "direction": "right"
-            },
-            "keys": "alt+l"
-        },
-        {
-            "command": 
-            {
-                "action": "swapPane",
-                "direction": "previousInOrder"
-            },
-            "keys": "alt+g"
-        },
-        {
-            "command": "togglePaneZoom",
-            "keys": "ctrl+z"
         },
         {
             "command": "closePane",
@@ -88,14 +96,6 @@
                 "split": "right"
             },
             "keys": "ctrl+shift+b"
-        },
-        {
-            "command": 
-            {
-                "action": "splitPane",
-                "split": "down"
-            },
-            "keys": "ctrl+shift+s"
         },
         {
             "command": 
@@ -120,10 +120,17 @@
                 "action": "nextTab"
             },
             "keys": "ctrl+shift+tab"
-        }
+        },
+        {
+      "command": "expandSelectionToWord",
+      "keys": "ctrl+shift+@"
+        },
+        {
+      "command": "switchSelectionEndpoint",
+      "keys": "ctrl+shift+o"
+    }
     ],
     "alwaysShowNotificationIcon": false,
-    "compatibility.reloadEnvironmentVariables": false,
     "confirmCloseAllTabs": false,
     "copyFormatting": "none",
     "copyOnSelect": false,

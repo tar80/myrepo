@@ -4,6 +4,8 @@
 ---@desc INITIAL
 ---@Variables {{{2
 local util = require('module.util')
+---@type any
+local uv = vim.uv
 local api = vim.api
 local cmd = vim.cmd
 local o = vim.o
@@ -11,7 +13,7 @@ local opt = vim.opt
 local mapset = vim.keymap.set
 
 util.shell('nyagos')
-vim.env.myvimrc = vim.uv.fs_readlink(vim.env.myvimrc, nil)
+vim.env.myvimrc = uv.fs_readlink(vim.env.myvimrc, nil)
 vim.g.repo = 'c:/bin/repository/tar80'
 vim.g.update_time = 700
 cmd('language message C')
@@ -203,7 +205,7 @@ api.nvim_create_autocmd('OptionSet', {
 --}}}2
 
 ---@desc FUNCTIONS
-_G.Simple_fold = function() -- {{{2
+Simple_fold = function() -- {{{2
   ---this code is based on https://github.com/tamton-aquib/essentials.nvim
   local cms = api.nvim_get_option_value('commentstring', { buf = 0 })
   cms = cms:gsub('(%S+)%s*%%s.*', '%1')
@@ -275,6 +277,7 @@ vim.cmd.abbreviate('funcion', 'function')
 vim.cmd.abbreviate('fuction', 'function')
 vim.cmd.abbreviate('stirng', 'string')
 vim.cmd.abbreviate('retrun', 'return')
+vim.cmd.abbreviate('filed', 'field')
 
 cmd_abbrev("'<,'>", [['<,'>s///|nohls<Left><Left><Left><Left><Left><Left><Left>]], true)
 cmd_abbrev('s', '%s///<Left>', true)
@@ -295,6 +298,7 @@ cmd_abbrev(
 cmd_abbrev('ht', 'so<Space>$VIMRUNTIME/syntax/hitest.vim', true)
 cmd_abbrev('ct', 'so<Space>$VIMRUNTIME/syntax/colortest.vim', true)
 cmd_abbrev('hl', "lua<Space>print(require('module.util').hl_at_cursor())<CR>")
+cmd_abbrev('shadad', '!rm ~/.local/share/nvim-data/shada/main.shada.tmp*')
 ---}}}
 
 ---@desc KEYMAPS
@@ -428,7 +432,7 @@ api.nvim_create_user_command('Busted', function() -- {{{2
 end, {}) -- }}}
 
 ---@desc "Z <filepath>" zoxide query
-api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " . <q-args>)', { nargs = 1 })
+-- api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " . <q-args>)', { nargs = 1 })
 
 ---@desc "UTSetup" Unit-test compose multi-panel
 api.nvim_create_user_command('UTSetup', function() -- {{{2
@@ -439,7 +443,7 @@ api.nvim_create_user_command('UTSetup', function() -- {{{2
   os.execute(os.getenv('PPX_DIR') .. '/pptrayw.exe -c *deletecust _WinPos:BT')
   os.execute('wt -w 1 sp -V --size 0.4 ' .. os.getenv('PPX_DIR') .. '/ppbw.exe -bootid:t -k @wt -w 1 mf left')
 
-  local path = vim.fs.normalize(vim.uv.cwd() .. '/t')
+  local path = vim.fs.normalize(uv.cwd() .. '/t')
   local name = vim.fn.expand('%:t')
 
   if not name:find('utp_', 1, true) then
