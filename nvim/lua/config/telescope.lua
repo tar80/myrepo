@@ -55,6 +55,7 @@ end -- @@}
 ---@desc SETUP {@@1
 require('telescope').setup({
   defaults = { ---{@@2
+    path_display = { truncate = 1 },
     winblend = 10,
     previewer = false,
     cache_picker = false,
@@ -121,12 +122,12 @@ require('telescope').setup({
       sort_mru = true,
       mappings = { i = { ['<C-D>'] = actions.delete_buffer } },
     },
-    find_files = {
-      find_command = function()
-        return { 'rg', '--files', '--color', 'never' }
-        --   return { 'fd', '--type', 'f', '--color', 'never' }
-      end,
-    },
+    -- find_files = {
+    --   find_command = function()
+    --     return { 'rg', '--files', '--color', 'never' }
+    --     --   return { 'fd', '--type', 'f', '--color', 'never' }
+    --   end,
+    -- },
     live_grep = {
       max_results = 100,
       disable_coordinates = true,
@@ -181,7 +182,6 @@ require('telescope').setup({
       mappings = {
         ['i'] = {
           ['<C-h>'] = fb_actions.goto_parent_dir,
-          ['<C-l>'] = fb_actions.change_cwd,
           ['<C-t>'] = actions.file_tab,
           ['<C-k>'] = actions.preview_scrolling_up,
           ['<C-j>'] = actions.preview_scrolling_down,
@@ -269,7 +269,7 @@ setmap('n', '<leader>m', function()
   load_builtin('mr', 'no', {})
 end, {})
 setmap('n', '<leader>p', function()
-  local path = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
+  local path = vim.fn.expand('%:h:p')
   load_ext('file_browser', 'no', { path = path })
 end, {})
 setmap('n', '<leader>o', function()
@@ -329,11 +329,14 @@ end, {})
 
 ---@desc "Z <filepath>" zoxide query
 vim.api.nvim_create_user_command('Z', function(opts)
-  vim.system({ 'zoxide', 'query', opts.nargs }, { text = true }, function(data)
-    if data.code == 0 then
-      vim.schedule(function()
-        load_ext('file_browser', 'no', { path = data.stdout:gsub('\n', '') })
-      end)
-    end
+  vim.system({ 'zoxide', 'query', opts.args }, { text = true }, function(data)
+    vim.schedule(function()
+      if data.code == 0 and data.stdout then
+        local path = data.stdout:gsub('\n', '')
+        load_ext('file_browser', 'no', { path = path })
+      else
+        vim.notify('[zoxide] no match found', 3)
+      end
+    end)
   end)
 end, { nargs = 1 })

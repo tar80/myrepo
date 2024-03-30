@@ -307,12 +307,12 @@ require('lazy').setup(
           end)
           return input
         end
-        setmap('', '_', function()
+        setmap({'n','x'}, '_', function()
           local input = '*'
           input = operator_replace(input)
           return string.format('"%s<Plug>(operator-replace)', input)
         end, { expr = true })
-        setmap('', '\\', function()
+        setmap({'n','x'}, '\\', function()
           local input = vim.fn.nr2char(vim.fn.getchar())
           input = input == '\\' and '0' or input
           input = operator_replace(input)
@@ -329,7 +329,7 @@ require('lazy').setup(
         vim.g.mr_mrr_disabled = true
         vim.g['mr#threshold'] = 200
         vim.cmd(
-          "let g:mr#mru#predicates=[{filename -> filename !~? '\\\\\\|\\/dist\\/\\|\\/dev\\/\\|\\/\\.git\\/\\|\\.cache'}]"
+          "let g:mr#mru#predicates=[{filename -> filename !~? '\\\\\\|\\/doc\\/\\|\\/dist\\/\\|\\/dev\\/\\|\\/\\.git\\/\\|\\.cache'}]"
         )
       end,
       event = 'VeryLazy',

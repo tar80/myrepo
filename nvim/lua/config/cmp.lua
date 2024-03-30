@@ -44,7 +44,6 @@ cmp.setup({
   end,
   -- completion = { keyword_length = 2 },
   performance = { debounce = 10, throttle = 50 },
-  --matching = {disallow_prefix_unmatching = false},
   -- experimental = { ghost_text = { hl_group = 'CmpGhostText' } },
   window = {
     completion = { scrolloff = 1 },
@@ -59,7 +58,6 @@ cmp.setup({
   sources = cmp.config.sources({
     { name = 'vsnip' },
     { name = 'nvim_lsp', keyword_length = 2, max_item_count = 10 },
-    { name = 'nvim_lsp_signature_help' },
     { name = 'dictionary', keyword_length = 2 },
     {
       name = 'buffer',
@@ -71,6 +69,7 @@ cmp.setup({
     },
     { name = 'path', keyword_length = 2 },
     { name = 'nvim_lua', keyword_length = 2 },
+    { name = 'nvim_lsp_signature_help' },
   }),
   formatting = {
     format = function(entry, item)
@@ -122,7 +121,7 @@ cmp.setup({
           feed_key('<Plug>(vsnip-expand-or-jump)', '')
         end
       elseif cmp.visible() then
-        cmp.select_next_item({ behavior = true })
+        cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
       else
         fallback()
       end
@@ -132,8 +131,8 @@ cmp.setup({
         feed_key('<Plug>(vsnip-jump-prev)', '')
       elseif vim.fn['vsnip#available']() == 1 then
         feed_key('<Plug>(vsnip-expand-or-jump)', '')
-      -- elseif cmp.visible() then
-      --   cmp.select_prev_item({ behavior = true })
+      elseif cmp.visible() then
+        cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
       else
         fallback()
       end
