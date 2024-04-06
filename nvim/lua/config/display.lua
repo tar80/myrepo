@@ -1,16 +1,15 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
-
 ---@desc Transparent background
 ---@type boolean|nil
 local tr = vim.g.tr_bg
 vim.g.tr_bg = nil
 
----@desc Colorscheme {{{1
+---@desc Colorscheme {{{2
 local color_scheme = 'loose'
 ---@type string, string, string
 local cursor_color, background, theme_name;
----@desc time-manage {{{2
+---Time manage {{{3
 (function()
   local h = os.date('*t').hour
   if h > 6 and h < 18 then
@@ -27,7 +26,7 @@ end)()
 local colors = require(string.format('feline.themes.%s', theme_name))
 local palette = require('loose').colors(theme_name)
 
----@desc ColorScheme Setup {{{2
+---ColorScheme Setup {{{3
 ---@cast color_scheme -nil
 require(color_scheme).setup({
   background = background,
@@ -74,16 +73,16 @@ require(color_scheme).setup({
     -- notify = true
   },
 })
----}}}2
 
----@desc Nvim-Tabline {{{1
+
+---@desc Nvim-Tabline {{{2
 ---@see https://github.com/crispgm
----@desc highlights {{{2
+---Highlights {{{3
 vim.api.nvim_set_hl(0, 'TabLine', { fg = colors.theme.green, bg = colors.theme.bg2, italic = true })
 vim.api.nvim_set_hl(0, 'TabLineSel', { fg = colors.theme.cyan, bg = palette.bg, italic = false })
 vim.api.nvim_set_hl(0, 'TabLineFill', { fg = colors.theme.fg, bg = colors.theme.bg2, italic = true })
 
----@desc options {{{2
+---Options {{{3
 local options = {
   show_index = true,
   show_modify = true,
@@ -91,7 +90,7 @@ local options = {
   no_name = '[No Name]',
 }
 
----@desc tabline() {{{2
+---Tabline() {{{3
 local function tabline(opts)
   local s = ''
   for index = 1, #vim.api.nvim_list_tabpages() do
@@ -117,17 +116,15 @@ function _G.nvim_tabline()
 end
 
 vim.o.tabline = '%!v:lua.nvim_tabline()'
----}}}2
 
----@desc Feline {{{1
+---@desc Feline {{{2
 if not pcall(require, 'feline') then
   return
 end
 
----@desc Initial {{{2
 local vm = require('feline.providers.vi_mode')
 
----@desc icon {{{2
+---Icons {{{3
 local icon = {
   dos = { '', 'blue' },
   unix = { '', 'olive' },
@@ -140,10 +137,9 @@ local icon = {
   stage = {},
   unstage = {},
 }
----}}}2
 
 ---@desc Feline left
----@desc Mode {{{2
+---Mode {{{3
 local mode = {
   priority = 2,
   vim = {
@@ -197,7 +193,7 @@ local mode = {
     end,
   },
 }
----@desc Diagnostics {{{2
+---Diagnostics {{{3
 local function diagnostics_count(severity)
   return vim.api.nvim_get_mode().mode == 'n'
       and vim.tbl_count(vim.diagnostic.get(0, { severity = vim.diagnostic.severity[severity] }))
@@ -234,7 +230,7 @@ local diag = {
     left_sep = { str = ' ', hl = { fg = 'bg2' }, always_visible = true },
   },
 }
----@desc Edit status {{{2
+---Edit status {{{3
 local edit = {
   priority = 1,
   readonly = {
@@ -269,9 +265,8 @@ local edit = {
   --   hl = { bg = "fg" },
   -- },
 }
----}}}2
 
----@desc Feline Center
+---Center {{{3
 local search = {
   priority = -2,
   count = {
@@ -281,13 +276,12 @@ local search = {
   },
 }
 
----@desc Feline Right
----@desc sepalator {{{2
+---Right {{{3
 local sepalator = {
   str = '  ',
   hl = { fg = 'fg' },
 }
----@desc Git {{{2
+---Git {{{4
 local git = {
   priority = -2,
   branch = {
@@ -322,7 +316,7 @@ local git = {
     truncate_hide = true,
   },
 }
----@desc File info {{{2
+---File info {{{4
 local file = {
   priority = -2,
   type = {
@@ -347,7 +341,7 @@ local file = {
   },
   truncate_hide = true,
 }
----@desc Line {{{2
+---Line {{{4
 local line = {
   priority = -2,
   pos = {
@@ -373,7 +367,7 @@ local line = {
   -- },
 }
 
----@desc Feline inactive {{{2
+---Inactive {{{3
 local filetype = {
   provider = function()
     return ' ' .. vim.bo.filetype .. ' '
@@ -396,8 +390,7 @@ local path = {
   hl = { fg = 'fg' },
 }
 
----@desc Setup
----@desc Table {{{2
+---Tables {{{3
 local active = {
   {
     mode.vim,
@@ -421,7 +414,7 @@ local inactive = {
   {},
   { line.pos },
 }
----@desc Feline Setup {{{2
+---Setup {{{3
 require('feline').setup({
   theme = colors.theme,
   vi_mode_colors = colors.vi_mode,

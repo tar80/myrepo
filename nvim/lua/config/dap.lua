@@ -1,6 +1,5 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1
 --------------------------------------------------------------------------------
-
 local dap = require('dap')
 
 local jest_path = 'C:/bin/repository/ppmdev/node_modules/jest/bin/jest.js'
@@ -42,10 +41,10 @@ local internal = {-- {{{2
       self.termwin = 0
     end
   end,
-}-- }}}
+}
 
----@desc dap signs
-local signs = { -- {{{2
+---@desc Dap Signs {{{2
+local signs = {
   Breakpoint = '',
   BreakpointCondition = '',
   BreakpointRejected = '',
@@ -55,20 +54,20 @@ local signs = { -- {{{2
 for type, icon in pairs(signs) do
   local name = 'Dap' .. type
   vim.fn.sign_define(name, { text = icon, texthl = name, linehl = 'NONE', numhl = 'NONE' })
-end -- }}}
+end
 
----@desc defaults
+---@desc Defaults {{{2
 -- dap.defaults.fallback.stepping_granularity = 'statement'
-dap.defaults.fallback.terminal_win_cmd = function()-- {{{2
+dap.defaults.fallback.terminal_win_cmd = function()
   local winid = vim.api.nvim_get_current_win()
   vim.cmd('belowright 60vsplit new')
   internal.termnr = vim.api.nvim_get_current_buf()
   internal.termwin = vim.api.nvim_get_current_win()
   vim.api.nvim_set_current_win(winid)
   return internal.termnr, internal.termwin
-end-- }}}
+end
 
----@desc autocmd
+---@desc Autocmds {{{2
 local augroup = vim.api.nvim_create_augroup('rcDap', {})
 vim.api.nvim_create_autocmd('FileType', { -- {{{2
   group = augroup,
@@ -76,7 +75,7 @@ vim.api.nvim_create_autocmd('FileType', { -- {{{2
   callback = function()
     require('dap.ext.autocompl').attach()
   end,
-}) -- }}}
+})
 vim.api.nvim_create_autocmd('User', { -- {{{2
   group = augroup,
   pattern = 'DapTerminated',
@@ -88,15 +87,15 @@ vim.api.nvim_create_autocmd('User', { -- {{{2
     internal:close_term()
     vim.cmd.DapDetach()
   end,
-}) -- }}}
+})
 
----@desc js-debug
-require('dap-vscode-js').setup({ -- {{{2
+---@desc Js-debug {{{2
+require('dap-vscode-js').setup({
   debugger_path = data_path .. '/mason/packages/js-debug-adapter',
   debugger_cmd = { 'js-debug-adapter' },
   adapters = { 'pwa-node', 'node-terminal', 'pwa-extensionHost' },
-}) -- }}}
-dap.adapters['pwa-node'] = { -- {{{2
+})
+dap.adapters['pwa-node'] = {
   type = 'server',
   host = 'localhost',
   port = '${port}',
@@ -105,10 +104,10 @@ dap.adapters['pwa-node'] = { -- {{{2
     args = { data_path .. '/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js', '${port}' },
     detached = true,
   },
-} -- }}}
+}
 
----@desc configurations
-for _, language in ipairs({ 'typescript', 'javascript' }) do -- {{{2
+---@desc Configurations {{{2
+for _, language in ipairs({ 'typescript', 'javascript' }) do
   dap.configurations[language] = {
     {
       type = 'pwa-node',
@@ -139,10 +138,10 @@ for _, language in ipairs({ 'typescript', 'javascript' }) do -- {{{2
       cwd = '${workspaceFolder}',
     },
   }
-end -- }}}
+end
 
----@desc nvim-dap-virtual-text
-require('nvim-dap-virtual-text').setup({ -- {{{2
+---@desc Nvim-dap-virtual-text {{{2
+require('nvim-dap-virtual-text').setup({
   enabled = true,
   enabled_commands = false,
   highlight_changed_variables = true,
@@ -167,22 +166,22 @@ require('nvim-dap-virtual-text').setup({ -- {{{2
   virt_lines = false, -- show virtual lines instead of virtual text (will flicker!)
   virt_lines_above = true,
   virt_text_win_col = nil, -- position the virtual text at a fixed window column (starting from the first text column) ,
-}) -- }}}
+})
 
----@desc event
-dap.listeners.after.event_initialized['dapui_config'] = function() -- {{{2
+---@desc Event {{{2
+dap.listeners.after.event_initialized['dapui_config'] = function()
   vim.notify('[Dap] session start', 3)
   dap.repl.open({ height = 5 })
-end -- }}}
-dap.listeners.before.event_terminated['dapui_config'] = function() -- {{{2
+end
+dap.listeners.before.event_terminated['dapui_config'] = function()
   vim.cmd.doautocmd('<nomodeline> User DapTerminated')
   vim.notify('[Dap] session end', 3)
-end -- }}}
-dap.listeners.before.event_exited['dapui_config'] = function() -- {{{2
+end
+dap.listeners.before.event_exited['dapui_config'] = function()
   vim.notify('[Dap] listeners event_exited', 4)
-end -- }}}
+end
 
----@cmd
+---@Cmd {{{2
 vim.api.nvim_create_user_command('DapAttach', function() -- {{{2
   internal.enable = true
   keymap.set('n', '<leader>d', function()
@@ -206,7 +205,7 @@ vim.api.nvim_create_user_command('DapAttach', function() -- {{{2
   keymap.set('n', '<F10>', function()
     dap.step_out()
   end)
-end, {}) -- }}}
+end, {})
 vim.api.nvim_create_user_command('DapDetach', function() -- {{{2
   internal.enable = false
   keymap.del('n', '<leader>b')
@@ -216,10 +215,10 @@ vim.api.nvim_create_user_command('DapDetach', function() -- {{{2
   keymap.del('n', '<F8>')
   keymap.del('n', '<F9>')
   keymap.del('n', '<F10>')
-end, {}) -- }}}
+end, {})
 
----@keymaps
-keymap.set('n', '<F5>', function()-- {{{2
+---@Keymaps {{{2
+keymap.set('n', '<F5>', function()
   local msg
   if not internal.enable then
     vim.cmd.DapAttach()
@@ -230,6 +229,7 @@ keymap.set('n', '<F5>', function()-- {{{2
   end
 
   vim.notify(msg, 2)
-end)-- }}}
+end)
+-- }}}
 
 vim.cmd.DapAttach()

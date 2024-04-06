@@ -1,13 +1,13 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
+---@desc Vsnip
+vim.g.vsnip_snippet_dir = vim.g.repo .. '/myrepo/nvim/.vsnip'
 
----#Valiables
-vim.g.vsnip_snippet_dir = vim.g.repo .. '\\myrepo\\nvim\\.vsnip'
-
----#Setup
+---@desc Cmp
 local cmp = require('cmp')
 local feed_key = require('module.util').feedkey
-local kind = { -- {{{2
+---Kind {{{2
+local kind = {
   vsnip = { icon = '', alias = 'V-snip' },
   dictionary = { icon = '', alias = 'Dictionary' },
   nvim_lsp = { icon = '', alias = nil },
@@ -16,7 +16,7 @@ local kind = { -- {{{2
   buffer = { icon = '', alias = 'Buffer' },
   path = { icon = '', alias = nil },
   cmdline = { icon = '', alias = nil },
-} -- }}}
+}
 local display_kind = function(entry, item)
   local v = kind[entry.source.name]
   item.kind = string.format('%s%s', v.icon, v.alias or item.kind)
@@ -27,7 +27,7 @@ local undisplay_kind = function(_, item)
   return item
 end
 
----#Insert-mode {{{2
+---Insert-mode {{{2
 cmp.setup({
   enabled = function()
     -- local context = require("cmp.config.context")
@@ -143,7 +143,7 @@ cmp.setup({
   },
 })
 --}}}2
--- #Search-mode {{{2
+---Search-mode {{{2
 cmp.setup.cmdline('/', {
   completion = { keyword_length = 1 },
   sources = cmp.config.sources({
@@ -157,7 +157,7 @@ cmp.setup.cmdline('/', {
   mapping = cmp.mapping.preset.cmdline(),
 })
 --}}}2
--- #Command-mode {{{2
+---Command-mode {{{2
 cmp.setup.cmdline(':', {
   window = {
     completion = { scrolloff = 1 },
@@ -178,12 +178,12 @@ cmp.setup.cmdline(':', {
   mapping = cmp.mapping.preset.cmdline(),
 })
 --}}}2
--- #cmp-dictionary {{{2
+---cmp-dictionary {{{2
 require('cmp_dictionary').setup({
   paths = {
-    vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\javascript.dict',
-    vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\lua.dict',
-    vim.g.repo .. '\\myrepo\\nvim\\after\\dict\\PPxcfg.dict',
+    vim.g.repo .. '/myrepo/nvim/after/dict/javascript.dict',
+    vim.g.repo .. '/myrepo/nvim/after/dict/lua.dict',
+    vim.g.repo .. '/myrepo/nvim/after/dict/PPxcfg.dict',
   },
   exact_length = 2,
   first_case_insensitive = true,

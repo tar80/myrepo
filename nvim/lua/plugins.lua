@@ -1,72 +1,26 @@
 --- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 -------------------------------------------------------------------------------
----@diagnostic disable: missing-fields, redundant-parameter, undefined-field
-
----@desc INITIAL
+local fn = vim.fn
 local api = vim.api
 local setmap = vim.keymap.set
+local augroup = api.nvim_create_augroup('rc_plugins', {})
+
 vim.loader.enable()
-local augroup = api.nvim_create_augroup('rcPlugins', {})
 
-do -- {{{2 Lazy.nvim bootstrap
-  local LAZY_PATH = vim.fn.stdpath('data') .. '\\lazy\\lazy.nvim'
-
-  if vim.fn.isdirectory(LAZY_PATH) == 0 then
-    vim.fn.system({
-      'git',
-      'clone',
-      '--filter=blob:none',
-      'https://github.com/folke/lazy.nvim.git',
-      '--branch=stable',
-      LAZY_PATH,
-    })
+---@desc Lazy.nvim bootstrap {{{2
+do
+  local lazypath = string.format('%s/lazy/lazy.nvim', fn.stdpath('data'))
+  local cmdline =
+    { 'git', 'clone', '--filter=blob:none', 'https://github.com/folke/lazy.nvim.git', '--branch=stable', lazypath }
+  if vim.fn.isdirectory(lazypath) == 0 then
+    vim.fn.system(cmdline)
   end
-
-  vim.opt.rtp:prepend(LAZY_PATH)
-end -- }}}
+  vim.opt.rtp:prepend(lazypath)
+end
 
 ---@desc Setup {{{1
 require('lazy').setup(
   { -- {{{ plugins
-
-    -- { -- {{{ notify
-    --   "rcarriga/nvim-notify",
-    --   event = "VeryLazy",
-    --   dependencies = { "telescope.nvim" },
-    --   config = function()
-    --     vim.notify = require("notify")
-    --     require("notify").setup({
-    --       fps = 30,
-    --       level = 2,
-    --       minimum_width = 50,
-    --       timeout = 5000,
-    --       render = "default",
-    --       top_down = false,
-    --       -- stages = "slide",
-    --     })
-    --   end,
-    -- }, --}}}
-    -- { -- {{{ conflict-marker
-    --   dir = 'C:/bin/temp/backup/conflict-marker.vim',
-    --   config = function()
-    --     api.nvim_set_hl(0, 'ConflictMarkerBegin', { bg = '#2f7366' })
-    --     api.nvim_set_hl(0, 'ConflictMarkerOurs', { bg = '#2e5049' })
-    --     api.nvim_set_hl(0, 'ConflictMarkerTheirs', { bg = '#344f69' })
-    --     api.nvim_set_hl(0, 'ConflictMarkerEnd', { bg = '#2f628e' })
-    --     api.nvim_set_hl(0, 'ConflictMarkerCommonAncestorsHunk', { bg = '#754a81' })
-    --   end,
-    -- }, --}}}
-    -- { -- {{{ select-multi-line
-    --   dir = 'C:/bin/repository/tar80/nvim-select-multi-line',
-    --   branch = 'tar80',
-    --   name = 'nvim-select-multi-line',
-    --   config = function()
-    --     setmap('n', '<Leader>v', function()
-    --       require('nvim-select-multi-line').start()
-    --     end)
-    --   end,
-    --   keys = { '<Leader>v', mode = { 'n' } },
-    -- }, ---}}}
 
     ---@desc startup
     { -- {{{ cellwidths
@@ -85,7 +39,6 @@ require('lazy').setup(
         })
       end,
       build = function()
-        ---@diagnostic disable-next-line: missing-parameter
         require('cellwidths').remove()
       end,
     }, -- }}}
@@ -95,22 +48,23 @@ require('lazy').setup(
     { 'kana/vim-operator-user', lazy = true, module = false },
     -- { 'nvim-tree/nvim-web-devicons', module = true },
 
-    ---@desc scheme
-    { dir = 'C:/bin/repository/tar80/loose.nvim', name = 'loose.nvim', lazy = true },
+    ---@desc display
     { -- {{{ feline
       'feline-nvim/feline.nvim',
       -- 'freddiehaddad/feline.nvim',
+      event = 'UIEnter',
       dependencies = { 'loose.nvim' },
       config = function()
         require('config.display')
       end,
-      event = 'UIEnter',
     }, -- }}}
+    { dir = 'C:/bin/repository/tar80/loose.nvim', name = 'loose.nvim', lazy = true },
 
-    ---@desc UIEnter
+    ---@desc git
     { -- {{{ mug
-      dir = 'C:/bin/repository/tar80/mug.nvim',
       name = 'mug.nvim',
+      dir = 'C:/bin/repository/tar80/mug.nvim',
+      event = 'VeryLazy',
       config = function()
         require('mug').setup({
           commit = true,
@@ -147,370 +101,11 @@ require('lazy').setup(
         setmap('n', 'mi', '<Cmd>MugIndex<cr>')
         setmap('n', 'mc', '<Cmd>MugCommit<cr>')
       end,
-      event = 'VeryLazy',
     }, ---}}}
-    { 'williamboman/mason-lspconfig.nvim', lazy = true },
-    { 'williamboman/mason.nvim', lazy = true },
-    { 'nvimtools/none-ls.nvim', lazy = true },
-    { -- {{{ lspconfig
-      'neovim/nvim-lspconfig',
-      dependencies = { 'williamboman/mason.nvim', 'nvimtools/none-ls.nvim', 'hrsh7th/cmp-nvim-lsp' },
-      config = function()
-        require('config.lsp')
-      end,
-      event = 'VeryLazy',
-    }, ---}}}
-    { -- {{{ treesitter
-      'nvim-treesitter/nvim-treesitter',
-      build = ':TSUpdate',
-      config = function()
-        require('nvim-treesitter.configs').setup({
-          -- ensure_installed = {'lua', 'typescript', 'javascript', 'markdown'},
-          sync_install = false,
-          ignore_install = { 'text', 'help' },
-          highlight = {
-            enable = true,
-            disable = function(lang, buf)
-              local max_filesize = 100 * 1024
-              local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
-              if ok and stats and stats.size > max_filesize then
-                return true
-              end
-            end,
-            additional_vim_regex_highlighting = false,
-          },
-          incremental_selection = {
-            enable = true,
-            keymaps = {
-              -- init_selection = '<CR>',
-              -- scope_incremental = '<CR>',
-              node_incremental = '<C-j>',
-              node_decremental = '<C-k>',
-            },
-          },
-        })
-      end,
-      event = 'VeryLazy',
-    }, ---}}}
-    { -- {{{ ts-textobjects
-      'nvim-treesitter/nvim-treesitter-textobjects',
-      dependencies = { 'nvim-treesitter' },
-      config = function()
-        require('config.ts_textobj')
-      end,
-      event = 'VeryLazy',
-    }, ---}}}
-
-    ---@desc lazy(direct read)
-    { -- {{{ open-browser
-      'tyru/open-browser.vim',
-      init = function()
-        vim.g.openbrowser_open_vim_command = 'split'
-        vim.g.openbrowser_use_vimproc = 0
-        vim.g.openbrowser_no_default_menus = 1
-        setmap('n', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('n')<CR>")
-        setmap('x', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('v')<CR>")
-        vim.opt.rtp:append(vim.fn.stdpath('data') .. '\\lazy\\open-browser.vim')
-      end,
-      lazy = true,
-    }, -- }}}
-
-    ---@desc VeryLazy
-    { -- {{{ smartword
-      'kana/vim-smartword',
-      init = function()
-        setmap('n', 'w', '<Plug>(smartword-w)')
-        setmap('n', 'b', '<Plug>(smartword-b)')
-        setmap('n', 'e', '<Plug>(smartword-e)')
-        setmap('n', 'ge', '<Plug>(smartword-ge)')
-      end,
-      event = 'VeryLazy',
-    }, -- }}}
-    { -- {{{ fret
-      dir = 'C:/bin/repository/tar80/fret.nvim',
-      name = 'fret.nvim',
-      opts = {
-        fret_enable_kana = true,
-        fret_timeout = 9000,
-        mapkeys = { fret_f = 'f', fret_F = 'F', fret_t = 't', fret_T = 'T' },
-      },
-      event = 'VeryLazy',
-    }, ---}}}
-    { -- {{{ sandwich
-      'machakann/vim-sandwich',
-      init = function()
-        vim.g.sandwich_no_default_key_mappings = true
-        setmap({ 'n' }, '<Leader>i', '<Plug>(operator-sandwich-add)i')
-        setmap({ 'n' }, '<Leader>a', '<Plug>(operator-sandwich-add)a')
-        setmap({ 'x' }, '<Leader>a', '<Plug>(operator-sandwich-add)')
-        setmap({ 'n', 'x' }, '<Leader>r', '<Plug>(sandwich-replace)')
-        setmap({ 'n', 'x' }, '<Leader>rr', '<Plug>(sandwich-replace-auto)')
-        setmap({ 'n', 'x' }, '<Leader>d', '<Plug>(sandwich-delete)')
-        setmap({ 'n', 'x' }, '<Leader>dd', '<Plug>(sandwich-delete-auto)')
-        setmap({ 'o', 'x' }, 'ib', '<Plug>(textobj-sandwich-auto-i)')
-        setmap({ 'o', 'x' }, 'ab', '<Plug>(textobj-sandwich-auto-a)')
-      end,
-      config = function()
-        local recipes = vim.deepcopy(vim.g['sandwich#default_recipes'])
-        local esc_quote = { s = [[\']], d = [[\"]] }
-        recipes = vim.list_extend(recipes, {
-          { buns = { esc_quote.s, esc_quote.s }, input = { esc_quote.s } },
-          { buns = { esc_quote.d, esc_quote.d }, input = { esc_quote.d } },
-          { buns = { '【', '】' }, input = { ']' }, filetype = { 'markdown' } },
-          { buns = { '${', '}' }, input = { '$' }, filetype = { 'typescript', 'javascript' } },
-          { buns = { '%(', '%)' }, input = { '%' }, filetype = { 'typescript', 'javascript' } },
-        })
-        vim.g['sandwich#recipes'] = recipes
-        vim.g['sandwich#magicchar#f#patterns'] = {
-          {
-            header = [[\<\%(\h\k*\.\)*\h\k*]],
-            bra = '(',
-            ket = ')',
-            footer = '',
-          },
-        }
-      end,
-      event = 'VeryLazy',
-    }, -- }}}
-    { -- {{{ comment
-      'numToStr/Comment.nvim',
-      opts = { ignore = '^$' },
-      event = 'VeryLazy',
-    }, -- }}}
-    { -- {{{ operator-replace
-      'yuki-yano/vim-operator-replace',
-      dependencies = { 'vim-operator-user' },
-      init = function()
-        local operator_replace = function(input)
-          local mode = vim.api.nvim_get_mode().mode
-          if mode == 'V' then
-            return input
-          end
-          local reg_str = vim.fn.getreg(input, 1, 1)
-          ---@cast reg_str -string
-          if vim.tbl_isempty(reg_str) then
-            input = '0'
-            reg_str = vim.fn.getreg(input, 1, 1)
-          end
-          vim.schedule(function()
-            local float = require('module.float')
-            local bufnr = float.popup({ contents = reg_str, hl = { link = 'Special' } })
-            -- local bufnr, winid = unpack(float.popup({ contents = reg_str }))
-            api.nvim_create_autocmd({ 'ModeChanged' }, {
-              group = augroup,
-              pattern = 'no:[nc]*',
-              once = true,
-              callback = function()
-                vim.cmd.bwipeout(bufnr)
-              end,
-            })
-          end)
-          return input
-        end
-        setmap({'n','x'}, '_', function()
-          local input = '*'
-          input = operator_replace(input)
-          return string.format('"%s<Plug>(operator-replace)', input)
-        end, { expr = true })
-        setmap({'n','x'}, '\\', function()
-          local input = vim.fn.nr2char(vim.fn.getchar())
-          input = input == '\\' and '0' or input
-          input = operator_replace(input)
-          return string.format('"%s<Plug>(operator-replace)', input)
-        end, { expr = true })
-      end,
-      event = 'VeryLazy',
-    }, -- }}}
-    { -- {{{ mr
-      'lambdalisue/mr.vim',
-      init = function()
-        vim.g.mr_mru_disabled = false
-        vim.g.mr_mrw_disabled = true
-        vim.g.mr_mrr_disabled = true
-        vim.g['mr#threshold'] = 200
-        vim.cmd(
-          "let g:mr#mru#predicates=[{filename -> filename !~? '\\\\\\|\\/doc\\/\\|\\/dist\\/\\|\\/dev\\/\\|\\/\\.git\\/\\|\\.cache'}]"
-        )
-      end,
-      event = 'VeryLazy',
-    }, ---}}}
-    { -- {{{ denops
-      'vim-denops/denops.vim',
-      dependencies = {
-        'lambdalisue/kensaku.vim',
-        'yuki-yano/fuzzy-motion.vim',
-        'vim-skk/skkeleton',
-      },
-      init = function()
-        api.nvim_set_var('denops_disable_version_check', 1)
-        api.nvim_set_var('denops#deno', string.format('%s/apps/deno/current/deno.exe', vim.env.scoop))
-        api.nvim_set_var('denops#server#deno_args', { '-q', '--no-lock', '-A', '--unstable-kv' })
-        api.nvim_set_var('denops#server#retry_threshold', 1)
-        api.nvim_set_var('denops#server#reconnect_threshold', 1)
-      end,
-      config = function()
-        require('config.denops')
-      end,
-      event = 'VeryLazy',
-    }, ---}}}
-
-    ---@desc CursorMoved
-    { -- {{{ parenmatch
-      dir = 'C:/bin/repository/tar80/vim-parenmatch',
-      name = 'parenmatch',
-      opts = {
-        highlight = { link = 'MatchParen' },
-        ignore_filetypes = { 'TelescopePrompt', 'cmp-menu', 'help' },
-        ignore_buftypes = { 'nofile' },
-        itmatch = { enable = true },
-      },
-      event = 'CursorMoved',
-    }, -- }}}
-    { -- {{{ cmp
-      'hrsh7th/nvim-cmp',
-      dependencies = {
-        'hrsh7th/cmp-nvim-lsp',
-        'hrsh7th/cmp-nvim-lsp-signature-help',
-        'hrsh7th/vim-vsnip',
-        'hrsh7th/cmp-vsnip',
-        'hrsh7th/cmp-buffer',
-        'hrsh7th/cmp-nvim-lua',
-        'hrsh7th/cmp-path',
-        'hrsh7th/cmp-cmdline',
-        'dmitmel/cmp-cmdline-history',
-        { 'uga-rosa/cmp-dictionary', opts = { first_case_insensitive = true } },
-      },
-      config = function()
-        require('config.cmp')
-      end,
-      event = { 'CursorMoved', 'InsertEnter', 'CmdlineEnter' },
-    }, ---}}}
-
-    ---@desc InsertEnter, CmdlineEnter, ModeChanged
-    { -- {{{ skkeleton_indicator
-      'delphinus/skkeleton_indicator.nvim',
-      dependencies = {
-        'vim-skk/skkeleton',
-      },
-      opts = {
-        alwaysShown = false,
-        fadeOutMs = 0,
-      },
-      event = 'InsertEnter',
-    }, -- }}}
-    { -- {{{ insx
-      'hrsh7th/nvim-insx',
-      config = function()
-        vim.o.wrapscan = true
-        setmap({ 'i', 'c' }, '<C-h>', '<BS>', { remap = true })
-
-        require('config.insx').setup({
-          cmdline = false,
-          fast_break = true,
-          fast_wrap = true,
-          lua = true,
-          markdown = true,
-          javascript = true,
-          misc = true,
-        })
-      end,
-      event = { 'InsertEnter', 'CmdlineEnter' },
-    }, -- }}}
-    { 'kana/vim-niceblock', event = 'ModeChanged' },
-
-    ---@desc keys
-    { -- {{{ telescope
-      'nvim-telescope/telescope.nvim',
-      dependencies = {
-        'hrsh7th/nvim-cmp',
-        'plenary.nvim',
-        'lambdalisue/kensaku.vim',
-        'nvim-telescope/telescope-file-browser.nvim',
-        'nvim-telescope/telescope-ui-select.nvim',
-        'Allianaab2m/telescope-kensaku.nvim',
-      },
-      config = function()
-        require('config.telescope')
-      end,
-      cmd = 'Telescope',
-      keys = { '<Leader>', 'gl' },
-    }, ---}}}
-    { -- {{{ registers
-      'tversteeg/registers.nvim',
-      config = function()
-        local registers = require('registers')
-        setmap({ 'n', 'x' }, '""', registers.show_window({ mode = 'motion' }), { silent = true, noremap = true })
-        registers.setup({
-          show_empty = false,
-          register_user_command = false,
-          system_clipboard = false,
-          show_register_types = true,
-          symbols = { tab = '~' },
-          bind_keys = {
-            normal = false,
-            insert = registers.show_window({
-              mode = 'insert',
-              delay = 1,
-            }),
-          },
-          window = {
-            max_width = 100,
-            highlight_cursorline = true,
-            border = 'rounded',
-            transparency = 9,
-          },
-        })
-      end,
-      lazy = true,
-      keys = {
-        { '""', mode = { 'n', 'x' } },
-        { '<C-R>', mode = 'i' },
-      },
-    }, ---}}}
-    { -- {{{ dial
-      'monaqa/dial.nvim',
-      config = function()
-        local augend = require('dial.augend')
-        local default_rules = {
-          augend.semver.alias.semver,
-          augend.integer.alias.decimal_int,
-          augend.integer.alias.hex,
-          augend.decimal_fraction.new({}),
-          augend.date.alias['%Y/%m/%d'],
-          augend.constant.alias.bool,
-          -- augend.paren.alias.quote,
-        }
-        local js_rules = {
-          augend.constant.new({ elements = { 'let', 'const' } }),
-        }
-        require('dial.config').augends:register_group({
-          default = default_rules,
-          case = {
-            augend.case.new({
-              types = { 'camelCase', 'snake_case' },
-              cyclic = true,
-            }),
-          },
-        })
-        require('dial.config').augends:on_filetype({
-          typescript = vim.tbl_extend('force', default_rules, js_rules),
-          javascript = vim.tbl_extend('force', default_rules, js_rules),
-          -- lua = {},
-          -- markdown = { augend.misc.alias.markdown_header, },
-        })
-
-        setmap('n', '<C-t>', require('dial.map').inc_normal('case'), { silent = true, noremap = true })
-        setmap('n', '<C-a>', require('dial.map').inc_normal(), { silent = true, noremap = true })
-        setmap('n', '<C-x>', require('dial.map').dec_normal(), { silent = true, noremap = true })
-        setmap('v', '<C-a>', require('dial.map').inc_visual(), { silent = true, noremap = true })
-        setmap('v', '<C.x>', require('dial.map').dec_visual(), { silent = true, noremap = true })
-        setmap('v', 'g<C-a>', require('dial.map').inc_gvisual(), { silent = true, noremap = true })
-        setmap('v', 'g<C-x>', require('dial.map').dec_gvisual(), { silent = true, noremap = true })
-      end,
-      keys = { '<C-a>', '<C-x>', '<C-t>', { 'g<C-a>', mode = 'x' }, { 'g<C-x>', mode = 'x' } },
-    }, -- }}}
     { -- {{{ gitsigns
       'lewis6991/gitsigns.nvim',
+      lazy = true,
+      keys = { { 'gss', '<Cmd>GitsignsAttach<CR>' } },
       init = function() -- {{{
         api.nvim_create_user_command('GitsignsAttach', function()
           local gs = require('gitsigns')
@@ -526,9 +121,7 @@ require('lazy').setup(
             if vim.wo.diff then
               return ']c'
             end
-            vim.schedule(function()
-              gs.next_hunk()
-            end)
+            vim.schedule(gs.next_hunk)
             return '<Ignore>'
           end, { expr = true })
 
@@ -536,9 +129,7 @@ require('lazy').setup(
             if vim.wo.diff then
               return '[c'
             end
-            vim.schedule(function()
-              gs.prev_hunk()
-            end)
+            vim.schedule(gs.prev_hunk)
             return '<Ignore>'
           end, { expr = true })
 
@@ -579,12 +170,348 @@ require('lazy').setup(
         word_diff = true,
         trouble = true,
       },
-      keys = { { 'gss', '<Cmd>GitsignsAttach<CR>' } },
     }, -- }}}
 
-    ---@desc cmd
+    ---@desc lsp
+    { -- {{{ lspconfig
+      'neovim/nvim-lspconfig',
+      event = 'VeryLazy',
+      dependencies = { 'williamboman/mason.nvim', 'nvimtools/none-ls.nvim', 'hrsh7th/cmp-nvim-lsp' },
+      config = function()
+        require('config.lsp')
+      end,
+    }, ---}}}
+    { 'williamboman/mason-lspconfig.nvim', lazy = true },
+    { 'williamboman/mason.nvim', lazy = true },
+    { 'nvimtools/none-ls.nvim', lazy = true },
+
+    ---@desc treesitter
+    { -- {{{ treesitter
+      'nvim-treesitter/nvim-treesitter',
+      event = 'VeryLazy',
+      dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
+      build = ':TSUpdate',
+      config = function()
+        require('config.treesitter')
+      end,
+    }, ---}}}
+    { 'nvim-treesitter/nvim-treesitter-textobjects', lazy = true },
+
+    ---@denops
+    { -- {{{ denops
+      'vim-denops/denops.vim',
+      event = 'VeryLazy',
+      dependencies = {
+        'lambdalisue/kensaku.vim',
+        'yuki-yano/fuzzy-motion.vim',
+        'vim-skk/skkeleton',
+      },
+      init = function()
+        api.nvim_set_var('denops_disable_version_check', 1)
+        api.nvim_set_var('denops#deno', string.format('%s/apps/deno/current/deno.exe', vim.env.scoop))
+        api.nvim_set_var('denops#server#deno_args', { '-q', '--no-lock', '-A', '--unstable-kv' })
+        api.nvim_set_var('denops#server#retry_threshold', 1)
+        api.nvim_set_var('denops#server#reconnect_threshold', 1)
+      end,
+      config = function()
+        require('config.denops')
+      end,
+    }, ---}}}
+
+    ---@desc motion
+    { -- {{{ matchwith
+      name = 'matchwith',
+      dir = 'C:/bin/repository/tar80/matchwith.nvim',
+      event = 'CursorMoved',
+      opts = {
+        ignore_filetypes = { 'TelescopePrompt', 'cmp-menu', 'help' },
+        ignore_buftypes = { 'nofile' },
+        enable_jump = true,
+      },
+    }, -- }}}
+    { -- {{{ smartword
+      'kana/vim-smartword',
+      event = 'VeryLazy',
+      init = function()
+        setmap('n', 'w', '<Plug>(smartword-w)')
+        setmap('n', 'b', '<Plug>(smartword-b)')
+        setmap('n', 'e', '<Plug>(smartword-e)')
+        setmap('n', 'ge', '<Plug>(smartword-ge)')
+      end,
+    }, -- }}}
+    { -- {{{ fret
+      name = 'fret.nvim',
+      dir = 'C:/bin/repository/tar80/fret.nvim',
+      event = 'VeryLazy',
+      opts = {
+        fret_enable_kana = true,
+        fret_timeout = 9000,
+        mapkeys = { fret_f = 'f', fret_F = 'F', fret_t = 't', fret_T = 'T' },
+      },
+    }, ---}}}
+    { 'kana/vim-niceblock', event = 'ModeChanged' },
+    -- {'andymass/vim-matchup', event = 'VeryLazy'},
+    -- { -- {{{ parenmatch
+    --   dir = 'C:/bin/repository/tar80/vim-parenmatch',
+    --   name = 'parenmatch',
+    --   opts = {
+    --     highlight = { link = 'MatchParen' },
+    --     ignore_filetypes = { 'TelescopePrompt', 'cmp-menu', 'help' },
+    --     ignore_buftypes = { 'nofile' },
+    --     itmatch = { enable = true },
+    --   },
+    --   event = 'CursorMoved',
+    -- }, -- }}}
+
+    ---@context
+    { -- {{{ insx
+      'hrsh7th/nvim-insx',
+      event = { 'InsertEnter', 'CmdlineEnter' },
+      config = function()
+        vim.o.wrapscan = true
+        setmap({ 'i', 'c' }, '<C-h>', '<BS>', { remap = true })
+
+        require('config.insx'):setup({
+          cmdline = false,
+          fast_break = true,
+          fast_wrap = true,
+          lua = true,
+          markdown = true,
+          javascript = true,
+          misc = true,
+        })
+      end,
+    }, -- }}}
+    { -- {{{ comment
+      'numToStr/Comment.nvim',
+      event = 'VeryLazy',
+      opts = { ignore = '^$' },
+    }, -- }}}
+    { -- {{{ dial
+      'monaqa/dial.nvim',
+      keys = { '<C-a>', '<C-x>', '<C-t>', { 'g<C-a>', mode = 'x' }, { 'g<C-x>', mode = 'x' } },
+      config = function()
+        local augend = require('dial.augend')
+        local default_rules = {
+          augend.semver.alias.semver,
+          augend.integer.alias.decimal_int,
+          augend.integer.alias.hex,
+          augend.decimal_fraction.new({}),
+          augend.date.alias['%Y/%m/%d'],
+          augend.constant.alias.bool,
+          -- augend.paren.alias.quote,
+        }
+        local js_rules = {
+          augend.constant.new({ elements = { 'let', 'const' } }),
+        }
+        require('dial.config').augends:register_group({
+          default = default_rules,
+          case = {
+            augend.case.new({
+              types = { 'camelCase', 'snake_case' },
+              cyclic = true,
+            }),
+          },
+        })
+        require('dial.config').augends:on_filetype({
+          typescript = vim.tbl_extend('force', default_rules, js_rules),
+          javascript = vim.tbl_extend('force', default_rules, js_rules),
+          -- lua = {},
+          -- markdown = { augend.misc.alias.markdown_header, },
+        })
+
+        setmap('n', '<C-t>', require('dial.map').inc_normal('case'), { silent = true, noremap = true })
+        setmap('n', '<C-a>', require('dial.map').inc_normal(), { silent = true, noremap = true })
+        setmap('n', '<C-x>', require('dial.map').dec_normal(), { silent = true, noremap = true })
+        setmap('v', '<C-a>', require('dial.map').inc_visual(), { silent = true, noremap = true })
+        setmap('v', '<C.x>', require('dial.map').dec_visual(), { silent = true, noremap = true })
+        setmap('v', 'g<C-a>', require('dial.map').inc_gvisual(), { silent = true, noremap = true })
+        setmap('v', 'g<C-x>', require('dial.map').dec_gvisual(), { silent = true, noremap = true })
+      end,
+    }, -- }}}
+    { -- {{{ sandwich
+      'machakann/vim-sandwich',
+      event = 'VeryLazy',
+      init = function()
+        vim.g.sandwich_no_default_key_mappings = true
+        setmap({ 'n' }, '<Leader>i', '<Plug>(operator-sandwich-add)i')
+        setmap({ 'n' }, '<Leader>a', '<Plug>(operator-sandwich-add)a')
+        setmap({ 'x' }, '<Leader>a', '<Plug>(operator-sandwich-add)')
+        setmap({ 'x' }, 'aa', '<Plug>(textobj-sandwich-auto-a)')
+        setmap({ 'n', 'x' }, '<Leader>r', '<Plug>(sandwich-replace)')
+        setmap({ 'n', 'x' }, '<Leader>rr', '<Plug>(sandwich-replace-auto)')
+        setmap({ 'n', 'x' }, '<Leader>d', '<Plug>(sandwich-delete)')
+        setmap({ 'n', 'x' }, '<Leader>dd', '<Plug>(sandwich-delete-auto)')
+        -- setmap({ 'o', 'x' }, 'ib', '<Plug>(textobj-sandwich-auto-i)')
+        -- setmap({ 'o', 'x' }, 'ab', '<Plug>(textobj-sandwich-auto-a)')
+      end,
+      config = function()
+        local recipes = vim.deepcopy(vim.g['sandwich#default_recipes'])
+        local esc_quote = { s = [[\']], d = [[\"]] }
+        recipes = vim.list_extend(recipes, {
+          { buns = { esc_quote.s, esc_quote.s }, input = { esc_quote.s } },
+          { buns = { esc_quote.d, esc_quote.d }, input = { esc_quote.d } },
+          { buns = { '【', '】' }, input = { ']' }, filetype = { 'markdown' } },
+          { buns = { '${', '}' }, input = { '$' }, filetype = { 'typescript', 'javascript' } },
+          { buns = { '%(', '%)' }, input = { '%' }, filetype = { 'typescript', 'javascript' } },
+        })
+        vim.g['sandwich#recipes'] = recipes
+        vim.g['sandwich#magicchar#f#patterns'] = {
+          {
+            header = [[\<\%(\h\k*\.\)*\h\k*]],
+            bra = '(',
+            ket = ')',
+            footer = '',
+          },
+        }
+      end,
+    }, -- }}}
+    { -- {{{ operator-replace
+      'yuki-yano/vim-operator-replace',
+      event = 'VeryLazy',
+      dependencies = { 'vim-operator-user' },
+      init = function()
+        local operator_replace = function(input)
+          local mode = vim.api.nvim_get_mode().mode
+          if mode == 'V' then
+            return input
+          end
+          ---@diagnostic disable-next-line: redundant-parameter
+          local reg_str = vim.fn.getreg(input, 1, 1)
+          ---@cast reg_str -string
+          if vim.tbl_isempty(reg_str) then
+            input = '0'
+            ---@diagnostic disable-next-line: redundant-parameter
+            reg_str = vim.fn.getreg(input, 1, 1)
+          end
+          vim.schedule(function()
+            local float = require('module.float')
+            local bufnr = float:popup({ data = reg_str, hl = { link = 'Special' } })
+            -- local bufnr, winid = unpack(float.popup({ data = reg_str }))
+            api.nvim_create_autocmd({ 'ModeChanged' }, {
+              group = augroup,
+              pattern = 'no:[nc]*',
+              once = true,
+              callback = function()
+                vim.cmd.bwipeout(bufnr)
+              end,
+            })
+          end)
+          return input
+        end
+        setmap({ 'n', 'x' }, '_', function()
+          local input = '*'
+          input = operator_replace(input)
+          return string.format('"%s<Plug>(operator-replace)', input)
+        end, { expr = true })
+        setmap({ 'n', 'x' }, '\\', function()
+          local input = vim.fn.nr2char(vim.fn.getchar())
+          input = input == '\\' and '0' or input
+          input = operator_replace(input)
+          return string.format('"%s<Plug>(operator-replace)', input)
+        end, { expr = true })
+      end,
+    }, -- }}}
+
+    ---@complition
+    { -- {{{ cmp
+      'hrsh7th/nvim-cmp',
+      event = { 'CursorMoved', 'InsertEnter', 'CmdlineEnter' },
+      dependencies = {
+        'hrsh7th/cmp-nvim-lsp',
+        'hrsh7th/cmp-nvim-lsp-signature-help',
+        'hrsh7th/vim-vsnip',
+        'hrsh7th/cmp-vsnip',
+        'hrsh7th/cmp-buffer',
+        'hrsh7th/cmp-nvim-lua',
+        'hrsh7th/cmp-path',
+        'hrsh7th/cmp-cmdline',
+        'dmitmel/cmp-cmdline-history',
+        { 'uga-rosa/cmp-dictionary', opts = { first_case_insensitive = true } },
+      },
+      config = function()
+        require('config.cmp')
+      end,
+    }, ---}}}
+
+    ---@desc finder
+    { -- {{{ telescope
+      'nvim-telescope/telescope.nvim',
+      keys = { '<Leader>', 'gl' },
+      dependencies = {
+        'hrsh7th/nvim-cmp',
+        'plenary.nvim',
+        'lambdalisue/kensaku.vim',
+        'nvim-telescope/telescope-file-browser.nvim',
+        'nvim-telescope/telescope-ui-select.nvim',
+        'Allianaab2m/telescope-kensaku.nvim',
+      },
+      config = function()
+        require('config.telescope')
+      end,
+      cmd = 'Telescope',
+    }, ---}}}
+
+    ---@desc util
+    { -- {{{ mr
+      'lambdalisue/mr.vim',
+      event = 'VeryLazy',
+      init = function()
+        vim.g.mr_mru_disabled = false
+        vim.g.mr_mrw_disabled = true
+        vim.g.mr_mrr_disabled = true
+        vim.g['mr#threshold'] = 200
+        vim.cmd(
+          "let g:mr#mru#predicates=[{filename -> filename !~? '\\\\\\|\\/doc\\/\\|\\/dist\\/\\|\\/dev\\/\\|\\/\\.git\\/\\|\\.cache'}]"
+        )
+      end,
+    }, ---}}}
+    { -- {{{ skkeleton_indicator
+      'delphinus/skkeleton_indicator.nvim',
+      event = 'InsertEnter',
+      dependencies = {
+        'vim-skk/skkeleton',
+      },
+      opts = {
+        alwaysShown = false,
+        fadeOutMs = 0,
+      },
+    }, -- }}}
+    { -- {{{ registers
+      'tversteeg/registers.nvim',
+      lazy = true,
+      keys = {
+        { '""', mode = { 'n', 'x' } },
+        { '<C-R>', mode = 'i' },
+      },
+      config = function()
+        local registers = require('registers')
+        setmap({ 'n', 'x' }, '""', registers.show_window({ mode = 'motion' }), { silent = true, noremap = true })
+        registers.setup({
+          show_empty = false,
+          register_user_command = false,
+          system_clipboard = false,
+          show_register_types = true,
+          symbols = { tab = '~' },
+          bind_keys = {
+            normal = false,
+            insert = registers.show_window({
+              mode = 'insert',
+              delay = 1,
+            }),
+          },
+          window = {
+            max_width = 100,
+            highlight_cursorline = true,
+            border = 'rounded',
+            transparency = 9,
+          },
+        })
+      end,
+    }, ---}}}
     { -- {{{ trouble
       'folke/trouble.nvim',
+      cmd = 'Trouble',
       opts = {
         position = 'bottom',
         height = 10,
@@ -616,17 +543,14 @@ require('lazy').setup(
         auto_close = false,
         auto_preview = false,
         auto_fold = false,
-        auto_jump = { 'lps_type_definitions', 'lsp_definitions' },
-        include_declaration = { 'lsp_references', 'lsp_implementations', 'lsp_definitions' },
+        auto_jump = { 'lps_implementations', 'lsp_definitions' },
+        include_declaration = { 'lsp_references' },
         use_diagnostic_signs = true,
       },
-      cmd = 'Trouble',
     }, ---}}}
     { -- {{{ lspsaga
       'nvimdev/lspsaga.nvim',
-      -- dependencies = {
-      --   'nvim-treesitter/nvim-treesitter',
-      -- },
+      cmd = 'Lspsaga',
       opts = {
         ui = {
           title = true,
@@ -640,25 +564,25 @@ require('lazy').setup(
         symbol_in_winbar = { enable = false },
         finder = { keys = { split = 's', vsplit = 'v', tabe = 't' } },
       },
-      cmd = 'Lspsaga',
     }, -- }}}
     { -- {{{ translate
       'uga-rosa/translate.nvim',
+      cmd = 'Translate',
       init = function()
         setmap({ 'n', 'x' }, 'me', '<Cmd>Translate EN<CR>', { silent = true })
         setmap({ 'n', 'x' }, 'mj', '<Cmd>Translate JA<CR>', { silent = true })
         setmap({ 'n', 'x' }, 'mE', '<Cmd>Translate EN -output=replace<CR>', { silent = true })
         setmap({ 'n', 'x' }, 'mJ', '<Cmd>Translate JA -output=replace<CR>', { silent = true })
       end,
-      cmd = 'Translate',
     }, -- }}}
     { -- {{{ diffview
       'sindrets/diffview.nvim',
-      opts = { use_icons = false },
       cmd = { 'DiffviewOpen', 'DiffviewLog', 'DiffviewFocusFiles', 'DiffviewFileHistory' },
+      opts = { use_icons = false },
     }, -- }}}
     { -- {{{ quickrun
       'thinca/vim-quickrun',
+      cmd = 'QuickRun',
       dependencies = {
         { 'tar80/vim-quickrun-neovim-job', branch = 'win-nyagos' },
       },
@@ -745,10 +669,10 @@ require('lazy').setup(
           },
         }
       end,
-      cmd = 'QuickRun',
     }, -- }}}
     { -- {{{ undotree
       'mbbill/undotree',
+      cmd = 'UndotreeToggle',
       init = function()
         vim.g.undotree_WindowLayout = 2
         vim.g.undotree_ShortIndicators = 1
@@ -770,13 +694,26 @@ require('lazy').setup(
 
         setmap('n', '<F7>', '<Cmd>UndotreeToggle<CR>')
       end,
-      cmd = 'UndotreeToggle',
+    }, -- }}}
+    { -- {{{ open-browser
+      'tyru/open-browser.vim',
+      lazy = true,
+      init = function()
+        vim.g.openbrowser_open_vim_command = 'split'
+        vim.g.openbrowser_use_vimproc = 0
+        vim.g.openbrowser_no_default_menus = 1
+        setmap('n', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('n')<CR>")
+        setmap('x', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('v')<CR>")
+        vim.opt.rtp:append(vim.fn.stdpath('data') .. '\\lazy\\open-browser.vim')
+      end,
     }, -- }}}
     { 'norcalli/nvim-colorizer.lua', cmd = 'ColorizerAttachToBuffer' },
 
     ---@desc dap
     { -- {{{ nvim-dap
       'mfussenegger/nvim-dap',
+      lazy = true,
+      key = { '<F5>' },
       dependencies = {
         'theHamsta/nvim-dap-virtual-text',
         'mxsdev/nvim-dap-vscode-js',
@@ -787,8 +724,6 @@ require('lazy').setup(
           vim.notify('[Dap] ready', 2)
         end)
       end,
-      key = { '<F5>' },
-      lazy = true,
     }, -- }}}
 
     ---@desc filetype

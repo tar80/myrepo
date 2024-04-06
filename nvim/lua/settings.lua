@@ -1,27 +1,25 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
-
----@desc INITIAL
----@Variables {{{2
-local util = require('module.util')
----@type any
-local uv = vim.uv
 local api = vim.api
-local cmd = vim.cmd
+local uv = vim.uv
 local o = vim.o
 local opt = vim.opt
 local mapset = vim.keymap.set
+local util = require('module.util')
 
+---@desc Set shell parameters
 util.shell('nyagos')
-vim.env.myvimrc = uv.fs_readlink(vim.env.myvimrc, nil)
+
+---@desc Variales {{{2
+vim.env.myvimrc = uv.fs_readlink(vim.env.myvimrc)
 vim.g.repo = 'c:/bin/repository/tar80'
 vim.g.update_time = 700
-cmd('language message C')
+vim.cmd('language message C')
 
 local FOLD_SEP = ' » '
 local foldmarker = vim.split(api.nvim_get_option_value('foldmarker', { win = 0 }), ',', { plain = true })
 
----@desc Unload {{{2
+---@desc Unload default plugins {{{2
 ---NOTE: leave it to lazy.nvim
 -- vim.g.loaded_2html_plugin = true
 -- vim.g.loaded_gzip = true
@@ -34,21 +32,20 @@ local foldmarker = vim.split(api.nvim_get_option_value('foldmarker', { win = 0 }
 -- vim.g.loaded_tutor_mode_plugin = true
 -- vim.g.loaded_zipPlugin = true
 --}}}2
-
----@desc OPTIONS
----@desc Global {{{2
+---@desc Options {{{1
+---Global {{{2
 api.nvim_set_option_value('termguicolors', true, { scope = 'global' })
 api.nvim_set_option_value('foldcolumn', '1', { scope = 'global' })
 api.nvim_set_option_value('fileformats', 'unix,dos,mac', { scope = 'global' })
 api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
 api.nvim_set_option_value('shada', "'50,<500,/10,:100,h", { scope = 'global' })
 
----@desc Local {{{2
+---Local {{{2
 -- api.nvim_set_option_value('name', value, { scope = 'local' })
 ---NOTE:Avoided a bug in neovim itself that causes errors when colons are mixed in spellfile option
 vim.opt_local.isfname:append(':')
 
----@desc Both {{{2
+---General {{{2
 o.guicursor = 'n:block,i-c-ci-ve:ver50,v-r-cr-o:hor50'
 -- o.fileencodings = 'utf-8,utf-16le,cp932,euc-jp,sjis'
 o.fileencodings = 'utf-8,cp932,euc-jp,utf-16le'
@@ -116,12 +113,11 @@ o.helplang = 'ja'
 o.helpheight = 10
 o.previewheight = 8
 opt.path = { '.', '' }
---}}}2
 
----@desc AUTOGROUP
+---@desc Auto-commands {{{1
 local augroup = api.nvim_create_augroup('rcSettings', {})
 
----@desc Remove ignore history from cmdline history{{{2
+---Remove ignore history from cmdline history{{{2
 ---@see https://blog.atusy.net/2023/07/24/vim-clean-history/
 local ignore_history = [=[^\c\(\_[efqw]!\?\|qa!\?\|echo\|mes\|h\s.*\)$]=]
 vim.api.nvim_create_autocmd('ModeChanged', {
@@ -136,7 +132,7 @@ vim.api.nvim_create_autocmd('ModeChanged', {
     end)
   end,
 })
----@desc Delete current line from cmdline-history {{{2
+---Delete current line from cmdline-history {{{2
 vim.api.nvim_create_autocmd('CmdWinEnter', {
   group = augroup,
   callback = function()
@@ -147,13 +143,14 @@ vim.api.nvim_create_autocmd('CmdWinEnter', {
     end, { buffer = 0 })
   end,
 })
+---Update shada when exiting cmd-window
 vim.api.nvim_create_autocmd('CmdWinLeave', {
   group = augroup,
   callback = function()
     vim.cmd.wshada({ bang = true })
   end,
 })
----@desc Editing line highlighting rules {{{2
+---Cursor line highlighting rules {{{2
 api.nvim_create_autocmd('CursorHoldI', {
   group = augroup,
   callback = function()
@@ -162,7 +159,7 @@ api.nvim_create_autocmd('CursorHoldI', {
     end
   end,
 })
----NOTE: FocusLost does not work mounted in the WindowsTereminal.
+---NOTE: FocusLost does not work mounted in the Windows-tereminal.
 api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
   group = augroup,
   callback = function()
@@ -175,7 +172,7 @@ api.nvim_create_autocmd({ 'BufEnter', 'CursorMovedI', 'InsertLeave' }, {
   group = augroup,
   command = 'setl nocursorline',
 })
----@desc Insert-Mode, we want a longer updatetime {{{2
+---Insert-Mode, we want a longer updatetime {{{2
 api.nvim_create_autocmd('InsertEnter', {
   group = augroup,
   command = 'set updatetime=4000',
@@ -184,7 +181,7 @@ api.nvim_create_autocmd('InsertLeave', {
   group = augroup,
   command = 'setl iminsert=0|execute "set updatetime=" . g:update_time',
 })
----@desc Yanked, it shines {{{2
+---Yanked, it shines {{{2
 api.nvim_create_autocmd('TextYankPost', {
   group = augroup,
   pattern = '*',
@@ -192,7 +189,7 @@ api.nvim_create_autocmd('TextYankPost', {
     vim.highlight.on_yank({ higroup = 'PmenuSel', on_visual = false, timeout = 150 })
   end,
 })
----@desc Supports changing options that affect Simple_fold() {{{2
+---Supports changing options that affect Simple_fold() {{{2
 api.nvim_create_autocmd('OptionSet', {
   group = augroup,
   pattern = 'foldmarker',
@@ -202,10 +199,9 @@ api.nvim_create_autocmd('OptionSet', {
     end
   end,
 })
---}}}2
 
----@desc FUNCTIONS
-Simple_fold = function() -- {{{2
+---@desc Functions {{{1
+function Simple_fold() -- {{{2
   ---this code is based on https://github.com/tamton-aquib/essentials.nvim
   local cms = api.nvim_get_option_value('commentstring', { buf = 0 })
   cms = cms:gsub('(%S+)%s*%%s.*', '%1')
@@ -222,13 +218,13 @@ Simple_fold = function() -- {{{2
 end
 api.nvim_set_option_value('foldtext', 'v:lua.Simple_fold()', { win = 0 })
 
-local toggleShellslash = function() -- {{{2
+local function toggleShellslash() -- {{{2
   vim.opt_local.shellslash = not api.nvim_get_option_value('shellslash', { scope = 'global' })
-  cmd.redrawstatus()
-  cmd.redrawtabline()
+  vim.cmd.redrawstatus()
+  vim.cmd.redrawtabline()
 end
 
-local search_star = function(g, mode) -- {{{2
+local function search_star(g, mode) -- {{{2
   local word
   if mode ~= 'v' then
     word = vim.fn.expand('<cword>')
@@ -253,7 +249,7 @@ local search_star = function(g, mode) -- {{{2
   end
 end
 
-local ppcust_load = function() -- {{{2
+local function ppcust_load() -- {{{2
   if vim.bo.filetype ~= 'PPxcfg' then
     vim.notify('Not PPxcfg', 1, {})
     return
@@ -262,15 +258,16 @@ local ppcust_load = function() -- {{{2
   vim.fn.system({ os.getenv('PPX_DIR') .. '\\ppcustw.exe', 'CA', api.nvim_buf_get_name(0) })
   vim.notify('PPcust CA ' .. vim.fn.expand('%:t'), 3)
 end ---}}}
-local cmd_abbrev = function(key, rep, space) -- {{{2
+local function cmd_abbrev(key, rep, space) -- {{{2
   ---@see https://zenn.dev/vim_jp/articles/2023-06-30-vim-substitute-tips
   local ignore_space = space and '[getchar(), ""][1].' or ''
   local fmt =
     string.format('<expr> %s getcmdtype().getcmdline() ==# ":%s" ? %s"%s" : "%s"', key, key, ignore_space, rep, key)
   vim.cmd.cnoreabbrev(fmt)
-end -- }}}
+end
 
----@desc ABBREVIATE {{{2
+---@desc Abbreviations {{{1
+---Typo {{{2
 vim.cmd.abbreviate('exoprt', 'export')
 vim.cmd.abbreviate('exoper', 'export')
 vim.cmd.abbreviate('funcion', 'function')
@@ -278,7 +275,7 @@ vim.cmd.abbreviate('fuction', 'function')
 vim.cmd.abbreviate('stirng', 'string')
 vim.cmd.abbreviate('retrun', 'return')
 vim.cmd.abbreviate('filed', 'field')
-
+---Cmeline {{{2
 cmd_abbrev("'<,'>", [['<,'>s///|nohls<Left><Left><Left><Left><Left><Left><Left>]], true)
 cmd_abbrev('s', '%s///<Left>', true)
 cmd_abbrev('ms', 'MugShow', true)
@@ -299,18 +296,16 @@ cmd_abbrev('ht', 'so<Space>$VIMRUNTIME/syntax/hitest.vim', true)
 cmd_abbrev('ct', 'so<Space>$VIMRUNTIME/syntax/colortest.vim', true)
 cmd_abbrev('hl', "lua<Space>print(require('module.util').hl_at_cursor())<CR>")
 cmd_abbrev('shadad', '!rm ~/.local/share/nvim-data/shada/main.shada.tmp*')
----}}}
 
----@desc KEYMAPS
+---@desc Keymaps {{{1
 vim.g.mapleader = ';'
-
----@desc Normal {{{2
+---Normal mode{{{2
 mapset('n', '<F1>', function()
   return os.execute('c:/bin/cltc/cltc.exe')
 end)
 -- mapset('n', '<F5>', function()
 --   if o.diff == true then
---     cmd('diffupdate')
+--     vim.cmd('diffupdate')
 --   end
 -- end)
 mapset({ 'n', 'c' }, '<F4>', function()
@@ -323,9 +318,9 @@ mapset('n', '<F12>', function()
   -- local wrap = o.wrap ~= true and "wrap" or "nowrap"
   if o.diff == true then
     local cur = api.nvim_win_get_number(0)
-    cmd('windo setlocal wrap!|' .. cur .. 'wincmd w')
+    vim.cmd('windo setlocal wrap!|' .. cur .. 'wincmd w')
   else
-    cmd('setl wrap! wrap?')
+    vim.cmd('setl wrap! wrap?')
   end
   return ''
 end)
@@ -334,12 +329,12 @@ mapset('n', '<C-z>', '<NOP>')
 --@see https://github.com/atusy/dotfiles/blob/787634e1444eb5473a08b9965552eea6942437c1/dot_config/nvim/lua/atusy/init.lua#L173
 mapset('n', 'q', '<Nop>')
 mapset('n', 'Q', 'q')
-mapset('n', 'q', function()
-  return vim.fn.reg_recording() == '' and '<Plug>(q)' or 'q'
-end, { expr = true })
-mapset('n', '<Plug>(q):', 'q:')
-mapset('n', '<Plug>(q)/', 'q/')
-mapset('n', '<Plug>(q)?', 'q?')
+-- mapset('n', 'q', function()
+--   return vim.fn.reg_recording() == '' and '<Plug>(q)' or 'q'
+-- end, { expr = true })
+-- mapset('n', '<Plug>(q):', 'q:')
+-- mapset('n', '<Plug>(q)/', 'q/')
+-- mapset('n', '<Plug>(q)?', 'q?')
 mapset('n', ',', function()
   if o.hlsearch then
     o.hlsearch = false
@@ -370,7 +365,7 @@ mapset('n', '<Space>n', function()
   while vim.fn.bufnr('Scratch' .. i) ~= -1 do
     i = i + 1
   end
-  cmd.new('Scratch' .. i)
+  vim.cmd.new('Scratch' .. i)
   api.nvim_set_option_value('buftype', 'nofile', { buf = 0 })
   api.nvim_set_option_value('bufhidden', 'wipe', { buf = 0 })
 end)
@@ -393,7 +388,7 @@ mapset('n', '<Space>z', function()
   util.feedkey('<C-w><C-z>', 'n')
 end)
 
----@desc Insert & Command {{{2
+---Insert/Command mode {{{2
 mapset('i', '<S-Delete>', '<C-O>D')
 mapset('i', '<M-j>', '<Down>')
 mapset('i', '<M-k>', '<Up>')
@@ -406,7 +401,7 @@ mapset('!', '<C-b>', '<C-g>U<Left>')
 mapset('!', '<C-v>u', '<C-R>=nr2char(0x)<Left>')
 mapset('c', '<C-a>', '<Home>')
 
----@desc Visual {{{2
+---Visual mode{{{2
 ---clipbord yank
 mapset('v', '<C-insert>', '"*y')
 mapset('v', '<C-delete>', '"*ygvd')
@@ -423,13 +418,12 @@ end, { expr = true })
 mapset('x', '*', function()
   search_star(nil, 'v')
 end, { expr = true })
---}}}2
 
----@desc Commands
+---@desc Commands {{{1
 api.nvim_create_user_command('Busted', function() -- {{{2
   local path = string.gsub(vim.fn.expand('%'), '\\', '/')
   require('module.busted').run(path)
-end, {}) -- }}}
+end, {})
 
 ---@desc "Z <filepath>" zoxide query
 -- api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " . <q-args>)', { nargs = 1 })
@@ -453,10 +447,10 @@ api.nvim_create_user_command('UTSetup', function() -- {{{2
       vim.fn.mkdir(path)
     end
 
-    -- cmd('bot split ' .. testpath .. '|set fenc=utf-8|set ff=unix')
-    cmd(string.format('bot split %s|set fenc=utf-8|set ff=unix', test_path))
+    -- vim.cmd('bot split ' .. testpath .. '|set fenc=utf-8|set ff=unix')
+    vim.cmd(string.format('bot split %s|set fenc=utf-8|set ff=unix', test_path))
   end
-end, {}) -- }}}
+end, {})
 api.nvim_create_user_command('UTDo', function(...) -- {{{2
   local args = table.concat((...).fargs, ',')
   os.execute(
@@ -466,7 +460,7 @@ api.nvim_create_user_command('UTDo', function(...) -- {{{2
       .. '%:*cd %*extract(C,"%%1")%:*script %*getcust(S_ppm#plugins:ppm-test)/script/jscript/ppmtest_run.js,'
       .. args
   )
-end, { nargs = '*' }) -- }}}
+end, { nargs = '*' })
 
 ---@desc "JestSetup" Unit-test compose multi-panel
 api.nvim_create_user_command('JestSetup', function() -- {{{2
@@ -500,4 +494,4 @@ api.nvim_create_user_command('JestSetup', function() -- {{{2
 
     api.nvim_command(string.format('bot split %s|set fenc=utf-8|set ff=unix%s', test_path, insert_string))
   end
-end, {}) -- }}}
+end, {})

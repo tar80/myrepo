@@ -1,31 +1,14 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
-
----@desc Initial
--- vim.g['denops#deno'] = string.format('%s/apps/deno/current/deno.exe', vim.env.scoop)
--- vim.g['denops#server#deno_args'] = {'--unstable-kv', unpack(vim.g['denops#server#deno_args'])}
+---@desc Autocommand {{{2
 local augroup = vim.api.nvim_create_augroup('rcDeno', {})
-
----@desc Autocommand
--- vim.api.nvim_create_autocmd('BufEnter', { -- {{{2
---   group = augroup,
---   pattern = { '*.md', '*.txt' },
---   command = 'call skkeleton#config({"keepState": v:true})',
---   desc = 'skkeleton keep state',
--- }) -- }}}
--- vim.api.nvim_create_autocmd('BufLeave', { -- {{{2
---   group = augroup,
---   pattern = { '*.md', '*.txt' },
---   command = 'call skkeleton#config({"keepState": v:false})',
---   desc = 'skkeleton keep state',
--- }) -- }}}
-vim.api.nvim_create_autocmd('User', { -- {{{2
+vim.api.nvim_create_autocmd('User', {
   group = augroup,
   pattern = 'skkeleton-initialize-pre',
   callback = function()
     Skkeleton_init()
   end,
-}) -- }}}
+})
 
 ---@desc FuzzyMotion {{{2
 if vim.g.fuzzy_motion_labels then
@@ -37,14 +20,13 @@ if vim.g.fuzzy_motion_labels then
     if vim.fn['denops#plugin#is_loaded']('fuzzy-motion') == 0 then
       vim.fn['denops#plugin#register']('fuzzy-motion')
     end
-
     vim.cmd('FuzzyMotion')
   end)
 end
 
 ---@desc Skkeleton {{{2
 if vim.g.loaded_skkeleton then
-  ---@desc keymaps {{{3
+  ---Keymaps {{{3
   local feedkey = require('module.util').feedkey
   vim.keymap.set({ 'i', 'c', 't' }, '<C-l>', '<Plug>(skkeleton-enable)')
   vim.keymap.set({ 'n' }, '<Space>i', function()
@@ -63,28 +45,24 @@ if vim.g.loaded_skkeleton then
     vim.fn['skkeleton#handle']('enable', {})
     vim.cmd.startinsert({ bang = true })
   end)
-  ---}}}
 
-  function Skkeleton_init()
-    vim.fn['skkeleton#config']({ -- {{{3
+  function Skkeleton_init() -- {{{3
+    vim.fn['skkeleton#config']({
       databasePath = '~/.skk/db/jisyo.db',
       globalDictionaries = { '~/.skk/SKK-JISYO.L', '~/.skk/SKK-JISYO.emoji' },
       globalKanaTableFiles = { vim.g.repo .. '/myrepo/nvim/skk/azik_us.rule' },
       eggLikeNewline = true,
       usePopup = true,
       showCandidatesCount = 2,
-      markerHenkan = '🐤',
-      markerHenkanSelect = '🐥',
+      markerHenkan = '🐤 ',
+      markerHenkanSelect = '🐥 ',
       sources = { 'deno_kv' },
       -- sources = { 'deno_kv', 'skk_dictionary' },
-    }) -- }}}
-
-    -- vim.fn['skkeleton#register_keymap']('input', ';', 'henkanPoint')
+    })
     vim.fn['skkeleton#register_keymap']('input', '@', 'cancel')
-    -- vim.fn['skkeleton#register_keymap']('input', ':', 'katakana')
     vim.fn['skkeleton#register_keymap']('input', '<Up>', 'disable')
     vim.fn['skkeleton#register_keymap']('input', '<Down>', 'disable')
-    vim.fn['skkeleton#register_kanatable']('rom', { -- {{{3
+    vim.fn['skkeleton#register_kanatable']('rom', {
       [':'] = { 'っ', '' },
       ['xq'] = 'hankatakana',
       ['vh'] = { '←', '' },
@@ -100,6 +78,6 @@ if vim.g.loaded_skkeleton then
       ['z.'] = { '.', '' },
       ['z['] = { '【', '' },
       ['z]'] = { '】', '' },
-    }) -- }}}
+    })
   end
 end

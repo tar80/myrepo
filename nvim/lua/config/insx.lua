@@ -1,38 +1,35 @@
 -- vim:textwidth=0:foldmarker={@@,@@}:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
-
 local insx = require('insx')
 local esc = require('insx.helper.regex').esc
 
-local user = {
-  config = {
-    cmdline = false,
-    fast_break = false,
-    fast_wrap = false,
-    quote = { '"', "'", '`' },
-    pair = { ['('] = ')', ['['] = ']', ['{'] = '}' },
-    lua = false,
-    markdown = false,
-    javascript = false,
-    misc = false,
-  },
+local M = {}
+M.option = {
+  cmdline = false,
+  fast_break = false,
+  fast_wrap = false,
+  quote = { '"', "'", '`' },
+  pair = { ['('] = ')', ['['] = ']', ['{'] = '}' },
+  lua = false,
+  markdown = false,
+  javascript = false,
+  misc = false,
 }
 
-user.setup = function(config) -- {@@2
-  user.config.quote = vim.tbl_extend('force', user.config.quote, config.quote or {})
-  user.config.pair = vim.tbl_extend('force', user.config.pair, config.pair or {})
+function M.setup(self, config) -- {@@2
+  self.option.quote = vim.tbl_extend('force', self.option.quote, config.quote or {})
+  self.option.pair = vim.tbl_extend('force', self.option.pair, config.pair or {})
   config.quote, config.pair = nil, nil
-  user.config = vim.tbl_extend('force', user.config, config or {})
+  self.option = vim.tbl_extend('force', self.option, config or {})
+  self:insert_mode(10)
+  self:cmdline_mode(10)
+  self:lua(11)
+  self:markdown(11)
+  self:javascript(11)
+  self:misc(11)
+end
 
-  user:setup_insert_mode(10)
-  user:setup_cmdline_mode(10)
-  user:setup_lua(11)
-  user:setup_markdown(11)
-  user:setup_javascript(11)
-  user:setup_misc(11)
-end -- @@}
-
-local general_pair = function(option, open, close, withs) -- {@@2
+function M._general_pair(option, open, close, withs) -- {@@2
   -- jump_out
   insx.add(
     close,
@@ -73,23 +70,23 @@ local general_pair = function(option, open, close, withs) -- {@@2
     ),
     option
   )
-end -- @@}
+end
 
-local set_quote = function(mode, quote, priority) -- {@@2
+function M._set_quote(self, mode, quote, priority) -- {@@2
   local withs = {
     insx.with.nomatch([=[\%#[a-zA-Z0-9]]=]),
     insx.with.priority(priority),
   }
   local option = { mode = mode }
 
-  general_pair(option, quote, quote, withs)
-end -- @@}
+  self._general_pair(option, quote, quote, withs)
+end
 
-local set_pair = function(mode, open, close, priority) -- {@@2
+function M._set_pair(self, mode, open, close, priority) -- {@@2
   local withs = { insx.with.priority(priority) }
   local option = { mode = mode }
 
-  general_pair(option, open, close, withs)
+  self._general_pair(option, open, close, withs)
 
   insx.add(
     '<Tab>',
@@ -117,7 +114,7 @@ local set_pair = function(mode, open, close, priority) -- {@@2
 
   if option.mode == 'i' then
     -- fast_break
-    if user.config.fast_break then
+    if self.option.fast_break then
       insx.add(
         '<CR>',
         insx.with(
@@ -134,7 +131,7 @@ local set_pair = function(mode, open, close, priority) -- {@@2
     end
 
     -- fast_wrap
-    if user.config.fast_wrap then
+    if self.option.fast_wrap then
       insx.add(
         '<C-]>',
         insx.with(
@@ -147,34 +144,34 @@ local set_pair = function(mode, open, close, priority) -- {@@2
       )
     end
   end
-end -- @@}
+end
 
-user.setup_insert_mode = function(self, priority) -- {@@2
-  for _, quote in ipairs(self.config.quote) do
-    set_quote('i', quote, priority)
+function M.insert_mode(self, priority) -- {@@2
+  for _, quote in ipairs(self.option.quote) do
+    M:_set_quote('i', quote, priority)
   end
 
-  for open, close in pairs(self.config.pair) do
-    set_pair('i', open, close, priority)
+  for open, close in pairs(self.option.pair) do
+    M:_set_pair('i', open, close, priority)
   end
-end -- @@}
+end
 
-user.setup_cmdline_mode = function(self, priority) -- {@@2
-  if not self.config.cmdline then
+function M.cmdline_mode(self, priority) -- {@@2
+  if not self.option.cmdline then
     return
   end
 
-  for _, quote in ipairs(self.config.quote) do
-    set_quote('c', quote, priority)
+  for _, quote in ipairs(self.option.quote) do
+    M:_set_quote('c', quote, priority)
   end
 
-  for open, close in pairs(self.config.pair) do
-    set_pair('c', open, close, priority)
+  for open, close in pairs(self.option.pair) do
+    M:_set_pair('c', open, close, priority)
   end
-end -- @@}
+end
 
-user.setup_markdown = function(self, priority) -- {@@2
-  if not self.config.markdown then
+function M.markdown(self, priority) -- {@@2
+  if not self.option.markdown then
     return
   end
 
@@ -197,10 +194,10 @@ user.setup_markdown = function(self, priority) -- {@@2
       indent = 0,
     })
   )
-end -- @@}
+end
 
-user.setup_lua = function(self, priority) -- {@@2
-  if not self.config.lua then
+function M.lua(self, priority) -- {@@2
+  if not self.option.lua then
     return
   end
 
@@ -256,10 +253,10 @@ user.setup_lua = function(self, priority) -- {@@2
       end
     end,
   }, option)
-end -- @@}
+end
 
-user.setup_javascript = function(self, priority) -- {@@2
-  if not self.config.javascript then
+function M.javascript(self, priority) -- {@@2
+  if not self.option.javascript then
     return
   end
 
@@ -299,10 +296,10 @@ user.setup_javascript = function(self, priority) -- {@@2
       end
     end,
   }, option)
-end -- @@}
+end
 
-user.setup_misc = function(self, priority) -- {@@2
-  if not self.config.misc then
+function M.misc(self, priority) -- {@@2
+  if not self.option.misc then
     return
   end
 
@@ -357,4 +354,4 @@ user.setup_misc = function(self, priority) -- {@@2
   }, option)
 end -- @@}
 
-return user
+return M

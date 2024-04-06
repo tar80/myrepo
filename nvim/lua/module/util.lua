@@ -1,7 +1,7 @@
 --- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 -------------------------------------------------------------------------------
-local M = {}
 local api = vim.api
+local M = {}
 
 M.getchr = function()
   local col = api.nvim_win_get_cursor(0)[2] + 1

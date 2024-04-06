@@ -1,7 +1,6 @@
 -- vim:textwidth=0:foldmarker={@@,@@}:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
-
----@desc INITIAL
+local setmap = vim.keymap.set
 local actions = require('telescope.actions')
 local action_state = require('telescope.actions.state')
 local pickers = require('telescope.pickers')
@@ -11,10 +10,8 @@ local conf = require('telescope.config').values
 local builtin = require('telescope.builtin')
 local fb_actions = require('telescope').extensions.file_browser.actions
 
-local setmap = vim.keymap.set
-
 ---@see https://scrapbox.io/vim-jp/mr.vim%E3%82%92%E5%A5%BD%E3%81%8D%E3%81%AAFuzzy_Finder%E3%81%8B%E3%82%89%E4%BD%BF%E3%81%86_%28telescope%29
-local function simple_sorter(opts)
+local function simple_sorter(opts) -- {@@2
   local file_sorter = conf.file_sorter(opts)
   local base_scorer = file_sorter.scoring_function
   local score_match = require('telescope.sorters').empty().scoring_function()
@@ -29,7 +26,7 @@ local function simple_sorter(opts)
   return file_sorter
 end
 
-builtin.mr = function(opts) -- {@@2
+function builtin.mr(opts) -- {@@2
   local safe_opts = opts or {}
   local type = 'u'
   local mr = {
@@ -50,9 +47,9 @@ builtin.mr = function(opts) -- {@@2
       -- sorter = require('telescope.sorters').get_fzy_sorter(list),
     })
     :find()
-end -- @@}
+end
 
----@desc SETUP {@@1
+---@desc Setup {@@1
 require('telescope').setup({
   defaults = { ---{@@2
     path_display = { truncate = 1 },
@@ -214,12 +211,13 @@ require('telescope').load_extension('file_browser')
 require('telescope').load_extension('ui-select')
 require('telescope').load_extension('kensaku')
 
----@desc PREVIEWER {@@1
+---@desc Previewer {@@1
 local preset_no_preview = { -- {@@2
   results_title = false,
   previewer = false,
   layout_config = { height = 0.7, width = 0.6 },
-} -- @@}
+}
+
 local preset_preview_hor = { -- {@@2
   previewer = true,
   layout_config = {
@@ -232,36 +230,38 @@ local preset_preview_hor = { -- {@@2
   path_display = function(_, path)
     return string.format('%s', path)
   end,
-} -- @@}
+}
+
 local preset_preview_ver = { -- {@@2
   -- winblend = 9,
   results_title = false,
   path_display = function(_, path)
     return string.format('%s ', path)
   end,
-} -- @@}
+}
 
-local no_preview = function(add) -- {@@2
+local function no_preview(add) -- {@@2
   return require('telescope.themes').get_dropdown(vim.tbl_deep_extend('force', preset_no_preview, add))
-end -- @@}
-local preview_hor = function(add) -- {@@2
-  return require('telescope.themes').get_dropdown(vim.tbl_deep_extend('force', preset_preview_hor, add))
-end -- @@}
-local preview_ver = function(add) -- {@@2
-  return vim.tbl_deep_extend('force', preset_preview_ver, add)
-end -- @@}
+end
 
+local function preview_hor(add) -- {@@2
+  return require('telescope.themes').get_dropdown(vim.tbl_deep_extend('force', preset_preview_hor, add))
+end
+
+local function preview_ver(add) -- {@@2
+  return vim.tbl_deep_extend('force', preset_preview_ver, add)
+end --@@}
 local layout = { no = no_preview, hor = preview_hor, ver = preview_ver }
-local load_builtin = function(picker, preview, add) -- {@@2
+local function load_builtin(picker, preview, add) -- {@@2
   local sub_window = layout[preview]
   builtin[picker](sub_window(add))
-end -- @@}
-local load_ext = function(picker, preview, add) -- {@@2
+end
+local function load_ext(picker, preview, add) -- {@@2
   local sub_window = layout[preview]
   require('telescope').extensions[picker][picker](sub_window(add))
-end -- @@}
+end
 
----@desc KEYMAP {@@2
+---@desc Keymap {@@2
 setmap('n', '<Leader><Leader>', function()
   load_builtin('buffers', 'no', { ignore_current_buffer = true })
 end, {})
@@ -295,8 +295,9 @@ setmap('n', '<leader>l', function()
     { layout_config = { preview_width = 0.5, width = 0.9, height = 0.9 } }
   )
 end, {})
--- for git
-local is_repo = function()
+
+---@desc For git {@@1
+local function is_repo()
   local name = vim.b.mug_branch_name
   ---@diagnostic disable-next-line: undefined-field
   if name == _G.Mug.symbol_not_repository then
@@ -327,7 +328,7 @@ setmap('n', '<Leader>gc', function()
   end
 end, {})
 
----@desc "Z <filepath>" zoxide query
+---"Z <filepath>" zoxide query
 vim.api.nvim_create_user_command('Z', function(opts)
   vim.system({ 'zoxide', 'query', opts.args }, { text = true }, function(data)
     vim.schedule(function()
