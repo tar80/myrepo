@@ -42,6 +42,7 @@ require(color_scheme).setup({
     variables = 'NONE',
     diagnostics = 'underline',
     references = 'NONE',
+    virtualtext = 'italic',
   },
   disable = {
     background = tr,
@@ -50,7 +51,7 @@ require(color_scheme).setup({
   },
   custom_highlights = {
     CursorLine = { fg = 'NONE', bg = cursor_color },
-    LspReferenceText = { bg =  palette.nc},
+    -- LspReferenceText = { bg =  palette.nc},
     LspReferenceRead = { bg =  palette.nc},
     LspReferenceWrite = { bg =  palette.nc},
   },

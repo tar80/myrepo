@@ -47,6 +47,9 @@ local function _no_clients() -- {{{2
   return false
 end
 local function popup_rename() -- {{{2
+  if _no_clients() then
+    return
+  end
   local adjust_cursor = util.getchr():match('[^%w]')
   local title = 'Lsp-rename'
   if adjust_cursor then
@@ -100,9 +103,9 @@ local function on_attach(client, bufnr) --- {{{2
     end,
   }) ---}}}
   ---@desc Keymap {{{3
-  keymap.set('n', ']d', '<Cmd>lua vim.diagnostic.goto_next()<CR>')
-  keymap.set('n', '[d', '<Cmd>lua vim.diagnostic.goto_prev()<CR>')
-  keymap.set("n", "gla", lsp.buf.code_action)
+  keymap.set('n', ']d', vim.diagnostic.goto_next)
+  keymap.set('n', '[d', vim.diagnostic.goto_prev)
+  keymap.set('n', 'gla', lsp.buf.code_action)
   keymap.set('n', 'gld', function() -- {{{
     local opts = { bufnr = 0, focusable = false }
     local opts_cursor = vim.tbl_extend('force', opts, { scope = 'cursor' })
@@ -118,60 +121,54 @@ local function on_attach(client, bufnr) --- {{{2
     api.nvim_set_option_value('winblend', winblend, {})
   end) -- }}}
   keymap.set('n', 'glh', lsp.buf.signature_help)
-  keymap.set('n', 'gli', function()
+  keymap.set('n', 'gli', function() -- {{{
     if _no_clients() then
       return
     end
     local toggle = lsp.inlay_hint.is_enabled() == false
     lsp.inlay_hint.enable(0, toggle)
-  end)
+  end) -- }}}
   keymap.set('n', 'gll', lsp.buf.hover)
-  keymap.set('n', 'glr', function()
-    if _no_clients() then
-      return
-    end
-    popup_rename()
-  end)
-  keymap.set('n', 'glv', function()
+  keymap.set('n', 'glr', popup_rename)
+  keymap.set('n', 'glv', function() -- {{{
     if _no_clients() then
       return
     end
     local toggle = not vim.diagnostic.config().virtual_text
     vim.diagnostic.config({ virtual_text = toggle })
-  end)
+  end) -- }}}
   -- keymap.set('n', 'gd', lsp.buf.definition)
   -- keymap.set("n", "gD", lsp.buf.type_definition)
-  -- keymap.set("n", "gli", lsp.buf.implementation)
   -- keymap.set("n", "glj", lsp.buf.references)
 
   ---@desc trouble.nvim
-  keymap.set('n', 'gd', function() -- {{{
-    if _no_clients() then
-      vim.cmd.normal({ 'gd', bang = true })
-      return
-    end
-    lsp.buf.definition({
-      reuse_win = true,
-      on_list = function(opts)
-        if #opts.items == 2 then
-          local item1 = opts.items[1]
-          local item2 = opts.items[2]
+  -- keymap.set('n', 'gd', function() -- {{{
+  --   local pos = { api.nvim_win_get_cursor(0) }
+  --   vim.cmd.normal({ 'gd', bang = true })
+  --   if not vim.deep_equal(pos, { api.nvim_win_get_cursor(0) }) or _no_clients() then
+  --     return
+  --   end
+  --   lsp.buf.definition({
+  --     reuse_win = true,
+  --     on_list = function(opts)
+  --       local item1 = opts.items[1]
+  --       if #opts.items == 2 then
+  --         local item2 = opts.items[2]
 
-          if item1.filename == item2.filename and item1.lnum == item2.lnum then
-            local filename = util.normalize(item1.filename)
-            if filename ~= util.normalize(api.nvim_buf_get_name(0)) then
-              vim.cmd.edit(filename)
-            end
+  --         if item1.filename == item2.filename and item1.lnum == item2.lnum then
+  --           local filename = util.normalize(item1.filename)
+  --           if filename ~= util.normalize(api.nvim_buf_get_name(0)) then
+  --             vim.cmd.edit(filename)
+  --           end
 
-            api.nvim_win_set_cursor(0, { item1.lnum, item1.col })
-            return
-          end
-        end
-
-        vim.cmd.Trouble('lsp_definitions')
-      end,
-    })
-  end) -- }}}
+  --           api.nvim_win_set_cursor(0, { item1.lnum, item1.col })
+  --           return
+  --         end
+  --       end
+  --       vim.cmd.Trouble('lsp_definitions')
+  --     end,
+  --   })
+  -- end) -- }}}
   -- keymap.set('n', 'gD', function() -- {{{
   --   if _no_clients() then
   --     vim.cmd.normal({ 'gD', bang = true })
@@ -186,13 +183,13 @@ local function on_attach(client, bufnr) --- {{{2
   ---@desc lspsaga.nvim
   -- keymap.set('n', ']d', '<Cmd>Lspsaga diagnostic_jump_next<CR>', {})
   -- keymap.set('n', '[d', '<Cmd>Lspsaga diagnostic_jump_prev<CR>', {})
-  -- keymap.set('n', 'gd', '<Cmd>Lspsaga goto_definition<CR>', {})
+  keymap.set('n', 'gd', '<Cmd>Lspsaga goto_definition<CR>', {})
   -- keymap.set('n', 'gD', '<Cmd>Lspsaga goto_type_definition<CR>', {})
   -- keymap.set('n', 'glk', '<Cmd>Lspsaga finder<CR>', {})
   keymap.set('n', 'glt', '<Cmd>Lspsaga peek_type_definition<CR>', {})
 
   ---@desc map automatically added by lsp
-  ---@source nvim/runtime/lua/vim/lsp.lua:1208
+  ---@see https://github.com/neovim/neovim/blob/master/runtime/lua/vim/lsp.lua (#lsp._set_defaults())
   keymap.del('n', 'K', { buffer = bufnr })
   ---}}}3
 end

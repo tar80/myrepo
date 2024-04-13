@@ -110,51 +110,45 @@ require('lazy').setup(
         api.nvim_create_user_command('GitsignsAttach', function()
           local gs = require('gitsigns')
           gs.attach()
-
           local function map(mode, l, r, opts)
             opts = opts or {}
             setmap(mode, l, r, opts)
           end
-
           -- Navigation
           map('n', ']c', function()
             if vim.wo.diff then
               return ']c'
             end
-            vim.schedule(gs.next_hunk)
+            gs.nav_hunk('next', { foldopen = true, preview = true })
             return '<Ignore>'
           end, { expr = true })
-
           map('n', '[c', function()
             if vim.wo.diff then
               return '[c'
             end
-            vim.schedule(gs.prev_hunk)
+            gs.nav_hunk('prev', { foldopen = true, preview = true })
             return '<Ignore>'
           end, { expr = true })
-
           -- Actions
-          map({ 'n', 'x' }, 'gsa', gs.stage_hunk)
-          map({ 'n', 'x' }, 'gsr', gs.reset_hunk)
-          map('n', 'gsR', gs.reset_buffer)
-          map('n', 'gsp', gs.preview_hunk)
+          map({ 'n', 'x' }, 'gsa', function()
+            local mode = api.nvim_get_mode().mode
+            local range = mode:find('[vV]') == 1 and { vim.fn.line('v'), api.nvim_win_get_cursor(0)[1] } or nil
+            gs.stage_hunk(range)
+          end, { desc = 'Stage the hunk' })
+          map({ 'n', 'x' }, 'gsr', gs.undo_stage_hunk, { desc = 'Undo the hunk' })
+          map('n', 'gsR', gs.reset_buffer, { desc = 'Reset the buffer' })
+          map('n', 'gsp', gs.preview_hunk, { desc = 'Preview the hunk' })
           map('n', 'gsb', function()
             gs.blame_line({ full = true })
-          end)
-          map('n', 'gsv', gs.toggle_current_line_blame)
-          map('n', 'gsq', gs.setloclist)
-          map('n', 'gsS', '<Cmd>GitsignsDetach<CR>')
-
-          -- Text object
-          map({ 'o', 'x' }, 'ih', gs.select_hunk)
+          end, { desc = 'Blame line' })
+          map('n', 'gsv', gs.select_hunk, { desc = 'Select the hunk' })
+          map('n', 'gsq', gs.setloclist, { desc = 'Open loclist' })
+          map('n', 'gsS', '<Cmd>GitsignsDetach<CR>', { desc = 'Detach gitsigns' })
         end, {})
         api.nvim_create_user_command('GitsignsDetach', function()
           require('gitsigns').detach_all()
-
-          api.nvim_del_keymap('o', 'ih')
           api.nvim_del_keymap('n', 'gsa')
           api.nvim_del_keymap('n', 'gsr')
-          api.nvim_del_keymap('x', 'ih')
           api.nvim_del_keymap('x', 'gsa')
           api.nvim_del_keymap('x', 'gsr')
           api.nvim_del_keymap('n', 'gsR')
@@ -169,6 +163,16 @@ require('lazy').setup(
         update_debounce = vim.g.update_time,
         word_diff = true,
         trouble = true,
+        diff_opts = {
+          algorithm = 'histogram',
+          internal = true,
+          indent_heuristic = true,
+          vertical = true,
+          linematch = 1,
+          ignore_whitespace = false,
+          ignore_whitespace_change_at_eol = true,
+        },
+        preview_config = { border = 'rounded' },
       },
     }, -- }}}
 
@@ -224,9 +228,11 @@ require('lazy').setup(
       dir = 'C:/bin/repository/tar80/matchwith.nvim',
       event = 'CursorMoved',
       opts = {
-        ignore_filetypes = { 'TelescopePrompt', 'cmp-menu', 'help' },
-        ignore_buftypes = { 'nofile' },
-        enable_jump = true,
+        -- highlights = { Matchwith = {underline = true}},
+        ignore_filetypes = { 'TelescopePrompt', 'cmp-menu' },
+        -- ignore_buftypes = {},
+        jump_key = '%',
+        -- flash = 10,
       },
     }, -- }}}
     { -- {{{ smartword
@@ -250,18 +256,6 @@ require('lazy').setup(
       },
     }, ---}}}
     { 'kana/vim-niceblock', event = 'ModeChanged' },
-    -- {'andymass/vim-matchup', event = 'VeryLazy'},
-    -- { -- {{{ parenmatch
-    --   dir = 'C:/bin/repository/tar80/vim-parenmatch',
-    --   name = 'parenmatch',
-    --   opts = {
-    --     highlight = { link = 'MatchParen' },
-    --     ignore_filetypes = { 'TelescopePrompt', 'cmp-menu', 'help' },
-    --     ignore_buftypes = { 'nofile' },
-    --     itmatch = { enable = true },
-    --   },
-    --   event = 'CursorMoved',
-    -- }, -- }}}
 
     ---@context
     { -- {{{ insx

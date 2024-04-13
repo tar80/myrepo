@@ -262,7 +262,7 @@ local function load_ext(picker, preview, add) -- {@@2
 end
 
 ---@desc Keymap {@@2
-setmap('n', '<Leader><Leader>', function()
+setmap('n', '<Leader>:', function()
   load_builtin('buffers', 'no', { ignore_current_buffer = true })
 end, {})
 setmap('n', '<leader>m', function()

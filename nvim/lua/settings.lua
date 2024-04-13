@@ -141,6 +141,7 @@ vim.api.nvim_create_autocmd('CmdWinEnter', {
       vim.fn.histdel(':', line)
       api.nvim_del_current_line()
     end, { buffer = 0 })
+    mapset('n', 'q', '<Cmd>quit<CR>', { buffer = 0 })
   end,
 })
 ---Update shada when exiting cmd-window
@@ -186,7 +187,7 @@ api.nvim_create_autocmd('TextYankPost', {
   group = augroup,
   pattern = '*',
   callback = function()
-    vim.highlight.on_yank({ higroup = 'PmenuSel', on_visual = false, timeout = 150 })
+    vim.highlight.on_yank({ higroup = 'PmenuSel', on_visual = false, timeout = 150, prioritiy = 200 })
   end,
 })
 ---Supports changing options that affect Simple_fold() {{{2
@@ -324,17 +325,17 @@ mapset('n', '<F12>', function()
   end
   return ''
 end)
-mapset('n', '<C-z>', '<NOP>')
+mapset('n', '<C-z>', '<Nop>')
 
---@see https://github.com/atusy/dotfiles/blob/787634e1444eb5473a08b9965552eea6942437c1/dot_config/nvim/lua/atusy/init.lua#L173
-mapset('n', 'q', '<Nop>')
+--@see https://github.com/atusy/dotfiles/blob/main/dot_config/nvim/lua/atusy/init.lua
 mapset('n', 'Q', 'q')
+mapset('n', 'q', '<Plug>(q)')
 -- mapset('n', 'q', function()
---   return vim.fn.reg_recording() == '' and '<Plug>(q)' or 'q'
+--   return vim.fn.reg_recording() == '' and '<Plug>(q)' or '<Nop>'
 -- end, { expr = true })
--- mapset('n', '<Plug>(q):', 'q:')
--- mapset('n', '<Plug>(q)/', 'q/')
--- mapset('n', '<Plug>(q)?', 'q?')
+mapset('n', '<Plug>(q):', 'q:')
+mapset('n', '<Plug>(q)/', 'q/')
+mapset('n', '<Plug>(q)?', 'q?')
 mapset('n', ',', function()
   if o.hlsearch then
     o.hlsearch = false

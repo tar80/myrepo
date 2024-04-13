@@ -16,9 +16,9 @@ if vim.g.fuzzy_motion_labels then
   -- vim.g.fuzzy_motion_word_filter_regexp_list = { '^[a-zA-Z0-9]' }
   -- vim.g.fuzzy_motion_word_regexp_list = [ '[0-9a-zA-Z_-]+', '([0-9a-zA-Z_-]|[.])+', '([0-9a-zA-Z_-]|[().#])+' ]
   -- vim.g.fuzzy_motion_auto_jump = false
-  vim.keymap.set('n', '<Leader>j', function()
+  vim.keymap.set('n', '<Leader><leader>', function()
     if vim.fn['denops#plugin#is_loaded']('fuzzy-motion') == 0 then
-      vim.fn['denops#plugin#register']('fuzzy-motion')
+      vim.fn['denops#plugin#load']('fuzzy-motion')
     end
     vim.cmd('FuzzyMotion')
   end)
