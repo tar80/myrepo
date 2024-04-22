@@ -246,8 +246,9 @@ function M.lua(self, priority) -- {@@2
       return ctx.match([[{{\%#]])
     end,
     action = function(ctx)
+      local marker = vim.split(vim.o.foldmarker, ',', { plain = true })
       if ctx.match([[\S{{\%#]]) then
-        ctx.send('<BS><BS><Del><Del><Space>{{{')
+        ctx.send('<BS><BS><Del><Del><Space>' .. marker[1])
       else
         ctx.send('<Del><Del>{')
       end

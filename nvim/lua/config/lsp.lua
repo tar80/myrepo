@@ -318,9 +318,7 @@ require('mason-lspconfig').setup_handlers({
           workspace = {
             checkThirdParty = 'Disable',
             library = {
-              -- vim.fn.stdpath('data') .. '/lazy/nvim-treesitter/lua/nvim-treesitter',
               '$VIMRUNTIME/lua/vim',
-              -- '$VIMRUNTIME/lua/vim/treesitter',
               '${3rd}/luv/library',
               '${3rd}/busted/library',
             },

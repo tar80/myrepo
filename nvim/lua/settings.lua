@@ -4,7 +4,7 @@ local api = vim.api
 local uv = vim.uv
 local o = vim.o
 local opt = vim.opt
-local mapset = vim.keymap.set
+local keymap = vim.keymap
 local util = require('module.util')
 
 ---@desc Set shell parameters
@@ -136,12 +136,12 @@ vim.api.nvim_create_autocmd('ModeChanged', {
 vim.api.nvim_create_autocmd('CmdWinEnter', {
   group = augroup,
   callback = function()
-    mapset('n', 'D', function()
+    keymap.set('n', 'D', function()
       local line = vim.fn.line('.') - vim.fn.line('$')
       vim.fn.histdel(':', line)
       api.nvim_del_current_line()
     end, { buffer = 0 })
-    mapset('n', 'q', '<Cmd>quit<CR>', { buffer = 0 })
+    keymap.set('n', 'q', '<Cmd>quit<CR>', { buffer = 0 })
   end,
 })
 ---Update shada when exiting cmd-window
@@ -301,7 +301,7 @@ cmd_abbrev('shadad', '!rm ~/.local/share/nvim-data/shada/main.shada.tmp*')
 ---@desc Keymaps {{{1
 vim.g.mapleader = ';'
 ---Normal mode{{{2
-mapset('n', '<F1>', function()
+keymap.set('n', '<F1>', function()
   return os.execute('c:/bin/cltc/cltc.exe')
 end)
 -- mapset('n', '<F5>', function()
@@ -309,13 +309,13 @@ end)
 --     vim.cmd('diffupdate')
 --   end
 -- end)
-mapset({ 'n', 'c' }, '<F4>', function()
+keymap.set({ 'n', 'c' }, '<F4>', function()
   toggleShellslash()
 end)
-mapset('n', '<C-F9>', function()
+keymap.set('n', '<C-F9>', function()
   ppcust_load()
 end)
-mapset('n', '<F12>', function()
+keymap.set('n', '<F12>', function()
   -- local wrap = o.wrap ~= true and "wrap" or "nowrap"
   if o.diff == true then
     local cur = api.nvim_win_get_number(0)
@@ -325,32 +325,32 @@ mapset('n', '<F12>', function()
   end
   return ''
 end)
-mapset('n', '<C-z>', '<Nop>')
+keymap.set('n', '<C-z>', '<Nop>')
 
 --@see https://github.com/atusy/dotfiles/blob/main/dot_config/nvim/lua/atusy/init.lua
-mapset('n', 'Q', 'q')
-mapset('n', 'q', '<Plug>(q)')
+keymap.set('n', 'Q', 'q')
+keymap.set('n', 'q', '<Plug>(q)')
 -- mapset('n', 'q', function()
 --   return vim.fn.reg_recording() == '' and '<Plug>(q)' or '<Nop>'
 -- end, { expr = true })
-mapset('n', '<Plug>(q):', 'q:')
-mapset('n', '<Plug>(q)/', 'q/')
-mapset('n', '<Plug>(q)?', 'q?')
-mapset('n', ',', function()
+keymap.set('n', '<Plug>(q):', 'q:')
+keymap.set('n', '<Plug>(q)/', 'q/')
+keymap.set('n', '<Plug>(q)?', 'q?')
+keymap.set('n', ',', function()
   if o.hlsearch then
     o.hlsearch = false
   else
     api.nvim_feedkeys(',', 'n', false)
   end
 end)
-mapset('n', '<C-m>', 'i<C-M><ESC>')
-mapset('n', '/', function()
+keymap.set('n', '<C-m>', 'i<C-M><ESC>')
+keymap.set('n', '/', function()
   o.hlsearch = true
   return '/'
 end, { noremap = true, expr = true })
-mapset('n', 'n', "'Nn'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
-mapset('n', 'N', "'nN'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
-mapset('c', '<CR>', function()
+keymap.set('n', 'n', "'Nn'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
+keymap.set('n', 'N', "'nN'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
+keymap.set('c', '<CR>', function()
   local cmdtype = vim.fn.getcmdtype()
   if cmdtype == '/' or cmdtype == '?' then
     return '<CR>zv'
@@ -359,9 +359,9 @@ mapset('c', '<CR>', function()
 end, { noremap = true, expr = true, silent = true })
 
 ---Move buffer use <Space>
-mapset('n', '<Space>', '<C-w>', { remap = true })
-mapset('n', '<Space><Space>', '<C-w><C-w>')
-mapset('n', '<Space>n', function()
+keymap.set('n', '<Space>', '<C-w>', { remap = true })
+keymap.set('n', '<Space><Space>', '<C-w><C-w>')
+keymap.set('n', '<Space>n', function()
   local i = 1
   while vim.fn.bufnr('Scratch' .. i) ~= -1 do
     i = i + 1
@@ -370,11 +370,11 @@ mapset('n', '<Space>n', function()
   api.nvim_set_option_value('buftype', 'nofile', { buf = 0 })
   api.nvim_set_option_value('bufhidden', 'wipe', { buf = 0 })
 end)
-mapset('n', '<Space>Q', '<Cmd>bwipeout!<CR>')
-mapset('n', '<Space>c', '<Cmd>tabclose<CR>')
+keymap.set('n', '<Space>Q', '<Cmd>bwipeout!<CR>')
+keymap.set('n', '<Space>c', '<Cmd>tabclose<CR>')
 
 ---Close nofile|qf|preview window
-mapset('n', '<Space>z', function()
+keymap.set('n', '<Space>z', function()
   if api.nvim_get_option_value('buftype', { buf = 0 }) == 'nofile' then
     return api.nvim_buf_delete(0, { force = true })
   end
@@ -390,33 +390,36 @@ mapset('n', '<Space>z', function()
 end)
 
 ---Insert/Command mode {{{2
-mapset('i', '<S-Delete>', '<C-O>D')
-mapset('i', '<M-j>', '<Down>')
-mapset('i', '<M-k>', '<Up>')
-mapset('i', '<M-h>', '<Left>')
-mapset('i', '<M-l>', '<Right>')
-mapset('i', '<C-k>', '<Delete>')
-mapset('i', '<C-e>', '<C-g>U<End>')
-mapset('i', '<C-f>', '<C-g>U<Right>')
-mapset('!', '<C-b>', '<C-g>U<Left>')
-mapset('!', '<C-v>u', '<C-R>=nr2char(0x)<Left>')
-mapset('c', '<C-a>', '<Home>')
+keymap.set('i', '<M-j>', '<C-g>U<Down>')
+keymap.set('i', '<M-k>', '<C-g>U<Up>')
+keymap.set('i', '<M-h>', '<C-g>U<Left>')
+keymap.set('i', '<M-l>', '<C-g>U<Right>')
+keymap.set('i', '<S-Delete>', '<C-g>U<C-o>D')
+keymap.set('i', '<C-d>', '<Delete>')
+keymap.set('i', '<C-k>', '<C-g>u<C-o>D')
+keymap.set('i', '<C-a>', '<Home>')
+keymap.set('i', '<C-e>', '<End>')
+keymap.set('i', '<C-f>', '<Right>')
+keymap.set('i', '<C-b>', '<Left>')
+keymap.set('!', '<C-v>u', '<C-R>=nr2char(0x)<Left>')
+keymap.set('c', '<C-a>', '<Home>')
+keymap.set('c', '<C-b>', '<Left>')
 
 ---Visual mode{{{2
 ---clipbord yank
-mapset('v', '<C-insert>', '"*y')
-mapset('v', '<C-delete>', '"*ygvd')
+keymap.set('v', '<C-insert>', '"*y')
+keymap.set('v', '<C-delete>', '"*ygvd')
 ---do not release after range indentation process
-mapset('x', '<', '<gv')
-mapset('x', '>', '>gv')
+keymap.set('x', '<', '<gv')
+keymap.set('x', '>', '>gv')
 ---search for cursor under string without moving cursor
-mapset('n', '*', function()
+keymap.set('n', '*', function()
   search_star()
 end, { expr = true })
-mapset('n', 'g*', function()
+keymap.set('n', 'g*', function()
   search_star('g')
 end, { expr = true })
-mapset('x', '*', function()
+keymap.set('x', '*', function()
   search_star(nil, 'v')
 end, { expr = true })
 

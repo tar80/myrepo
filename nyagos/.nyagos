@@ -145,6 +145,7 @@ end
 
 nyagos.alias.pca = 'cd c:\\bin\\repository\\tar80\\pages-pca && bundle exec jekyll s --future'
 nyagos.alias.keyp = 'C:\\bin\\Keypirinha\\keypirinha.exe'
+nyagos.alias.lazyinstall = 'nvim --headless "+Lazy! install" +qa'
 -- nyagos.alias.nvim = 'nvim --cmd "let g:tr_bg=v:true"'
 
 nyagos.alias.zi = function()

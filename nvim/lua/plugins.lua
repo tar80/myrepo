@@ -12,7 +12,7 @@ do
   local lazypath = string.format('%s/lazy/lazy.nvim', fn.stdpath('data'))
   local cmdline =
     { 'git', 'clone', '--filter=blob:none', 'https://github.com/folke/lazy.nvim.git', '--branch=stable', lazypath }
-  if vim.fn.isdirectory(lazypath) == 0 then
+  if not vim.uv.fs_stat(lazypath) then
     vim.fn.system(cmdline)
   end
   vim.opt.rtp:prepend(lazypath)
@@ -44,8 +44,8 @@ require('lazy').setup(
     }, -- }}}
 
     ---@desc modules
-    { 'nvim-lua/plenary.nvim', module = false },
-    { 'kana/vim-operator-user', lazy = true, module = false },
+    { 'nvim-lua/plenary.nvim', lazy = true },
+    { 'kana/vim-operator-user', lazy = true },
     -- { 'nvim-tree/nvim-web-devicons', module = true },
 
     ---@desc display
@@ -53,50 +53,50 @@ require('lazy').setup(
       'feline-nvim/feline.nvim',
       -- 'freddiehaddad/feline.nvim',
       event = 'UIEnter',
-      dependencies = { 'loose.nvim' },
+      dependencies = { { 'tar80/loose.nvim', dev = true } },
       config = function()
         require('config.display')
       end,
     }, -- }}}
-    { dir = 'C:/bin/repository/tar80/loose.nvim', name = 'loose.nvim', lazy = true },
 
     ---@desc git
     { -- {{{ mug
-      name = 'mug.nvim',
-      dir = 'C:/bin/repository/tar80/mug.nvim',
+      'tar80/mug.nvim',
+      dev = true,
       event = 'VeryLazy',
-      config = function()
-        require('mug').setup({
-          commit = true,
-          conflict = true,
-          diff = true,
-          files = true,
-          index = true,
-          merge = true,
-          mkrepo = true,
-          rebase = true,
-          show = true,
-          subcommand = true,
-          terminal = true,
-          variables = {
-            edit_command = 'E',
-            file_command = 'F',
-            write_command = 'W',
-            sub_command = 'G',
-            -- symbol_not_repository = '',
-            root_patterns = { '.gitignore', '.git/' },
-            index_auto_update = true,
-            commit_notation = 'conventional',
-            remote_url = 'git@github.com:tar80',
-            diff_position = 'right',
-            term_command = 'T',
-            -- term_shell = 'nyagos',
-            term_position = 'bottom',
-            term_disable_columns = true,
-            term_nvim_pseudo = true,
-          },
-          highlights = {},
-        })
+      opts = {
+        commit = true,
+        conflict = true,
+        diff = true,
+        files = true,
+        index = true,
+        merge = true,
+        mkrepo = true,
+        rebase = true,
+        show = true,
+        subcommand = true,
+        terminal = true,
+        variables = {
+          edit_command = 'E',
+          file_command = 'F',
+          write_command = 'W',
+          sub_command = 'G',
+          -- symbol_not_repository = '',
+          root_patterns = { '.gitignore', '.git/' },
+          index_auto_update = true,
+          commit_notation = 'conventional',
+          remote_url = 'git@github.com:tar80',
+          diff_position = 'right',
+          term_command = 'T',
+          -- term_shell = 'nyagos',
+          term_position = 'bottom',
+          term_disable_columns = true,
+          term_nvim_pseudo = true,
+        },
+        highlights = {},
+      },
+      config = function(_, opts)
+        require('mug').setup(opts)
         setmap('n', 'md', '<Cmd>MugDiff<cr>')
         setmap('n', 'mi', '<Cmd>MugIndex<cr>')
         setmap('n', 'mc', '<Cmd>MugCommit<cr>')
@@ -105,7 +105,7 @@ require('lazy').setup(
     { -- {{{ gitsigns
       'lewis6991/gitsigns.nvim',
       lazy = true,
-      keys = { { 'gss', '<Cmd>GitsignsAttach<CR>' } },
+      keys = { { 'gss', '<Cmd>GitsignsAttach<CR>', desc = 'Attach gitsigns' } },
       init = function() -- {{{
         api.nvim_create_user_command('GitsignsAttach', function()
           local gs = require('gitsigns')
@@ -180,14 +180,16 @@ require('lazy').setup(
     { -- {{{ lspconfig
       'neovim/nvim-lspconfig',
       event = 'VeryLazy',
-      dependencies = { 'williamboman/mason.nvim', 'nvimtools/none-ls.nvim', 'hrsh7th/cmp-nvim-lsp' },
+      dependencies = {
+        { 'williamboman/mason.nvim', priority = 100 },
+        'williamboman/mason-lspconfig.nvim',
+        'nvimtools/none-ls.nvim',
+        'hrsh7th/cmp-nvim-lsp',
+      },
       config = function()
         require('config.lsp')
       end,
     }, ---}}}
-    { 'williamboman/mason-lspconfig.nvim', lazy = true },
-    { 'williamboman/mason.nvim', lazy = true },
-    { 'nvimtools/none-ls.nvim', lazy = true },
 
     ---@desc treesitter
     { -- {{{ treesitter
@@ -199,7 +201,7 @@ require('lazy').setup(
         require('config.treesitter')
       end,
     }, ---}}}
-    { 'nvim-treesitter/nvim-treesitter-textobjects', lazy = true },
+    -- { 'nvim-treesitter/nvim-treesitter-textobjects', lazy = true },
 
     ---@denops
     { -- {{{ denops
@@ -224,15 +226,15 @@ require('lazy').setup(
 
     ---@desc motion
     { -- {{{ matchwith
-      name = 'matchwith',
-      dir = 'C:/bin/repository/tar80/matchwith.nvim',
+      'tar80/matchwith.nvim',
       event = 'CursorMoved',
+      dev = true,
       opts = {
-        -- highlights = { Matchwith = {underline = true}},
+        highlights = { Matchwith = { underline = true }, NormalFloat = { link = 'TabLine' } },
         ignore_filetypes = { 'TelescopePrompt', 'cmp-menu' },
         -- ignore_buftypes = {},
         jump_key = '%',
-        -- flash = 10,
+        indicator = 200,
       },
     }, -- }}}
     { -- {{{ smartword
@@ -246,9 +248,9 @@ require('lazy').setup(
       end,
     }, -- }}}
     { -- {{{ fret
-      name = 'fret.nvim',
-      dir = 'C:/bin/repository/tar80/fret.nvim',
+      'tar80/fret.nvim',
       event = 'VeryLazy',
+      dev = true,
       opts = {
         fret_enable_kana = true,
         fret_timeout = 9000,
@@ -264,7 +266,6 @@ require('lazy').setup(
       config = function()
         vim.o.wrapscan = true
         setmap({ 'i', 'c' }, '<C-h>', '<BS>', { remap = true })
-
         require('config.insx'):setup({
           cmdline = false,
           fast_break = true,
@@ -276,11 +277,12 @@ require('lazy').setup(
         })
       end,
     }, -- }}}
-    { -- {{{ comment
-      'numToStr/Comment.nvim',
-      event = 'VeryLazy',
-      opts = { ignore = '^$' },
-    }, -- }}}
+    --NOTE: use default keymap "gc"
+    -- { -- {{{ comment
+    --   'numToStr/Comment.nvim',
+    --   event = 'VeryLazy',
+    --   opts = { ignore = '^$' },
+    -- }, -- }}}
     { -- {{{ dial
       'monaqa/dial.nvim',
       keys = { '<C-a>', '<C-x>', '<C-t>', { 'g<C-a>', mode = 'x' }, { 'g<C-x>', mode = 'x' } },
@@ -318,7 +320,7 @@ require('lazy').setup(
         setmap('n', '<C-a>', require('dial.map').inc_normal(), { silent = true, noremap = true })
         setmap('n', '<C-x>', require('dial.map').dec_normal(), { silent = true, noremap = true })
         setmap('v', '<C-a>', require('dial.map').inc_visual(), { silent = true, noremap = true })
-        setmap('v', '<C.x>', require('dial.map').dec_visual(), { silent = true, noremap = true })
+        setmap('v', '<C-x>', require('dial.map').dec_visual(), { silent = true, noremap = true })
         setmap('v', 'g<C-a>', require('dial.map').inc_gvisual(), { silent = true, noremap = true })
         setmap('v', 'g<C-x>', require('dial.map').dec_gvisual(), { silent = true, noremap = true })
       end,
@@ -380,7 +382,12 @@ require('lazy').setup(
           end
           vim.schedule(function()
             local float = require('module.float')
-            local bufnr = float:popup({ data = reg_str, hl = { link = 'Special' } })
+            local bufnr = float.popup({
+              border = 'rounded',
+              data = reg_str,
+              winblend = 0,
+              hl = { link = 'SpecialKey' },
+            })
             -- local bufnr, winid = unpack(float.popup({ data = reg_str }))
             api.nvim_create_autocmd({ 'ModeChanged' }, {
               group = augroup,
@@ -456,7 +463,7 @@ require('lazy').setup(
         vim.g.mr_mrr_disabled = true
         vim.g['mr#threshold'] = 200
         vim.cmd(
-          "let g:mr#mru#predicates=[{filename -> filename !~? '\\\\\\|\\/doc\\/\\|\\/dist\\/\\|\\/dev\\/\\|\\/\\.git\\/\\|\\.cache'}]"
+          "let g:mr#mru#predicates=[{filename -> filename !~? '^c|\\\\\\|\\/doc\\/\\|\\/dist\\/\\|\\/dev\\/\\|\\/\\.git\\/\\|\\.cache'}]"
         )
       end,
     }, ---}}}
@@ -563,8 +570,8 @@ require('lazy').setup(
       'uga-rosa/translate.nvim',
       cmd = 'Translate',
       init = function()
-        setmap({ 'n', 'x' }, 'me', '<Cmd>Translate EN<CR>', { silent = true })
-        setmap({ 'n', 'x' }, 'mj', '<Cmd>Translate JA<CR>', { silent = true })
+        setmap({ 'n', 'x' }, 'me', '<Cmd>Translate EN<CR><C-[>', { silent = true })
+        setmap({ 'n', 'x' }, 'mj', '<Cmd>Translate JA<CR><C-[>', { silent = true })
         setmap({ 'n', 'x' }, 'mE', '<Cmd>Translate EN -output=replace<CR>', { silent = true })
         setmap({ 'n', 'x' }, 'mJ', '<Cmd>Translate JA -output=replace<CR>', { silent = true })
       end,
@@ -586,14 +593,14 @@ require('lazy').setup(
           local mode = api.nvim_get_mode().mode
 
           if mode:find('^[vV\x16]') then
-            local s = vim.fn.line('v')
-            local e = api.nvim_win_get_cursor(0)[1]
+            local start = vim.fn.line('v')
+            local end_ = api.nvim_win_get_cursor(0)[1]
 
-            if s > e then
-              s, e = e, s
+            if start > end_ then
+              start, end_ = end_, start
             end
 
-            prefix = string.format('%s,%s', s, e)
+            prefix = string.format('%s,%s', start, end_)
           end
 
           vim.cmd(string.format('%sQuickRun', prefix))
@@ -623,7 +630,7 @@ require('lazy').setup(
                   })
                 end,
                 on_success = function(_, _)
-                  vim.notify('[QuickRun] Success', vim.log.levels.INFO, { title = ' QuickRun' })
+                  vim.cmd('echon "[QuickRun] Success"')
                 end,
                 on_failure = function(_, _)
                   vim.notify('[QuickRun] Error', vim.log.levels.ERROR, { title = ' QuickRun' })
@@ -666,8 +673,8 @@ require('lazy').setup(
     }, -- }}}
     { -- {{{ undotree
       'mbbill/undotree',
-      cmd = 'UndotreeToggle',
-      init = function()
+      keys = { { '<F7>', nil, desc = 'Toggle undotree' } },
+      config = function()
         vim.g.undotree_WindowLayout = 2
         vim.g.undotree_ShortIndicators = 1
         vim.g.undotree_SplitWidth = 28
@@ -685,34 +692,34 @@ require('lazy').setup(
         vim.g.undotree_HighlightSyntaxDel = 'DiffDelete'
         vim.g.undotree_HelpLine = 1
         vim.g.undotree_CursorLine = 1
-
         setmap('n', '<F7>', '<Cmd>UndotreeToggle<CR>')
       end,
     }, -- }}}
-    { -- {{{ open-browser
-      'tyru/open-browser.vim',
-      lazy = true,
-      init = function()
-        vim.g.openbrowser_open_vim_command = 'split'
-        vim.g.openbrowser_use_vimproc = 0
-        vim.g.openbrowser_no_default_menus = 1
-        setmap('n', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('n')<CR>")
-        setmap('x', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('v')<CR>")
-        vim.opt.rtp:append(vim.fn.stdpath('data') .. '\\lazy\\open-browser.vim')
-      end,
-    }, -- }}}
+    --NOTE: use default keymap "gx"
+    -- { -- {{{ open-browser
+    --   'tyru/open-browser.vim',
+    --   lazy = true,
+    --   init = function()
+    --     vim.g.openbrowser_open_vim_command = 'split'
+    --     vim.g.openbrowser_use_vimproc = 0
+    --     vim.g.openbrowser_no_default_menus = 1
+    --     setmap('n', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('n')<CR>")
+    --     setmap('x', '<SPACE>/', "<Cmd>call openbrowser#_keymap_smart_search('v')<CR>")
+    --     vim.opt.rtp:append(vim.fn.stdpath('data') .. '\\lazy\\open-browser.vim')
+    --   end,
+    -- }, -- }}}
     { 'norcalli/nvim-colorizer.lua', cmd = 'ColorizerAttachToBuffer' },
 
     ---@desc dap
     { -- {{{ nvim-dap
       'mfussenegger/nvim-dap',
       lazy = true,
-      key = { '<F5>' },
+      key = { { '<F5>', nil, 'Load dap' } },
       dependencies = {
         'theHamsta/nvim-dap-virtual-text',
         'mxsdev/nvim-dap-vscode-js',
       },
-      init = function()
+      config = function()
         setmap('n', '<F5>', function()
           require('config.dap')
           vim.notify('[Dap] ready', 2)
@@ -725,6 +732,15 @@ require('lazy').setup(
     { 'vim-jp/vimdoc-ja' },
   }, -- }}}
   { -- {{{ options
+    dev = {
+      path = vim.g.repo,
+      patterns = { 'tar80' },
+      fallback = false,
+    },
+    install = {
+      missing = false,
+      colorscheme = { 'habamax' },
+    },
     ui = { -- {{{
       size = { width = 0.8, height = 0.8 },
       wrap = true,
