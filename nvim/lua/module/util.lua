@@ -1,12 +1,14 @@
 --- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 -------------------------------------------------------------------------------
 local api = vim.api
+
 local M = {}
 
 M.getchr = function()
-  local col = api.nvim_win_get_cursor(0)[2] + 1
-  local getline = api.nvim_get_current_line()
-  return getline:sub(col, col)
+  local col = api.nvim_win_get_cursor(0)[2]
+  local line = api.nvim_get_current_line()
+  local charidx = vim.str_utfindex(line, col)
+  return vim.fn.strcharpart(line, charidx, 1)
 end
 
 M.has_words_before = function()

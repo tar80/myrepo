@@ -40,9 +40,10 @@ require(color_scheme).setup({
     keywords = 'bold',
     functions = 'NONE',
     variables = 'NONE',
-    diagnostics = 'underline',
+    diagnostics = 'undercurl',
     references = 'NONE',
     virtualtext = 'italic',
+    spell = 'undercurl,italic'
   },
   disable = {
     background = tr,

@@ -2,6 +2,7 @@
 --------------------------------------------------------------------------------
 local api = vim.api
 local uv = vim.uv
+local fn = vim.fn
 local o = vim.o
 local opt = vim.opt
 local keymap = vim.keymap
@@ -41,8 +42,8 @@ api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
 api.nvim_set_option_value('shada', "'50,<500,/10,:100,h", { scope = 'global' })
 
 ---Local {{{2
--- api.nvim_set_option_value('name', value, { scope = 'local' })
----NOTE:Avoided a bug in neovim itself that causes errors when colons are mixed in spellfile option
+-- NOTE: api.nvim_set_option_value('name', value, { scope = 'local' })
+
 vim.opt_local.isfname:append(':')
 
 ---General {{{2
@@ -119,26 +120,28 @@ local augroup = api.nvim_create_augroup('rcSettings', {})
 
 ---Remove ignore history from cmdline history{{{2
 ---@see https://blog.atusy.net/2023/07/24/vim-clean-history/
-local ignore_history = [=[^\c\(\_[efqw]!\?\|qa!\?\|echo\|mes\|h\s.*\)$]=]
+local ignore_history = [=[^\c\(\_[efqw]!\?\|qa!\?\|ec\a*\|mes\%[sages]\|h\%[elp]\)$]=]
 vim.api.nvim_create_autocmd('ModeChanged', {
+  desc = 'Remove ignore history',
   pattern = 'c:*',
   group = augroup,
   callback = function()
-    local hist = vim.fn.histget('cmd', -1)
+    local hist = fn.histget('cmd', -1)
     vim.schedule(function()
       if vim.regex(ignore_history):match_str(hist) then
-        vim.fn.histdel(':', -1)
+        fn.histdel(':', -1)
       end
     end)
   end,
 })
 ---Delete current line from cmdline-history {{{2
 vim.api.nvim_create_autocmd('CmdWinEnter', {
+  desc = 'Attach command window',
   group = augroup,
   callback = function()
     keymap.set('n', 'D', function()
-      local line = vim.fn.line('.') - vim.fn.line('$')
-      vim.fn.histdel(':', line)
+      local line = fn.line('.') - fn.line('$')
+      fn.histdel(':', line)
       api.nvim_del_current_line()
     end, { buffer = 0 })
     keymap.set('n', 'q', '<Cmd>quit<CR>', { buffer = 0 })
@@ -146,6 +149,7 @@ vim.api.nvim_create_autocmd('CmdWinEnter', {
 })
 ---Update shada when exiting cmd-window
 vim.api.nvim_create_autocmd('CmdWinLeave', {
+  desc = 'Update shada',
   group = augroup,
   callback = function()
     vim.cmd.wshada({ bang = true })
@@ -153,6 +157,7 @@ vim.api.nvim_create_autocmd('CmdWinLeave', {
 })
 ---Cursor line highlighting rules {{{2
 api.nvim_create_autocmd('CursorHoldI', {
+  desc = 'Ignore cursorline highlight',
   group = augroup,
   callback = function()
     if vim.bo.filetype ~= 'TelescopePrompt' then
@@ -162,28 +167,33 @@ api.nvim_create_autocmd('CursorHoldI', {
 })
 ---NOTE: FocusLost does not work mounted in the Windows-tereminal.
 api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
+  desc = 'Ignore cursorline highlight',
   group = augroup,
   callback = function()
-    if vim.fn.mode() == 'i' and vim.bo.filetype ~= 'TelescopePrompt' then
+    if api.nvim_get_mode().mode == 'i' and vim.bo.filetype ~= 'TelescopePrompt' then
       api.nvim_set_option_value('cursorline', true, { win = 0 })
     end
   end,
 })
 api.nvim_create_autocmd({ 'BufEnter', 'CursorMovedI', 'InsertLeave' }, {
+  desc = 'Ignore cursorline highlight',
   group = augroup,
   command = 'setl nocursorline',
 })
 ---Insert-Mode, we want a longer updatetime {{{2
 api.nvim_create_autocmd('InsertEnter', {
+  desc = 'Set to longer updatetime',
   group = augroup,
   command = 'set updatetime=4000',
 })
 api.nvim_create_autocmd('InsertLeave', {
+  desc = 'Set to normal updatetime',
   group = augroup,
   command = 'setl iminsert=0|execute "set updatetime=" . g:update_time',
 })
 ---Yanked, it shines {{{2
 api.nvim_create_autocmd('TextYankPost', {
+  desc = 'On yank highlight',
   group = augroup,
   pattern = '*',
   callback = function()
@@ -192,6 +202,7 @@ api.nvim_create_autocmd('TextYankPost', {
 })
 ---Supports changing options that affect Simple_fold() {{{2
 api.nvim_create_autocmd('OptionSet', {
+  desc = 'Reset Simple_fold()',
   group = augroup,
   pattern = 'foldmarker',
   callback = function(opts)
@@ -228,12 +239,12 @@ end
 local function search_star(g, mode) -- {{{2
   local word
   if mode ~= 'v' then
-    word = vim.fn.expand('<cword>')
+    word = fn.expand('<cword>')
     word = g == 'g' and word or '\\<' .. word .. '\\>'
   else
-    local first = vim.fn.getpos('v')
-    local last = vim.fn.getpos('.')
-    local lines = vim.fn.getline(first[2], last[2])
+    local first = fn.getpos('v')
+    local last = fn.getpos('.')
+    local lines = fn.getline(first[2], last[2])
     if #lines > 1 then
       -- word = table.concat(api.nvim_buf_get_text(0, first[2] - 1, first[3] - 1, last[2] - 1, last[3], {}))
       return util.feedkey('*', 'n')
@@ -245,7 +256,7 @@ local function search_star(g, mode) -- {{{2
   if vim.v.count > 0 then
     return '*'
   else
-    vim.fn.setreg('/', word)
+    fn.setreg('/', word)
     return vim.cmd('set hlsearch')
   end
 end
@@ -256,8 +267,8 @@ local function ppcust_load() -- {{{2
     return
   end
 
-  vim.fn.system({ os.getenv('PPX_DIR') .. '\\ppcustw.exe', 'CA', api.nvim_buf_get_name(0) })
-  vim.notify('PPcust CA ' .. vim.fn.expand('%:t'), 3)
+  fn.system({ os.getenv('PPX_DIR') .. '\\ppcustw.exe', 'CA', api.nvim_buf_get_name(0) })
+  vim.notify('PPcust CA ' .. fn.expand('%:t'), 3)
 end ---}}}
 local function cmd_abbrev(key, rep, space) -- {{{2
   ---@see https://zenn.dev/vim_jp/articles/2023-06-30-vim-substitute-tips
@@ -299,6 +310,12 @@ cmd_abbrev('hl', "lua<Space>print(require('module.util').hl_at_cursor())<CR>")
 cmd_abbrev('shadad', '!rm ~/.local/share/nvim-data/shada/main.shada.tmp*')
 
 ---@desc Keymaps {{{1
+-- Unmap default-mappings {{{2
+keymap.del('n', 'gr')
+keymap.del('n', 'crn')
+keymap.del({ 'n', 'x' }, 'crr')
+keymap.del('i', '<C-s>')
+
 vim.g.mapleader = ';'
 ---Normal mode{{{2
 keymap.set('n', '<F1>', function()
@@ -331,7 +348,7 @@ keymap.set('n', '<C-z>', '<Nop>')
 keymap.set('n', 'Q', 'q')
 keymap.set('n', 'q', '<Plug>(q)')
 -- mapset('n', 'q', function()
---   return vim.fn.reg_recording() == '' and '<Plug>(q)' or '<Nop>'
+--   return fn.reg_recording() == '' and '<Plug>(q)' or '<Nop>'
 -- end, { expr = true })
 keymap.set('n', '<Plug>(q):', 'q:')
 keymap.set('n', '<Plug>(q)/', 'q/')
@@ -351,7 +368,7 @@ end, { noremap = true, expr = true })
 keymap.set('n', 'n', "'Nn'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
 keymap.set('n', 'N', "'nN'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
 keymap.set('c', '<CR>', function()
-  local cmdtype = vim.fn.getcmdtype()
+  local cmdtype = fn.getcmdtype()
   if cmdtype == '/' or cmdtype == '?' then
     return '<CR>zv'
   end
@@ -363,7 +380,7 @@ keymap.set('n', '<Space>', '<C-w>', { remap = true })
 keymap.set('n', '<Space><Space>', '<C-w><C-w>')
 keymap.set('n', '<Space>n', function()
   local i = 1
-  while vim.fn.bufnr('Scratch' .. i) ~= -1 do
+  while fn.bufnr('Scratch' .. i) ~= -1 do
     i = i + 1
   end
   vim.cmd.new('Scratch' .. i)
@@ -378,11 +395,11 @@ keymap.set('n', '<Space>z', function()
   if api.nvim_get_option_value('buftype', { buf = 0 }) == 'nofile' then
     return api.nvim_buf_delete(0, { force = true })
   end
-  local altnr = vim.fn.bufnr('#')
+  local altnr = fn.bufnr('#')
   if altnr ~= -1 and api.nvim_get_option_value('buftype', { buf = altnr }) == 'nofile' then
     return api.nvim_buf_delete(altnr, { force = true })
   end
-  local qfnr = vim.fn.getqflist({ qfbufnr = 0 }).qfbufnr
+  local qfnr = fn.getqflist({ qfbufnr = 0 }).qfbufnr
   if qfnr ~= 0 then
     return api.nvim_buf_delete(qfnr, {})
   end
@@ -395,14 +412,14 @@ keymap.set('i', '<M-k>', '<C-g>U<Up>')
 keymap.set('i', '<M-h>', '<C-g>U<Left>')
 keymap.set('i', '<M-l>', '<C-g>U<Right>')
 keymap.set('i', '<S-Delete>', '<C-g>U<C-o>D')
-keymap.set('i', '<C-d>', '<Delete>')
-keymap.set('i', '<C-k>', '<C-g>u<C-o>D')
-keymap.set('i', '<C-a>', '<Home>')
+keymap.set('i', '<C-k>', '<Delete>')
+keymap.set('i', '<C-d>', '<C-g>u<C-o>D')
+keymap.set('i', '<C-q>', '<C-r>.')
 keymap.set('i', '<C-e>', '<End>')
 keymap.set('i', '<C-f>', '<Right>')
 keymap.set('i', '<C-b>', '<Left>')
+keymap.set('!', '<C-a>', '<Home>')
 keymap.set('!', '<C-v>u', '<C-R>=nr2char(0x)<Left>')
-keymap.set('c', '<C-a>', '<Home>')
 keymap.set('c', '<C-b>', '<Left>')
 
 ---Visual mode{{{2
@@ -424,9 +441,9 @@ keymap.set('x', '*', function()
 end, { expr = true })
 
 ---@desc Commands {{{1
-api.nvim_create_user_command('Busted', function() -- {{{2
-  local path = string.gsub(vim.fn.expand('%'), '\\', '/')
-  require('module.busted').run(path)
+api.nvim_create_user_command('BustedThisFile', function() -- {{{2
+  local path = string.gsub(fn.expand('%'), '\\', '/')
+  vim.cmd.PlenaryBustedFile(path)
 end, {})
 
 ---@desc "Z <filepath>" zoxide query
@@ -442,13 +459,13 @@ api.nvim_create_user_command('UTSetup', function() -- {{{2
   os.execute('wt -w 1 sp -V --size 0.4 ' .. os.getenv('PPX_DIR') .. '/ppbw.exe -bootid:t -k @wt -w 1 mf left')
 
   local path = vim.fs.normalize(uv.cwd() .. '/t')
-  local name = vim.fn.expand('%:t')
+  local name = fn.expand('%:t')
 
   if not name:find('utp_', 1, true) then
     local test_path = vim.fs.normalize('t/utp_' .. name)
 
-    if vim.fn.isdirectory(path) ~= 1 then
-      vim.fn.mkdir(path)
+    if fn.isdirectory(path) ~= 1 then
+      fn.mkdir(path)
     end
 
     -- vim.cmd('bot split ' .. testpath .. '|set fenc=utf-8|set ff=unix')
@@ -468,7 +485,7 @@ end, { nargs = '*' })
 
 ---@desc "JestSetup" Unit-test compose multi-panel
 api.nvim_create_user_command('JestSetup', function() -- {{{2
-  local has_config = vim.fn.filereadable('jest.config.js') + vim.fn.filereadable('package.json')
+  local has_config = fn.filereadable('jest.config.js') + fn.filereadable('package.json')
   if has_config == 0 then
     vim.notify('Config file not found', 3)
   end
@@ -479,21 +496,21 @@ api.nvim_create_user_command('JestSetup', function() -- {{{2
   local sym_dir = string.format('__%ss__', symbol)
   local parent_dir = vim.fs.dirname(api.nvim_buf_get_name(0))
   local test_dir = vim.fs.joinpath(parent_dir, sym_dir)
-  local name = vim.fn.expand('%:t:r')
+  local name = fn.expand('%:t:r')
 
   if parent_dir and not parent_dir:find(sym_dir, 1, true) then
     local test_path = string.format('%s/%s.%s.ts', test_dir, name, symbol)
     local insert_string = ''
 
-    if vim.fn.filereadable(test_path) ~= 1 then
+    if fn.filereadable(test_path) ~= 1 then
       local line1 = "import PPx from '@ppmdev/modules/ppx';"
       local line2 = 'global.PPx = Object.create(PPx)'
-      local line3 = string.format("import from '../%s'", vim.fn.expand('%:t:r'))
+      local line3 = string.format("import from '../%s'", fn.expand('%:t:r'))
       insert_string = string.format('|execute "normal! I%s\n%s\n%s\\<Esc>3G06l"', line1, line2, line3)
     end
 
-    if vim.fn.isdirectory(test_dir) ~= 1 then
-      vim.fn.mkdir(test_dir)
+    if fn.isdirectory(test_dir) ~= 1 then
+      fn.mkdir(test_dir)
     end
 
     api.nvim_command(string.format('bot split %s|set fenc=utf-8|set ff=unix%s', test_path, insert_string))

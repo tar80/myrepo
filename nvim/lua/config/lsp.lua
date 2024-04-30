@@ -30,7 +30,7 @@ vim.diagnostic.config({ -- {{{2
     prefix = '',
     suffix = '',
     format = function(diagnostic)
-      local symbol = { [1] = SIGNS.Error, [2] = SIGNS.Warn, [3] = SIGNS.Info, [4] = SIGNS.Hint }
+      local symbol = { [1] = SIGNS.ERROR, [2] = SIGNS.WARN, [3] = SIGNS.INFO, [4] = SIGNS.HINT }
       return string.format('%s %s (%s)', symbol[diagnostic.severity], diagnostic.message, diagnostic.source)
     end,
   },
@@ -39,15 +39,16 @@ vim.diagnostic.config({ -- {{{2
 })
 
 ---@desc Functions {{{1
-local function _no_clients() -- {{{2
+local function has_client() -- {{{2
   if #lsp.get_clients({ bufnr = 0 }) == 0 then
-    vim.notify('Language server is not attached this buffer', 3)
-    return true
+    vim.notify('Language server is not attached this buffer', vim.log.levels.WARN)
+    return false
   end
-  return false
+  return true
 end
+
 local function popup_rename() -- {{{2
-  if _no_clients() then
+  if not has_client() then
     return
   end
   local adjust_cursor = util.getchr():match('[^%w]')
@@ -84,11 +85,16 @@ end
 
 local augroup = api.nvim_create_augroup('rcLsp', {})
 
+local function _root_dir()
+  return uv.cwd()
+end
+
 ---@diagnostic disable-next-line: unused-local
-local function on_attach(client, bufnr) --- {{{2
+local function _on_attach(client, bufnr) --- {{{2
   -- api.nvim_set_option_value('omnifunc', 'v:lua.vim.lsp.omnifunc', { buf = bufnr })
   ---@desc Under cursor Symbol highlight -- {{{
   api.nvim_create_autocmd({ 'CursorHold' }, {
+    desc = 'Set document highlighting',
     group = augroup,
     buffer = 0,
     callback = function()
@@ -96,6 +102,7 @@ local function on_attach(client, bufnr) --- {{{2
     end,
   })
   api.nvim_create_autocmd({ 'CursorMoved' }, {
+    desc = 'Clear references highlighting',
     group = augroup,
     buffer = 0,
     callback = function()
@@ -103,8 +110,6 @@ local function on_attach(client, bufnr) --- {{{2
     end,
   }) ---}}}
   ---@desc Keymap {{{3
-  keymap.set('n', ']d', vim.diagnostic.goto_next)
-  keymap.set('n', '[d', vim.diagnostic.goto_prev)
   keymap.set('n', 'gla', lsp.buf.code_action)
   keymap.set('n', 'gld', function() -- {{{
     local opts = { bufnr = 0, focusable = false }
@@ -112,7 +117,6 @@ local function on_attach(client, bufnr) --- {{{2
     local winblend = api.nvim_get_option_value('winblend', {})
     api.nvim_set_option_value('winblend', 0, {})
     local resp = vim.diagnostic.open_float(opts_cursor, {})
-
     if not resp then
       local opts_line = vim.tbl_extend('force', opts, { scope = 'line' })
       vim.diagnostic.open_float(opts_line, {})
@@ -122,70 +126,56 @@ local function on_attach(client, bufnr) --- {{{2
   end) -- }}}
   keymap.set('n', 'glh', lsp.buf.signature_help)
   keymap.set('n', 'gli', function() -- {{{
-    if _no_clients() then
+    if not has_client() then
       return
     end
-    local toggle = lsp.inlay_hint.is_enabled() == false
-    lsp.inlay_hint.enable(0, toggle)
+    local is_enable = lsp.inlay_hint.is_enabled()
+    lsp.inlay_hint.enable(not is_enable)
   end) -- }}}
   keymap.set('n', 'gll', lsp.buf.hover)
   keymap.set('n', 'glr', popup_rename)
   keymap.set('n', 'glv', function() -- {{{
-    if _no_clients() then
+    if not has_client() then
       return
     end
     local toggle = not vim.diagnostic.config().virtual_text
     vim.diagnostic.config({ virtual_text = toggle })
   end) -- }}}
-  -- keymap.set('n', 'gd', lsp.buf.definition)
-  -- keymap.set("n", "gD", lsp.buf.type_definition)
-  -- keymap.set("n", "glj", lsp.buf.references)
 
   ---@desc trouble.nvim
-  -- keymap.set('n', 'gd', function() -- {{{
-  --   local pos = { api.nvim_win_get_cursor(0) }
-  --   vim.cmd.normal({ 'gd', bang = true })
-  --   if not vim.deep_equal(pos, { api.nvim_win_get_cursor(0) }) or _no_clients() then
-  --     return
-  --   end
-  --   lsp.buf.definition({
-  --     reuse_win = true,
-  --     on_list = function(opts)
-  --       local item1 = opts.items[1]
-  --       if #opts.items == 2 then
-  --         local item2 = opts.items[2]
+  keymap.set('n', 'gd', function() -- {{{
+    local pos = { api.nvim_win_get_cursor(0) }
+    vim.cmd.normal({ 'gd', bang = true })
+    if not vim.deep_equal(pos, { api.nvim_win_get_cursor(0) }) or not has_client() then
+      return
+    end
+    lsp.buf.definition({
+      reuse_win = true,
+      on_list = function(opts)
+        local item1 = opts.items[1]
+        if #opts.items == 2 then
+          local item2 = opts.items[2]
 
-  --         if item1.filename == item2.filename and item1.lnum == item2.lnum then
-  --           local filename = util.normalize(item1.filename)
-  --           if filename ~= util.normalize(api.nvim_buf_get_name(0)) then
-  --             vim.cmd.edit(filename)
-  --           end
+          if item1.filename == item2.filename and item1.lnum == item2.lnum then
+            local filename = util.normalize(item1.filename)
+            if filename ~= util.normalize(api.nvim_buf_get_name(0)) then
+              vim.cmd.edit(filename)
+            end
 
-  --           api.nvim_win_set_cursor(0, { item1.lnum, item1.col })
-  --           return
-  --         end
-  --       end
-  --       vim.cmd.Trouble('lsp_definitions')
-  --     end,
-  --   })
-  -- end) -- }}}
-  -- keymap.set('n', 'gD', function() -- {{{
-  --   if _no_clients() then
-  --     vim.cmd.normal({ 'gD', bang = true })
-  --     return
-  --   end
-  --   vim.cmd.Trouble('lsp_implementations')
-  -- end) -- }}}
+            api.nvim_win_set_cursor(0, { item1.lnum, item1.col })
+            return
+          end
+        end
+        vim.cmd.Lspsaga('goto_definition')
+        -- vim.cmd.Trouble('lsp_definitions')
+      end,
+    })
+  end) -- }}}
   keymap.set('n', 'gle', '<Cmd>Trouble document_diagnostics<CR>', {})
   keymap.set('n', 'glk', '<Cmd>Trouble lsp_references<CR>', {})
   -- keymap.set('n', 'glt', '<Cmd>Trouble lsp_type_definitions<CR>', {})
 
   ---@desc lspsaga.nvim
-  -- keymap.set('n', ']d', '<Cmd>Lspsaga diagnostic_jump_next<CR>', {})
-  -- keymap.set('n', '[d', '<Cmd>Lspsaga diagnostic_jump_prev<CR>', {})
-  keymap.set('n', 'gd', '<Cmd>Lspsaga goto_definition<CR>', {})
-  -- keymap.set('n', 'gD', '<Cmd>Lspsaga goto_type_definition<CR>', {})
-  -- keymap.set('n', 'glk', '<Cmd>Lspsaga finder<CR>', {})
   keymap.set('n', 'glt', '<Cmd>Lspsaga peek_type_definition<CR>', {})
 
   ---@desc map automatically added by lsp
@@ -223,9 +213,7 @@ require('mason-lspconfig').setup_handlers({
   function(server_name) -- {{{
     lspconfig[server_name].setup({
       flags = flags,
-      on_attach = function(client, bufnr)
-        on_attach(client, bufnr)
-      end,
+      on_attach = _on_attach,
       capabilities = capabilities,
     })
   end, -- }}}
@@ -246,9 +234,7 @@ require('mason-lspconfig').setup_handlers({
       single_file_support = false,
       root_dir = lspconfig.util.root_pattern('.git', 'tsconfig.json'),
       filetypes = { 'typescript', 'javascript' },
-      on_attach = function(client, bufnr)
-        on_attach(client, bufnr)
-      end,
+      on_attach = _on_attach,
       capabilities = capabilities,
       disable_formatting = true,
       settings = {
@@ -267,9 +253,7 @@ require('mason-lspconfig').setup_handlers({
   --     root_dir = lspconfig.util.root_pattern('.git', 'tsconfig.json', 'deno.json', 'deno.jsonc'),
   --     autostart = false,
   --     filetypes = { 'javascript' },
-  --     on_attach = function(client, bufnr)
-  --       on_attach(client, bufnr)
-  --     end,
+  --     on_attach = _on_attach,
   --     capabilities = capabilities,
   --     settings = {
   --       deno = {
@@ -289,11 +273,8 @@ require('mason-lspconfig').setup_handlers({
     lspconfig.lua_ls.setup({
       flags = flags,
       single_file_support = false,
-      root_dir = lspconfig.util.find_git_ancestor(uv.cwd()),
-      -- root_dir = lspconfig.util.root_pattern('.git', 'luarc.json'),
-      on_attach = function(client, bufnr)
-        on_attach(client, bufnr)
-      end,
+      root_dir = lspconfig.util.root_pattern('.git', 'luarc.json'),
+      on_attach = _on_attach,
       capabilities = capabilities,
       settings = {
         Lua = {
@@ -320,7 +301,8 @@ require('mason-lspconfig').setup_handlers({
             library = {
               '$VIMRUNTIME/lua/vim',
               '${3rd}/luv/library',
-              '${3rd}/busted/library',
+              -- '${3rd}/busted/library',
+              '${3rd}/luassert/library',
             },
           },
           -- telemetry = {
@@ -348,9 +330,7 @@ local null_ls = require('null-ls')
 local attach_filetypes = { 'lua', 'javascript', 'typescript', 'text', 'markdown' }
 null_ls.setup({ -- {{{3
   debounce = 500,
-  root_dir = function()
-    return uv.cwd()
-  end,
+  root_dir = lspconfig.util.find_git_ancestor,
   should_attach = function(bufnr)
     return vim.tbl_contains(attach_filetypes, vim.bo[bufnr].filetype)
   end,

@@ -9,6 +9,13 @@
   },
   "Busted it": {
     "prefix": "it",
-    "body": ["it(\"$1\", function()", "\t$2", "end)"]
+    "body": ["it('$1', function()", "\t$2", "end)"]
+  },
+  "Print": {
+    "prefix": {
+      "prefix": "pr",
+      "body": "vim.print(string.format('$1:%s$2',$3))"
+    }
+
   }
 }

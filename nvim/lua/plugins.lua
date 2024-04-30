@@ -33,7 +33,28 @@ require('lazy').setup(
             cw.load('sfmono_square')
             -- cw.add({ { 0xF000, 0xFD46, 2 }, })
             -- cw.add({ 0x1F424, 0x1F425, 3 })
-            cw.delete({ 0xE0B4, 0xE0B6, 0xE0B8, 0xE0BA, 0xE0BC, 0xE0BD, 0xE0BE, 0xE0BF, 0xE285, 0xE725 })
+            cw.add({ 0x2000, 0x2049, 2 })
+            cw.add({ 0x25AA, 0x25FC, 2 })
+            cw.add({ 0x2611, 0x263A, 2 })
+            cw.add({ 0x2666, 0x2764, 2 })
+            cw.add(0x27A1, 2)
+            cw.add({ 0x2B05, 0x2B07, 2 })
+            cw.delete({
+              0x2640,
+              0x2642,
+              0x2660,
+              0x2663,
+              0xE0B4,
+              0xE0B6,
+              0xE0B8,
+              0xE0BA,
+              0xE0BC,
+              0xE0BD,
+              0xE0BE,
+              0xE0BF,
+              0xE285,
+              0xE725,
+            })
             return cw
           end,
         })
@@ -227,10 +248,10 @@ require('lazy').setup(
     ---@desc motion
     { -- {{{ matchwith
       'tar80/matchwith.nvim',
-      event = 'CursorMoved',
+      event = 'VeryLazy',
       dev = true,
       opts = {
-        highlights = { Matchwith = { underline = true }, NormalFloat = { link = 'TabLine' } },
+        highlights = { Matchwith = { underline = true } },
         ignore_filetypes = { 'TelescopePrompt', 'cmp-menu' },
         -- ignore_buftypes = {},
         jump_key = '%',
@@ -249,10 +270,12 @@ require('lazy').setup(
     }, -- }}}
     { -- {{{ fret
       'tar80/fret.nvim',
-      event = 'VeryLazy',
+      keys = { 'f', 'F', 't', 'T' },
       dev = true,
       opts = {
         fret_enable_kana = true,
+        fret_enable_symbol = false,
+        fret_repeat_notify = true,
         fret_timeout = 9000,
         mapkeys = { fret_f = 'f', fret_F = 'F', fret_t = 't', fret_T = 'T' },
       },
@@ -331,9 +354,12 @@ require('lazy').setup(
       init = function()
         vim.g.sandwich_no_default_key_mappings = true
         setmap({ 'n' }, '<Leader>i', '<Plug>(operator-sandwich-add)i')
+        setmap({ 'n' }, '<Leader>ii', 'v<Plug>(textobj-sandwich-auto-i)<Plug>(operator-sandwich-add)')
+        -- setmap({ 'o', 'x' }, 'ib', '<Plug>(textobj-sandwich-auto-i)')
         setmap({ 'n' }, '<Leader>a', '<Plug>(operator-sandwich-add)a')
+        setmap({ 'n' }, '<Leader>aa', 'v<Plug>(textobj-sandwich-auto-a)<Plug>(operator-sandwich-add)')
         setmap({ 'x' }, '<Leader>a', '<Plug>(operator-sandwich-add)')
-        setmap({ 'x' }, 'aa', '<Plug>(textobj-sandwich-auto-a)')
+        -- setmap({ 'x' }, 'aa', '<Plug>(textobj-sandwich-auto-a)')
         setmap({ 'n', 'x' }, '<Leader>r', '<Plug>(sandwich-replace)')
         setmap({ 'n', 'x' }, '<Leader>rr', '<Plug>(sandwich-replace-auto)')
         setmap({ 'n', 'x' }, '<Leader>d', '<Plug>(sandwich-delete)')
@@ -493,7 +519,7 @@ require('lazy').setup(
           register_user_command = false,
           system_clipboard = false,
           show_register_types = true,
-          symbols = { tab = '~' },
+          symbols = { newline = '↲', tab = '~' },
           bind_keys = {
             normal = false,
             insert = registers.show_window({
@@ -505,7 +531,7 @@ require('lazy').setup(
             max_width = 100,
             highlight_cursorline = true,
             border = 'rounded',
-            transparency = 9,
+            transparency = 12,
           },
         })
       end,
