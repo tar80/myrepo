@@ -30,7 +30,7 @@ vim.diagnostic.config({ -- {{{2
     prefix = '',
     suffix = '',
     format = function(diagnostic)
-      local symbol = { [1] = SIGNS.ERROR, [2] = SIGNS.WARN, [3] = SIGNS.INFO, [4] = SIGNS.HINT }
+      local symbol = { [1] = SIGNS.Error, [2] = SIGNS.Warn, [3] = SIGNS.Info, [4] = SIGNS.Hint }
       return string.format('%s %s (%s)', symbol[diagnostic.severity], diagnostic.message, diagnostic.source)
     end,
   },

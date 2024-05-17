@@ -62,7 +62,7 @@ end
 ---@desc prompt
 do
   -- cmd
-  nyagos.env.prompt = '$P$S'
+  nyagos.env.PROMPT = '$P$S'
   -- nyagos
   local prompt = nyagos.default_prompt
   nyagos.prompt = function()
@@ -145,7 +145,7 @@ end
 
 nyagos.alias.pca = 'cd c:\\bin\\repository\\tar80\\pages-pca && bundle exec jekyll s --future'
 nyagos.alias.keyp = 'C:\\bin\\Keypirinha\\keypirinha.exe'
-nyagos.alias.lazyinstall = 'nvim --headless "+Lazy! install" +qa'
+nyagos.alias.lazyinstall = 'nvim --headless "+silent! Lazy! install" +qa'
 -- nyagos.alias.nvim = 'nvim --cmd "let g:tr_bg=v:true"'
 
 nyagos.alias.zi = function()
@@ -251,6 +251,6 @@ end)
 --     export="GOREADLINESKK",
 -- }
 
-use('git')
+require('git')
 
 -- vim: set ft=lua:

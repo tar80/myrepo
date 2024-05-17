@@ -67,6 +67,7 @@ require(color_scheme).setup({
     cmp = true,
     gitsigns = true,
     fret = true,
+    matchwith = true,
     skkeleton_indicator = true,
     sandwich = true,
     trouble = true,

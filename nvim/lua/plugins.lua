@@ -13,7 +13,7 @@ do
   local cmdline =
     { 'git', 'clone', '--filter=blob:none', 'https://github.com/folke/lazy.nvim.git', '--branch=stable', lazypath }
   if not vim.uv.fs_stat(lazypath) then
-    vim.fn.system(cmdline)
+    fn.system(cmdline)
   end
   vim.opt.rtp:prepend(lazypath)
 end
@@ -54,6 +54,10 @@ require('lazy').setup(
               0xE0BF,
               0xE285,
               0xE725,
+              0xEA71,
+              0xEABC,
+              0xEAAA,
+              0xEAAB,
             })
             return cw
           end,
@@ -78,6 +82,18 @@ require('lazy').setup(
       config = function()
         require('config.display')
       end,
+    }, -- }}}
+    { -- {{{ render-markdown
+      'MeanderingProgrammer/markdown.nvim',
+      name = 'render-markdown',
+      dependencies = { 'nvim-treesitter/nvim-treesitter' },
+      config = function()
+        require('render-markdown').setup({
+          start_enabled = false,
+          bullets = { '', '', '', '' },
+        })
+      end,
+      ft = 'markdown',
     }, -- }}}
 
     ---@desc git
@@ -168,16 +184,18 @@ require('lazy').setup(
         end, {})
         api.nvim_create_user_command('GitsignsDetach', function()
           require('gitsigns').detach_all()
-          api.nvim_del_keymap('n', 'gsa')
-          api.nvim_del_keymap('n', 'gsr')
-          api.nvim_del_keymap('x', 'gsa')
-          api.nvim_del_keymap('x', 'gsr')
-          api.nvim_del_keymap('n', 'gsR')
-          api.nvim_del_keymap('n', 'gsp')
-          api.nvim_del_keymap('n', 'gsb')
-          api.nvim_del_keymap('n', 'gsv')
-          api.nvim_del_keymap('n', '[c')
-          api.nvim_del_keymap('n', ']c')
+          if fn.maparg('gsa', 'n') ~= '' then
+            api.nvim_del_keymap('n', 'gsa')
+            api.nvim_del_keymap('n', 'gsr')
+            api.nvim_del_keymap('x', 'gsa')
+            api.nvim_del_keymap('x', 'gsr')
+            api.nvim_del_keymap('n', 'gsR')
+            api.nvim_del_keymap('n', 'gsp')
+            api.nvim_del_keymap('n', 'gsb')
+            api.nvim_del_keymap('n', 'gsv')
+            api.nvim_del_keymap('n', '[c')
+            api.nvim_del_keymap('n', ']c')
+          end
         end, {})
       end, -- }}}
       opts = {
@@ -251,11 +269,11 @@ require('lazy').setup(
       event = 'VeryLazy',
       dev = true,
       opts = {
-        highlights = { Matchwith = { underline = true } },
         ignore_filetypes = { 'TelescopePrompt', 'cmp-menu' },
         -- ignore_buftypes = {},
         jump_key = '%',
-        indicator = 200,
+        -- indicator = 200,
+        -- sign = true,
       },
     }, -- }}}
     { -- {{{ smartword
@@ -270,11 +288,11 @@ require('lazy').setup(
     }, -- }}}
     { -- {{{ fret
       'tar80/fret.nvim',
-      keys = { 'f', 'F', 't', 'T' },
+      event = 'VeryLazy',
       dev = true,
       opts = {
         fret_enable_kana = true,
-        fret_enable_symbol = false,
+        fret_enable_symbol = true,
         fret_repeat_notify = true,
         fret_timeout = 9000,
         mapkeys = { fret_f = 'f', fret_F = 'F', fret_t = 't', fret_T = 'T' },

@@ -94,7 +94,7 @@ o.pumblend = 12
 o.pumheight = 10
 o.pumwidth = 20
 o.matchtime = 2
-opt.matchpairs:append({ '【:】', '[:]', '<:>' })
+opt.matchpairs:append({ '【:】', '[:]' })
 -- vim.cmd[[set tabstop<]]
 o.shiftwidth = 2
 o.softtabstop = 2
@@ -269,52 +269,67 @@ local function ppcust_load() -- {{{2
 
   fn.system({ os.getenv('PPX_DIR') .. '\\ppcustw.exe', 'CA', api.nvim_buf_get_name(0) })
   vim.notify('PPcust CA ' .. fn.expand('%:t'), 3)
-end ---}}}
-local function cmd_abbrev(key, rep, space) -- {{{2
-  ---@see https://zenn.dev/vim_jp/articles/2023-06-30-vim-substitute-tips
-  local ignore_space = space and '[getchar(), ""][1].' or ''
-  local fmt =
-    string.format('<expr> %s getcmdtype().getcmdline() ==# ":%s" ? %s"%s" : "%s"', key, key, ignore_space, rep, key)
-  vim.cmd.cnoreabbrev(fmt)
 end
 
+local abbrev = { -- {{{2
+  ia = function(word, replaces)
+    for _, replace in ipairs(replaces) do
+      keymap.set('ia', replace, word)
+    end
+  end,
+  ca = function(word, replace)
+    ---@see https://zenn.dev/vim_jp/articles/2023-06-30-vim-substitute-tips
+    local getchar = replace[2] and '[getchar(), ""][1].' or ''
+    local exp = string.format('getcmdtype().getcmdline() ==# ":%s" ? %s"%s" : "%s"', word, getchar, replace[1], word)
+    keymap.set('ca', word, exp, { expr = true })
+  end,
+  set = function(self, mode)
+    local fun = self[mode]
+    local iter = vim.iter(self.tbl[mode])
+    iter:each(fun)
+  end,
+} -- }}}
+
 ---@desc Abbreviations {{{1
----Typo {{{2
-vim.cmd.abbreviate('exoprt', 'export')
-vim.cmd.abbreviate('exoper', 'export')
-vim.cmd.abbreviate('funcion', 'function')
-vim.cmd.abbreviate('fuction', 'function')
-vim.cmd.abbreviate('stirng', 'string')
-vim.cmd.abbreviate('retrun', 'return')
-vim.cmd.abbreviate('filed', 'field')
----Cmeline {{{2
-cmd_abbrev("'<,'>", [['<,'>s///|nohls<Left><Left><Left><Left><Left><Left><Left>]], true)
-cmd_abbrev('s', '%s///<Left>', true)
-cmd_abbrev('ms', 'MugShow', true)
-cmd_abbrev('es', 'e<Space>++enc=cp932 ++ff=dos<CR>')
-cmd_abbrev('e8', 'e<Space>++enc=utf-8<CR>')
-cmd_abbrev('e16', 'e<Space>++enc=utf-16le ++ff=dos<CR>')
-cmd_abbrev('sc', 'set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb<CR>')
-cmd_abbrev('scn', 'set<Space>noscb<CR>')
-cmd_abbrev('del', [[call<Space>delete(expand('%'))]])
-cmd_abbrev('cs', [[execute<Space>'50vsplit'g:repo.'/myrepo/nvim/.cheatsheet'<CR>]])
-cmd_abbrev('dd', 'diffthis<Bar>wincmd<Space>p<Bar>diffthis<Bar>wincmd<Space>p<CR>')
-cmd_abbrev('dof', 'syntax<Space>enable<Bar>diffoff<CR>')
-cmd_abbrev(
-  'dor',
-  'vert<Space>bel<Space>new<Space>difforg<Bar>set<Space>bt=nofile<Bar>r<Space>++edit<Space>#<Bar>0d_<Bar>windo<Space>diffthis<Bar>wincmd<Space>p<CR>'
-)
-cmd_abbrev('ht', 'so<Space>$VIMRUNTIME/syntax/hitest.vim', true)
-cmd_abbrev('ct', 'so<Space>$VIMRUNTIME/syntax/colortest.vim', true)
-cmd_abbrev('hl', "lua<Space>print(require('module.util').hl_at_cursor())<CR>")
-cmd_abbrev('shadad', '!rm ~/.local/share/nvim-data/shada/main.shada.tmp*')
+abbrev.tbl = {
+  ia = {
+    export = { 'exprot', 'exoprt' },
+    field = { 'filed' },
+    string = { 'stirng', 'sting' },
+    ['function'] = { 'funcion', 'fuction' },
+    ['return'] = { 'reutnr', 'reutrn', 'retrun' },
+  },
+  ca = {
+    ["'<,'>"] = { [['<,'>s///|nohls<Left><Left><Left><Left><Left><Left><Left>]], true },
+    s = { '%s///<Left>', true },
+    ms = { 'MugShow', true },
+    es = { 'e<Space>++enc=cp932 ++ff=dos<CR>' },
+    e8 = { 'e<Space>++enc=utf-8<CR>' },
+    e16 = { 'e<Space>++enc=utf-16le ++ff=dos<CR>' },
+    sc = { 'set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb<CR>' },
+    scn = { 'set<Space>noscb<CR>' },
+    del = { [[call<Space>delete(expand('%'))]] },
+    cs = { [[execute<Space>'50vsplit'g:repo.'/myrepo/nvim/.cheatsheet'<CR>]] },
+    dd = { 'diffthis<Bar>wincmd<Space>p<Bar>diffthis<Bar>wincmd<Space>p<CR>' },
+    dof = { 'syntax<Space>enable<Bar>diffoff<CR>' },
+    dor = {
+      'vert<Space>bel<Space>new<Space>difforg<Bar>set<Space>bt=nofile<Bar>r<Space>++edit<Space>#<Bar>0d_<Bar>windo<Space>diffthis<Bar>wincmd<Space>p<CR>',
+    },
+    ht = { 'so<Space>$VIMRUNTIME/syntax/hitest.vim' },
+    ct = { 'so<Space>$VIMRUNTIME/syntax/colortest.vim' },
+    hl = { "lua<Space>print(require('module.util').hl_at_cursor())<CR>" },
+    shadad = { '!rm ~/.local/share/nvim-data/shada/main.shada.tmp*' },
+  },
+}
+abbrev:set('ia')
+abbrev:set('ca')
 
 ---@desc Keymaps {{{1
 -- Unmap default-mappings {{{2
-keymap.del('n', 'gr')
-keymap.del('n', 'crn')
-keymap.del({ 'n', 'x' }, 'crr')
-keymap.del('i', '<C-s>')
+-- keymap.del('n', 'gr')
+-- keymap.del('n', 'crn')
+-- keymap.del('n', 'crr')
+-- keymap.del('i', '<C-s>')
 
 vim.g.mapleader = ';'
 ---Normal mode{{{2
