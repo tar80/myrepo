@@ -94,11 +94,12 @@ nyagos.envadd('PATH', '%scoop%\\apps\\git\\current\\usr\\bin')
 nyagos.env.LESSCHARSET = 'utf-8'
 local bat_opts = '--color=always --style=numbers,changes --line-range=:50 --theme=Nord'
 local fzf_opts = {
+  '--border',
+  '--info=inline-right',
   '--exit-0',
   '--reverse',
   '--margin=0,1',
   '--height 80%',
-  '--inline-info',
   '--bind ctrl-f:page-down,ctrl-b:page-up',
   '--bind ctrl-d:preview-page-down,ctrl-u:preview-page-up',
   '--color=fg:-1,bg:-1,hl:#FFCC00',
