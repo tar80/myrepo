@@ -1,7 +1,6 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1
 --------------------------------------------------------------------------------
 local api = vim.api
-local uv = vim.uv
 local lsp = vim.lsp
 local keymap = vim.keymap
 local util = require('module.util')
@@ -9,10 +8,16 @@ local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 local BORDER = 'rounded'
 local SIGNS = { Error = '', Warn = '', Hint = '', Info = '' }
-for name, symbol in pairs(SIGNS) do
-  local hl = string.format('DiagnosticSign%s', name)
-  vim.fn.sign_define(hl, { text = symbol, texthl = hl, numhl = 'NONE' })
-end
+local sign_define = (function()
+  local s = { text = {}, linehl = {}, numhl = {} }
+  for name, symbol in pairs(SIGNS) do
+    local key = vim.diagnostic.severity[name:upper()]
+    s.text[key] = symbol
+    s.numhl[key] = string.format('DiagnosticSign%s', name)
+    -- s.linehl[key] = 'NONE'
+  end
+  return s
+end)()
 
 ---@desc Options
 lsp.set_log_level = 'OFF'
@@ -34,7 +39,7 @@ vim.diagnostic.config({ -- {{{2
       return string.format('%s %s (%s)', symbol[diagnostic.severity], diagnostic.message, diagnostic.source)
     end,
   },
-  signs = true,
+  signs = sign_define,
   update_in_insert = false,
 })
 
@@ -85,10 +90,6 @@ end
 
 local augroup = api.nvim_create_augroup('rcLsp', {})
 
-local function _root_dir()
-  return uv.cwd()
-end
-
 ---@diagnostic disable-next-line: unused-local
 local function _on_attach(client, bufnr) --- {{{2
   -- api.nvim_set_option_value('omnifunc', 'v:lua.vim.lsp.omnifunc', { buf = bufnr })
@@ -110,6 +111,8 @@ local function _on_attach(client, bufnr) --- {{{2
     end,
   }) ---}}}
   ---@desc Keymap {{{3
+  keymap.set('n', ']d', vim.diagnostic.goto_next)
+  keymap.set('n', '[d', vim.diagnostic.goto_prev)
   keymap.set('n', 'gla', lsp.buf.code_action)
   keymap.set('n', 'gld', function() -- {{{
     local opts = { bufnr = 0, focusable = false }
@@ -129,7 +132,7 @@ local function _on_attach(client, bufnr) --- {{{2
     if not has_client() then
       return
     end
-    local is_enable = lsp.inlay_hint.is_enabled()
+    local is_enable = lsp.inlay_hint.is_enabled({ bufnr = bufnr })
     lsp.inlay_hint.enable(not is_enable)
   end) -- }}}
   keymap.set('n', 'gll', lsp.buf.hover)
@@ -176,6 +179,8 @@ local function _on_attach(client, bufnr) --- {{{2
   -- keymap.set('n', 'glt', '<Cmd>Trouble lsp_type_definitions<CR>', {})
 
   ---@desc lspsaga.nvim
+  -- keymap.set('n', ']d', '<Cmd>Lspsaga diagnostic_jump_next<CR>', {})
+  -- keymap.set('n', '[d', '<Cmd>Lspsaga diagnostic_jump_prev<CR>', {})
   keymap.set('n', 'glt', '<Cmd>Lspsaga peek_type_definition<CR>', {})
 
   ---@desc map automatically added by lsp

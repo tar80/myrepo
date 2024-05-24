@@ -13,6 +13,7 @@ vim.api.nvim_create_autocmd('User', {
 ---@desc FuzzyMotion {{{2
 if vim.g.fuzzy_motion_labels then
   vim.g.fuzzy_motion_matchers = { 'fzf', 'kensaku' }
+  vim.g.fuzzy_motion_labels = { 'A', 'S', 'D', 'F', 'G', 'W', 'E', 'R', 'Z', 'X', 'C', 'V' }
   -- vim.g.fuzzy_motion_word_filter_regexp_list = { '^[a-zA-Z0-9]' }
   -- vim.g.fuzzy_motion_word_regexp_list = [ '[0-9a-zA-Z_-]+', '([0-9a-zA-Z_-]|[.])+', '([0-9a-zA-Z_-]|[().#])+' ]
   -- vim.g.fuzzy_motion_auto_jump = false

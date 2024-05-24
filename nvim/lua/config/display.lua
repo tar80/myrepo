@@ -98,16 +98,16 @@ local function tabline(opts)
   local s = ''
   for index = 1, #vim.api.nvim_list_tabpages() do
     local winnr = vim.fn.tabpagewinnr(index)
-    local buflist = vim.fn.tabpagebuflist(index)
-    local bufnr = buflist[winnr]
-    local bufname = vim.fn.bufname(bufnr)
+    local bufnr = vim.fn.tabpagebuflist(index)[winnr]
+    local bufname = vim.api.nvim_buf_get_name(bufnr)
     local bufmodified = vim.api.nvim_get_option_value('modified', { buf = bufnr })
 
     local color = index == vim.fn.tabpagenr() and '%#TabLineSel#' or '%#TabLineFill#'
     local idx = opts.show_index and index or ''
+    local icon = require('nvim-web-devicons').get_icon(bufname) or ''
     local name = bufname ~= '' and vim.fn.fnamemodify(bufname, ':t') or opts.no_name
     local modifier = bufmodified and opts.show_modify and opts.modify_indicator ~= nil and opts.modify_indicator or ''
-    s = string.format('%s%%%sT%s %s %s %s', s, index, color, idx, name, modifier)
+    s = string.format('%s%%%sT%s %s %s%s %s', s, index, color, idx, icon, name, modifier)
   end
 
   s = string.format('%s%%#TabLineFill#%%T%%=%%#TabLine#%%{getcwd()} ', s)

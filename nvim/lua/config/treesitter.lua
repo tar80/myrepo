@@ -1,8 +1,6 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
--- vim.treesitter.language.register('query', { 'text' })
-
 if not package.loaded['nvim-treesitter'] then
   return
 end

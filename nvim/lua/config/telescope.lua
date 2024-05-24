@@ -59,9 +59,11 @@ require('telescope').setup({
     color_devicons = false,
     file_ignore_patterns = { -- {@@3
       'lazy-lock.json',
+      '^%.obsidian[/\\]',
+      '^%.trash[/\\]',
       '^%.git[/\\]',
-      '[/\\]%.git[/\\]',
       '^%.bundle[/\\]',
+      '[/\\]%.git[/\\]',
       '[/\\]%.bundle[/\\]',
       'node_modules[/\\]',
       'vendor[/\\]',

@@ -71,7 +71,7 @@ require('lazy').setup(
     ---@desc modules
     { 'nvim-lua/plenary.nvim', lazy = true },
     { 'kana/vim-operator-user', lazy = true },
-    -- { 'nvim-tree/nvim-web-devicons', module = true },
+    { 'nvim-tree/nvim-web-devicons', lazy = true },
 
     ---@desc display
     { -- {{{ feline

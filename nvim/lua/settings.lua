@@ -317,7 +317,6 @@ abbrev.tbl = {
     },
     ht = { 'so<Space>$VIMRUNTIME/syntax/hitest.vim' },
     ct = { 'so<Space>$VIMRUNTIME/syntax/colortest.vim' },
-    hl = { "lua<Space>print(require('module.util').hl_at_cursor())<CR>" },
     shadad = { '!rm ~/.local/share/nvim-data/shada/main.shada.tmp*' },
   },
 }

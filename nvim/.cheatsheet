@@ -15,27 +15,26 @@ cdo リストに対してコマンドを実行
 
 # abbrev-command
 shadad !rm main.shada.tmp*
+es open file encode cp932
 eu8 open file encode utf8
 eu16 open file encode utf16
 sc set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb
 scn set<Space>noscb
+del delete "%"
 dd diff
 dof diff off
 dor difforg
 ht hitest
 ct colortest
-hl <cword> highlight details
 
-# openbrowser
-<C-w>/ ブラウザで開く
+gx URIを開く
 
 # ctrlp
 <C-z> select multiline
 
 # normal
-_  operator-replace
-\  "0 + operator-replace
-<S-k> カーソル下単語ヘルプ
+_  "* + operator-replace
+\  operator-replace
 gw{motion} 行整形
 <C-w>
   i 識別子の宣言位置を開く
