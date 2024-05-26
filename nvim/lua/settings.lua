@@ -300,8 +300,8 @@ abbrev.tbl = {
     ['return'] = { 'reutnr', 'reutrn', 'retrun' },
   },
   ca = {
-    ["'<,'>"] = { [['<,'>s///|nohls<Left><Left><Left><Left><Left><Left><Left>]], true },
-    s = { '%s///<Left>', true },
+    ["'<,'>"] = { [['<,'>s///|nohls<lt>Left><lt>Left><lt>Left><lt>Left><lt>Left><lt>Left><lt>Left>]], true },
+    s = { '%s///<lt>Left>', true },
     ms = { 'MugShow', true },
     es = { 'e<Space>++enc=cp932 ++ff=dos<CR>' },
     e8 = { 'e<Space>++enc=utf-8<CR>' },

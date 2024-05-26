@@ -38,7 +38,7 @@ local function preview(direction)
   local list = get_list()
   local winnr = filewin()
   vim.api.nvim_win_set_buf(winnr, list.bufnr)
-  vim.api.nvim_win_set_cursor(winnr, { list.lnum, list.col })
+  vim.api.nvim_win_set_cursor(winnr, { list.lnum + 1, list.col })
   return ''
 end
 
