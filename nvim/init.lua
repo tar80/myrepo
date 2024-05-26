@@ -40,6 +40,7 @@ local minimal = false
 if minimal then
   require('minimal')
 else
+  require('private')
   require('settings')
   require('plugins')
 end

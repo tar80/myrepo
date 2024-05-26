@@ -250,6 +250,7 @@ require('lazy').setup(
         'lambdalisue/kensaku.vim',
         'yuki-yano/fuzzy-motion.vim',
         'vim-skk/skkeleton',
+        'yukimemi/futago.vim',
       },
       init = function()
         api.nvim_set_var('denops_disable_version_check', 1)

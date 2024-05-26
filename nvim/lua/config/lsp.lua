@@ -337,7 +337,11 @@ null_ls.setup({ -- {{{3
   debounce = 500,
   root_dir = lspconfig.util.find_git_ancestor,
   should_attach = function(bufnr)
-    return vim.tbl_contains(attach_filetypes, vim.bo[bufnr].filetype)
+    local ft = vim.bo[bufnr].filetype
+    if ft == 'markdown' and api.nvim_buf_get_name(bufnr):find('futago://chat', 1, true) then
+      return
+    end
+    return vim.tbl_contains(attach_filetypes, ft)
   end,
   temp_dir = vim.fn.tempname():gsub('^(.+)[/\\].*', '%1'),
   sources = {
