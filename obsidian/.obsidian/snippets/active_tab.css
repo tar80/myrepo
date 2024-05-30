@@ -1,0 +1,14 @@
+:root
+{
+ --cyan_x: 55,195,255;
+ --cyan: rgb(var(--cyan_x));
+}
+.theme-dark
+{
+  --tab-text-color-focused-active-current: var(--cyan);
+}
+.theme-light
+{
+  --tab-text-color-focused-active-current: var(--cyan);
+}
+
