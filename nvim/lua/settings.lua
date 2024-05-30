@@ -361,9 +361,6 @@ keymap.set('n', '<C-z>', '<Nop>')
 --@see https://github.com/atusy/dotfiles/blob/main/dot_config/nvim/lua/atusy/init.lua
 keymap.set('n', 'Q', 'q')
 keymap.set('n', 'q', '<Plug>(q)')
--- mapset('n', 'q', function()
---   return fn.reg_recording() == '' and '<Plug>(q)' or '<Nop>'
--- end, { expr = true })
 keymap.set('n', '<Plug>(q):', 'q:')
 keymap.set('n', '<Plug>(q)/', 'q/')
 keymap.set('n', '<Plug>(q)?', 'q?')
@@ -374,6 +371,10 @@ keymap.set('n', ',', function()
     api.nvim_feedkeys(',', 'n', false)
   end
 end)
+keymap.set('n', 'H', 'H<Plug>(H)')
+keymap.set('n', 'L', 'L<Plug>(L)')
+keymap.set('n', '<Plug>(H)H', '<PageUp>H<Plug>(H)')
+keymap.set('n', '<Plug>(L)L', '<PageDown>Lzb<Plug>(L)')
 keymap.set('n', '<C-m>', 'i<C-M><ESC>')
 keymap.set('n', '/', function()
   o.hlsearch = true
@@ -429,12 +430,11 @@ keymap.set('i', '<S-Delete>', '<C-g>U<C-o>D')
 keymap.set('i', '<C-k>', '<Delete>')
 keymap.set('i', '<C-d>', '<C-g>u<C-o>D')
 keymap.set('i', '<C-q>', '<C-r>.')
-keymap.set('i', '<C-e>', '<End>')
 keymap.set('i', '<C-f>', '<Right>')
 keymap.set('i', '<C-b>', '<Left>')
-keymap.set('!', '<C-a>', '<Home>')
-keymap.set('!', '<C-v>u', '<C-R>=nr2char(0x)<Left>')
+keymap.set('c', '<C-a>', '<Home>')
 keymap.set('c', '<C-b>', '<Left>')
+keymap.set('!', '<C-v>u', '<C-R>=nr2char(0x)<Left>')
 
 ---Visual mode{{{2
 ---clipbord yank

@@ -95,6 +95,7 @@ require('telescope').setup({
     }, -- @@}
     mappings = { -- {@@3
       i = {
+        ['<C-l>'] = { '<Plug>(skkeleton-enable)', type = 'command' },
         ['<C-s>'] = actions.file_split,
         ['<C-k>'] = actions.preview_scrolling_up,
         ['<C-j>'] = actions.preview_scrolling_down,

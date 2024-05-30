@@ -773,7 +773,7 @@ require('lazy').setup(
     }, -- }}}
 
     ---@desc filetype
-    { 'tar80/vim-PPxcfg', ft = 'PPxcfg' },
+    { 'tar80/vim-PPxcfg', dev = true, ft = 'PPxcfg' },
     { 'vim-jp/vimdoc-ja' },
   }, -- }}}
   { -- {{{ options

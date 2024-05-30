@@ -14,56 +14,76 @@ api.nvim_create_autocmd('User', {
 
 ---@desc Futago.vim {{{2
 if vim.g.loaded_futago then
-  local set_text = function(args)
+  local get_lines = function(opts)
+    local has_selection = opts.range > 0
+    local range = has_selection and { opts.line1 - 1, opts.line2 } or { 0, -1 }
+    return api.nvim_buf_get_lines(0, range[1], range[2], false)
+  end
+  local gemini_chat = function(lines, futago_opts)
     api.nvim_create_autocmd('CursorMoved', {
       group = augroup,
       pattern = 'futago://*',
       once = true,
-      callback = function(opts)
+      callback = function()
         vim.defer_fn(function()
-          if #args == 1 and args[1] == '' then
+          if #lines == 1 and lines[1] == '' then
             return
           end
-          api.nvim_buf_set_lines(opts.buf, 2, -1, false, args)
+          vim.fn.append(2, lines)
+          vim.api.nvim_win_call(0, function()
+            vim.cmd.normal({'zz', bang = true})
+          end)
           vim.cmd.write()
-        end, 500)
+        end, 1000)
       end,
     })
+    vim.fn['futago#start_chat'](futago_opts)
   end
 
   vim.g.futago_chat_path = string.format('%s\\%s', vim.env.tmp, 'vim_futago_log')
+  vim.g.futago_safety_settings = {
+    { category = 'HARM_CATEGORY_HATE_SPEECH', threshold = 'BLOCK_NONE' },
+    { category = 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold = 'BLOCK_NONE' },
+    { category = 'HARM_CATEGORY_HARASSMENT', threshold = 'BLOCK_NONE' },
+    { category = 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold = 'BLOCK_NONE' },
+  }
   api.nvim_create_user_command('Gemini', function(opts)
-    set_text({ opts.args })
-    vim.fn['futago#start_chat']({ opener = 'split' })
+    gemini_chat({ opts.args }, { opener = 'split' })
   end, { nargs = '?', desc = 'Question to gemini' })
   api.nvim_create_user_command('GeminiAnnotate', function(opts)
     local ft = api.nvim_get_option_value('filetype', {})
-    local code = vim.fn.getregion({ 0, opts.line1, 1, 0 }, { 0, opts.line2, 1, 0 }, { type = 'V' })
-    set_text(code)
-    vim.fn['futago#start_chat']({
-      opener = 'split',
-      history = {
-        {
-          role = 'user',
-          parts = string.format('%sに型注釈およびアノテーションをつけてください', ft),
-        },
-      },
+    ft = ft == 'lua' and 'neovim v0.10.0 api lua' or ft
+    gemini_chat(get_lines(opts), {
+      opener = 'vsplit',
+      history = { { role = 'user', parts = string.format('%sにアノテーションをつけてください', ft) } },
     })
-  end, { range = true, desc = 'Add type annotations to the selected range' })
+  end, { range = true, desc = 'Add type annotations' })
   api.nvim_create_user_command('GeminiReview', function(opts)
     local ft = api.nvim_get_option_value('filetype', {})
-    local code = vim.fn.getregion({ 0, opts.line1, 1, 0 }, { 0, opts.line2, 1, 0 }, { type = 'V' })
-    set_text(code)
-    vim.fn['futago#start_chat']({
-      opener = 'split',
-      history = {
-        {
-          role = 'user',
-          parts = string.format('%sをコードレビューしてください', ft),
-        },
-      },
+    gemini_chat(get_lines(opts), {
+      opener = 'vsplit',
+      history = { { role = 'user', parts = string.format('%sをコードレビューしてください', ft) } },
     })
-  end, { range = true, desc = 'Code review of the selected range' })
+  end, { range = true, desc = 'Code review' })
+  api.nvim_create_user_command('GeminiJestUnitTest', function(opts)
+    local ft = api.nvim_get_option_value('filetype', {})
+    gemini_chat(get_lines(opts), {
+      opener = 'vsplit',
+      history = { { role = 'user', parts = string.format('%sのJest単体テストを提案してください', ft) } },
+    })
+  end, { range = true, desc = 'Code review' })
+  api.nvim_create_user_command('GeminiTranslateEnglish', function(opts)
+    gemini_chat(
+      get_lines(opts),
+      { opener = 'vsplit', history = { { role = 'user', parts = '英訳してください' } } }
+    )
+  end, { range = true, desc = 'English translation' })
+  api.nvim_create_user_command('GeminiTranslateJapanese', function(opts)
+    gemini_chat(
+      get_lines(opts),
+      { opener = 'vsplit', history = { { role = 'user', parts = '和訳してください' } } }
+    )
+  end, { range = true, desc = 'Japanese translation' })
 end
 
 ---@desc FuzzyMotion {{{2
