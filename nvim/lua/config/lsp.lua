@@ -111,9 +111,13 @@ local function _on_attach(client, bufnr) --- {{{2
     end,
   }) ---}}}
   ---@desc Keymap {{{3
-  keymap.set('n', ']d', vim.diagnostic.goto_next)
-  keymap.set('n', '[d', vim.diagnostic.goto_prev)
-  keymap.set('n', 'gla', lsp.buf.code_action)
+  keymap.set('n', ']d', function()
+    vim.diagnostic.jump({ count = 1, float = true })
+  end)
+  keymap.set('n', '[d', function()
+    vim.diagnostic.jump({ count = -1, float = true })
+  end)
+  keymap.set('n', 'gla', lsp.buf.code_action, { desc = 'Lsp code action' })
   keymap.set('n', 'gld', function() -- {{{
     local opts = { bufnr = 0, focusable = false }
     local opts_cursor = vim.tbl_extend('force', opts, { scope = 'cursor' })
@@ -126,27 +130,31 @@ local function _on_attach(client, bufnr) --- {{{2
     end
 
     api.nvim_set_option_value('winblend', winblend, {})
-  end) -- }}}
-  keymap.set('n', 'glh', lsp.buf.signature_help)
+  end, { desc = 'Lsp diagnostic' }) -- }}}
+  keymap.set('n', 'glh', lsp.buf.signature_help, { desc = 'Lsp signature help' })
   keymap.set('n', 'gli', function() -- {{{
     if not has_client() then
       return
     end
-    local is_enable = lsp.inlay_hint.is_enabled({ bufnr = bufnr })
-    lsp.inlay_hint.enable(not is_enable)
-  end) -- }}}
-  keymap.set('n', 'gll', lsp.buf.hover)
-  keymap.set('n', 'glr', popup_rename)
+    if client.supports_method('textDocument/inlayHint') then
+      local is_enable = lsp.inlay_hint.is_enabled({ bufnr = bufnr })
+      lsp.inlay_hint.enable(not is_enable)
+    end
+  end, { desc = 'Lsp inlay hints' }) -- }}}
+  keymap.set('n', 'gll', lsp.buf.hover, { desc = 'Lsp hover' })
+  keymap.set('n', 'glr', popup_rename, { desc = 'Lsp popup rename' })
   keymap.set('n', 'glv', function() -- {{{
     if not has_client() then
       return
     end
     local toggle = not vim.diagnostic.config().virtual_text
     vim.diagnostic.config({ virtual_text = toggle })
-  end) -- }}}
+  end, { desc = 'Lsp virtual text' }) -- }}}
 
   ---@desc trouble.nvim
-  keymap.set('n', 'gd', function() -- {{{
+  local trouble_api = require('trouble.api')
+
+  keymap.set('n', 'gd', function() -- {{{lsp
     local pos = { api.nvim_win_get_cursor(0) }
     vim.cmd.normal({ 'gd', bang = true })
     if not vim.deep_equal(pos, { api.nvim_win_get_cursor(0) }) or not has_client() then
@@ -169,19 +177,16 @@ local function _on_attach(client, bufnr) --- {{{2
             return
           end
         end
-        vim.cmd.Lspsaga('goto_definition')
-        -- vim.cmd.Trouble('lsp_definitions')
+        trouble_api.open('lsp_definitions')
       end,
     })
-  end) -- }}}
-  keymap.set('n', 'gle', '<Cmd>Trouble document_diagnostics<CR>', {})
-  keymap.set('n', 'glk', '<Cmd>Trouble lsp_references<CR>', {})
-  -- keymap.set('n', 'glt', '<Cmd>Trouble lsp_type_definitions<CR>', {})
-
-  ---@desc lspsaga.nvim
-  -- keymap.set('n', ']d', '<Cmd>Lspsaga diagnostic_jump_next<CR>', {})
-  -- keymap.set('n', '[d', '<Cmd>Lspsaga diagnostic_jump_prev<CR>', {})
-  keymap.set('n', 'glt', '<Cmd>Lspsaga peek_type_definition<CR>', {})
+  end, {desc = 'Trouble definitions'}) -- }}}
+  keymap.set('n', 'gle', function()
+    trouble_api.toggle('diagnostics_buffer')
+  end, { desc = 'Trouble diagnostics' })
+  keymap.set('n', 'glk', function()
+    trouble_api.toggle('lsp_references')
+  end, { desc = 'Trouble references' })
 
   ---@desc map automatically added by lsp
   ---@see https://github.com/neovim/neovim/blob/master/runtime/lua/vim/lsp.lua (#lsp._set_defaults())

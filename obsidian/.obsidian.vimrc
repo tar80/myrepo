@@ -45,10 +45,10 @@ imap <C-d> <Del>
 imap <C-h> <BS>
 imap <C-b> <Left>
 imap <C-f> <Right>
-vmap i" :surround_double_quotes
-vmap i' :surround_single_quotes
-vmap i` :surround_backticks
-vmap i( :surround_brackets
-vmap i[ :surround_single_quotes
-vmap i{ : surround_curly_brackets
+vmap ;" :surround_double_quotes
+vmap ;' :surround_single_quotes
+vmap ;` :surround_backticks
+vmap ;( :surround_brackets
+vmap ;[ :surround_single_quotes
+vmap ;{ : surround_curly_brackets
 

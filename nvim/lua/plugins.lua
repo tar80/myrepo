@@ -558,59 +558,27 @@ require('lazy').setup(
     { -- {{{ trouble
       'folke/trouble.nvim',
       cmd = 'Trouble',
-      opts = {
-        position = 'bottom',
-        height = 10,
-        width = 50,
-        icons = false,
-        mode = 'workspace_diagnostics',
-        fold_open = '',
-        fold_closed = '',
-        group = true,
-        padding = false,
-        cycle_results = false,
-        action_keys = {
-          cancel = '<Tab>',
-          refresh = '<C-l>',
-          jump = { 'o', '<2-leftmouse>' },
-          jump_close = '<CR>',
-          toggle_mode = 'm',
-          switch_severity = 's',
-          open_code_href = 'c',
-          close_folds = { 'zM', 'zm', '<left>' },
-          open_folds = { 'zR', 'zr', '<right>' },
-          toggle_fold = { 'zA', 'za' },
-          help = 'g?',
-        },
-        multiline = true,
-        indent_lines = true,
-        win_config = { border = 'rounded' },
-        auto_open = false,
-        auto_close = false,
-        auto_preview = false,
-        auto_fold = false,
-        auto_jump = { 'lps_implementations', 'lsp_definitions' },
-        include_declaration = { 'lsp_references' },
-        use_diagnostic_signs = true,
-      },
-    }, ---}}}
-    { -- {{{ lspsaga
-      'nvimdev/lspsaga.nvim',
-      cmd = 'Lspsaga',
-      opts = {
-        ui = {
-          title = true,
-          expand = '',
-          collapse = '',
-          code_action = '',
-          lines = { '└', '├', '│', '─', '┌' },
-        },
-        beacon = { enable = false },
-        lightbulb = { enable = false },
-        symbol_in_winbar = { enable = false },
-        finder = { keys = { split = 's', vsplit = 'v', tabe = 't' } },
-      },
+      config = function()
+        require('config.trouble')
+      end,
     }, -- }}}
+    -- { -- {{{ lspsaga
+    --   'nvimdev/lspsaga.nvim',
+    --   cmd = 'Lspsaga',
+    --   opts = {
+    --     ui = {
+    --       title = true,
+    --       expand = '',
+    --       collapse = '',
+    --       code_action = '',
+    --       lines = { '└', '├', '│', '─', '┌' },
+    --     },
+    --     beacon = { enable = false },
+    --     lightbulb = { enable = false },
+    --     symbol_in_winbar = { enable = false },
+    --     finder = { keys = { split = 's', vsplit = 'v', tabe = 't' } },
+    --   },
+    -- }, -- }}}
     { -- {{{ translate
       'uga-rosa/translate.nvim',
       cmd = 'Translate',
