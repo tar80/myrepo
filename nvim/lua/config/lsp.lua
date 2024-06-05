@@ -311,7 +311,7 @@ require('mason-lspconfig').setup_handlers({
             library = {
               '$VIMRUNTIME/lua/vim',
               '${3rd}/luv/library',
-              -- '${3rd}/busted/library',
+              '${3rd}/busted/library',
               '${3rd}/luassert/library',
             },
           },

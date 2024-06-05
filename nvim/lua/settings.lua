@@ -73,7 +73,7 @@ o.showbreak = '>>'
 o.scrolloff = 1
 o.sidescroll = 6
 o.sidescrolloff = 3
-o.lazyredraw = true
+o.lazyredraw = false
 o.list = true
 opt.listchars = { tab = '| ', extends = '<', precedes = '>', trail = '_' }
 o.confirm = true
@@ -134,11 +134,12 @@ vim.api.nvim_create_autocmd('ModeChanged', {
     end)
   end,
 })
----Delete current line from cmdline-history {{{2
+---Delete current line from cmdwin-history {{{2
 vim.api.nvim_create_autocmd('CmdWinEnter', {
   desc = 'Attach command window',
   group = augroup,
   callback = function()
+    vim.wo.signcolumn = 'no'
     keymap.set('n', 'D', function()
       local line = fn.line('.') - fn.line('$')
       fn.histdel(':', line)
@@ -211,7 +212,15 @@ api.nvim_create_autocmd('OptionSet', {
     end
   end,
 })
-
+---Set variable for cmdline-abbreviations {{{2
+api.nvim_create_autocmd('CmdlineChanged', {
+  desc = 'Set variable for abbreviations',
+  group = augroup,
+  pattern = '*',
+  callback = function()
+    vim.cmd('let cmdline_abbrev = getcmdtype().getcmdline()')
+  end,
+})
 ---@desc Functions {{{1
 function Simple_fold() -- {{{2
   ---this code is based on https://github.com/tamton-aquib/essentials.nvim
@@ -240,7 +249,7 @@ local function search_star(g, mode) -- {{{2
   local word
   if mode ~= 'v' then
     word = fn.expand('<cword>')
-    word = g == 'g' and word or '\\<' .. word .. '\\>'
+    word = g == 'g' and word or string.format([[\<%s\>]], word)
   else
     local first = fn.getpos('v')
     local last = fn.getpos('.')
@@ -254,11 +263,25 @@ local function search_star(g, mode) -- {{{2
     util.feedkey('<ESC>', 'n')
   end
   if vim.v.count > 0 then
-    return '*'
+    return util.feedkey('*', 'n')
   else
     fn.setreg('/', word)
-    return vim.cmd('set hlsearch')
+    return api.nvim_set_option_value('hlsearch', true, { scope = 'global' })
   end
+end
+
+---@see https://qiita.com/monaqa/items/e22e6f72308652fc81e2
+local function history_replacement(input)
+  local search_str = fn.getreg('/')
+  local redraw_value = api.nvim_get_option_value('lazyredraw', { scope = 'global' })
+  api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
+  api.nvim_set_option_value('lazyredraw', true, { scope = 'global' })
+  api.nvim_input(string.format('q:<Cmd>silent! v/%s/d<CR>', input))
+  vim.schedule(function()
+    fn.histdel('/', -1)
+    fn.setreg('/', search_str)
+    api.nvim_set_option_value('lazyredraw', redraw_value, { scope = 'global' })
+  end)
 end
 
 local function ppcust_load() -- {{{2
@@ -280,7 +303,21 @@ local abbrev = { -- {{{2
   ca = function(word, replace)
     ---@see https://zenn.dev/vim_jp/articles/2023-06-30-vim-substitute-tips
     local getchar = replace[2] and '[getchar(), ""][1].' or ''
-    local exp = string.format('getcmdtype().getcmdline() ==# ":%s" ? %s"%s" : "%s"', word, getchar, replace[1], word)
+    local exp = string.format('cmdline_abbrev ==# ":%s" ? %s"%s" : "%s"', word, getchar, replace[1], word)
+    keymap.set('ca', word, exp, { expr = true })
+  end,
+  va = function(word, replace)
+    local getchar = replace[2] and '[getchar(), ""][1].' or ''
+    local exp = string.format(
+      'cmdline_abbrev ==# ":%s" ? %s"%s" : cmdline_abbrev ==# ":\'<,\'>%s" ? %s"%s" : "%s"',
+      word,
+      getchar,
+      replace[1][1],
+      word,
+      getchar,
+      replace[1][2],
+      word
+    )
     keymap.set('ca', word, exp, { expr = true })
   end,
   set = function(self, mode)
@@ -291,6 +328,7 @@ local abbrev = { -- {{{2
 } -- }}}
 
 ---@desc Abbreviations {{{1
+---Table {{{2
 abbrev.tbl = {
   ia = {
     export = { 'exprot', 'exoprt' },
@@ -300,8 +338,6 @@ abbrev.tbl = {
     ['return'] = { 'reutnr', 'reutrn', 'retrun' },
   },
   ca = {
-    ["'<,'>"] = { [['<,'>s///|nohls<lt>Left><lt>Left><lt>Left><lt>Left><lt>Left><lt>Left><lt>Left>]], true },
-    s = { '%s///<lt>Left>', true },
     ms = { 'MugShow', true },
     es = { 'e<Space>++enc=cp932 ++ff=dos<CR>' },
     e8 = { 'e<Space>++enc=utf-8<CR>' },
@@ -319,27 +355,30 @@ abbrev.tbl = {
     ct = { 'so<Space>$VIMRUNTIME/syntax/colortest.vim' },
     shadad = { '!rm ~/.local/share/nvim-data/shada/main.shada.tmp*' },
   },
+  -- @desc {{cmdline, visualmode}}
+  va = {
+    s = { { '%s///<lt>Left>', [[s///|nohls<lt>Left><lt>Left><lt>Left><lt>Left><lt>Left><lt>Left><lt>Left>]] }, true },
+  },
 }
+
+---Commands {{{2
 abbrev:set('ia')
 abbrev:set('ca')
+abbrev:set('va')
+---}}}
 
 ---@desc Keymaps {{{1
 -- Unmap default-mappings {{{2
--- keymap.del('n', 'gr')
--- keymap.del('n', 'crn')
--- keymap.del('n', 'crr')
 -- keymap.del('i', '<C-s>')
+keymap.del('n', 'gra')
+keymap.del('n', 'grn')
+keymap.del('n', 'grr')
 
 vim.g.mapleader = ';'
 ---Normal mode{{{2
 keymap.set('n', '<F1>', function()
   return os.execute('c:/bin/cltc/cltc.exe')
 end)
--- mapset('n', '<F5>', function()
---   if o.diff == true then
---     vim.cmd('diffupdate')
---   end
--- end)
 keymap.set({ 'n', 'c' }, '<F4>', function()
   toggleShellslash()
 end)
@@ -366,7 +405,7 @@ keymap.set('n', '<Plug>(q)/', 'q/')
 keymap.set('n', '<Plug>(q)?', 'q?')
 keymap.set('n', ',', function()
   if o.hlsearch then
-    o.hlsearch = false
+    api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
   else
     api.nvim_feedkeys(',', 'n', false)
   end
@@ -377,7 +416,7 @@ keymap.set('n', '<Plug>(H)H', '<PageUp>H<Plug>(H)')
 keymap.set('n', '<Plug>(L)L', '<PageDown>Lzb<Plug>(L)')
 keymap.set('n', '<C-m>', 'i<C-M><ESC>')
 keymap.set('n', '/', function()
-  o.hlsearch = true
+  api.nvim_set_option_value('hlsearch', true, { scope = 'global' })
   return '/'
 end, { noremap = true, expr = true })
 keymap.set('n', 'n', "'Nn'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
@@ -404,6 +443,14 @@ keymap.set('n', '<Space>n', function()
 end)
 keymap.set('n', '<Space>Q', '<Cmd>bwipeout!<CR>')
 keymap.set('n', '<Space>c', '<Cmd>tabclose<CR>')
+
+---Search history of replacement
+keymap.set('n', '<Space>/', function()
+  history_replacement([[\v^\%s\/]])
+end)
+keymap.set('v', '<Space>/', function()
+  history_replacement([[\v^('[0-9a-z\<lt>]|\d+),('[0-9a-z\>]|\d+)?s\/]])
+end)
 
 ---Close nofile|qf|preview window
 keymap.set('n', '<Space>z', function()
@@ -456,7 +503,9 @@ end, { expr = true })
 
 ---@desc Commands {{{1
 api.nvim_create_user_command('BustedThisFile', function() -- {{{2
-  local path = string.gsub(fn.expand('%'), '\\', '/')
+  local rgx = vim.regex([[\(_spec\)\?\.lua$]])
+  local path = string.gsub(vim.fn.expand('%'), '\\', '/')
+  path = string.format('%s_spec.lua', path:sub(1, rgx:match_str(path)))
   vim.cmd.PlenaryBustedFile(path)
 end, {})
 

@@ -375,7 +375,7 @@ require('lazy').setup(
         setmap({ 'n' }, '<Leader>i', '<Plug>(operator-sandwich-add)i')
         setmap({ 'n' }, '<Leader>ii', 'v<Plug>(textobj-sandwich-auto-i)<Plug>(operator-sandwich-add)')
         -- setmap({ 'o', 'x' }, 'ib', '<Plug>(textobj-sandwich-auto-i)')
-        setmap({ 'n' }, '<Leader>a', '<Plug>(operator-sandwich-add)a')
+        setmap({ 'n' }, '<Leader>a', '<Plug>(operator-sandwich-add)2i')
         setmap({ 'n' }, '<Leader>aa', 'v<Plug>(textobj-sandwich-auto-a)<Plug>(operator-sandwich-add)')
         setmap({ 'x' }, '<Leader>a', '<Plug>(operator-sandwich-add)')
         -- setmap({ 'x' }, 'aa', '<Plug>(textobj-sandwich-auto-a)')
@@ -500,7 +500,7 @@ require('lazy').setup(
 
     ---@desc util
     { -- {{{ mr
-      'lambdalisue/mr.vim',
+      'lambdalisue/vim-mr',
       event = 'VeryLazy',
       init = function()
         vim.g.mr_mru_disabled = false
@@ -521,6 +521,7 @@ require('lazy').setup(
       opts = {
         alwaysShown = false,
         fadeOutMs = 0,
+        hiraText = '仮名',
       },
     }, -- }}}
     { -- {{{ registers
@@ -674,7 +675,7 @@ require('lazy').setup(
             command = 'ppbw',
             cmdopt = '-c *stdout',
             tempfile = '%{tempname()}.js',
-            exec = { '${PPX_DIR}/%c %o [PPx] %%*script(%S)' },
+            exec = { '${PPX_DIR}/%C %o [PPx] %%*script(%S)' },
           },
           node = {
             command = 'node',
@@ -726,7 +727,7 @@ require('lazy').setup(
     ---@desc dap
     { -- {{{ nvim-dap
       'mfussenegger/nvim-dap',
-      lazy = true,
+      -- lazy = true,
       key = { { '<F5>', nil, 'Load dap' } },
       dependencies = {
         'theHamsta/nvim-dap-virtual-text',

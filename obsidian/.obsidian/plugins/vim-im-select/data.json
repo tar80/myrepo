@@ -1,0 +1,8 @@
+{
+  "defaultIM": "",
+  "obtainCmd": "",
+  "switchCmd": "",
+  "windowsDefaultIM": "0",
+  "windowsObtainCmd": "C:\\bin\\repository\\tar80\\myrepo\\obsidian\\zenhan\\bin64\\zenhan.exe",
+  "windowsSwitchCmd": "C:\\bin\\repository\\tar80\\myrepo\\obsidian\\zenhan\\bin64\\zenhan.exe {im}"
+}

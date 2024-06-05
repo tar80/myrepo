@@ -182,7 +182,10 @@ nyagos.alias.cc = function()
   return nil
 end
 
-nyagos.alias.ll = 'lsd -l --group-dirs first --blocks permission --blocks size --blocks date --blocks name'
+-- nyagos.alias.ll = 'lsd -l --group-dirs first --blocks permission --blocks size --blocks date --blocks name'
+nyagos.alias.ll = 'lsd -1lgXA --blocks=permission,size,date,name --group-dirs=first --size=bytes --date="+%Y-%m-%d %H:%M" -I=.git -I=node_modules -I=.bundle -I=_site'
+nyagos.alias.lt = 'lsd -1lgXA --tree --blocks=permission,size,date,name --group-dirs=first --size=bytes --date="+%Y-%m-%d %H:%M" -I=.git -I=node_modules -I=.bundle -I=_site'
+-- nyagos.alias.le = 'eza -AB -1ls=type --icons --git --git-ignore --time-style="+%Y-%m-%d %H:%M"'
 
 nyagos.alias.re = function()
   local path = nyagos.eval('fd -Lt d -c never --full-path . %tar80% | ' .. fzf.cmd)

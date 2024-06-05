@@ -43,7 +43,7 @@ cmp.setup({
     return true
   end,
   -- completion = { keyword_length = 2 },
-  performance = { debounce = 10, throttle = 50 },
+  performance = { debounce = 10, throttle = 25 },
   -- experimental = { ghost_text = { hl_group = 'CmpGhostText' } },
   window = {
     completion = { scrolloff = 1 },
