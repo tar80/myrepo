@@ -275,7 +275,7 @@ function M.javascript(self, priority) -- {@@2
   insx.add('.', {
     priority = priority,
     enabled = function(ctx)
-      return ctx.match([=[\%(^\|\s\|(\)pp[aeqtwx]\%#]=])
+      return ctx.match([=[\%(^\|\s\|(\|{\|\[\)pp[aeqtwx]\%#]=])
         and (ctx.filetype == 'javascript' or ctx.filetype == 'typescript')
     end,
     action = function(ctx)

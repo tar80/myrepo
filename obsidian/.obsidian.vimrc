@@ -28,6 +28,8 @@ nmap <Space>h :focus_left
 nmap <Space>j :focus_bottom
 nmap <Space>k :focus_top
 nmap <Space>l :focus_right
+nmap <Space>s :sp
+nmap <Space>v :vs
 nmap <Space>q :q
 nmap <Tab> <Nop>
 nmap <C-o> :back
@@ -45,10 +47,10 @@ imap <C-d> <Del>
 imap <C-h> <BS>
 imap <C-b> <Left>
 imap <C-f> <Right>
-vmap ;" :surround_double_quotes
-vmap ;' :surround_single_quotes
-vmap ;` :surround_backticks
-vmap ;( :surround_brackets
-vmap ;[ :surround_single_quotes
-vmap ;{ : surround_curly_brackets
+vmap i" :surround_double_quotes
+vmap i' :surround_single_quotes
+vmap i` :surround_backticks
+vmap i( :surround_brackets
+vmap i[ :surround_single_quotes
+vmap i{ :surround_curly_brackets
 

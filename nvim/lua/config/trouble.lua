@@ -43,6 +43,7 @@ require('trouble').setup({
         border = 'rounded',
         title = 'Lsp definitions',
         title_pos = 'left',
+        size = { width = 0.6, height = 0.3 },
         zindex = 200,
       },
     },

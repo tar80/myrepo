@@ -249,7 +249,7 @@ require('lazy').setup(
       dependencies = {
         'lambdalisue/kensaku.vim',
         'yuki-yano/fuzzy-motion.vim',
-        'vim-skk/skkeleton',
+        {'vim-skk/skkeleton', pin = true},
         'yukimemi/futago.vim',
       },
       init = function()

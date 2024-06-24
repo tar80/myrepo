@@ -72,6 +72,10 @@
     "prefix": "for",
     "body": ["for (let ${1:i} = ${2:0}; ${1:i} < ${3:k}; ${1:i}++) {", "\t$4", "}", "\n$0"]
   },
+  "For loop enumerate": {
+    "prefix": "forat",
+    "body": ["for (const ${1:o} = ${2:PPx.}; !${1:o}.atEnd(); ${1:o}.moveNext()) {", "\t$4", "}", "\n$0"]
+  },
   "For loop limit": {
     "prefix": "forl",
     "body": [

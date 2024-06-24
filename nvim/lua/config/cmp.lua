@@ -116,13 +116,14 @@ cmp.setup({
     ['<C-j>'] = cmp.mapping(function(fallback)
       if vim.fn['vsnip#available']() == 1 then
         if vim.api.nvim_get_mode().mode == 's' then
-          feed_key('<Plug>(vsnip-jump-next)', '')
+        feed_key('<Plug>(vsnip-jump-next)', '')
         else
-          feed_key('<Plug>(vsnip-expand-or-jump)', '')
+        feed_key('<Plug>(vsnip-expand-or-jump)', '')
         end
       elseif cmp.visible() then
         cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
       else
+        vim.print({vim.fn['vsnip#jumpable'](), vim.fn['vsnip#available']()})
         fallback()
       end
     end, { 'i', 's' }),
@@ -131,8 +132,8 @@ cmp.setup({
         feed_key('<Plug>(vsnip-jump-prev)', '')
       elseif vim.fn['vsnip#available']() == 1 then
         feed_key('<Plug>(vsnip-expand-or-jump)', '')
-      elseif cmp.visible() then
-        cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
+      -- elseif cmp.visible() then
+      --   cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
       else
         fallback()
       end

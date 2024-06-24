@@ -434,10 +434,10 @@ keymap.set('n', '<Space>', '<C-w>', { remap = true })
 keymap.set('n', '<Space><Space>', '<C-w><C-w>')
 keymap.set('n', '<Space>n', function()
   local i = 1
-  while fn.bufnr('Scratch' .. i) ~= -1 do
+  while fn.bufnr(string.format('Scratch%s', tostring(i))) ~= -1 do
     i = i + 1
   end
-  vim.cmd.new('Scratch' .. i)
+  vim.cmd.new(string.format('Scratch%s', tostring(i)))
   api.nvim_set_option_value('buftype', 'nofile', { buf = 0 })
   api.nvim_set_option_value('bufhidden', 'wipe', { buf = 0 })
 end)
@@ -568,7 +568,7 @@ api.nvim_create_user_command('JestSetup', function() -- {{{2
     if fn.filereadable(test_path) ~= 1 then
       local line1 = "import PPx from '@ppmdev/modules/ppx';"
       local line2 = 'global.PPx = Object.create(PPx)'
-      local line3 = string.format("import from '../%s'", fn.expand('%:t:r'))
+      local line3 = string.format("import from '../%s'", fn.expand('%:t'))
       insert_string = string.format('|execute "normal! I%s\n%s\n%s\\<Esc>3G06l"', line1, line2, line3)
     end
 

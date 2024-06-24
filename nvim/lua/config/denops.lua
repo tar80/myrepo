@@ -31,7 +31,7 @@ if vim.g.loaded_futago then
           end
           vim.fn.append(2, lines)
           vim.api.nvim_win_call(0, function()
-            vim.cmd.normal({'zz', bang = true})
+            vim.cmd.normal({ 'zz', bang = true })
           end)
           vim.cmd.write()
         end, 1000)
@@ -40,7 +40,10 @@ if vim.g.loaded_futago then
     vim.fn['futago#start_chat'](futago_opts)
   end
 
-  vim.g.futago_chat_path = string.format('%s\\%s', vim.env.tmp, 'vim_futago_log')
+  -- vim.g.futago_chat_path = string.format('%s\\%s', vim.env.tmp, 'futago_log')
+  vim.g.futago_chat_path = string.format('%s\\futago\\chat', vim.env.tmp)
+  vim.g.futago_log_file = string.format('%s\\futago\\log\\%s', vim.env.tmp, 'futago.log')
+  vim.g.futago_history_db = string.format('%s\\futago\\db\\%s', vim.env.tmp, 'history.db')
   vim.g.futago_safety_settings = {
     { category = 'HARM_CATEGORY_HATE_SPEECH', threshold = 'BLOCK_NONE' },
     { category = 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold = 'BLOCK_NONE' },
@@ -70,6 +73,15 @@ if vim.g.loaded_futago then
     gemini_chat(get_lines(opts), {
       opener = 'vsplit',
       history = { { role = 'user', parts = string.format('%sのJest単体テストを提案してください', ft) } },
+    })
+  end, { range = true, desc = 'Code review' })
+  api.nvim_create_user_command('GeminiBustedUnitTest', function(opts)
+    local ft = api.nvim_get_option_value('filetype', {})
+    gemini_chat(get_lines(opts), {
+      opener = 'vsplit',
+      history = {
+        { role = 'user', parts = string.format('%sのBusted単体テストを提案してください', ft) },
+      },
     })
   end, { range = true, desc = 'Code review' })
   api.nvim_create_user_command('GeminiTranslateEnglish', function(opts)
@@ -126,7 +138,7 @@ if vim.g.loaded_skkeleton then
   function Skkeleton_init() -- {{{3
     vim.fn['skkeleton#config']({
       databasePath = '~/.skk/db/jisyo.db',
-      globalDictionaries = { '~/.skk/SKK-JISYO.L', '~/.skk/SKK-JISYO.emoji' },
+      globalDictionaries = { '~/.skk/SKK-JISYO.L.yaml' },
       globalKanaTableFiles = { vim.g.repo .. '/myrepo/nvim/skk/azik_us.rule' },
       eggLikeNewline = true,
       usePopup = true,
@@ -136,6 +148,7 @@ if vim.g.loaded_skkeleton then
       sources = { 'deno_kv' },
       -- sources = { 'deno_kv', 'skk_dictionary' },
     })
+    vim.fn['skkeleton#register_keymap']('input', ';', 'henkanPoint')
     vim.fn['skkeleton#register_keymap']('input', '@', 'cancel')
     vim.fn['skkeleton#register_keymap']('input', '<Up>', 'disable')
     vim.fn['skkeleton#register_keymap']('input', '<Down>', 'disable')
