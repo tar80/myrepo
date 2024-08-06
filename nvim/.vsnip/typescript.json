@@ -74,7 +74,7 @@
   },
   "For loop enumerate": {
     "prefix": "forat",
-    "body": ["for (const ${1:o} = ${2:PPx.}; !${1:o}.atEnd(); ${1:o}.moveNext()) {", "\t$4", "}", "\n$0"]
+    "body": ["for (const ${1:entry} = PPx.${2:Entry.}$3; !${1:entry}.atEnd(); ${1:entry}.moveNext()) {", "\t$4", "}", "\n$0"]
   },
   "For loop limit": {
     "prefix": "forl",

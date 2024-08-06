@@ -89,8 +89,15 @@ require('lazy').setup(
       dependencies = { 'nvim-treesitter/nvim-treesitter' },
       config = function()
         require('render-markdown').setup({
-          start_enabled = false,
-          bullets = { '', '', '', '' },
+          enabled = true,
+          bullet = { enabled = true, icons = { '', '', '', '' } },
+          sign = { enabled = false },
+          checkbox = {
+            enabled = true,
+            unchecked = { icon = '󰄱 ', highlight = '@markup.list.unchecked' },
+            checked = { icon = '󰱒 ', highlight = '@markup.list.unchecked' },
+            custom = { todo = { raw = '[-]', rendered = '󰥔 ', highlight = '@markup.raw' } },
+          },
         })
       end,
       ft = 'markdown',
@@ -249,7 +256,7 @@ require('lazy').setup(
       dependencies = {
         'lambdalisue/kensaku.vim',
         'yuki-yano/fuzzy-motion.vim',
-        {'vim-skk/skkeleton', pin = true},
+        { 'vim-skk/skkeleton' },
         'yukimemi/futago.vim',
       },
       init = function()
@@ -506,6 +513,7 @@ require('lazy').setup(
         vim.g.mr_mru_disabled = false
         vim.g.mr_mrw_disabled = true
         vim.g.mr_mrr_disabled = true
+        vim.g.mr_mrd_disabled = true
         vim.g['mr#threshold'] = 200
         vim.cmd(
           "let g:mr#mru#predicates=[{filename -> filename !~? '^c|\\\\\\|\\/doc\\/\\|\\/dist\\/\\|\\/dev\\/\\|\\/\\.git\\/\\|\\.cache'}]"
@@ -811,6 +819,23 @@ require('lazy').setup(
     },
     readme = {
       enabled = true,
+    },
+    {
+      pkg = {
+        enabled = false,
+        cache = vim.fn.stdpath('state') .. '/lazy/pkg-cache.lua',
+        -- the first package source that is found for a plugin will be used.
+        sources = {
+          'lazy',
+          'rockspec', -- will only be used when rocks.enabled is true
+          'packspec',
+        },
+      },
+      rocks = {
+        enabled = false,
+        root = vim.fn.stdpath('data') .. '/lazy-rocks',
+        server = 'https://nvim-neorocks.github.io/rocks-binaries/',
+      },
     },
   } ---}}}2
 )

@@ -38,13 +38,22 @@ require('trouble').setup({
   modes = { -- {{{2
     lsp_definitions = {
       mode = 'lsp_definitions',
+      auto_preview = true,
+      auto_close = true,
       win = {
-        type = 'float',
-        border = 'rounded',
-        title = 'Lsp definitions',
-        title_pos = 'left',
-        size = { width = 0.6, height = 0.3 },
-        zindex = 200,
+        --   type = 'float',
+        --   border = 'rounded',
+        --   title = 'Lsp definitions',
+        --   title_pos = 'center',
+        --   size = { width = 0.6, height = 0.5 },
+        --   zindex = 200,
+        size = 0.2,
+      },
+      preview = {
+        type = 'split',
+        relative = 'win',
+        position = 'right',
+        size = 0.7,
       },
     },
     diagnostics_buffer = {

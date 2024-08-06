@@ -56,7 +56,7 @@ endfunction
 command! -buffer -range MarkdownCheckbox call s:markdown_checkbox(<line1>, <line2>)
 
 inoremap <buffer> <F5> <C-R>=strftime("%Y-%m-%d")<CR>
-nnoremap <buffer> <C-t> <Cmd>RenderMarkdownToggle<CR>
+nnoremap <buffer> <C-t> <Cmd>RenderMarkdown toggle<CR>
 nnoremap <buffer> <C-m> <Cmd>MarkdownCheckbox<CR>
 "inoremap <buffer> <C-j> <Cmd>MarkdownCheckbox<CR>
 xnoremap <buffer> <C-m> <Cmd>MarkdownCheckbox<CR>

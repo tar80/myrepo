@@ -2898,7 +2898,6 @@ rules:
   - expected: WARファイル
     pattern:  /\bWARファイル\b/i
   - expected: Web
-  - expected: Web
     pattern:
       - ウェブ
       - ウェッブ
