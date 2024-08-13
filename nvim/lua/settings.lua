@@ -270,8 +270,9 @@ local function search_star(g, mode) -- {{{2
   end
 end
 
+---@desc refine substitution histories within the command window
 ---@see https://qiita.com/monaqa/items/e22e6f72308652fc81e2
-local function history_replacement(input)
+local function refine_substitutions(input)
   local search_str = fn.getreg('/')
   local redraw_value = api.nvim_get_option_value('lazyredraw', { scope = 'global' })
   api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
@@ -310,13 +311,7 @@ local abbrev = { -- {{{2
     local getchar = replace[2] and '[getchar(), ""][1].' or ''
     local exp = string.format(
       'cmdline_abbrev ==# ":%s" ? %s"%s" : cmdline_abbrev ==# ":\'<,\'>%s" ? %s"%s" : "%s"',
-      word,
-      getchar,
-      replace[1][1],
-      word,
-      getchar,
-      replace[1][2],
-      word
+      word, getchar, replace[1][1], word, getchar, replace[1][2], word
     )
     keymap.set('ca', word, exp, { expr = true })
   end,
@@ -449,10 +444,10 @@ keymap.set('n', '<Space>c', '<Cmd>tabclose<CR>')
 
 ---Search history of replacement
 keymap.set('n', '<Space>/', function()
-  history_replacement([[\v^\%s\/]])
+  refine_substitutions([[\v^\%s\/]])
 end)
 keymap.set('v', '<Space>/', function()
-  history_replacement([[\v^('[0-9a-z\<lt>]|\d+),('[0-9a-z\>]|\d+)?s\/]])
+  refine_substitutions([[\v^('[0-9a-z\<lt>]|\d+),('[0-9a-z\>]|\d+)?s\/]])
 end)
 
 ---Close nofile|qf|preview window

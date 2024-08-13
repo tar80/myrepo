@@ -732,6 +732,54 @@ require('lazy').setup(
     -- }, -- }}}
     { 'norcalli/nvim-colorizer.lua', cmd = 'ColorizerAttachToBuffer' },
 
+    ---@desc formatter
+    { -- {{{ conform
+      {
+        'stevearc/conform.nvim',
+        lazy = true,
+        cmd = { 'ConformInfo' },
+        keys = {
+          {
+            'gq',
+            function(bufnr)
+              require('conform').format({ async = true, bufnr = bufnr, lsp_format = 'fallback' })
+            end,
+            mode = { 'n' },
+            desc = 'Format buffer',
+          },
+          {
+            'gq',
+            function(bufnr)
+              require('conform').format({ async = true, bufnr = bufnr, lsp_format = 'prefer' }, function(err)
+                if not err then
+                  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, false, true), 'n', true)
+                end
+              end)
+            end,
+            mode = { 'x' },
+            desc = 'Range format buffer',
+          },
+          {
+            'glf',
+            function()
+              vim.notify('It was changed to "gq"', vim.log.levels.WARN)
+            end,
+            mode = { 'n' },
+          },
+        },
+        opts = {
+          default_format_opts = { timeout_ms = 3000 },
+          formatters_by_ft = {
+            lua = { 'stylua' },
+            json = { 'biome' },
+            javascript = { 'biome-check' },
+            typescript = { 'biome-check' },
+            markdown = { 'markdownlint' },
+          },
+        },
+      },
+    }, -- }}}
+
     ---@desc dap
     { -- {{{ nvim-dap
       'mfussenegger/nvim-dap',

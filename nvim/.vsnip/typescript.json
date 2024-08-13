@@ -17,7 +17,7 @@
   },
   "Main function": {
     "prefix": "ma",
-    "body": "const main = () => {\n\t$1\n}\n\nmain()"
+    "body": "const main = ():${1:void} => {\n\t$0\n}\n\nmain()"
   },
   "Args iterable": {
     "prefix": "arr",

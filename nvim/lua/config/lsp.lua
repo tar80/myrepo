@@ -90,7 +90,6 @@ end
 
 local augroup = api.nvim_create_augroup('rcLsp', {})
 
----@diagnostic disable-next-line: unused-local
 local function _on_attach(client, bufnr) --- {{{2
   -- api.nvim_set_option_value('omnifunc', 'v:lua.vim.lsp.omnifunc', { buf = bufnr })
   ---@desc Under cursor Symbol highlight -- {{{
@@ -137,8 +136,8 @@ local function _on_attach(client, bufnr) --- {{{2
       return
     end
     if client.supports_method('textDocument/inlayHint') then
-      local is_enable = lsp.inlay_hint.is_enabled({ bufnr = bufnr })
-      lsp.inlay_hint.enable(not is_enable)
+      local toggle = not lsp.inlay_hint.is_enabled({ bufnr = bufnr })
+      lsp.inlay_hint.enable(toggle)
     end
   end, { desc = 'Lsp inlay hints' }) -- }}}
   keymap.set('n', 'gll', lsp.buf.hover, { desc = 'Lsp hover' })
@@ -180,7 +179,7 @@ local function _on_attach(client, bufnr) --- {{{2
         trouble_api.open('lsp_definitions')
       end,
     })
-  end, {desc = 'Trouble definitions'}) -- }}}
+  end, { desc = 'Trouble definitions' }) -- }}}
   keymap.set('n', 'gle', function()
     trouble_api.toggle('diagnostics_buffer')
   end, { desc = 'Trouble diagnostics' })
@@ -224,6 +223,16 @@ require('mason-lspconfig').setup_handlers({
     lspconfig[server_name].setup({
       flags = flags,
       on_attach = _on_attach,
+      capabilities = capabilities,
+    })
+  end, -- }}}
+  ['biome'] = function() -- {{{
+    lspconfig.biome.setup({
+      flags = flags,
+      autostart = true,
+      single_file_support = false,
+      root_dir = lspconfig.util.root_pattern('biome.json', 'biome.jsonc'),
+      filetypes = { 'typescript', 'javascript', 'json', 'jsonc', 'css' },
       capabilities = capabilities,
     })
   end, -- }}}
@@ -325,19 +334,8 @@ require('mason-lspconfig').setup_handlers({
 })
 
 ---@desc None_ls {{{2
-keymap.set('n', 'glf', function(bufnr)
-  lsp.buf.format({
-    async = true,
-    timeout_ms = 3000,
-    filter = function(client)
-      return client.name == 'null-ls'
-    end,
-    bufnr = bufnr,
-  })
-end)
-
 local null_ls = require('null-ls')
-local attach_filetypes = { 'lua', 'javascript', 'typescript', 'text', 'markdown' }
+local attach_filetypes = { 'text', 'markdown' }
 null_ls.setup({ -- {{{3
   debounce = 500,
   root_dir = lspconfig.util.find_git_ancestor,
@@ -350,21 +348,6 @@ null_ls.setup({ -- {{{3
   end,
   temp_dir = vim.fn.tempname():gsub('^(.+)[/\\].*', '%1'),
   sources = {
-    null_ls.builtins.formatting.prettier,
-    null_ls.builtins.formatting.stylua,
-    null_ls.builtins.formatting.markdownlint.with({
-      extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.markdownlint.yaml') },
-    }),
-    -- null_ls.builtins.formatting.textlint.with({
-    --   extra_args = { '--no-color', '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
-    -- }),
-    -- null_ls.builtins.diagnostics.jsonlint.with({
-    --   filetypes = { 'json', 'jsonc' },
-    --   diagnostic_config = {
-    --     virtual_text = true,
-    --     signs = false,
-    --   },
-    -- }),
     null_ls.builtins.diagnostics.markdownlint.with({
       extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.markdownlint.yaml') },
     }),
