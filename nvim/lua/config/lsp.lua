@@ -227,13 +227,28 @@ require('mason-lspconfig').setup_handlers({
     })
   end, -- }}}
   ['biome'] = function() -- {{{
+    local set = false
     lspconfig.biome.setup({
       flags = flags,
       autostart = true,
       single_file_support = false,
       root_dir = lspconfig.util.root_pattern('biome.json', 'biome.jsonc'),
       filetypes = { 'typescript', 'javascript', 'json', 'jsonc', 'css' },
-      capabilities = capabilities,
+      on_attach = function()
+        if set then
+          return
+        end
+        set = true
+        api.nvim_create_autocmd('VimLeavePre', {
+          desc = 'Stop lsp-proxy',
+          group = augroup,
+          callback = function()
+            -- vim.notify('Stop biome lsp-proxy', vim.log.levels.WARN)
+            vim.cmd(string.format('!%s/bin/biome.CMD stop', vim.env.MASON))
+          end,
+        })
+      end,
+      -- capabilities = capabilities,
     })
   end, -- }}}
   ['tsserver'] = function() -- {{{
@@ -324,9 +339,6 @@ require('mason-lspconfig').setup_handlers({
               '${3rd}/luassert/library',
             },
           },
-          -- telemetry = {
-          --   enable = false,
-          -- },
         },
       },
     })
@@ -349,6 +361,7 @@ null_ls.setup({ -- {{{3
   temp_dir = vim.fn.tempname():gsub('^(.+)[/\\].*', '%1'),
   sources = {
     null_ls.builtins.diagnostics.markdownlint.with({
+      filetypes = { 'markdown' },
       extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.markdownlint.yaml') },
     }),
     null_ls.builtins.diagnostics.textlint.with({
