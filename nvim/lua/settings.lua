@@ -316,9 +316,9 @@ local abbrev = { -- {{{2
     keymap.set('ca', word, exp, { expr = true })
   end,
   set = function(self, mode)
-    local fun = self[mode]
+    local func = self[mode]
     local iter = vim.iter(self.tbl[mode])
-    iter:each(fun)
+    iter:each(func)
   end,
 } -- }}}
 
@@ -345,6 +345,7 @@ abbrev.tbl = {
     del = { [[call<Space>delete(expand('%'))]] },
     cs = { [[execute<Space>'50vsplit'g:repo.'/myrepo/nvim/.cheatsheet'<CR>]] },
     dd = { 'diffthis<Bar>wincmd<Space>p<Bar>diffthis<Bar>wincmd<Space>p<CR>' },
+    du = {'diffupdate', true},
     dof = { 'syntax<Space>enable<Bar>diffoff<CR>' },
     dor = {
       'vert<Space>bel<Space>new<Space>difforg<Bar>set<Space>bt=nofile<Bar>r<Space>++edit<Space>#<Bar>0d_<Bar>windo<Space>diffthis<Bar>wincmd<Space>p<CR>',
@@ -356,6 +357,8 @@ abbrev.tbl = {
   -- @desc {{cmdline, visualmode}}
   va = {
     s = { { '%s///<lt>Left>', [[s///|nohls<lt>Left><lt>Left><lt>Left><lt>Left><lt>Left><lt>Left><lt>Left>]] }, true },
+    dp = { {'dp', 'diffput'}, true},
+    dg = {{'dg', 'diffget'}, true},
   },
 }
 
@@ -473,7 +476,6 @@ keymap.set('i', '<M-h>', '<C-g>U<Left>')
 keymap.set('i', '<M-l>', '<C-g>U<Right>')
 keymap.set('i', '<S-Delete>', '<C-g>U<C-o>D')
 keymap.set('i', '<C-k>', '<Delete>')
-keymap.set('i', '<C-d>', '<C-g>u<C-o>D')
 keymap.set('i', '<C-q>', '<C-r>.')
 keymap.set('i', '<C-f>', '<Right>')
 keymap.set('i', '<C-b>', '<Left>')
@@ -508,7 +510,7 @@ api.nvim_create_user_command('BustedThisFile', function() -- {{{2
 end, {})
 
 ---@desc "Z <filepath>" zoxide query
--- api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " . <q-args>)', { nargs = 1 })
+api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " . <q-args>)', { nargs = 1 })
 
 ---@desc "UTSetup" Unit-test compose multi-panel
 api.nvim_create_user_command('UTSetup', function() -- {{{2

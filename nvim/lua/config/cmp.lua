@@ -57,7 +57,7 @@ cmp.setup({
   },
   sources = cmp.config.sources({
     { name = 'vsnip' },
-    { name = 'nvim_lsp', keyword_length = 2, max_item_count = 10 },
+    { name = 'nvim_lsp', max_item_count = 10 },
     { name = 'dictionary', keyword_length = 2 },
     {
       name = 'buffer',

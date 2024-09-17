@@ -27,7 +27,7 @@ require('trouble').setup({
     ['g?'] = 'help',
     ['<Tab>'] = 'cancel',
     ['<C-l>'] = 'refresh',
-    ['<CR>'] = 'jump_close',
+    ['<cr>'] = 'jump_close',
     ['j'] = 'next',
     ['k'] = 'prev',
     -- ['h'] = 'fold_close',

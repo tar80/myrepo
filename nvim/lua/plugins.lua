@@ -256,7 +256,7 @@ require('lazy').setup(
       dependencies = {
         'lambdalisue/kensaku.vim',
         'yuki-yano/fuzzy-motion.vim',
-        { 'vim-skk/skkeleton' },
+        'vim-skk/skkeleton',
         'yukimemi/futago.vim',
       },
       init = function()
@@ -493,7 +493,6 @@ require('lazy').setup(
       keys = { '<Leader>', 'gl' },
       dependencies = {
         'hrsh7th/nvim-cmp',
-        'plenary.nvim',
         'lambdalisue/kensaku.vim',
         'nvim-telescope/telescope-file-browser.nvim',
         'nvim-telescope/telescope-ui-select.nvim',
@@ -774,7 +773,7 @@ require('lazy').setup(
             json = { 'biome' },
             javascript = { 'biome-check' },
             typescript = { 'biome-check' },
-            markdown = { 'markdownlint' },
+            markdown = { 'markdownlint', 'prettier' },
           },
         },
       },

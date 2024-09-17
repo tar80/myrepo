@@ -251,7 +251,7 @@ require('mason-lspconfig').setup_handlers({
       -- capabilities = capabilities,
     })
   end, -- }}}
-  ['tsserver'] = function() -- {{{
+  ['ts_ls'] = function() -- {{{
     local inlayHints = {
       includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all';
       includeInlayParameterNameHintsWhenArgumentMatchesName = true,
@@ -262,7 +262,7 @@ require('mason-lspconfig').setup_handlers({
       includeInlayVariableTypeHints = false,
       includeInlayVariableTypeHintsWhenTypeMatchesName = true,
     }
-    lspconfig.tsserver.setup({
+    lspconfig.ts_ls.setup({
       flags = flags,
       autostart = true,
       single_file_support = false,
@@ -363,6 +363,13 @@ null_ls.setup({ -- {{{3
     null_ls.builtins.diagnostics.markdownlint.with({
       filetypes = { 'markdown' },
       extra_args = { '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.markdownlint.yaml') },
+      diagnostic_config = {
+        virtual_text = {
+          format = function(diagnostic)
+            return string.format('%s: %s', diagnostic.source, diagnostic.code)
+          end,
+        },
+      },
     }),
     null_ls.builtins.diagnostics.textlint.with({
       filetypes = { 'text', 'markdown' },

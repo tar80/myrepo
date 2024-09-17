@@ -19,31 +19,6 @@
     "prefix": "ma",
     "body": "const main = ():${1:void} => {\n\t$0\n}\n\nmain()"
   },
-  "Args iterable": {
-    "prefix": "arr",
-    "body": [
-      "const adjustArgs = (args = PPx.Arguments) => {",
-      "\tconst arr: string[] = [$1];",
-      "\n\tfor (; !args.atEnd(); moveNext()) {",
-      "\t\tarr.push(args.Item());",
-      "\t}",
-      "\n\t$2",
-      "\n\treturn $3;",
-      "};$0"
-    ]
-  },
-  "Args with initial value": {
-    "prefix": "ar",
-    "body": [
-      "const adjustArgs = (args = PPx.Arguments): {$1} => {",
-      "\tconst arr: $2 = [$3];",
-      "\n\tfor (let i = 0, k = args.length; i < k; i++) {",
-      "\t\tarr[i] = args.Item(i);",
-      "\t}",
-      "\n\treturn {$4$1};",
-      "};$0"
-    ]
-  },
   "Comment": {
     "prefix": "come",
     "body": "/**\n * $1\n */"
@@ -120,6 +95,10 @@
   "ppm.extract": {
     "prefix": "ppmt",
     "body": "ppm.extract('${1:.}', '$2')$0"
+  },
+  "Language object": {
+    "prefix": "lan",
+    "body": ["{", "\ten: {", "\t\t$1: '$2',", "\t},", "\tja: {", "\t\t$1: '$2'", "\t}", "}"]
   },
   "Annotation": {
     "prefix": "an",
