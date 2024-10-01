@@ -40,7 +40,7 @@ if vim.g.loaded_futago then
     vim.fn['futago#start_chat'](futago_opts)
   end
 
-  -- vim.g.futago_chat_path = string.format('%s\\%s', vim.env.tmp, 'futago_log')
+  -- vim.g.futago_debug = true
   vim.g.futago_chat_path = string.format('%s\\futago\\chat', vim.env.tmp)
   vim.g.futago_log_file = string.format('%s\\futago\\log\\%s', vim.env.tmp, 'futago.log')
   vim.g.futago_history_db = string.format('%s\\futago\\db\\%s', vim.env.tmp, 'history.db')
@@ -143,13 +143,14 @@ if vim.g.loaded_skkeleton then
       eggLikeNewline = true,
       usePopup = true,
       showCandidatesCount = 2,
-      markerHenkan = '🐤 ',
-      markerHenkanSelect = '🐥 ',
+      markerHenkan = '🐤',
+      markerHenkanSelect = '🐥',
       sources = { 'deno_kv' },
       -- sources = { 'deno_kv', 'skk_dictionary' },
     })
     vim.fn['skkeleton#register_keymap']('input', ';', 'henkanPoint')
     vim.fn['skkeleton#register_keymap']('input', '@', 'cancel')
+    vim.fn['skkeleton#register_keymap']('henkan', '@', 'cancel')
     vim.fn['skkeleton#register_keymap']('input', '<Up>', 'disable')
     vim.fn['skkeleton#register_keymap']('input', '<Down>', 'disable')
     vim.fn['skkeleton#register_kanatable']('rom', {

@@ -345,7 +345,7 @@ abbrev.tbl = {
     del = { [[call<Space>delete(expand('%'))]] },
     cs = { [[execute<Space>'50vsplit'g:repo.'/myrepo/nvim/.cheatsheet'<CR>]] },
     dd = { 'diffthis<Bar>wincmd<Space>p<Bar>diffthis<Bar>wincmd<Space>p<CR>' },
-    du = {'diffupdate', true},
+    du = { 'diffupdate', true },
     dof = { 'syntax<Space>enable<Bar>diffoff<CR>' },
     dor = {
       'vert<Space>bel<Space>new<Space>difforg<Bar>set<Space>bt=nofile<Bar>r<Space>++edit<Space>#<Bar>0d_<Bar>windo<Space>diffthis<Bar>wincmd<Space>p<CR>',
@@ -357,8 +357,8 @@ abbrev.tbl = {
   -- @desc {{cmdline, visualmode}}
   va = {
     s = { { '%s///<lt>Left>', [[s///|nohls<lt>Left><lt>Left><lt>Left><lt>Left><lt>Left><lt>Left><lt>Left>]] }, true },
-    dp = { {'dp', 'diffput'}, true},
-    dg = {{'dg', 'diffget'}, true},
+    dp = { { 'dp', 'diffput' }, true },
+    dg = { { 'dg', 'diffget' }, true },
   },
 }
 
@@ -398,6 +398,11 @@ keymap.set('n', '<F12>', function()
 end)
 keymap.set('n', '<C-z>', '<Nop>')
 
+--@see https://zenn.dev/mattn/articles/83c2d4c7645faa
+keymap.set('n', 'gj', 'gj<Plug>g')
+keymap.set('n', 'gk', 'gk<Plug>g')
+keymap.set('n', '<Plug>gj', 'gj<Plug>g')
+keymap.set('n', '<Plug>gk', 'gk<Plug>g')
 --@see https://github.com/atusy/dotfiles/blob/main/dot_config/nvim/lua/atusy/init.lua
 keymap.set('n', 'Q', 'q')
 keymap.set('n', 'q', '<Plug>(q)')

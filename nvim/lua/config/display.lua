@@ -130,7 +130,7 @@ local vm = require('feline.providers.vi_mode')
 ---Icons {{{3
 local icon = {
   dos = { '', 'blue' },
-  unix = { '', 'olive' },
+  unix = { '', 'olive' },
   mac = { '', 'pink' },
   ERROR = { '', palette.error },
   WARN = { '', palette.warn },
@@ -159,19 +159,19 @@ local mode = {
     icon = '',
     hl = function()
       return {
-        fg = 'bg',
-        bg = require('feline.providers.vi_mode').get_mode_color(),
+        fg = require('feline.providers.vi_mode').get_mode_color(),
+        style = 'bold',
       }
     end,
   },
   skkeleton = {
     provider = function()
       local mode = {
-        hira = 'あ ',
-        kata = 'ア ',
-        hankata = 'ｱ  ',
-        zenkaku = 'Ａ ',
-        abbrev = 'ab ',
+        hira = '󱌴',
+        kata = '󱌵',
+        hankata = '󱌶',
+        zenkaku = '󰚞',
+        abbrev = '󱌯',
         [''] = '',
       }
       return vim.g.loaded_skkeleton == true and mode[vim.fn['skkeleton#mode']()] or ''
@@ -181,17 +181,15 @@ local mode = {
     end,
     hl = function()
       return {
-        fg = 'bg2',
-        bg = require('feline.providers.vi_mode').get_mode_color(),
+        fg = require('feline.providers.vi_mode').get_mode_color(),
       }
     end,
   },
   sep = {
-    provider = '',
+    provider = '⣿',
     hl = function()
       return {
-        fg = require('feline.providers.vi_mode').get_mode_color(),
-        bg = 'bg2',
+        fg = 'bg2',
       }
     end,
   },
@@ -220,7 +218,6 @@ local diag_signs = function(severity)
     enabled = diagnostics_enable(severity),
     hl = {
       fg = icon[severity][2],
-      bg = 'bg2',
     },
   }
 end
@@ -230,7 +227,7 @@ local diag = {
   info = diag_signs('INFO'),
   hint = diag_signs('HINT'),
   sep = {
-    left_sep = { str = ' ', hl = { fg = 'bg2' }, always_visible = true },
+    left_sep = { str = '⣿ ', hl = { fg = 'bg2' }, always_visible = true },
   },
 }
 ---Edit status {{{3
@@ -253,7 +250,6 @@ local edit = {
     hl = function()
       return {
         fg = require('feline.providers.vi_mode').get_mode_color(),
-        style = 'italic',
       }
     end,
   },
@@ -281,8 +277,8 @@ local search = {
 
 ---Right {{{3
 local sepalator = {
-  str = '  ',
-  hl = { fg = 'fg' },
+  str = ' ⡇ ',
+  hl = { fg = 'bg2' },
 }
 ---Git {{{4
 local git = {
@@ -294,7 +290,6 @@ local git = {
     short_provider = icon.git[1],
     hl = {
       fg = icon.git[2],
-      style = 'italic',
     },
   },
   info = {
@@ -304,7 +299,6 @@ local git = {
     end,
     hl = {
       fg = icon.git[2],
-      style = 'italic',
     },
   },
   status = {
@@ -314,7 +308,6 @@ local git = {
     end,
     hl = {
       fg = icon.git[2],
-      style = 'italic',
     },
     truncate_hide = true,
   },
@@ -328,7 +321,7 @@ local file = {
       -- return ft .. icon[ff][1]
       -- return vim.bo.filetype .. icon[vim.bo.fileformat][1]
     end,
-    hl = { fg = 'cyan', style = 'italic' },
+    hl = { fg = 'cyan' },
     left_sep = sepalator,
   },
   encode = {
@@ -338,7 +331,7 @@ local file = {
     end,
     hl = function()
       local bufnr = tonumber(vim.api.nvim_get_var('actual_curbuf'))
-      return { fg = icon[vim.api.nvim_get_option_value('fileformat', { buf = bufnr })][2], style = 'italic' }
+      return { fg = icon[vim.api.nvim_get_option_value('fileformat', { buf = bufnr })][2] }
     end,
     left_sep = sepalator,
   },
@@ -358,7 +351,7 @@ local line = {
       local col_str = string.rep(' ', colnr_min_width - math.floor(math.log10(col)) - 1) .. tostring(col)
       return string.format('%s:%s/%s', col_str, line_str, vim.fn.line('$'))
     end,
-    hl = { fg = 'purple', style = 'italic' },
+    hl = { fg = 'purple' },
     left_sep = sepalator,
     truncate_hide = true,
   },

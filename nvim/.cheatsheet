@@ -41,6 +41,7 @@ gw{motion} 行整形
   o 他のペインを削除
   ] タグを開く
   r ペイン位置をずらす
+<Space>/ 正規表現履歴絞り込み
 
 # insert
 <C-g>u undo区切り

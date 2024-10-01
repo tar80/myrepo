@@ -78,6 +78,17 @@ do
   end
 end
 
+local scoop_app = function(name)
+  return string.format('%%scoop%%/apps/%s/current/%s.exe', name, name)
+end
+
+---@desc constants
+local THEME_NAME = 'Catppuccin Macchiato'
+local REPO_ROOT = 'C:/bin/repository/tar80'
+local FZF = scoop_app('fzf')
+local BAT = scoop_app('bat')
+local DELTA = scoop_app('delta')
+
 ---@desc options
 nyagos.histsize = 200
 nyagos.completion_slash = true
@@ -89,17 +100,18 @@ nyagos.completion_hook = function(c)
 end
 
 ---@desc environments
-nyagos.env.tar80 = 'C:\\bin\\repository\\tar80'
-nyagos.envadd('PATH', '%scoop%\\apps\\git\\current\\usr\\bin')
+nyagos.envadd('PATH', '%scoop%/apps/git/current/usr/bin')
 nyagos.env.LESSCHARSET = 'utf-8'
-local bat_opts = '--color=always --style=numbers,changes --line-range=:50 --theme=Nord'
+local bat_cmdline =
+  string.format('%s --color=always --style=numbers,changes --line-range=:50 --theme=""%s""', BAT, THEME_NAME)
 local fzf_opts = {
-  '--border',
+  '--border=rounded',
   '--info=inline-right',
   '--exit-0',
   '--reverse',
   '--margin=0,1',
   '--height 80%',
+  '--preview-window=border-rounded,60%',
   '--bind ctrl-f:page-down,ctrl-b:page-up',
   '--bind ctrl-d:preview-page-down,ctrl-u:preview-page-up',
   '--color=fg:-1,bg:-1,hl:#FFCC00',
@@ -110,24 +122,27 @@ local fzf_opts = {
 nyagos.env.FZF_DEFAULT_OPTS = table.concat(fzf_opts, ' ')
 nyagos.env.FZF_DEFAULT_COMMAND = 'fd -HL -c never --exclude ".git" .'
 nyagos.env._ZO_FZF_OPTS = (function(opts)
-  table.insert(opts, '--preview="bat ' .. bat_opts .. ' "{2..}/readme.md""')
+  table.insert(opts, string.format('--preview="%s "{2..}/readme.md""', bat_cmdline))
   return table.concat(opts, ' ')
 end)(fzf_opts)
 
-local fzf = { cmd = 'fzf.exe' }
+local fzf = { cmd = FZF }
 setmetatable(fzf, {
   __index = {
     gitlog = function(self)
-      return string.format('%s --preview="git show {1}"', self.cmd)
+      return string.format('%s --preview="git show --color {1}"', self.cmd)
     end,
     gitdiff = function(self)
-      return string.format('%s --preview="echo {2} |xargs git diff --color"', self.cmd)
+      return string.format('%s --preview="git diff {2}|delta"', self.cmd)
+    end,
+    gitgrep = function(self, word)
+      return string.format('%s --preview="git grep -iIw "%s" {1}"', self.cmd, word)
     end,
     bat = function(self)
-      return string.format('%s --preview="bat ' .. bat_opts .. ' "{}""', self.cmd)
+      return string.format('%s --preview="%s "{}""', self.cmd, bat_cmdline)
     end,
     readme = function(self)
-      return string.format('%s --preview="bat ' .. bat_opts .. ' "{}""', self.cmd)
+      return string.format('%s --preview="%s "{}""', self.cmd, bat_cmdline)
     end,
   },
 })
@@ -144,7 +159,7 @@ nyagos.alias.__dump_history = function()
   end
 end
 
-nyagos.alias.pca = 'cd c:\\bin\\repository\\tar80\\pages-pca && bundle exec jekyll s --future'
+nyagos.alias.pca = string.format('cd %s\\pages-pca && bundle exec jekyll s --future', REPO_ROOT)
 nyagos.alias.keyp = 'C:\\bin\\Keypirinha\\keypirinha.exe'
 nyagos.alias.lazyinstall = 'nvim --headless "+silent! Lazy! install" +qa'
 -- nyagos.alias.nvim = 'nvim --cmd "let g:tr_bg=v:true"'
@@ -158,7 +173,7 @@ nyagos.alias.zi = function()
   return nil
 end
 nyagos.alias.z = function(arg)
-  local path = nyagos.eval('zoxide query ' .. arg[1])
+  local path = nyagos.eval(string.format('zoxide query %s', arg[1]))
   if path ~= '' then
     nyagos.exec(string.format('cd "%s"', path))
     nyagos.exec(string.format('zoxide add %s', path))
@@ -167,28 +182,23 @@ nyagos.alias.z = function(arg)
 end
 
 nyagos.alias.bb = function()
-  local path = nyagos.eval('fd -Ht f -c never -E .git -E node_modules | ' .. fzf:bat())
+  local path = nyagos.eval(string.format('fd -Ht f -c never -E .git -E node_modules|%s', fzf:bat()))
   if path == '' then
     return nil
   end
-  nyagos.exec(string.format('bat --style=numbers,changes --theme=Nord "%s"', path))
+  nyagos.exec(string.format('%s --style=numbers,changes --theme="%s" "%s"', BAT, THEME_NAME, path))
 end
 
 nyagos.alias.cc = function()
-  local path = nyagos.eval('fd -Ht d -c never -E .git -E node_modules | ' .. fzf.cmd)
+  local path = nyagos.eval(string.format('fd -Ht d -c never -E .git -E node_modules|%s', fzf.cmd))
   if path ~= '' then
     nyagos.exec(string.format('cd %s', path))
   end
   return nil
 end
 
--- nyagos.alias.ll = 'lsd -l --group-dirs first --blocks permission --blocks size --blocks date --blocks name'
-nyagos.alias.ll = 'lsd -1lgXA --blocks=permission,size,date,name --group-dirs=first --size=bytes --date="+%Y-%m-%d %H:%M" -I=.git -I=node_modules -I=.bundle -I=_site'
-nyagos.alias.lt = 'lsd -1lgXA --tree --blocks=permission,size,date,name --group-dirs=first --size=bytes --date="+%Y-%m-%d %H:%M" -I=.git -I=node_modules -I=.bundle -I=_site -I=themes'
--- nyagos.alias.le = 'eza -AB -1ls=type --icons --git --git-ignore --time-style="+%Y-%m-%d %H:%M"'
-
-nyagos.alias.re = function()
-  local path = nyagos.eval('fd -Lt d -c never --full-path . %tar80% | ' .. fzf.cmd)
+nyagos.alias.cr = function()
+  local path = nyagos.eval(string.format('fd -Lt d -c never --full-path . %s|%s', REPO_ROOT, fzf.cmd))
   if path ~= '' then
     nyagos.exec(string.format('cd %s', path))
     nyagos.exec(string.format('zoxide add %s', path))
@@ -196,22 +206,44 @@ nyagos.alias.re = function()
   return nil
 end
 
+-- nyagos.alias.ll = 'lsd -l --group-dirs first --blocks permission --blocks size --blocks date --blocks name'
+nyagos.alias.ll =
+  'lsd -1lgXA --blocks=permission,size,date,name --group-dirs=first --size=bytes --date="+%Y-%m-%d %H:%M" -I=.git -I=node_modules -I=.bundle -I=_site'
+nyagos.alias.lt =
+  'lsd -1lgXA --tree --blocks=permission,size,date,name --group-dirs=first --size=bytes --date="+%Y-%m-%d %H:%M" -I=.git -I=node_modules -I=.bundle -I=_site -I=themes'
+-- nyagos.alias.le = 'eza -AB -1ls=type --icons --git --git-ignore --time-style="+%Y-%m-%d %H:%M"'
+
 nyagos.alias.gd = function()
-  local cmd = 'git status -s -uall| ' .. fzf:gitdiff()
-  local stdout = nyagos.eval(cmd)
+  local stdout = nyagos.eval(string.format('git status -s -uall|%s', fzf:gitdiff()))
   if not (stdout == '' or stdout:find('^fatal:')) then
-    nyagos.exec('nvim ' .. stdout:sub(3))
+    nyagos.exec(string.format('git diff %s|%s -s', stdout:sub(3), DELTA))
   end
   return nil
 end
 
+nyagos.alias.g = function(arg)
+  local result = nyagos.eval(string.format('git log --oneline -G "%s"|%s', arg[1], fzf:gitgrep(arg[1])))
+  local hash = string.match(result, '^%S+')
+  return hash and nyagos.exec(string.format('git diff %s|%s -s', hash, DELTA))
+end
+
+nyagos.alias.gl = function()
+  local result = nyagos.eval(string.format('git log --oneline|%s', fzf:gitlog()))
+  local hash = string.match(result, '^%S+')
+  return hash and nyagos.exec(string.format('git show %s|%s -s', hash, DELTA))
+end
+
+nyagos.alias.gs = function()
+  return nyagos.exec(string.format('git show|%s -s', DELTA))
+end
+
 ---@desc keybinds
 nyagos.key['F1'] = function()
-  nyagos.rawexec('c:\\bin\\cltc\\cltc.exe')
+  nyagos.rawexec('c:/bin/cltc/cltc.exe')
 end
 
 nyagos.key['F9'] = function()
-  nyagos.exec('nvim %tar80%\\myrepo\\nyagos\\.nyagos')
+  nyagos.exec(string.format('nvim %s/myrepo/nyagos/.nyagos', REPO_ROOT))
 end
 
 nyagos.bindkey('C_N', function()
@@ -230,21 +262,18 @@ nyagos.bindkey('C_N', function()
 end)
 
 nyagos.bindkey('C_R', function()
-  local select = nyagos.eval('__dump_history | ' .. fzf.cmd)
-  if select ~= '' then
-    return select
-  end
-  return ''
+  local select = nyagos.eval(string.format('__dump_history|%s', fzf.cmd))
+  return select
 end)
 
 nyagos.bindkey('M_H', function(this)
-  local cmd = string.format('%s|%s', 'cd --history', fzf.cmd)
+  local cmd = string.format('cd --history|%s', fzf.cmd)
   this:call('REPAINT_ON_NEWLINE')
   return string.format('"%s"', nyagos.eval(cmd))
 end)
 
 nyagos.bindkey('M_G', function()
-  local result = nyagos.eval('git log --pretty="format:%h %s"|' .. fzf:gitlog())
+  local result = nyagos.eval(string.format('git log --pretty="format:%h %s"|', fzf:gitlog()))
   return string.match(result, '^%S+') or ''
 end)
 

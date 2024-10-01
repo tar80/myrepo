@@ -1,0 +1,59 @@
+import = [
+  # "C:/bin/HOME/.config/alacritty-theme/themes/catppuccin_macchiato.toml",
+  "C:/bin/HOME/.config/alacritty-theme/themes/citylights.toml",
+  # "C:/bin/HOME/.config/alacritty-theme/themes/meliora.toml",
+]
+working_directory = "C:/bin/repository/ppmdev"
+
+[shell]
+program = "C:/bin/Scoop/apps/nyagos/current/nyagos.exe"
+
+[env]
+
+[window]
+# dimensions = { columns = 80, lines = 10}
+# position = { x = 0, y = 0}
+padding = { x = 5, y = 2 }
+dynamic_padding = false
+# decorations = "None"
+opacity = 0.9
+
+[font]
+normal = { family = "HackGen Console NF", style = "Regular"}
+italic = { family = "PlemolJP Console NF", style = "Italic"}
+bold_italic = { family = "PlemolJP Console NF", style = "Bold Italic"}
+size = 13.0
+offset = { x = 0, y = 0}
+glyph_offset = { x = 0, y = 1}
+
+[colors]
+cursor = { cursor = "#00CC99"}
+vi_mode_cursor = { cursor = "#AA77AA"}
+
+[cursor]
+style = { shape = "Beam"}
+vi_mode_style = { shape = "Block"}
+thickness = 0.2
+
+[terminal]
+# osc52 = "CopyPaste"
+
+[[hints.enabled]]
+command = { program = "C:/bin/Scoop/apps/qutebrowser/current/qutebrowser.exe", args = [ ] }
+hyperlinks = true
+post_processing = true
+persist = false
+mouse.enabled = false
+binding = { key = "U", mods = "Control" }
+regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+"
+
+[keyboard]
+bindings = [
+  { key = "Escape", action = "Quit" },
+  { key = "ArrowUp", mods = "Control", action = "ScrollLineUp" },
+  { key = "ArrowDown", mods = "Control", action = "ScrollLineDown" },
+  { key = "i", mods = "Control", action = "ToggleViMode" },
+  { key = "p", mode = "Vi", action = "Paste" },
+  { key = "^", mode = "Vi", action = "FirstOccupied" },
+  { key = "@", mode = "Vi", action = "ToggleSemanticSelection" },
+]

@@ -136,8 +136,6 @@
     "copyOnSelect": false,
     "defaultProfile": "{54d1e30c-4952-4c32-a77d-e59b7d87e759}",
     "disableAnimations": true,
-    "experimental.rendering.forceFullRepaint": true,
-    "experimental.rendering.software": false,
     "initialCols": 70,
     "initialPosition": "0,10",
     "initialRows": 25,
@@ -163,7 +161,7 @@
             "font": 
             {
                 "face": "HackGen Console NF",
-                "size": 13.0,
+                "size": 13,
                 "weight": "normal"
             },
             "historySize": 1000,
@@ -182,13 +180,13 @@
                 "backgroundImageOpacity": 0.89,
                 "closeOnExit": "always",
                 "colorScheme": "clover",
-                "commandline": "%Scoop%\\apps\\neovim-nightly\\current\\bin\\nvim.exe --listen \"\\\\.\\pipe\\nvim.100.0\"",
+                "commandline": "%Scoop%\\apps\\neovim-nightly\\current\\bin\\nvim.exe",
                 "compatibility.reloadEnvironmentVariables": false,
                 "experimental.retroTerminalEffect": false,
                 "font": 
                 {
                     "face": "PlemolJP Console NF",
-                    "size": 13.0,
+                    "size": 13,
                     "weight": "normal"
                 },
                 "guid": "{82304bab-2dc5-4825-9d56-d73787cd1a41}",
@@ -215,7 +213,7 @@
                 "font": 
                 {
                     "face": "PlemolJP Console NF",
-                    "size": 13.0,
+                    "size": 13,
                     "weight": "normal"
                 },
                 "guid": "{54d1e30c-4952-4c32-a77d-e59b7d87e759}",
