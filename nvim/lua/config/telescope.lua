@@ -56,7 +56,7 @@ require('telescope').setup({
     winblend = 10,
     previewer = false,
     cache_picker = false,
-    color_devicons = false,
+    color_devicons = true,
     file_ignore_patterns = { -- {@@3
       'lazy-lock.json',
       '^%.obsidian[/\\]',

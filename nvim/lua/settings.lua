@@ -397,6 +397,7 @@ keymap.set('n', '<F12>', function()
   return ''
 end)
 keymap.set('n', '<C-z>', '<Nop>')
+keymap.set('n', 'd_', '"_dd')
 
 --@see https://zenn.dev/mattn/articles/83c2d4c7645faa
 keymap.set('n', 'gj', 'gj<Plug>g')

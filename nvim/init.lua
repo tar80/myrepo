@@ -1,9 +1,6 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
--- vim.api.nvim_set_option_value('encoding', 'utf-8', {})
--- vim.scriptencoding = 'utf-8'
-
 -- ##Echo message vim startup time {{{2
 if vim.fn.has('vim_starting') then
   local pre = vim.fn.reltime()
@@ -40,6 +37,8 @@ local minimal = false
 if minimal then
   require('minimal')
 else
+  -- transparent background
+  vim.g.tr_bg = false
   require('private')
   require('settings')
   require('plugins')

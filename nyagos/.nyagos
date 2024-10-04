@@ -1,5 +1,5 @@
 local hint_msg = function(msg)
-  return string.format('\027[49;33m %s\027[49;49m', msg)
+  return string.format('\027[49;33m %s\027[49;49m', msg)
 end
 
 local detect_marker = function(path, marker)
@@ -78,13 +78,16 @@ do
   end
 end
 
-local scoop_app = function(name)
-  return string.format('%%scoop%%/apps/%s/current/%s.exe', name, name)
-end
-
 ---@desc constants
 local THEME_NAME = 'Catppuccin Macchiato'
-local REPO_ROOT = 'C:/bin/repository/tar80'
+local REPO_ROOT = 'C:/bin/repository'
+local MY_REPO = string.format('%s/tar80', REPO_ROOT)
+local SCOOP_ROOT = nyagos.env.scoop:gsub('\\', '/')
+
+local scoop_app = function(name)
+  return string.format('%s/apps/%s/current/%s.exe', SCOOP_ROOT, name, name)
+end
+
 local FZF = scoop_app('fzf')
 local BAT = scoop_app('bat')
 local DELTA = scoop_app('delta')
@@ -100,7 +103,7 @@ nyagos.completion_hook = function(c)
 end
 
 ---@desc environments
-nyagos.envadd('PATH', '%scoop%/apps/git/current/usr/bin')
+nyagos.envadd('PATH', string.format('%s/apps/git/current/usr/bin', SCOOP_ROOT))
 nyagos.env.LESSCHARSET = 'utf-8'
 local bat_cmdline =
   string.format('%s --color=always --style=numbers,changes --line-range=:50 --theme=""%s""', BAT, THEME_NAME)
@@ -159,7 +162,7 @@ nyagos.alias.__dump_history = function()
   end
 end
 
-nyagos.alias.pca = string.format('cd %s\\pages-pca && bundle exec jekyll s --future', REPO_ROOT)
+nyagos.alias.pca = string.format('cd %s\\pages-pca && bundle exec jekyll s --future', MY_REPO)
 nyagos.alias.keyp = 'C:\\bin\\Keypirinha\\keypirinha.exe'
 nyagos.alias.lazyinstall = 'nvim --headless "+silent! Lazy! install" +qa'
 -- nyagos.alias.nvim = 'nvim --cmd "let g:tr_bg=v:true"'
@@ -198,7 +201,7 @@ nyagos.alias.cc = function()
 end
 
 nyagos.alias.cr = function()
-  local path = nyagos.eval(string.format('fd -Lt d -c never --full-path . %s|%s', REPO_ROOT, fzf.cmd))
+  local path = nyagos.eval(string.format('fd -Lt d -c never --full-path . %s|%s', MY_REPO, fzf.cmd))
   if path ~= '' then
     nyagos.exec(string.format('cd %s', path))
     nyagos.exec(string.format('zoxide add %s', path))
@@ -237,29 +240,34 @@ nyagos.alias.gs = function()
   return nyagos.exec(string.format('git show|%s -s', DELTA))
 end
 
+nyagos.alias.ns = function()
+  local ok, path = detect_marker(nyagos.getwd(), 'package.json')
+  if ok then
+    path = string.format('%s/package.json', path)
+    local cmd = string.format('cat %s|jq -r ".scripts|to_entries|.[]|.key + \\"   \\" + .value"|%s', path, fzf.cmd)
+    local stdout = nyagos.eval(cmd)
+    return stdout ~= '' and nyagos.exec(string.format('npm run %s', stdout:sub(1, stdout:find('%s'))))
+  else
+    print(hint_msg('Not exist package.json'))
+  end
+end
+
+nyagos.alias.nsp = function(arg)
+  if not arg[1] then
+    print(hint_msg('Argument required'))
+  else
+    nyagos.exec(string.format('npm run packadd -name=%s', arg[1]))
+  end
+end
+
 ---@desc keybinds
 nyagos.key['F1'] = function()
   nyagos.rawexec('c:/bin/cltc/cltc.exe')
 end
 
 nyagos.key['F9'] = function()
-  nyagos.exec(string.format('nvim %s/myrepo/nyagos/.nyagos', REPO_ROOT))
+  nyagos.exec(string.format('nvim %s/myrepo/nyagos/.nyagos', MY_REPO))
 end
-
-nyagos.bindkey('C_N', function()
-  local ok, path = detect_marker(nyagos.getwd(), 'package.json')
-  if not ok then
-    print(hint_msg('Not exist package.json'))
-    return ''
-  end
-  path = string.format('%s\\package.json', path)
-  local cmd = string.format('cat %s|jq -r ".scripts|to_entries|.[]|.key + \\"   \\" + .value"|%s', path, fzf.cmd)
-  local stdout = nyagos.eval(cmd)
-  if stdout == '' then
-    return ''
-  end
-  return string.format('npm run %s', stdout:sub(1, stdout:find('%s')))
-end)
 
 nyagos.bindkey('C_R', function()
   local select = nyagos.eval(string.format('__dump_history|%s', fzf.cmd))
@@ -278,9 +286,9 @@ nyagos.bindkey('M_G', function()
 end)
 
 -- nyagos.skk{
---     user="~\\.skk_nyagos",
---     "~\\.skk\\SKK-JISYO.L",
---     "~\\.skk\\SKK-JISYO.emoji",
+--     user="c:/bin/home/.skk_nyagos",
+--     "c:/bin/home/.skk/SKK-JISYO.L",
+--     "c:/bin/home/.skk/SKK-JISYO.emoji",
 --     export="GOREADLINESKK",
 -- }
 

@@ -3,26 +3,31 @@ import = [
   "C:/bin/HOME/.config/alacritty-theme/themes/citylights.toml",
   # "C:/bin/HOME/.config/alacritty-theme/themes/meliora.toml",
 ]
-working_directory = "C:/bin/repository/ppmdev"
+working_directory = "none"
 
 [shell]
+# program = "C:/bin/Scoop/apps/neovim-nightly/current/bin/nvim.exe"
 program = "C:/bin/Scoop/apps/nyagos/current/nyagos.exe"
 
 [env]
 
 [window]
+# startup_mode = "Maximized"
 # dimensions = { columns = 80, lines = 10}
 # position = { x = 0, y = 0}
-padding = { x = 5, y = 2 }
+padding = { x = 2, y = 2 }
 dynamic_padding = false
 # decorations = "None"
 opacity = 0.9
 
 [font]
-normal = { family = "HackGen Console NF", style = "Regular"}
-italic = { family = "PlemolJP Console NF", style = "Italic"}
-bold_italic = { family = "PlemolJP Console NF", style = "Bold Italic"}
-size = 13.0
+normal = { family = "PlemolJP Console NF", style = "Regular"}
+italic = { style = "Italic"}
+bold_italic = { style = "Bold Italic"}
+# normal = { family = "UDEV Gothic NFLG", style = "Regular"}
+# italic = { family = "UDEV Gothic NFLG", style = "Italic"}
+# bold_italic = { family = "UDEV Gothic NFLG", style = "Bold Italic"}
+size = 13
 offset = { x = 0, y = 0}
 glyph_offset = { x = 0, y = 1}
 
@@ -36,7 +41,7 @@ vi_mode_style = { shape = "Block"}
 thickness = 0.2
 
 [terminal]
-# osc52 = "CopyPaste"
+osc52 = "CopyPaste"
 
 [[hints.enabled]]
 command = { program = "C:/bin/Scoop/apps/qutebrowser/current/qutebrowser.exe", args = [ ] }
@@ -49,11 +54,13 @@ regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:
 
 [keyboard]
 bindings = [
-  { key = "Escape", action = "Quit" },
+  { key = "q", mods = "Control|Shift", action = "Quit" },
   { key = "ArrowUp", mods = "Control", action = "ScrollLineUp" },
   { key = "ArrowDown", mods = "Control", action = "ScrollLineDown" },
-  { key = "i", mods = "Control", action = "ToggleViMode" },
+  { key = "v", mods = "Control|Shift", action = "ToggleViMode" },
   { key = "p", mode = "Vi", action = "Paste" },
   { key = "^", mode = "Vi", action = "FirstOccupied" },
   { key = "@", mode = "Vi", action = "ToggleSemanticSelection" },
+  { key = "q", mode = "Vi", action = "ToggleViMode" },
+  { key = "[", mods = "Control", mode = "Vi", action = "ToggleViMode" },
 ]
