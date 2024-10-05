@@ -8,6 +8,7 @@
     "rules": {
       "recommended": true,
       "correctness": {
+        "noConstantCondition": "warn",
         "noUnusedImports": "off"
       },
       "complexity": {
@@ -25,14 +26,17 @@
         "useConst": "off",
         "useDefaultParameterLast": "off",
         "useFilenamingConvention": "off",
+        "useNumberNamespace": "off",
         "useNamingConvention": "off",
         "useTemplate": "off"
       },
       "suspicious": {
         "noConfusingVoidType": "off",
+        "noControlCharactersInRegex": "warn",
         "noExplicitAny": "off",
         "noFallthroughSwitchClause": "warn",
         "noGlobalIsFinite": "off",
+        "noGlobalIsNan": "off",
         "useIsArray": "warn"
       }
     }

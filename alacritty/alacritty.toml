@@ -1,8 +1,8 @@
-import = [
+# import = [
   # "C:/bin/HOME/.config/alacritty-theme/themes/catppuccin_macchiato.toml",
-  "C:/bin/HOME/.config/alacritty-theme/themes/citylights.toml",
+  # "C:/bin/HOME/.config/alacritty-theme/themes/citylights.toml",
   # "C:/bin/HOME/.config/alacritty-theme/themes/meliora.toml",
-]
+# ]
 working_directory = "none"
 
 [shell]
@@ -14,20 +14,17 @@ program = "C:/bin/Scoop/apps/nyagos/current/nyagos.exe"
 [window]
 # startup_mode = "Maximized"
 # dimensions = { columns = 80, lines = 10}
-# position = { x = 0, y = 0}
-padding = { x = 2, y = 2 }
-dynamic_padding = false
+position = { x = 240, y = 40}
+dynamic_padding = true
 # decorations = "None"
 opacity = 0.9
 
 [font]
-normal = { family = "PlemolJP Console NF", style = "Regular"}
-italic = { style = "Italic"}
+# normal = { family = "UDEV Gothic", style = "Regular"}
+normal = { family = "PlemolJP Console NF", style = "Medium"}
+italic = { style = "Medium Italic"}
 bold_italic = { style = "Bold Italic"}
-# normal = { family = "UDEV Gothic NFLG", style = "Regular"}
-# italic = { family = "UDEV Gothic NFLG", style = "Italic"}
-# bold_italic = { family = "UDEV Gothic NFLG", style = "Bold Italic"}
-size = 13
+size = 13.0
 offset = { x = 0, y = 0}
 glyph_offset = { x = 0, y = 1}
 

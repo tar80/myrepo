@@ -1,21 +1,24 @@
 local wezterm = require('wezterm')
 
 ---@class Config
----@field init fun(is_debug, color_scheme, default_cwd, profiles):table<string,any>
+---@field init fun(color_scheme, default_cwd, profiles):table<string,any>
 local M = {}
 
 ---Initialize Config
----@param is_debug boolean debug of not
 ---@param color_scheme string colorscheme to apply
 ---@param default_cwd string default working directory
 ---@param profiles string[] cornfiguration profiles
 ---@return table<string,any>
-function M.init(is_debug, color_scheme, default_cwd, profiles)
+function M.init(color_scheme, default_cwd, profiles)
   local self = {}
-  if is_debug then
+  local workspace = wezterm.mux.get_active_workspace()
+  if workspace == 'debug' then
     self = wezterm.config_builder()
     self.automatically_reload_config = true
     self.log_unknown_escape_sequences = true
+  else
+    self.automatically_reload_config = false
+    self.log_unknown_escape_sequences = false
   end
   self.color_scheme = color_scheme
   self.default_cwd = default_cwd

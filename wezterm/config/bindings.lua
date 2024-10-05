@@ -1,5 +1,5 @@
 local wezterm = require('wezterm')
-local util = require('config.util')
+local helper = require('config.helpers')
 local act = wezterm.action
 
 local NONE = 'NONE'
@@ -13,30 +13,39 @@ return {
   use_dead_keys = false,
   -- leader = { key = 'phys:Space', mods = S_C, timeout_milliseconds = 2000 },
   keys = {
+    { key = 'F10', mods = NONE, action = act.EmitEvent('user_toggle_debug_mode') },
     { key = 'F11', mods = NONE, action = act.ShowDebugOverlay },
     { key = 'Tab', mods = C, action = act.ActivateTabRelative(1) },
     { key = 'Tab', mods = S_C, action = act.ActivateTabRelative(-1) },
     {
       key = '|',
       mods = S_C,
-      action = act.SplitHorizontal({ label = 'Nyagos', args = { util.scoop_apps('nyagos') } }),
+      action = act.SplitHorizontal({ label = 'Nyagos', args = { helper.scoop_apps('nyagos') } }),
     },
     {
       key = '_',
       mods = S_C,
-      action = act.SplitVertical({ label = 'Nyagos', args = { util.scoop_apps('nyagos') } }),
+      action = act.SplitVertical({ label = 'Nyagos', args = { helper.scoop_apps('nyagos') } }),
     },
     {
       key = '!',
       mods = S_C,
-      action = act.SpawnCommandInNewTab({ label = 'Nyagos', args = { util.scoop_apps('nyagos') } }),
+      action = act.SpawnCommandInNewTab({ label = 'Nyagos', args = { helper.scoop_apps('nyagos') } }),
     },
     {
       key = '"',
       mods = S_C,
       action = act.SpawnCommandInNewTab({
         label = 'Neovim',
-        args = { util.scoop_apps('bin/nvim', 'neovim-nightly') },
+        args = { helper.scoop_apps('bin/nvim', 'neovim-nightly') },
+      }),
+    },
+    {
+      key = '#',
+      mods = S_C,
+      action = act.SpawnCommandInNewTab({
+        label = 'PPb',
+        args = { 'c:/bin/ppxdw64/ppbw.exe', '-bootid:W' },
       }),
     },
     -- { key = '#', mods = S_C, action = act.ActivateTab(2) },
@@ -56,6 +65,10 @@ return {
     { key = 'L', mods = S_C, action = act.ActivatePaneDirection('Right') },
     { key = 'K', mods = S_C, action = act.ActivatePaneDirection('Up') },
     { key = 'J', mods = S_C, action = act.ActivatePaneDirection('Down') },
+    { key = 'LeftArrow', mods = S_C, action = act.ActivatePaneDirection('Left') },
+    { key = 'RightArrow', mods = S_C, action = act.ActivatePaneDirection('Right') },
+    { key = 'UpArrow', mods = S_C, action = act.ActivatePaneDirection('Up') },
+    { key = 'DownArrow', mods = S_C, action = act.ActivatePaneDirection('Down') },
     {
       key = 'L',
       mods = S_C_A,
@@ -66,17 +79,9 @@ return {
     },
 
     { key = 'M', mods = S_C, action = act.Hide },
+    { key = 'O', mods = S_C, action = act.EmitEvent('user_select_workspace') },
     { key = 'P', mods = S_C, action = act.ActivateCommandPalette },
-    -- { key = 'Q', mods = S_C, action = act.CloseCurrentPane({ confirm = true }) },
-    {
-      key = 'Q',
-      mods = S_C,
-      action = wezterm.action_callback(function(win, pane)
-        local panes = pane:tab():panes()
-        local has_confirm = #panes == 1
-        win:perform_action(act.CloseCurrentPane({ confirm = has_confirm }), pane)
-      end),
-    },
+    { key = 'Q', mods = S_C, action = act.EmitEvent('user_close') },
     { key = 'S', mods = S_C, action = act.QuickSelect },
     {
       key = 'U',

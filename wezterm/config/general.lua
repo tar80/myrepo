@@ -1,37 +1,32 @@
 local wezterm = require('wezterm')
-local util = require('config.util')
-
-local PALETTE = {
-  CURSOR = { BG = '#33AAFF', FG = '#FFFFFF' },
-  SELECTION = { BG = '#446688', FG = '#EEEEEE' },
-  MENU = { BG = '#444466', FG = '#CCCCDD', FONT_SIZE = 13 },
-}
+local helper = require('config.helpers')
+local color = require('config.colors')
 
 return {
   ---@desc font
   font = wezterm.font_with_fallback({
     { family = 'JetBrains Mono', weight = 'Regular' },
-    { family = 'Symbols Nerd Font Mono', scale = 1.0 },
-    -- { family = 'PlemolJP Console NF', weight = 'Regular' },
-    { family = 'UDEV Gothic NFLG', weight = 'Regular' },
+    { family = 'UDEV Gothic', weight = 'Regular' },
+    { family = 'Symbols Nerd Font Mono', scale = 1.1 },
     { family = 'Segoe UI Emoji' },
   }),
-  font_size = 11.5,
+  font_size = 11.4,
   cell_width = 1.0,
-  line_height = 1.0,
+  line_height = 0.9,
   freetype_load_target = 'Light',
   freetype_render_target = 'HorizontalLcd',
   harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
   anti_alias_custom_block_glyphs = true,
-  bold_brightens_ansi_colors = false,
+  bold_brightens_ansi_colors = true,
   custom_block_glyphs = true,
   use_cap_height_to_scale_fallback_fonts = true,
 
   ---@desc programs
   default_prog = { 'nyagos' },
   launch_menu = {
-    { label = 'Nyagos', args = { util.scoop_apps('nyagos') } },
-    { label = 'Neovim', args = { util.scoop_apps('bin/nvim', 'neovim-nightly') } },
+    { label = 'Nyagos', args = { helper.scoop_apps('nyagos') } },
+    { label = 'Neovim', args = { helper.scoop_apps('bin/nvim', 'neovim-nightly') } },
+    { label = 'PPb', args = { 'c:/bin/ppxdw64/ppbw.exe', '-bootid:W' } },
   },
 
   ---@desc general
@@ -86,17 +81,17 @@ return {
   text_background_opacity = 1.0,
   win32_system_backdrop = 'Acrylic',
   window_decorations = 'RESIZE',
-  window_background_opacity = 0.9,
+  window_background_opacity = 0.8,
   window_background_gradient = {
     orientation = 'Vertical',
-    colors = { '#001000', '#112222', '#001010' },
+    colors = color.gradient,
     interpolation = 'Linear',
     blend = 'Rgb',
     noise = 0,
   },
   window_frame = {
-    font = wezterm.font('Roboto'),
-    font_size = 11,
+    font = wezterm.font_with_fallback({ { family = 'JetBrains Mono', weight = 'Bold' } }),
+    font_size = 11.1,
     inactive_titlebar_bg = 'none',
     active_titlebar_bg = 'none',
   },
@@ -116,23 +111,23 @@ return {
   pane_focus_follows_mouse = false,
 
   ---@desc colors
-  char_select_bg_color = PALETTE.MENU.BG,
-  char_select_fg_color = PALETTE.MENU.FG,
-  char_select_font_size = PALETTE.MENU.FONT_SIZE,
-  command_palette_bg_color = PALETTE.MENU.BG,
-  command_palette_fg_color = PALETTE.MENU.FG,
-  command_palette_font_size = PALETTE.MENU.FONT_SIZE,
+  char_select_bg_color = color.menu.bg,
+  char_select_fg_color = color.menu.fg,
+  char_select_font_size = 13,
+  command_palette_bg_color = color.menu.bg,
+  command_palette_fg_color = color.menu.fg,
+  command_palette_font_size = 13,
   command_palette_rows = 14,
   colors = {
-    cursor_bg = PALETTE.CURSOR.BG,
-    cursor_border = PALETTE.CURSOR.BG,
-    cursor_fg = PALETTE.CURSOR.FG,
-    selection_bg = PALETTE.SELECTION.BG,
-    selection_fg = PALETTE.SELECTION.FG,
+    cursor_bg = color.cursor.bg,
+    cursor_border = color.cursor.bg,
+    cursor_fg = color.cursor.fg,
+    selection_bg = color.selection.bg,
+    selection_fg = color.selection.fg,
     tab_bar = { inactive_tab_edge = 'none' },
-    quick_select_label_bg = { Color = PALETTE.CURSOR.BG },
-    quick_select_label_fg = { Color = PALETTE.CURSOR.FG },
-    quick_select_match_bg = { Color = PALETTE.SELECTION.BG },
-    quick_select_match_fg = { Color = PALETTE.SELECTION.FG },
+    quick_select_label_bg = { Color = color.cursor.bg },
+    quick_select_label_fg = { Color = color.cursor.fg },
+    quick_select_match_bg = { Color = color.selection.bg },
+    quick_select_match_fg = { Color = color.selection.fg },
   },
 }
