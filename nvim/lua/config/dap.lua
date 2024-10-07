@@ -25,7 +25,6 @@ local internal = {-- {{{2
 
     if is_active then
       vim.api.nvim_win_close(self.termwin, false)
-      -- vim.cmd.quit({ count = self.termnr })
     else
       local winid = vim.api.nvim_get_current_win()
       vim.cmd(string.format('vertical belowright sbuffer %s|vert resize 60', self.termnr))

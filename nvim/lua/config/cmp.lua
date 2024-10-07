@@ -123,7 +123,6 @@ cmp.setup({
       elseif cmp.visible() then
         cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
       else
-        vim.print({vim.fn['vsnip#jumpable'](), vim.fn['vsnip#available']()})
         fallback()
       end
     end, { 'i', 's' }),

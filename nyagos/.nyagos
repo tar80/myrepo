@@ -201,7 +201,7 @@ nyagos.alias.cc = function()
 end
 
 nyagos.alias.cr = function()
-  local path = nyagos.eval(string.format('fd -Lt d -c never --full-path . %s|%s', MY_REPO, fzf.cmd))
+  local path = nyagos.eval(string.format('fd -Lt d -c never --full-path . %s|%s', REPO_ROOT, fzf.cmd))
   if path ~= '' then
     nyagos.exec(string.format('cd %s', path))
     nyagos.exec(string.format('zoxide add %s', path))

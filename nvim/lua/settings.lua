@@ -476,13 +476,21 @@ keymap.set('n', '<Space>z', function()
 end)
 
 ---Insert/Command mode {{{2
+---@see https://zenn.dev/vim_jp/articles/2024-10-07-vim-insert-uppercase
+keymap.set('i', '<C-q>', function()
+  local line = api.nvim_get_current_line()
+  local col = api.nvim_win_get_cursor(0)[2]
+  local substring = line:sub(1, col)
+  local result = vim.fn.matchstr(substring, [[\v<(\k(<)@!)*$]])
+  return string.format('<C-w>%s', result:upper())
+end, { expr = true })
 keymap.set('i', '<M-j>', '<C-g>U<Down>')
 keymap.set('i', '<M-k>', '<C-g>U<Up>')
 keymap.set('i', '<M-h>', '<C-g>U<Left>')
 keymap.set('i', '<M-l>', '<C-g>U<Right>')
 keymap.set('i', '<S-Delete>', '<C-g>U<C-o>D')
 keymap.set('i', '<C-k>', '<Delete>')
-keymap.set('i', '<C-q>', '<C-r>.')
+keymap.set('i', '<C-z>', '<C-r>.<Esc>')
 keymap.set('i', '<C-f>', '<Right>')
 keymap.set('i', '<C-b>', '<Left>')
 keymap.set('c', '<C-a>', '<Home>')
@@ -556,10 +564,12 @@ end, { nargs = '*' })
 api.nvim_create_user_command('JestSetup', function() -- {{{2
   local has_config = fn.filereadable('jest.config.js') + fn.filereadable('package.json')
   if has_config == 0 then
-    vim.notify('Config file not found', 3)
+    vim.notify('Could not found jest configurations', 3)
   end
 
-  os.execute('wt -w 1 sp -V --size 0.4 nyagos -k wt -w 1 mf left')
+  -- os.execute('wt -w 1 sp -V --size 0.4 nyagos -k wt -w 1 mf left')
+  -- local nyagos_cmdline = { 'nyagos', '-k', 'wezterm', 'cli', 'activate-pane-direction', 'left' }
+  -- vim .system({ 'wezterm', 'cli', 'split-pane', '--right', '--percent=40', unpack(nyagos_cmdline) }, { text = true }) :wait()
 
   local symbol = 'test'
   local sym_dir = string.format('__%ss__', symbol)
