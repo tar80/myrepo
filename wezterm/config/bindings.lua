@@ -1,5 +1,5 @@
 local wezterm = require('wezterm')
-local helper = require('config.helpers')
+local launcher = require('launcher')
 local act = wezterm.action
 
 local NONE = 'NONE'
@@ -7,6 +7,7 @@ local S = 'SHIFT'
 local C = 'CTRL'
 local S_C = 'SHIFT|CTRL'
 local S_C_A = 'SHIFT|CTRL|ALT'
+local S_A = 'SHIFT|ALT'
 
 return {
   disable_default_key_bindings = true,
@@ -15,39 +16,36 @@ return {
   keys = {
     { key = 'F10', mods = NONE, action = act.EmitEvent('user_toggle_debug_mode') },
     { key = 'F11', mods = NONE, action = act.ShowDebugOverlay },
-    { key = 'Tab', mods = C, action = act.ActivateTabRelative(1) },
-    { key = 'Tab', mods = S_C, action = act.ActivateTabRelative(-1) },
+    { key = 'Tab', mods = S_C, action = act.ActivateTabRelative(1) },
+    -- { key = 'Tab', mods = S_C, action = act.ActivateTabRelative(-1) },
     {
       key = '|',
       mods = S_C,
-      action = act.SplitHorizontal({ label = 'Nyagos', args = { helper.scoop_apps('nyagos') } }),
+      action = act.SplitHorizontal(launcher.clients.nyagos),
     },
     {
       key = '_',
       mods = S_C,
-      action = act.SplitVertical({ label = 'Nyagos', args = { helper.scoop_apps('nyagos') } }),
+      action = act.SplitVertical(launcher.clients.nyagos),
     },
     {
       key = '!',
       mods = S_C,
-      action = act.SpawnCommandInNewTab({ label = 'Nyagos', args = { helper.scoop_apps('nyagos') } }),
+      action = act.SpawnCommandInNewTab(launcher.clients.nyagos),
     },
     {
       key = '"',
       mods = S_C,
-      action = act.SpawnCommandInNewTab({
-        label = 'Neovim',
-        args = { helper.scoop_apps('bin/nvim', 'neovim-nightly') },
-      }),
+      action = act.SpawnCommandInNewTab(launcher.clients.nvim),
     },
-    {
-      key = '#',
-      mods = S_C,
-      action = act.SpawnCommandInNewTab({
-        label = 'PPb',
-        args = { 'c:/bin/ppxdw64/ppbw.exe', '-bootid:W' },
-      }),
-    },
+    -- {
+    --   key = '#',
+    --   mods = S_C,
+    --   action = act.SpawnCommandInNewTab({
+    --     label = 'PPb',
+    --     args = { 'c:/bin/ppxdw64/ppbw.exe', '-bootid:W' },
+    --   }),
+    -- },
     -- { key = '#', mods = S_C, action = act.ActivateTab(2) },
     -- { key = '$', mods = S_C, action = act.ActivateTab(3) },
     -- { key = '%', mods = S_C, action = act.ActivateTab(4) },
@@ -69,6 +67,14 @@ return {
     { key = 'RightArrow', mods = S_C, action = act.ActivatePaneDirection('Right') },
     { key = 'UpArrow', mods = S_C, action = act.ActivatePaneDirection('Up') },
     { key = 'DownArrow', mods = S_C, action = act.ActivatePaneDirection('Down') },
+    { key = 'h', mods = S_A, action = act.AdjustPaneSize({ 'Left', 1 }) },
+    { key = 'l', mods = S_A, action = act.AdjustPaneSize({ 'Right', 1 }) },
+    { key = 'k', mods = S_A, action = act.AdjustPaneSize({ 'Up', 1 }) },
+    { key = 'j', mods = S_A, action = act.AdjustPaneSize({ 'Down', 1 }) },
+    { key = 'LeftArrow', mods = S_A, action = act.AdjustPaneSize({ 'Left', 1 }) },
+    { key = 'RightArrow', mods = S_A, action = act.AdjustPaneSize({ 'Right', 1 }) },
+    { key = 'UpArrow', mods = S_A, action = act.AdjustPaneSize({ 'Up', 1 }) },
+    { key = 'DownArrow', mods = S_A, action = act.AdjustPaneSize({ 'Down', 1 }) },
     {
       key = 'L',
       mods = S_C_A,
@@ -96,14 +102,14 @@ return {
     { key = 'DownArrow', mods = S_C, action = act.ScrollByPage(1) },
     { key = 'Insert', mods = S, action = act.PasteFrom('PrimarySelection') },
     { key = 'Insert', mods = C, action = act.CopyTo('PrimarySelection') },
-    {
-      key = 'phys:Space',
-      mods = S_C,
-      action = act.ActivateKeyTable({
-        name = 'resize_pane',
-        one_shot = false,
-      }),
-    },
+    -- {
+    --   key = 'phys:Space',
+    --   mods = S_C,
+    --   action = act.ActivateKeyTable({
+    --     name = 'resize_pane',
+    --     one_shot = false,
+    --   }),
+    -- },
   },
 
   key_tables = {
@@ -186,17 +192,17 @@ return {
       { key = 'l', mods = C, action = act.CopyMode('NextMatchPage') },
     },
 
-    resize_pane = {
-      { key = 'h', action = act.AdjustPaneSize({ 'Left', 1 }) },
-      { key = 'l', action = act.AdjustPaneSize({ 'Right', 1 }) },
-      { key = 'k', action = act.AdjustPaneSize({ 'Up', 1 }) },
-      { key = 'j', action = act.AdjustPaneSize({ 'Down', 1 }) },
-      { key = 'LeftArrow', action = act.AdjustPaneSize({ 'Left', 1 }) },
-      { key = 'RightArrow', action = act.AdjustPaneSize({ 'Right', 1 }) },
-      { key = 'UpArrow', action = act.AdjustPaneSize({ 'Up', 1 }) },
-      { key = 'DownArrow', action = act.AdjustPaneSize({ 'Down', 1 }) },
-      { key = 'Escape', action = 'PopKeyTable' },
-      { key = '[', mods = C, action = 'PopKeyTable' },
-    },
+    -- resize_pane = {
+    --   { key = 'h', action = act.AdjustPaneSize({ 'Left', 1 }) },
+    --   { key = 'l', action = act.AdjustPaneSize({ 'Right', 1 }) },
+    --   { key = 'k', action = act.AdjustPaneSize({ 'Up', 1 }) },
+    --   { key = 'j', action = act.AdjustPaneSize({ 'Down', 1 }) },
+    --   { key = 'LeftArrow', action = act.AdjustPaneSize({ 'Left', 1 }) },
+    --   { key = 'RightArrow', action = act.AdjustPaneSize({ 'Right', 1 }) },
+    --   { key = 'UpArrow', action = act.AdjustPaneSize({ 'Up', 1 }) },
+    --   { key = 'DownArrow', action = act.AdjustPaneSize({ 'Down', 1 }) },
+    --   { key = 'Escape', action = 'PopKeyTable' },
+    --   { key = '[', mods = C, action = 'PopKeyTable' },
+    -- },
   },
 }

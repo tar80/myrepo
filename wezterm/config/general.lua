@@ -1,37 +1,37 @@
 local wezterm = require('wezterm')
-local helper = require('config.helpers')
-local color = require('config.colors')
+local colors = require('colors')
+local launcher = require('launcher')
 
 return {
+  automatically_reload_config = true,
+
+  ---@desc programs
+  default_prog = launcher.clients.nyagos.args,
+  launch_menu = launcher.menu,
+
   ---@desc font
   font = wezterm.font_with_fallback({
     { family = 'JetBrains Mono', weight = 'Regular' },
     { family = 'UDEV Gothic', weight = 'Regular' },
-    { family = 'Symbols Nerd Font Mono', scale = 1.1 },
+    { family = 'Symbols Nerd Font Mono', scale = 1.10 },
     { family = 'Segoe UI Emoji' },
   }),
-  font_size = 11.4,
+  font_size = 11.6,
   cell_width = 1.0,
   line_height = 0.9,
   freetype_load_target = 'Light',
   freetype_render_target = 'HorizontalLcd',
   harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
+  allow_square_glyphs_to_overflow_width = 'WhenFollowedBySpace',
   anti_alias_custom_block_glyphs = true,
   bold_brightens_ansi_colors = true,
   custom_block_glyphs = true,
   use_cap_height_to_scale_fallback_fonts = true,
-
-  ---@desc programs
-  default_prog = { 'nyagos' },
-  launch_menu = {
-    { label = 'Nyagos', args = { helper.scoop_apps('nyagos') } },
-    { label = 'Neovim', args = { helper.scoop_apps('bin/nvim', 'neovim-nightly') } },
-    { label = 'PPb', args = { 'c:/bin/ppxdw64/ppbw.exe', '-bootid:W' } },
-  },
+  -- underline_position = -2,
+  -- underline_thickness = 1.0,
 
   ---@desc general
   -- adjust_window_size_when_changing_font_size = true,
-  allow_square_glyphs_to_overflow_width = 'WhenFollowedBySpace',
   allow_win32_input_mode = true,
   alternate_buffer_wheel_scroll_speed = 3,
   animation_fps = 10,
@@ -40,8 +40,9 @@ return {
   bypass_mouse_reporting_modifiers = 'SHIFT',
   canonicalize_pasted_newlines = 'None',
   check_for_updates = false,
+  check_for_updates_interval_seconds = 864000000,
   clean_exit_codes = { 130 },
-  -- default_domain = "local",
+  -- default_domain = 'local',
   -- default_workspace = 'default',
   disable_default_quick_select_patterns = false,
   -- enable_csi_u_key_encoding = false,
@@ -55,19 +56,19 @@ return {
   quit_when_all_windows_are_closed = true,
   scroll_to_bottom_on_input = true,
   scrollback_lines = 10000,
-  set_environment_variables = {},
+  -- set_environment_variables = {},
   skip_close_confirmation_for_processes_named = {
     'cmd.exe',
+    'nvim.exe',
+    'nyagos.exe',
+    'ppbw.exe',
     'pwsh.exe',
     'powershell.exe',
-    'nvim.exe',
   },
   -- status_update_interval = 1000,
   -- swallow_mouse_click_on_pane_focus = false,
   -- swallow_mouse_click_on_window_focus = false,
   -- switch_to_last_active_tab_when_closing_tab = false,
-  -- underline_position = -2,
-  -- underline_thickness = 1.0,
   unzoom_on_switch_pane = true,
   use_fancy_tab_bar = true,
 
@@ -84,14 +85,14 @@ return {
   window_background_opacity = 0.8,
   window_background_gradient = {
     orientation = 'Vertical',
-    colors = color.gradient,
+    colors = colors.gradient,
     interpolation = 'Linear',
     blend = 'Rgb',
     noise = 0,
   },
   window_frame = {
-    font = wezterm.font_with_fallback({ { family = 'JetBrains Mono', weight = 'Bold' } }),
-    font_size = 11.1,
+    font = wezterm.font('JetBrains Mono', { weight = 'Bold' }),
+    font_size = 11.0,
     inactive_titlebar_bg = 'none',
     active_titlebar_bg = 'none',
   },
@@ -111,23 +112,23 @@ return {
   pane_focus_follows_mouse = false,
 
   ---@desc colors
-  char_select_bg_color = color.menu.bg,
-  char_select_fg_color = color.menu.fg,
+  char_select_bg_color = colors.menu.bg,
+  char_select_fg_color = colors.menu.fg,
   char_select_font_size = 13,
-  command_palette_bg_color = color.menu.bg,
-  command_palette_fg_color = color.menu.fg,
+  command_palette_bg_color = colors.menu.bg,
+  command_palette_fg_color = colors.menu.fg,
   command_palette_font_size = 13,
   command_palette_rows = 14,
   colors = {
-    cursor_bg = color.cursor.bg,
-    cursor_border = color.cursor.bg,
-    cursor_fg = color.cursor.fg,
-    selection_bg = color.selection.bg,
-    selection_fg = color.selection.fg,
+    cursor_bg = colors.cursor.bg,
+    cursor_border = colors.cursor.bg,
+    cursor_fg = colors.cursor.fg,
+    selection_bg = colors.selection.bg,
+    selection_fg = colors.selection.fg,
     tab_bar = { inactive_tab_edge = 'none' },
-    quick_select_label_bg = { Color = color.cursor.bg },
-    quick_select_label_fg = { Color = color.cursor.fg },
-    quick_select_match_bg = { Color = color.selection.bg },
-    quick_select_match_fg = { Color = color.selection.fg },
+    quick_select_label_bg = { Color = colors.cursor.bg },
+    quick_select_label_fg = { Color = colors.cursor.fg },
+    quick_select_match_bg = { Color = colors.selection.bg },
+    quick_select_match_fg = { Color = colors.selection.fg },
   },
 }

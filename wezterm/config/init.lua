@@ -12,16 +12,16 @@ local M = {}
 function M.init(color_scheme, default_cwd, profiles)
   local self = {}
   local workspace = wezterm.mux.get_active_workspace()
-  if workspace == 'debug' then
-    self = wezterm.config_builder()
-    self.automatically_reload_config = true
-    self.log_unknown_escape_sequences = true
-  else
-    self.automatically_reload_config = false
-    self.log_unknown_escape_sequences = false
-  end
   self.color_scheme = color_scheme
   self.default_cwd = default_cwd
+  if workspace == 'debug' then
+    self = wezterm.config_builder()
+    self.log_unknown_escape_sequences = true
+    self.debug_key_events = true
+  else
+    self.log_unknown_escape_sequences = false
+    self.debug_key_events = false
+  end
 
   for _, name in ipairs(profiles) do
     local ok, opts = pcall(require, string.format('config.%s', name))
