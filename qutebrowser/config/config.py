@@ -732,7 +732,7 @@ c.editor.remove_file = True
 ## argument, the   standard output of the command is read instead.
 ## Type: ShellCommand
 # c.fileselect.folder.command = ['xterm', '-e', 'ranger', '--choosedir={}']
-c.fileselect.folder.command = ['C:\\bin\\ppx\\PPCW.EXE', '-single -bootid:t -choose:con8 {}']
+c.fileselect.folder.command = ['C:\\bin\\ppxdw64\\PPCW.EXE', '-single -bootid:t -choose:con8 {}']
 
 ## Handler for selecting file(s) in forms. If `external`, then the
 ## commands specified by `fileselect.single_file.command`,
