@@ -116,4 +116,4 @@ mapset('x', '>', '>gv')
 api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " . <q-args>)', { nargs = 1 })
 
 ---@desc COLORSCHEME {{{1
-vim.cmd('colorscheme habamax')
+-- vim.cmd('colorscheme habamax')

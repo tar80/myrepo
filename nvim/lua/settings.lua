@@ -166,7 +166,7 @@ api.nvim_create_autocmd('CursorHoldI', {
     end
   end,
 })
----NOTE: FocusLost does not work mounted in the Windows-tereminal.
+---NOTE: FocusLost does not work in Windows-tereminal.
 api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
   desc = 'Ignore cursorline highlight',
   group = augroup,
@@ -213,14 +213,6 @@ api.nvim_create_autocmd('OptionSet', {
   end,
 })
 ---Set variable for cmdline-abbreviations {{{2
-api.nvim_create_autocmd('CmdlineChanged', {
-  desc = 'Set variable for abbreviations',
-  group = augroup,
-  pattern = '*',
-  callback = function()
-    vim.cmd('let cmdline_abbrev = getcmdtype().getcmdline()')
-  end,
-})
 ---@desc Functions {{{1
 function Simple_fold() -- {{{2
   ---this code is based on https://github.com/tamton-aquib/essentials.nvim
@@ -304,14 +296,20 @@ local abbrev = { -- {{{2
   ca = function(word, replace)
     ---@see https://zenn.dev/vim_jp/articles/2023-06-30-vim-substitute-tips
     local getchar = replace[2] and '[getchar(), ""][1].' or ''
-    local exp = string.format('cmdline_abbrev ==# ":%s" ? %s"%s" : "%s"', word, getchar, replace[1], word)
+    local exp = string.format('getcmdtype()..getcmdline() ==# ":%s" ? %s"%s" : "%s"', word, getchar, replace[1], word)
     keymap.set('ca', word, exp, { expr = true })
   end,
   va = function(word, replace)
     local getchar = replace[2] and '[getchar(), ""][1].' or ''
     local exp = string.format(
-      'cmdline_abbrev ==# ":%s" ? %s"%s" : cmdline_abbrev ==# ":\'<,\'>%s" ? %s"%s" : "%s"',
-      word, getchar, replace[1][1], word, getchar, replace[1][2], word
+      'getcmdtype()..getcmdline() ==# ":%s" ? %s"%s" : getcmdtype()..getcmdline() ==# ":\'<,\'>%s" ? %s"%s" : "%s"',
+      word,
+      getchar,
+      replace[1][1],
+      word,
+      getchar,
+      replace[1][2],
+      word
     )
     keymap.set('ca', word, exp, { expr = true })
   end,
@@ -333,13 +331,12 @@ abbrev.tbl = {
     ['return'] = { 'reutnr', 'reutrn', 'retrun' },
   },
   ca = {
-    bt = { [[T npm run build <C-r>=expand(\"%\:\.\")<CR>]] },
-    -- bt = { [[T npm run build <C-r>=expand(\"%\:r\")<CR>\.ts]] },
+    bt = { [[T npm run build @=expand(\"%\:\.\")<CR>]] },
     bp = { [[!npm run build:prod]] },
     ms = { 'MugShow', true },
     es = { 'e<Space>++enc=cp932 ++ff=dos<CR>' },
     e8 = { 'e<Space>++enc=utf-8<CR>' },
-    e16 = { 'e<Space>++enc=utf-16le ++ff=dos<CR>' },
+    eu = { 'e<Space>++enc=utf-16le ++ff=dos<CR>' },
     sc = { 'set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb<CR>' },
     scn = { 'set<Space>noscb<CR>' },
     del = { [[call<Space>delete(expand('%'))]] },
@@ -356,7 +353,8 @@ abbrev.tbl = {
   },
   -- @desc {{cmdline, visualmode}}
   va = {
-    s = { { '%s///<lt>Left>', [[s///|nohls<lt>Left><lt>Left><lt>Left><lt>Left><lt>Left><lt>Left><lt>Left>]] }, true },
+    s = { { '%s//<lt>Left>', 's//<lt>Left>' }, true },
+    ss = { { '%s///<lt>Left>', 's///<lt>Left>' }, true },
     dp = { { 'dp', 'diffput' }, true },
     dg = { { 'dg', 'diffget' }, true },
   },
@@ -404,9 +402,14 @@ keymap.set('n', 'gj', 'gj<Plug>g')
 keymap.set('n', 'gk', 'gk<Plug>g')
 keymap.set('n', '<Plug>gj', 'gj<Plug>g')
 keymap.set('n', '<Plug>gk', 'gk<Plug>g')
+keymap.set('n', 'zh', 'zh<Plug>z')
+keymap.set('n', 'zl', 'zl<Plug>z')
+keymap.set('n', '<Plug>zh', 'zh<Plug>z')
+keymap.set('n', '<Plug>zl', 'zl<Plug>z')
 --@see https://github.com/atusy/dotfiles/blob/main/dot_config/nvim/lua/atusy/init.lua
 keymap.set('n', 'Q', 'q')
 keymap.set('n', 'q', '<Plug>(q)')
+keymap.set('n', '<Plug>(q)j', 'qj')
 keymap.set('n', '<Plug>(q):', 'q:')
 keymap.set('n', '<Plug>(q)/', 'q/')
 keymap.set('n', '<Plug>(q)?', 'q?')
@@ -498,7 +501,24 @@ keymap.set('c', '<C-b>', '<Left>')
 keymap.set('!', '<C-v>u', '<C-R>=nr2char(0x)<Left>')
 
 ---Visual mode{{{2
----clipbord yank
+keymap.set('x', '@', function()
+  local input = fn.nr2char(fn.getchar())
+  if input:match('%l') then
+    local rgx = '^V?:%%?s'
+    local value = fn.getreg(input)
+    local subst = value:find(rgx, 1)
+    if input == 'j' then
+      api.nvim_input(string.format(':g/^/normal @%s<CR>', input))
+    elseif subst and subst <= 2 then
+      local keyemu = value:gsub(rgx, ':s', 1)
+      api.nvim_input(keyemu)
+    elseif value:match('%C') then
+      api.nvim_input(string.format(':s//%s<CR>', value))
+    end
+  end
+end, { expr = true })
+---@see https://zenn.dev/vim_jp/articles/43d021f461f3a4
+keymap.set('v', 'y', 'mmy`m')
 keymap.set('v', '<C-insert>', '"*y')
 keymap.set('v', '<C-delete>', '"*ygvd')
 ---do not release after range indentation process

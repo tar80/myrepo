@@ -16,30 +16,31 @@ if vim.fn.has('vim_starting') then
   })
 end
 
--- ##Pipe {{{2
-local pipe = [[\\.\pipe\nvim.100.0]]
-local server = vim.v.servername
+local mode = vim.g.start_mode
 
-if server then
-  if server ~= pipe then
-    local ok = pcall(vim.fn.serverstart, pipe)
-    if ok then
-      pcall(vim.fn.serverstop, server)
+-- ##Pipe {{{2
+if not mode then
+  local pipe = [[\\.\pipe\nvim.100.0]]
+  local server = vim.v.servername
+
+  if server then
+    if server ~= pipe then
+      local ok = pcall(vim.fn.serverstart, pipe)
+      if ok then
+        pcall(vim.fn.serverstop, server)
+      end
     end
+  else
+    pcall(vim.fn.serverstart, pipe)
   end
-else
-  pcall(vim.fn.serverstart, pipe)
 end --}}}2
 
--- #Requires
-local minimal = false
-
-if minimal then
+if mode == 'minimal' then
   require('minimal')
 else
   -- transparent background
   vim.g.tr_bg = false
   require('private')
   require('settings')
-  require('plugins')
+  require(mode or 'plugins')
 end
