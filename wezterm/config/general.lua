@@ -56,7 +56,10 @@ return {
   quit_when_all_windows_are_closed = true,
   scroll_to_bottom_on_input = true,
   scrollback_lines = 10000,
-  -- set_environment_variables = {},
+  set_environment_variables = {
+    PATH = string.format('%s;%s/apps/git/current/usr/bin', os.getenv('PATH'), os.getenv('SCOOP')),
+  },
+
   skip_close_confirmation_for_processes_named = {
     'cmd.exe',
     'nvim.exe',

@@ -331,7 +331,7 @@ abbrev.tbl = {
     ['return'] = { 'reutnr', 'reutrn', 'retrun' },
   },
   ca = {
-    bt = { [[T npm run build @=expand(\"%\:\.\")<CR>]] },
+    bt = { [[T npm run build <C-r>=expand(\"%\:\.\")<CR>]] },
     bp = { [[!npm run build:prod]] },
     ms = { 'MugShow', true },
     es = { 'e<Space>++enc=cp932 ++ff=dos<CR>' },
