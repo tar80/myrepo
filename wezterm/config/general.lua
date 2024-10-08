@@ -13,12 +13,12 @@ return {
   font = wezterm.font_with_fallback({
     { family = 'JetBrains Mono', weight = 'Regular' },
     { family = 'UDEV Gothic', weight = 'Regular' },
-    { family = 'Symbols Nerd Font Mono', scale = 1.10 },
+    { family = 'Symbols Nerd Font Mono', scale = 1.00 },
     { family = 'Segoe UI Emoji' },
   }),
   font_size = 11.6,
   cell_width = 1.0,
-  line_height = 0.9,
+  line_height = 1.0,
   freetype_load_target = 'Light',
   freetype_render_target = 'HorizontalLcd',
   harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
@@ -96,7 +96,7 @@ return {
     inactive_titlebar_bg = 'none',
     active_titlebar_bg = 'none',
   },
-  window_padding = { left = 3, right = 0, top = 4, bottom = 0 },
+  window_padding = { left = 3, right = 0, top = 0, bottom = 0 },
   -- foreground_text_hsb = { hue = 1.02, saturation = 1.1, brightness = 1.1, },
   inactive_pane_hsb = { saturation = 0.9, brightness = 0.6 },
 

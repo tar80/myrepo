@@ -55,6 +55,7 @@ return {
     -- { key = '(', mods = S_C, action = act.ActivateTab(8) },
     -- { key = ')', mods = S_C, action = act.ActivateTab(9) },
     { key = '`', mods = S_C, action = act.PaneSelect },
+    { key = '`', mods = S_C_A, action = act.PaneSelect({ mode = 'SwapWithActiveKeepFocus' }) },
     { key = '+', mods = S_C, action = act.IncreaseFontSize },
     { key = '=', mods = S_C, action = act.DecreaseFontSize },
     { key = '0', mods = C, action = act.ResetFontSize },
@@ -101,7 +102,7 @@ return {
     { key = 'UpArrow', mods = S_C, action = act.ScrollByPage(-1) },
     { key = 'DownArrow', mods = S_C, action = act.ScrollByPage(1) },
     { key = 'Insert', mods = S, action = act.PasteFrom('PrimarySelection') },
-    { key = 'Insert', mods = C, action = act.CopyTo('PrimarySelection') },
+    -- { key = 'Insert', mods = C, action = act.CopyTo('PrimarySelection') },
     -- {
     --   key = 'phys:Space',
     --   mods = S_C,

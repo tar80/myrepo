@@ -6,8 +6,8 @@
 working_directory = "none"
 
 [shell]
-# program = "C:/bin/Scoop/apps/neovim-nightly/current/bin/nvim.exe"
-program = "C:/bin/Scoop/apps/nyagos/current/nyagos.exe"
+program = "C:/bin/Scoop/apps/neovim-nightly/current/bin/nvim.exe --cmd \"let g:start_mode='compact'\""
+# program = "C:/bin/Scoop/apps/nyagos/current/nyagos.exe"
 
 [env]
 
@@ -21,9 +21,9 @@ opacity = 0.9
 
 [font]
 # normal = { family = "UDEV Gothic", style = "Regular"}
-normal = { family = "PlemolJP Console NF", style = "Medium"}
-italic = { style = "Medium Italic"}
-bold_italic = { style = "Bold Italic"}
+normal = { family = "PlemolJP Console NF", style = "Regular"}
+italic = { family = "PlemolJP Console NF", style = "Italic"}
+bold_italic = { family = "PlemolJP Console NF", style = "Italic"}
 size = 13.0
 offset = { x = 0, y = 0}
 glyph_offset = { x = 0, y = 1}

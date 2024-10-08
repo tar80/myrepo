@@ -61,7 +61,7 @@ wezterm.on('gui-startup', function(cmd)
   if cmd then
     local client = launcher.clients[cmd.args[1]]
     if client then
-      cmd.args = client.args
+      cmd.args[1] = client.args[1]
       cmd.label = client.label
       cmd.set_environment_variables = {}
     end

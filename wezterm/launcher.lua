@@ -23,7 +23,13 @@ end
 local clients = {
   nyagos = generate_launcher('nyagos', { get_scoop_path('nyagos.exe', 'nyagos') }),
   nvim = generate_launcher('nvim', { get_scoop_path('bin/nvim.exe', 'neovim-nightly') }),
-  ppb = generate_launcher('ppb', { string.format('%s/ppbw.exe', os.getenv('PPX_DIR'):gsub('\\', '/')) }),
+  ppb = generate_launcher(
+    'ppb',
+    {
+      string.format('%s/ppbw.exe', os.getenv('PPX_DIR'):gsub('\\', '/')),
+      '-k', '*option', 'common', '%%:', '*option', 'common',
+    }
+  ),
 }
 local menu = create_menu(clients)
 
