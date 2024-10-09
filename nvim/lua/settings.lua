@@ -407,7 +407,6 @@ keymap.set('n', 'zl', 'zl<Plug>z')
 keymap.set('n', '<Plug>zh', 'zh<Plug>z')
 keymap.set('n', '<Plug>zl', 'zl<Plug>z')
 --@see https://github.com/atusy/dotfiles/blob/main/dot_config/nvim/lua/atusy/init.lua
-keymap.set('n', 'Q', 'q')
 keymap.set('n', 'q', '<Plug>(q)')
 keymap.set('n', '<Plug>(q)j', 'qj')
 keymap.set('n', '<Plug>(q):', 'q:')
@@ -503,7 +502,7 @@ keymap.set('!', '<C-v>u', '<C-R>=nr2char(0x)<Left>')
 ---Visual mode{{{2
 keymap.set('x', '@', function()
   local input = fn.nr2char(fn.getchar())
-  if input:match('%l') then
+  if input:match('[%d%l]') then
     local rgx = '^V?:%%?s'
     local value = fn.getreg(input)
     local subst = value:find(rgx, 1)
@@ -513,7 +512,7 @@ keymap.set('x', '@', function()
       local keyemu = value:gsub(rgx, ':s', 1)
       api.nvim_input(keyemu)
     elseif value:match('%C') then
-      api.nvim_input(string.format(':s//%s<CR>', value))
+      api.nvim_input(string.format(':ss %s<CR>', value))
     end
   end
 end, { expr = true })

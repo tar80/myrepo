@@ -33,6 +33,9 @@ gx URIを開く
 <C-z> select multiline
 
 # normal
+]p インデントを考慮して張り付け
+zy ブロック選択時に行末空白を無視
+zp ブロック張り付け時に行末空白を無視
 _  "* + operator-replace
 \  operator-replace
 gw{motion} 行整形
