@@ -408,7 +408,7 @@ keymap.set('n', '<Plug>zh', 'zh<Plug>z')
 keymap.set('n', '<Plug>zl', 'zl<Plug>z')
 --@see https://github.com/atusy/dotfiles/blob/main/dot_config/nvim/lua/atusy/init.lua
 keymap.set('n', 'q', '<Plug>(q)')
-keymap.set('n', '<Plug>(q)j', 'qj')
+keymap.set('n', '<Plug>(q)w', 'qw')
 keymap.set('n', '<Plug>(q):', 'q:')
 keymap.set('n', '<Plug>(q)/', 'q/')
 keymap.set('n', '<Plug>(q)?', 'q?')
@@ -506,7 +506,7 @@ keymap.set('x', '@', function()
     local rgx = '^V?:%%?s'
     local value = fn.getreg(input)
     local subst = value:find(rgx, 1)
-    if input == 'j' then
+    if input == 'w' then
       api.nvim_input(string.format(':g/^/normal @%s<CR>', input))
     elseif subst and subst <= 2 then
       local keyemu = value:gsub(rgx, ':s', 1)
@@ -580,6 +580,18 @@ api.nvim_create_user_command('UTDo', function(...) -- {{{2
 end, { nargs = '*' })
 
 ---@desc "JestSetup" Unit-test compose multi-panel
+local pane_id
+api.nvim_create_user_command('JestDo', function() -- {{{2
+  local path = vim.fn.expand('%:t')
+  if not path:find('test.ts$') then
+    path = path:gsub('.ts$', '.test.ts')
+  end
+  vim.system(
+    { 'wezterm', 'cli', 'send-text', '--pane-id', pane_id, '--no-paste' },
+    { stdin = { string.format('npx jest --test-match=**/%s', path) }, text = true }
+  )
+end, {})
+
 api.nvim_create_user_command('JestSetup', function() -- {{{2
   local has_config = fn.filereadable('jest.config.js') + fn.filereadable('package.json')
   if has_config == 0 then
@@ -587,8 +599,16 @@ api.nvim_create_user_command('JestSetup', function() -- {{{2
   end
 
   -- os.execute('wt -w 1 sp -V --size 0.4 nyagos -k wt -w 1 mf left')
-  -- local nyagos_cmdline = { 'nyagos', '-k', 'wezterm', 'cli', 'activate-pane-direction', 'left' }
-  -- vim .system({ 'wezterm', 'cli', 'split-pane', '--right', '--percent=40', unpack(nyagos_cmdline) }, { text = true }) :wait()
+  vim
+    .system(
+      { 'wezterm', 'cli', 'split-pane', '--right', '--percent=40', '--cwd=' .. uv.cwd(), 'bash' },
+      { text = true },
+      function(obj)
+        pane_id = vim.trim(obj.stdout)
+      end
+    )
+    :wait()
+  vim.system({ 'wezterm', 'cli', 'activate-pane-direction', 'left' }, { text = true })
 
   local symbol = 'test'
   local sym_dir = string.format('__%ss__', symbol)
@@ -601,7 +621,7 @@ api.nvim_create_user_command('JestSetup', function() -- {{{2
     local insert_string = ''
 
     if fn.filereadable(test_path) ~= 1 then
-      local line1 = "import PPx from '@ppmdev/modules/ppx';"
+      local line1 = "import PPx from '@ppmdev/modules/ppx.ts';"
       local line2 = 'global.PPx = Object.create(PPx)'
       local line3 = string.format("import from '../%s'", fn.expand('%:t'))
       insert_string = string.format('|execute "normal! I%s\n%s\n%s\\<Esc>3G06l"', line1, line2, line3)

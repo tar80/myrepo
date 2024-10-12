@@ -12,7 +12,7 @@ local cursor_color, background, theme_name;
 ---Time manage {{{3
 (function()
   local h = os.date('*t').hour
-  if h >= 6 and h <= 18 then
+  if h >= 6 and h < 18 then
     cursor_color = '#FA8699'
     background = 'light'
     theme_name = 'light'

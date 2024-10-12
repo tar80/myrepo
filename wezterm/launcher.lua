@@ -23,6 +23,7 @@ end
 local clients = {
   nyagos = generate_launcher('nyagos', { get_scoop_path('nyagos.exe', 'nyagos') }),
   nvim = generate_launcher('nvim', { get_scoop_path('bin/nvim.exe', 'neovim-nightly') }),
+  bash = generate_launcher('bash', { get_scoop_path('usr/bin/bash.exe', 'git') }),
   ppb = generate_launcher(
     'ppb',
     {

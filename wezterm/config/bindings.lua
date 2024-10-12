@@ -21,12 +21,12 @@ return {
     {
       key = '|',
       mods = S_C,
-      action = act.SplitHorizontal(launcher.clients.nyagos),
+      action = act.SplitHorizontal(launcher.clients.bash),
     },
     {
       key = '_',
       mods = S_C,
-      action = act.SplitVertical(launcher.clients.nyagos),
+      action = act.SplitVertical(launcher.clients.bash),
     },
     {
       key = '!',
