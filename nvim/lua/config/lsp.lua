@@ -8,15 +8,15 @@ local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 local BORDER = 'rounded'
 local SIGNS = { Error = '', Warn = '', Hint = '', Info = '' }
-local sign_define = (function()
-  local s = { text = {}, linehl = {}, numhl = {} }
+local define_signs = (function()
+  local o = { text = {}, linehl = {}, numhl = {} }
   for name, symbol in pairs(SIGNS) do
     local key = vim.diagnostic.severity[name:upper()]
-    s.text[key] = symbol
-    s.numhl[key] = string.format('DiagnosticSign%s', name)
+    o.text[key] = symbol
+    o.numhl[key] = string.format('DiagnosticSign%s', name)
     -- s.linehl[key] = 'NONE'
   end
-  return s
+  return o
 end)()
 
 ---@desc Options
@@ -39,7 +39,7 @@ vim.diagnostic.config({ -- {{{2
       return string.format('%s %s (%s)', symbol[diagnostic.severity], diagnostic.message, diagnostic.source)
     end,
   },
-  signs = sign_define,
+  signs = define_signs,
   update_in_insert = false,
 })
 
@@ -350,6 +350,9 @@ local null_ls = require('null-ls')
 local attach_filetypes = { 'text', 'markdown' }
 null_ls.setup({ -- {{{3
   debounce = 500,
+  on_attach = function()
+    keymap.set('n', 'gla', lsp.buf.code_action, { desc = 'Lsp code action' })
+  end,
   root_dir = lspconfig.util.find_git_ancestor,
   should_attach = function(bufnr)
     local ft = vim.bo[bufnr].filetype
@@ -383,6 +386,9 @@ null_ls.setup({ -- {{{3
         signs = false,
       },
       method = null_ls.methods.DIAGNOSTICS_ON_SAVE,
+    }),
+    null_ls.builtins.code_actions.textlint.with({
+      extra_args = { '--no-color', '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
     }),
   },
 }) -- }}}1

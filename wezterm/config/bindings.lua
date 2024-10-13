@@ -15,6 +15,7 @@ return {
   -- leader = { key = 'phys:Space', mods = S_C, timeout_milliseconds = 2000 },
   keys = {
     { key = 'F10', mods = NONE, action = act.EmitEvent('user_toggle_debug_mode') },
+    { key = 'F10', mods = S, action = act.EmitEvent('user_toggle_screen_mode') },
     { key = 'F11', mods = NONE, action = act.ShowDebugOverlay },
     { key = 'Tab', mods = S_C, action = act.ActivateTabRelative(1) },
     -- { key = 'Tab', mods = S_C, action = act.ActivateTabRelative(-1) },

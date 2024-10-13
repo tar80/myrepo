@@ -59,6 +59,7 @@ return {
   },
 
   skip_close_confirmation_for_processes_named = {
+    'bash.exe',
     'cmd.exe',
     'nvim.exe',
     'nyagos.exe',

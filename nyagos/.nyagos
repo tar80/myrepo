@@ -21,7 +21,7 @@ local package_version = function()
   local ok, path = detect_marker(nyagos.getwd(), 'package.json')
 
   if ok then
-    local version = nyagos.eval(string.format('cat package.json| jq -r ".version"', path))
+    local version = nyagos.eval(string.format('cat %s\\package.json| jq -r ".version"', path))
 
     if version ~= 'null' then
       return string.format('$E[49;34mv%s ', version)
@@ -83,7 +83,7 @@ do
     local ok, path, branch = branch_info()
     local title = 'NYAGOS - ' .. nyagos.getwd()
     local date = os.date('%H:%M:%S')
-    local statusline = '$E[49;36m %s %s%s$E[92m%s$_$E[0m'
+    local statusline = '$E[49;36;0m %s %s%s$E[92m%s$_$E[0m'
     local nonrepo = '$E[49;49m'
     local repo = '$E[49;90m$E[100;93m  %s +%s ~%s !%s$E[49;90m '
     local stats = ok and string.format(repo, branch.name, branch.s, branch.u, branch.c) or nonrepo

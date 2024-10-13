@@ -47,6 +47,28 @@ wezterm.on('user_toggle_debug_mode', function(win, pane)
 end)
 
 ---@desc Confirm only the last pane and exit
+wezterm.on('user_toggle_screen_mode', function(win, pane)
+  local workspace = mux.get_active_workspace()
+  local overrides = win:get_config_overrides() or {}
+  if workspace == 'screen' then
+    mux.rename_workspace(workspace, 'default')
+    overrides.color_scheme = nil
+    overrides.window_background_gradient = nil
+  else
+    mux.rename_workspace(workspace, 'screen')
+    overrides.color_scheme = 'Catppuccin Latte'
+    overrides.window_background_gradient = {
+      orientation = 'Vertical',
+      colors = { '#FFFFFF', '#FFEEEE', '#FFFFFF' },
+      interpolation = 'Linear',
+      blend = 'Rgb',
+      noise = 0,
+    }
+  end
+  win:set_config_overrides(overrides)
+end)
+
+---@desc Confirm only the last pane and exit
 wezterm.on('user_close', function(win, pane)
   local panes = pane:tab():panes()
   local has_confirm = #panes == 1
@@ -73,9 +95,21 @@ end)
 --   wezterm.log_info(domain)
 -- end)
 
--- wezterm.on('user-var-changed', function(win, pane, name, value)
---   wezterm.log_info('var', name, value)
--- end)
+wezterm.on('user-var-changed', function(win, pane, name, value)
+  if name == 'focus' then
+    local window = win:mux_window()
+    for _, item in ipairs(window:tabs_with_info()) do
+      if item.tab:get_title():find(value) then
+        item.tab:activate()
+        if value ~= 'PPB' then
+          win:focus()
+        end
+      end
+    end
+    return
+  end
+  wezterm.log_info('var1', name, value)
+end)
 
 local function tab_title(tab_info)
   local title = tab_info.tab_title
