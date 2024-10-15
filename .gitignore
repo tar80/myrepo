@@ -14,7 +14,6 @@ everything/everything.db
 package-lock.json
 index.js
 cryptrclone.js
-minimal.lua
 quickmarks
 private.lua
 *.png
