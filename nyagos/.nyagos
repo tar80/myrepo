@@ -1,4 +1,10 @@
-local hint_msg = function(msg)
+---@desc constants
+local THEME_NAME = 'Catppuccin Macchiato'
+local REPO_ROOT = 'C:/bin/repository'
+local MY_REPO = string.format('%s/tar80', REPO_ROOT)
+local SCOOP_ROOT = nyagos.env.scoop:gsub('\\', '/')
+
+local notify = function(msg)
   return string.format('\027[49;33m %s\027[49;49m', msg)
 end
 
@@ -83,20 +89,14 @@ do
     local ok, path, branch = branch_info()
     local title = 'NYAGOS - ' .. nyagos.getwd()
     local date = os.date('%H:%M:%S')
-    local statusline = '$E[49;36;0m %s %s%s$E[92m%s$_$E[0m'
+    local statusline = '$E[0m$E[49;36m %s %s$E[92m%s$_$E[0m'
     local nonrepo = '$E[49;49m'
     local repo = '$E[49;90m$E[100;93m  %s +%s ~%s !%s$E[49;90m '
     local stats = ok and string.format(repo, branch.name, branch.s, branch.u, branch.c) or nonrepo
 
-    return prompt(string.format(statusline, adjust_wd(path), package_version(), stats, date), title)
+    return prompt(string.format(statusline, adjust_wd(path), stats, date), title)
   end
 end
-
----@desc constants
-local THEME_NAME = 'Catppuccin Macchiato'
-local REPO_ROOT = 'C:/bin/repository'
-local MY_REPO = string.format('%s/tar80', REPO_ROOT)
-local SCOOP_ROOT = nyagos.env.scoop:gsub('\\', '/')
 
 local scoop_app = function(name)
   return string.format('%s/apps/%s/current/%s.exe', SCOOP_ROOT, name, name)
@@ -107,8 +107,9 @@ local BAT = scoop_app('bat')
 local DELTA = scoop_app('delta')
 
 ---@desc options
+nyagos.option.completion_slash = true
+nyagos.option.predict = true
 nyagos.histsize = 200
-nyagos.completion_slash = true
 nyagos.completion_hook = function(c)
   for index, item in ipairs(c.list) do
     c.shownlist[index] = string.format('\027[49;39m%s\027[49;93m%s', c.word, item:sub(string.len(c.word) + 1))
@@ -263,13 +264,13 @@ nyagos.alias.ns = function()
     local stdout = nyagos.eval(cmd)
     return stdout ~= '' and nyagos.exec(string.format('npm run %s', stdout:sub(1, stdout:find('%s'))))
   else
-    print(hint_msg('Not exist package.json'))
+    print(notify('Not exist package.json'))
   end
 end
 
 nyagos.alias.nsp = function(arg)
   if not arg[1] then
-    print(hint_msg('Argument required'))
+    print(notify('Argument required'))
   else
     nyagos.exec(string.format('npm run packadd -name=%s', arg[1]))
   end
@@ -307,6 +308,8 @@ end)
 --     export="GOREADLINESKK",
 -- }
 
+require('sq2dq')
 require('git')
+require('subcomplete')
 
 -- vim: set ft=lua:

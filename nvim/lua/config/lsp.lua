@@ -350,8 +350,10 @@ local null_ls = require('null-ls')
 local attach_filetypes = { 'text', 'markdown' }
 null_ls.setup({ -- {{{3
   debounce = 500,
-  on_attach = function()
-    keymap.set('n', 'gla', lsp.buf.code_action, { desc = 'Lsp code action' })
+  on_attach = function(client, bufnr)
+    keymap.set('n', 'gla', function()
+      lsp.buf.code_action({ apply = true, bufnr = bufnr })
+    end, { desc = 'Lsp code action' })
   end,
   root_dir = lspconfig.util.find_git_ancestor,
   should_attach = function(bufnr)

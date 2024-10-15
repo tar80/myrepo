@@ -98,6 +98,13 @@ require('lazy').setup(
             checked = { icon = '󰱒 ', highlight = '@markup.list.unchecked' },
             custom = { todo = { raw = '[-]', rendered = '󰥔 ', highlight = '@markup.raw' } },
           },
+          on = {
+            attach = function()
+              if api.nvim_buf_get_name(0):find('futago://chat', 1, true) then
+                require('render-markdown').disable()
+              end
+            end,
+          },
         })
       end,
       ft = 'markdown',
@@ -757,13 +764,6 @@ require('lazy').setup(
             end,
             mode = { 'x' },
             desc = 'Range format buffer',
-          },
-          {
-            'glf',
-            function()
-              vim.notify('It was changed to "gq"', vim.log.levels.WARN)
-            end,
-            mode = { 'n' },
           },
         },
         opts = {
