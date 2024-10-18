@@ -16,6 +16,7 @@ gitbashはgitコマンドの補完とステータス類の取得関数を読み�
 everything/
 
 - `%scoop%/persist/everything`にsymlink
+- .gitignoreでeverything.dbを除外
 
 images/
 

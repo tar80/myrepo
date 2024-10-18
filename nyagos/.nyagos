@@ -5,7 +5,7 @@ local MY_REPO = string.format('%s/tar80', REPO_ROOT)
 local SCOOP_ROOT = nyagos.env.scoop:gsub('\\', '/')
 
 local notify = function(msg)
-  return string.format('\027[49;33m %s\027[49;49m', msg)
+  print(string.format('\027[49;33m %s\027[49;49m', msg))
 end
 
 local detect_marker = function(path, marker)
@@ -159,9 +159,6 @@ setmetatable(fzf, {
     bat = function(self)
       return string.format('%s --preview="%s "{}""', self.cmd, bat_cmdline)
     end,
-    readme = function(self)
-      return string.format('%s --preview="%s "{}""', self.cmd, bat_cmdline)
-    end,
   },
 })
 
@@ -205,7 +202,7 @@ nyagos.alias.z = function(arg)
 end
 
 nyagos.alias.bb = function()
-  local path = nyagos.eval(string.format('fd -Ht f -c never -E .git -E node_modules|%s', fzf:bat()))
+  local path = nyagos.eval(string.format('fd -IHt f -c never -E .git -E node_modules|%s', fzf:bat()))
   if path ~= '' then
     nyagos.exec(string.format('%s --style=numbers,changes --theme="%s" "%s"', BAT, THEME_NAME, path))
   end
@@ -218,8 +215,18 @@ nyagos.alias.cc = function()
   end
 end
 
-nyagos.alias.cr = function()
-  local path = nyagos.eval(string.format('fd -Lt d -c never --full-path . %s|%s', REPO_ROOT, fzf.cmd))
+nyagos.alias.ppm = function()
+  local repo = string.format('%s/ppmdev', REPO_ROOT)
+  local path = nyagos.eval(string.format('fd -ILt d -c never -E node_modules -E .git --full-path . %s|%s', repo, fzf.cmd))
+  if path ~= '' then
+    nyagos.exec(string.format('cd %s', path))
+    nyagos.exec(string.format('zoxide add %s', path))
+  end
+end
+
+nyagos.alias.tar = function()
+  local repo = string.format('%s/tar80', REPO_ROOT)
+  local path = nyagos.eval(string.format('fd -Lt d -c never -E node_modules -E .git --full-path . %s|%s', repo, fzf.cmd))
   if path ~= '' then
     nyagos.exec(string.format('cd %s', path))
     nyagos.exec(string.format('zoxide add %s', path))
@@ -241,9 +248,13 @@ nyagos.alias.gd = function()
 end
 
 nyagos.alias.g = function(arg)
-  local result = nyagos.eval(string.format('git log --oneline -G "%s"|%s', arg[1], fzf:gitgrep(arg[1])))
-  local hash = string.match(result, '^%S+')
-  return hash and nyagos.exec(string.format('git diff %s|%s -s', hash, DELTA))
+  if not arg[1] then
+    notify('Search string required')
+  else
+    local result = nyagos.eval(string.format('git log --oneline -G "%s"|%s', arg[1], fzf:gitgrep(arg[1])))
+    local hash = string.match(result, '^%S+')
+    return hash and nyagos.exec(string.format('git diff %s|%s -s', hash, DELTA))
+  end
 end
 
 nyagos.alias.gl = function()
@@ -264,13 +275,13 @@ nyagos.alias.ns = function()
     local stdout = nyagos.eval(cmd)
     return stdout ~= '' and nyagos.exec(string.format('npm run %s', stdout:sub(1, stdout:find('%s'))))
   else
-    print(notify('Not exist package.json'))
+    notify('Not exist package.json')
   end
 end
 
 nyagos.alias.nsp = function(arg)
   if not arg[1] then
-    print(notify('Argument required'))
+    notify('Argument required')
   else
     nyagos.exec(string.format('npm run packadd -name=%s', arg[1]))
   end

@@ -50,6 +50,5 @@
 	plus-emph-style = syntax bold "#366c3c"
 	plus-style = syntax "#2b4930"
 	whitespace-error-style = gray reverse
-	selected = manager-core
 [credential "helperselector"]
 	selected = manager-core
