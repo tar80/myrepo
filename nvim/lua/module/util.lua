@@ -25,12 +25,19 @@ M.normalize = function(path)
   return vim.fs.normalize(path)
 end
 
+M.scoop_apps = function(path)
+  return string.format('%s/%s', os.getenv('SCOOP'), path)
+end
+
+M.mason_apps = function(path)
+  return string.format('%s/mason/packages/%s', vim.fn.stdpath('data'), path)
+end
+
 M.shell = function(name) -- {{{2
-  local scoop = os.getenv('scoop'):gsub('\\', '/')
   local obj = {
     cmd = { path = 'cmd.exe', flag = '/c', pipe = '>%s 2>&1', quote = '', xquote = '"', slash = false },
     nyagos = {
-      path = scoop .. '/apps/nyagos/current/nyagos.exe',
+      path = M.scoop_apps('/apps/nyagos/current/nyagos.exe'),
       flag = '-c',
       pipe = '|& tee',
       quote = '',
@@ -38,7 +45,7 @@ M.shell = function(name) -- {{{2
       slash = true,
     },
     bash = {
-      path = scoop .. '/apps/git/current/bin/bash.exe',
+      path = M.scoop_apps('/apps/git/current/bin/bash.exe'),
       flag = '-c',
       pipe = '2>1| tee',
       quote = '"',

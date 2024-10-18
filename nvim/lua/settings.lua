@@ -201,14 +201,42 @@ api.nvim_create_autocmd('TextYankPost', {
     vim.highlight.on_yank({ higroup = 'PmenuSel', on_visual = false, timeout = 150, prioritiy = 200 })
   end,
 })
----Supports changing options that affect Simple_fold() {{{2
+---Supports changing options {{{2
+-- api.nvim_create_autocmd('OptionSet', {
+--   desc = 'Reset Simple_fold()',
+--   group = augroup,
+--   pattern = 'foldmarker',
+--   callback = function(opts)
+--     if opts.match == 'foldmarker' then
+--       foldmarker = vim.split(api.nvim_get_option_value('foldmarker', { win = 0 }), ',')
+--     end
+--   end,
+-- })
+---Supports changing options that affect diff {{{2
 api.nvim_create_autocmd('OptionSet', {
-  desc = 'Reset Simple_fold()',
+  desc = 'Set settings',
   group = augroup,
-  pattern = 'foldmarker',
+  pattern = { 'diff', 'foldmarker' },
   callback = function(opts)
     if opts.match == 'foldmarker' then
       foldmarker = vim.split(api.nvim_get_option_value('foldmarker', { win = 0 }), ',')
+    elseif opts.match == 'diff' then
+      if vim.o.diff then
+        keymap.set('x', 'do', ':diffget<CR>', { buffer = opts.buf, desc = 'Get selection diff' })
+        keymap.set('x', 'dp', ':diffput<CR>', { buffer = opts.buf, desc = 'Put selection diff' })
+        keymap.set('x', 'dd', 'd', { buffer = opts.buf, desc = 'Delete selection range' })
+        keymap.set(
+          { 'n', 'x' },
+          'du',
+          '<Cmd>diffupdate<CR>',
+          { buffer = opts.buf, desc = 'Update diff comparison status' }
+        )
+      elseif vim.fn.mapcheck('dd', 'x') ~= '' then
+        keymap.del('x', 'do', { buffer = opts.buf })
+        keymap.del('x', 'dp', { buffer = opts.buf })
+        keymap.del('x', 'dd', { buffer = opts.buf })
+        keymap.del({ 'x', 'n' }, 'du', { buffer = opts.buf })
+      end
     end
   end,
 })
@@ -331,8 +359,8 @@ abbrev.tbl = {
     ['return'] = { 'reutnr', 'reutrn', 'retrun' },
   },
   ca = {
-    bt = { [[T npm run build <C-r>=expand(\"%\:\.\")<CR>]] },
-    bp = { [[!npm run build:prod]] },
+    bt = { [[T deno task build <C-r>=expand(\"%\:\.\")<CR>]] },
+    bp = { [[!deno task build:prod]] },
     ms = { 'MugShow', true },
     es = { 'e<Space>++enc=cp932 ++ff=dos<CR>' },
     e8 = { 'e<Space>++enc=utf-8<CR>' },
@@ -342,8 +370,8 @@ abbrev.tbl = {
     del = { [[call<Space>delete(expand('%'))]] },
     cs = { [[execute<Space>'50vsplit'g:repo.'/myrepo/nvim/.cheatsheet'<CR>]] },
     dd = { 'diffthis<Bar>wincmd<Space>p<Bar>diffthis<Bar>wincmd<Space>p<CR>' },
-    du = { 'diffupdate', true },
-    dof = { 'syntax<Space>enable<Bar>diffoff<CR>' },
+    -- du = { 'diffupdate', true },
+    dof = { 'syntax<Space>enable<Bar>diffoff!<CR>' },
     dor = {
       'vert<Space>bel<Space>new<Space>difforg<Bar>set<Space>bt=nofile<Bar>r<Space>++edit<Space>#<Bar>0d_<Bar>windo<Space>diffthis<Bar>wincmd<Space>p<CR>',
     },
@@ -355,8 +383,8 @@ abbrev.tbl = {
   va = {
     s = { { '%s//<lt>Left>', 's//<lt>Left>' }, true },
     ss = { { '%s///<lt>Left>', 's///<lt>Left>' }, true },
-    dp = { { 'dp', 'diffput' }, true },
-    dg = { { 'dg', 'diffget' }, true },
+    -- dp = { { 'dp', 'diffput' }, true },
+    -- dg = { { 'dg', 'diffget' }, true },
   },
 }
 

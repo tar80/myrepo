@@ -46,7 +46,7 @@ vim.diagnostic.config({ -- {{{2
 ---@desc Functions {{{1
 local function has_client() -- {{{2
   if #lsp.get_clients({ bufnr = 0 }) == 0 then
-    vim.notify('Language server is not attached this buffer', vim.log.levels.WARN)
+    vim.notify_once('Language server is not attached this buffer', vim.log.levels.WARN)
     return false
   end
   return true
@@ -90,18 +90,20 @@ end
 
 local augroup = api.nvim_create_augroup('rcLsp', {})
 
+local au_id = {}
 local function _on_attach(client, bufnr) --- {{{2
-  -- api.nvim_set_option_value('omnifunc', 'v:lua.vim.lsp.omnifunc', { buf = bufnr })
   ---@desc Under cursor Symbol highlight -- {{{
-  api.nvim_create_autocmd({ 'CursorHold' }, {
+  au_id.hold = api.nvim_create_autocmd({ 'CursorHold' }, {
     desc = 'Set document highlighting',
     group = augroup,
     buffer = 0,
     callback = function()
-      lsp.buf.document_highlight()
+      if has_client() then
+        lsp.buf.document_highlight()
+      end
     end,
   })
-  api.nvim_create_autocmd({ 'CursorMoved' }, {
+  au_id.moved = api.nvim_create_autocmd({ 'CursorMoved' }, {
     desc = 'Clear references highlighting',
     group = augroup,
     buffer = 0,
@@ -193,158 +195,159 @@ local function _on_attach(client, bufnr) --- {{{2
   ---}}}3
 end
 
----@desc Mason {{{2
-require('mason').setup({
-  ui = {
-    border = BORDER,
-    icons = {
-      package_installed = '🟢',
-      package_pending = '🟠',
-      package_uninstalled = '🔘',
-    },
-    keymaps = { apply_language_filter = '<NOP>' },
-  },
-  -- install_root_dir = path.concat { vim.fn.stdpath "data", "mason" },
-  pip = { install_args = {} },
-  -- log_level = vim.log.levels.INFO,
-  -- max_concurrent_installers = 4,
-  github = {},
-})
-
----@desc Mason-lspconfig {{{2
+local function _on_detach() -- {{{2
+  vim.schedule(function()
+    api.nvim_del_autocmd(au_id.hold)
+    api.nvim_del_autocmd(au_id.moved)
+    keymap.del('n', 'gla')
+    keymap.del('n', 'gld')
+    keymap.del('n', 'glh')
+    keymap.del('n', 'gli')
+    keymap.del('n', 'gll')
+    keymap.del('n', 'glr')
+    keymap.del('n', 'glv')
+    keymap.del('n', 'gle')
+    keymap.del('n', 'glk')
+    keymap.del('n', 'gd')
+  end)
+end -- }}}
+---@desc lspconfig {{{2
 local flags = {
   allow_incremental_sync = false,
   debounce_text_changes = 500,
 }
 local lspconfig = require('lspconfig')
 require('lspconfig.ui.windows').default_options.border = 'rounded'
-require('mason-lspconfig').setup_handlers({
-  function(server_name) -- {{{
-    lspconfig[server_name].setup({
-      flags = flags,
-      on_attach = _on_attach,
-      capabilities = capabilities,
-    })
-  end, -- }}}
-  ['biome'] = function() -- {{{
-    local set = false
-    lspconfig.biome.setup({
-      flags = flags,
-      autostart = true,
-      single_file_support = false,
-      root_dir = lspconfig.util.root_pattern('biome.json', 'biome.jsonc'),
-      filetypes = { 'typescript', 'javascript', 'json', 'jsonc', 'css' },
-      on_attach = function()
-        if set then
-          return
-        end
-        set = true
-        api.nvim_create_autocmd('VimLeavePre', {
-          desc = 'Stop lsp-proxy',
-          group = augroup,
-          callback = function()
-            -- vim.notify('Stop biome lsp-proxy', vim.log.levels.WARN)
-            vim.cmd(string.format('!%s/bin/biome.CMD stop', vim.env.MASON))
-          end,
-        })
-      end,
-      -- capabilities = capabilities,
-    })
-  end, -- }}}
-  ['ts_ls'] = function() -- {{{
-    local inlayHints = {
-      includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all';
-      includeInlayParameterNameHintsWhenArgumentMatchesName = true,
-      includeInlayEnumMemberValueHints = true,
-      includeInlayFunctionLikeReturnTypeHints = true,
-      includeInlayFunctionParameterTypeHints = true,
-      includeInlayPropertyDeclarationTypeHints = true,
-      includeInlayVariableTypeHints = false,
-      includeInlayVariableTypeHintsWhenTypeMatchesName = true,
-    }
-    lspconfig.ts_ls.setup({
-      flags = flags,
-      autostart = true,
-      single_file_support = false,
-      root_dir = lspconfig.util.root_pattern('.git', 'tsconfig.json'),
-      filetypes = { 'typescript', 'javascript' },
-      on_attach = _on_attach,
-      capabilities = capabilities,
-      disable_formatting = true,
-      settings = {
-        javascript = {
-          inlayHints = inlayHints,
-        },
-        typescript = {
-          inlayHints = inlayHints,
-        },
-      },
-    })
-  end, -- }}}
-  -- ['denols'] = function() -- {{{
-  --   lspconfig.denols.setup({
-  --     flags = flags,
-  --     root_dir = lspconfig.util.root_pattern('.git', 'tsconfig.json', 'deno.json', 'deno.jsonc'),
-  --     autostart = false,
-  --     filetypes = { 'javascript' },
-  --     on_attach = _on_attach,
-  --     capabilities = capabilities,
-  --     settings = {
-  --       deno = {
-  --         -- inlayHints = {
-  --         --   parameterNames = { enabled = 'all' },
-  --         --   parameterTypes = { enabled = true },
-  --         --   variableTypes = { enabled = false },
-  --         --   propertyDeclarationTypes = { enabled = true },
-  --         --   functionLikeReturnTypes = { enabled = true },
-  --         --   enumMemberValues = { enabled = true },
-  --         -- },
-  --       },
-  --     },
+lspconfig.biome.setup({ -- {{{3
+  cmd = { util.scoop_apps('apps/biome/current/biome.exe'), 'lsp-proxy' },
+  autostart = true,
+  flags = flags,
+  single_file_support = false,
+  root_dir = lspconfig.util.root_pattern('biome.json', 'biome.jsonc'),
+  filetypes = { 'typescript', 'javascript', 'json', 'jsonc', 'css' },
+  -- on_attach = function()
+  --   local id
+  --   id = api.nvim_create_autocmd('User', {
+  --     desc = 'Stop lsp-proxy',
+  --     group = augroup,
+  --     pattern = 'LspStop',
+  --     callback = function()
+  --       -- vim.notify('Stop biome lsp-proxy', vim.log.levels.WARN)
+  --       vim.cmd(string.format('!%s/bin/biome.CMD stop', vim.env.MASON))
+  --       api.nvim_del_autocmd(id)
+  --     end,
   --   })
-  -- end, -- }}}
-  ['lua_ls'] = function() -- {{{
-    lspconfig.lua_ls.setup({
-      flags = flags,
-      single_file_support = false,
-      root_dir = lspconfig.util.root_pattern('.git', 'luarc.json'),
-      on_attach = _on_attach,
-      capabilities = capabilities,
-      settings = {
-        Lua = {
-          completion = {
-            enable = true,
-            callSnippet = 'both',
-            showWord = 'Disable',
-          },
-          runtime = {
-            version = 'LuaJIT',
-            pathStrict = true,
-            path = { '?.lua', '?/init.lua' },
-          },
-          diagnostics = {
-            globals = { 'vim', 'nyagos' },
-          },
-          hint = {
-            enable = true,
-            setType = false,
-            arrayIndex = 'Disable',
-          },
-          workspace = {
-            checkThirdParty = 'Disable',
-            library = {
-              '$VIMRUNTIME/lua/vim',
-              '${3rd}/luv/library',
-              '${3rd}/busted/library',
-              '${3rd}/luassert/library',
-            },
-          },
+  -- end,
+}) -- }}}
+lspconfig.denols.setup({ -- {{{3
+  cmd = { util.scoop_apps('apps/deno/current/deno.exe'), 'lsp' },
+  flags = flags,
+  autostart = true,
+  root_dir = lspconfig.util.root_pattern('.git', 'tsconfig.json', 'deno.json', 'deno.jsonc'),
+  filetypes = { 'typescript', 'javascript' },
+  on_attach = _on_attach,
+  on_exit = _on_detach,
+  capabilities = capabilities,
+  disable_formatting = true,
+  settings = {
+    deno = {
+      inlayHints = {
+        parameterNames = { enabled = 'all' },
+        parameterTypes = { enabled = true },
+        variableTypes = { enabled = false },
+        propertyDeclarationTypes = { enabled = true },
+        functionLikeReturnTypes = { enabled = true },
+        enumMemberValues = { enabled = true },
+      },
+    },
+  },
+}) -- }}}
+lspconfig.lua_ls.setup({ -- {{{3
+  cmd = { util.scoop_apps('apps/lua-language-server/current/bin/lua-language-server.exe') },
+  flags = flags,
+  single_file_support = false,
+  root_dir = lspconfig.util.root_pattern('.git', 'luarc.json'),
+  on_attach = _on_attach,
+  capabilities = capabilities,
+  settings = {
+    Lua = {
+      completion = {
+        enable = true,
+        callSnippet = 'both',
+        showWord = 'Disable',
+      },
+      runtime = {
+        version = 'LuaJIT',
+        pathStrict = true,
+        path = { '?.lua', '?/init.lua' },
+      },
+      diagnostics = {
+        globals = { 'vim', 'nyagos' },
+      },
+      hint = {
+        enable = true,
+        setType = false,
+        arrayIndex = 'Disable',
+      },
+      workspace = {
+        checkThirdParty = 'Disable',
+        library = {
+          '$VIMRUNTIME/lua/vim',
+          '${3rd}/luv/library',
+          '${3rd}/busted/library',
+          '${3rd}/luassert/library',
         },
       },
-    })
-  end, -- }}}
-})
-
+    },
+  },
+}) -- }}}
+lspconfig.vimls.setup({ -- {{{3
+  cmd = {
+    util.mason_apps('vim-language-server/node_modules/.bin/vim-language-server.cmd'),
+    '--stdio',
+  },
+  flags = flags,
+  on_attach = _on_attach,
+  on_exit = _on_detach,
+  capabilities = capabilities,
+}) -- }}}
+-- local inlayHints = {-- ts_ls {{{3
+--   includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all';
+--   includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+--   includeInlayEnumMemberValueHints = true,
+--   includeInlayFunctionLikeReturnTypeHints = true,
+--   includeInlayFunctionParameterTypeHints = true,
+--   includeInlayPropertyDeclarationTypeHints = true,
+--   includeInlayVariableTypeHints = false,
+--   includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+-- }
+-- lspconfig.ts_ls.setup({
+--   cmd = {
+--     string.format(
+--       '%s/mason/packages/typescript-language-server/node_modules/.bin/typescript-language-server.cmd',
+--       vim.fn.stdpath('data')
+--     ),
+--     '--stdio',
+--   },
+--   init_options = { hostInfo = 'neovim' },
+--   flags = flags,
+--   autostart = true,
+--   single_file_support = false,
+--   root_dir = lspconfig.util.root_pattern('.git', 'tsconfig.json'),
+--   filetypes = { 'typescript', 'javascript' },
+--   on_attach = _on_attach,
+--   on_exit = _on_detach,
+--   capabilities = capabilities,
+--   disable_formatting = true,
+--   settings = {
+--     javascript = {
+--       inlayHints = inlayHints,
+--     },
+--     typescript = {
+--       inlayHints = inlayHints,
+--     },
+--   },
+-- })-- }}}
 ---@desc None_ls {{{2
 local null_ls = require('null-ls')
 local attach_filetypes = { 'text', 'markdown' }
@@ -393,6 +396,24 @@ null_ls.setup({ -- {{{3
       extra_args = { '--no-color', '--config', vim.fn.expand(vim.g.repo .. '/myrepo/.textlintrc.json') },
     }),
   },
-}) -- }}}1
+}) -- }}}2
+
+---@desc Mason {{{2
+require('mason').setup({
+  ui = {
+    border = BORDER,
+    icons = {
+      package_installed = '🟢',
+      package_pending = '🟠',
+      package_uninstalled = '🔘',
+    },
+    keymaps = { apply_language_filter = '<NOP>' },
+  },
+  -- install_root_dir = path.concat { vim.fn.stdpath "data", "mason" },
+  pip = { install_args = {} },
+  -- log_level = vim.log.levels.INFO,
+  -- max_concurrent_installers = 4,
+  github = {},
+}) --}}}2
 
 vim.cmd.LspStart()

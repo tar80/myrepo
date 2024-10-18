@@ -188,7 +188,7 @@ require('lazy').setup(
           end, { desc = 'Stage the hunk' })
           map({ 'n', 'x' }, 'gsr', gs.undo_stage_hunk, { desc = 'Undo the hunk' })
           map('n', 'gsR', gs.reset_buffer, { desc = 'Reset the buffer' })
-          map('n', 'gsp', gs.preview_hunk, { desc = 'Preview the hunk' })
+          map('n', 'gsp', gs.preview_hunk_inline, { desc = 'Preview the hunk' })
           map('n', 'gsb', function()
             gs.blame_line({ full = true })
           end, { desc = 'Blame line' })
@@ -213,6 +213,7 @@ require('lazy').setup(
         end, {})
       end, -- }}}
       opts = {
+        auto_attach = false,
         update_debounce = vim.g.update_time,
         word_diff = true,
         trouble = true,
@@ -235,7 +236,7 @@ require('lazy').setup(
       event = 'VeryLazy',
       dependencies = {
         { 'williamboman/mason.nvim', priority = 100 },
-        'williamboman/mason-lspconfig.nvim',
+        -- 'williamboman/mason-lspconfig.nvim',
         'nvimtools/none-ls.nvim',
         'hrsh7th/cmp-nvim-lsp',
       },
