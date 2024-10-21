@@ -239,31 +239,65 @@ lspconfig.biome.setup({ -- {{{3
   --   })
   -- end,
 }) -- }}}
-lspconfig.denols.setup({ -- {{{3
-  cmd = { util.scoop_apps('apps/deno/current/deno.exe'), 'lsp' },
+local inlayHints = {-- ts_ls {{{3
+  includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all';
+  includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+  includeInlayEnumMemberValueHints = true,
+  includeInlayFunctionLikeReturnTypeHints = true,
+  includeInlayFunctionParameterTypeHints = true,
+  includeInlayPropertyDeclarationTypeHints = true,
+  includeInlayVariableTypeHints = false,
+  includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+}
+lspconfig.ts_ls.setup({
+  cmd = {
+    util.mason_apps('typescript-language-server/node_modules/.bin/typescript-language-server.cmd'),
+    '--stdio',
+  },
+  init_options = { hostInfo = 'neovim' },
   flags = flags,
   autostart = true,
-  root_dir = lspconfig.util.root_pattern('.git', 'tsconfig.json', 'deno.json', 'deno.jsonc'),
+  single_file_support = false,
+  root_dir = lspconfig.util.root_pattern('.git', 'tsconfig.json'),
   filetypes = { 'typescript', 'javascript' },
   on_attach = _on_attach,
   on_exit = _on_detach,
   capabilities = capabilities,
   disable_formatting = true,
   settings = {
-    deno = {
-      inlayHints = {
-        parameterNames = { enabled = 'all' },
-        parameterTypes = { enabled = true },
-        variableTypes = { enabled = false },
-        propertyDeclarationTypes = { enabled = true },
-        functionLikeReturnTypes = { enabled = true },
-        enumMemberValues = { enabled = true },
-      },
+    javascript = {
+      inlayHints = inlayHints,
+    },
+    typescript = {
+      inlayHints = inlayHints,
     },
   },
-}) -- }}}
+})-- }}}
+-- lspconfig.denols.setup({ -- {{{3
+--   cmd = { util.scoop_apps('apps/deno/current/deno.exe'), 'lsp' },
+--   flags = flags,
+--   autostart = true,
+--   root_dir = lspconfig.util.root_pattern('.git', 'tsconfig.json', 'deno.json', 'deno.jsonc'),
+--   filetypes = { 'typescript', 'javascript' },
+--   on_attach = _on_attach,
+--   on_exit = _on_detach,
+--   capabilities = capabilities,
+--   disable_formatting = true,
+--   settings = {
+--     deno = {
+--       inlayHints = {
+--         parameterNames = { enabled = 'all' },
+--         parameterTypes = { enabled = true },
+--         variableTypes = { enabled = false },
+--         propertyDeclarationTypes = { enabled = true },
+--         functionLikeReturnTypes = { enabled = true },
+--         enumMemberValues = { enabled = true },
+--       },
+--     },
+--   },
+-- }) -- }}}
 lspconfig.lua_ls.setup({ -- {{{3
-  cmd = { util.scoop_apps('apps/lua-language-server/current/bin/lua-language-server.exe') },
+  cmd = { util.mason_apps('lua-language-server/bin/lua-language-server.exe') },
   flags = flags,
   single_file_support = false,
   root_dir = lspconfig.util.root_pattern('.git', 'luarc.json'),
@@ -311,43 +345,6 @@ lspconfig.vimls.setup({ -- {{{3
   on_exit = _on_detach,
   capabilities = capabilities,
 }) -- }}}
--- local inlayHints = {-- ts_ls {{{3
---   includeInlayParameterNameHints = 'all', -- 'none' | 'literals' | 'all';
---   includeInlayParameterNameHintsWhenArgumentMatchesName = true,
---   includeInlayEnumMemberValueHints = true,
---   includeInlayFunctionLikeReturnTypeHints = true,
---   includeInlayFunctionParameterTypeHints = true,
---   includeInlayPropertyDeclarationTypeHints = true,
---   includeInlayVariableTypeHints = false,
---   includeInlayVariableTypeHintsWhenTypeMatchesName = true,
--- }
--- lspconfig.ts_ls.setup({
---   cmd = {
---     string.format(
---       '%s/mason/packages/typescript-language-server/node_modules/.bin/typescript-language-server.cmd',
---       vim.fn.stdpath('data')
---     ),
---     '--stdio',
---   },
---   init_options = { hostInfo = 'neovim' },
---   flags = flags,
---   autostart = true,
---   single_file_support = false,
---   root_dir = lspconfig.util.root_pattern('.git', 'tsconfig.json'),
---   filetypes = { 'typescript', 'javascript' },
---   on_attach = _on_attach,
---   on_exit = _on_detach,
---   capabilities = capabilities,
---   disable_formatting = true,
---   settings = {
---     javascript = {
---       inlayHints = inlayHints,
---     },
---     typescript = {
---       inlayHints = inlayHints,
---     },
---   },
--- })-- }}}
 ---@desc None_ls {{{2
 local null_ls = require('null-ls')
 local attach_filetypes = { 'text', 'markdown' }

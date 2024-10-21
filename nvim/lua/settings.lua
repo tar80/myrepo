@@ -360,7 +360,7 @@ abbrev.tbl = {
   },
   ca = {
     bt = { [[T deno task build <C-r>=expand(\"%\:\.\")<CR>]] },
-    bp = { [[!deno task build:prod]] },
+    bp = { [[!npm run build:prod]] },
     ms = { 'MugShow', true },
     es = { 'e<Space>++enc=cp932 ++ff=dos<CR>' },
     e8 = { 'e<Space>++enc=utf-8<CR>' },

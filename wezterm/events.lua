@@ -96,12 +96,12 @@ end)
 -- end)
 
 wezterm.on('user-var-changed', function(win, pane, name, value)
-  if name == 'focus' then
+  if name == 'focus' or name == 'select' then
     local window = win:mux_window()
     for _, item in ipairs(window:tabs_with_info()) do
       if item.tab:get_title():find(value) then
         item.tab:activate()
-        if value ~= 'PPB' then
+        if name == 'focus' then
           win:focus()
         end
       end
