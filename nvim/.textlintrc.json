@@ -1,0 +1,14 @@
+{
+  "filters": {},
+  "rules": {
+    "preset-japanese": {
+      "sentence-length": false,
+      "no-doubled-joshi": {
+        "allow": ["も", "や", "し", "に"]
+      }
+    },
+    "prh": {
+      "rulePaths": ["./prh.yml"]
+    }
+  }
+}

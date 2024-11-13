@@ -12,6 +12,7 @@ everything/everything.db
 *.lock
 .eslintrc.json
 package-lock.json
+lazy-lock.json
 index.js
 cryptrclone.js
 quickmarks
