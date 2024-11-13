@@ -1,6 +1,0 @@
-printWidth: 80
-singleQuote: false
-quoteProps: "preserve"
-trailingComma: "none"
-bracketSpacing: false
-parser: "markdown"
