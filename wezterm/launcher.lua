@@ -26,11 +26,7 @@ local clients = {
   bash = generate_launcher('bash', { get_scoop_path('usr/bin/bash.exe', 'git') }),
   ppb = generate_launcher(
     'ppb',
-    {
-      string.format('%s/ppbw.exe', os.getenv('PPX_DIR'):gsub('\\', '/')),
-      '-k', '*option', 'common', '%%:', '*option', 'common',
-    }
-  ),
+    { string.format('%s/ppbw.exe', os.getenv('PPX_DIR'):gsub('\\', '/')), '-k', '*option', 'common' }),
 }
 local menu = create_menu(clients)
 

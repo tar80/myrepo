@@ -14,6 +14,9 @@ return {
   use_dead_keys = false,
   -- leader = { key = 'phys:Space', mods = S_C, timeout_milliseconds = 2000 },
   keys = {
+    { key = ',', mods = 'CTRL', action = wezterm.action.SendString('\x1b[44;5u') },
+    { key = '.', mods = 'CTRL', action = wezterm.action.SendString('\x1b[46;5u') },
+    { key = '@', mods = 'CTRL', action = wezterm.action.SendString('\x1b[64;5u') },
     { key = 'F10', mods = NONE, action = act.EmitEvent('user_toggle_debug_mode') },
     { key = 'F10', mods = S, action = act.EmitEvent('user_toggle_screen_mode') },
     { key = 'F11', mods = NONE, action = act.ShowDebugOverlay },

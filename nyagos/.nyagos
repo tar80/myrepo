@@ -177,12 +177,12 @@ end
 nyagos.alias.pca = string.format([[cd %s\pages-pca && bundle exec jekyll s --future]], MY_REPO)
 nyagos.alias.keyp = [[C:\bin\Keypirinha\keypirinha.exe]]
 nyagos.alias.lazyinstall = [[nvim --headless "+silent! Lazy! install" +qa]]
-nyagos.alias.nvim = [[nvim --cmd "let g:start_mode='compact'"]]
+nyagos.alias.nvim = [[nvim --cmd "let g:start_level='general'"]]
 
 nyagos.alias['..'] = 'cd ../'
 nyagos.alias.cp = 'cp -i'
 nyagos.alias.mv = 'mv -i'
-nyagos.alias.rm = 'rm -i'
+-- nyagos.alias.rm = 'rm -i'
 nyagos.alias.zi = function()
   local path = nyagos.eval('zoxide query -i')
   if path ~= '' then

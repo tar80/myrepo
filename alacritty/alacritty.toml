@@ -1,13 +1,10 @@
+[general]
 import = [
   # "C:/bin/HOME/.config/alacritty-theme/themes/catppuccin_macchiato.toml",
   "C:/bin/HOME/.config/alacritty-theme/themes/citylights.toml",
   # "C:/bin/HOME/.config/alacritty-theme/themes/meliora.toml",
 ]
 working_directory = "none"
-
-[shell]
-# program = "C:/bin/Scoop/apps/neovim-nightly/current/bin/nvim.exe --cmd \"let g:start_mode='compact'\""
-program = "C:/bin/Scoop/apps/nyagos/current/nyagos.exe"
 
 [env]
 
@@ -17,7 +14,7 @@ program = "C:/bin/Scoop/apps/nyagos/current/nyagos.exe"
 position = { x = 240, y = 40}
 dynamic_padding = true
 # decorations = "None"
-opacity = 0.9
+opacity = 0.92
 
 [font]
 # normal = { family = "UDEV Gothic", style = "Regular"}
@@ -38,6 +35,8 @@ vi_mode_style = { shape = "Block"}
 thickness = 0.2
 
 [terminal]
+# program = "C:/bin/Scoop/apps/neovim-nightly/current/bin/nvim.exe --cmd \"let g:start_mode='compact'\""
+shell = "C:/bin/Scoop/apps/nyagos/current/nyagos.exe"
 osc52 = "CopyPaste"
 
 [[hints.enabled]]
