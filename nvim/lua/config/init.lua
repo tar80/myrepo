@@ -19,6 +19,13 @@ vim.g.start_level = nil
 if level == 'minimal' then
   util.unload_presets()
   require('config._minimal')
+elseif level == 'test' then
+  util.shell('nyagos')
+  -- require('config.private')
+  -- require('config.option')
+  -- require('config.keymap')
+  -- require('config.command')
+  require('config.lazy_test').setup()
 else
   vim.g.tr_bg = level == 'general'
 

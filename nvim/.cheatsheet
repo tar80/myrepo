@@ -5,6 +5,7 @@ g<Ctrl+g> ファイル情報
 g; 前の履歴
 g, 次の履歴
 ga (:as[cii]) カーソル位置文字情報
+gi 最後にインサートモードに入った位置へ移動
 gw{motion} 行整形
 gx URIを開く
 gl. lsp

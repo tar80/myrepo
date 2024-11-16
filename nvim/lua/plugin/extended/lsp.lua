@@ -49,7 +49,7 @@ end -- }}}
 
 ---Get Lsp server capabilities {{{2
 ---@return lsp.ClientCapabilities
-local function get_capabilities()
+local function cmp_capabilities()
   local ok, mod = pcall(require, 'cmp_nvim_lsp')
   return ok and mod.default_capabilities() or {}
 end -- }}}
@@ -57,7 +57,7 @@ end -- }}}
 ---Renames all references to the symbol under the cursor {{{2
 local function popup_rename()
   local ok, mug_float = pcall(require, 'mug.module.float')
-  if not ok or not has_clients() then
+  if not ok then
     return
   end
   local adjust_cursor = helper.getchr():match('[^%w]')
@@ -90,13 +90,10 @@ local function popup_rename()
 end -- }}}
 
 ---Highlight the symbol under the cursor {{{2
----@param client vim.lsp.Client
+---@param _client vim.lsp.Client
 ---@param bufnr integer
 ---@return Autocmd_id
-local function cursorword(client, bufnr)
-  if not client.supports_method('textDocument/documentHighlight') then
-    return { nil, nil }
-  end
+local function cursorword(_client, bufnr)
   local hold = api.nvim_create_autocmd({ 'CursorHold' }, {
     desc = 'Set document highlighting',
     group = augroup,
@@ -114,15 +111,10 @@ local function cursorword(client, bufnr)
     end,
   })
 
-  return { hold, release }
+  return { hold = hold, release = release }
 end -- }}}
 
 ---@desc Lsp options
-lsp.set_log_level = 'OFF'
-lsp.handlers['textDocument/hover'] = lsp.with(lsp.handlers.hover, { border = FLOAT_BORDER })
-lsp.handlers['textDocument/signatureHelp'] = lsp.with(lsp.handlers.signature_help, { border = FLOAT_BORDER })
--- lsp.handlers['textDocument/hover'] = lsp.buf.hover({ border = FLOAT_BORDER })
--- lsp.handlers['textDocument/signatureHelp'] = lsp.buf.signature_help({ border = FLOAT_BORDER })
 vim.diagnostic.config({ -- {{{2
   virtual_text = false,
   severity_sort = true,
@@ -146,7 +138,7 @@ vim.diagnostic.config({ -- {{{2
 return {
   { -- {{{2 mason
     'williamboman/mason.nvim',
-    event = 'UIEnter',
+    event = 'VeryLazy',
     opts = {
       ui = {
         border = FLOAT_BORDER,
@@ -220,8 +212,11 @@ return {
     event = 'VeryLazy',
     dependencies = { 'hrsh7th/cmp-nvim-lsp' },
     config = function()
-      require('lspconfig.ui.windows').default_options.border = FLOAT_BORDER
-      local capabilities = get_capabilities()
+      local lspconfig = require('lspconfig')
+      -- lspconfig.util.default_config = vim.tbl_extend('force', lspconfig.util.default_config, {
+      --   set_log_level = 'OFF',
+      -- })
+      local capabilities = cmp_capabilities()
       local flags = {
         allow_incremental_sync = false,
         debounce_text_changes = 500,
@@ -229,7 +224,10 @@ return {
       ---@type Autocmd_id
       local au_id
       local function _on_attach(client, bufnr) -- {{{3
-        au_id = cursorword(client, bufnr)
+        local capa = client.server_capabilities
+        if capa.documentHighlightProvider then
+          au_id = cursorword(client, bufnr)
+        end
         ---@desc Keymap
         keymap.set('n', ']d', function()
           vim.diagnostic.jump({ count = 1, float = true })
@@ -237,7 +235,6 @@ return {
         keymap.set('n', '[d', function()
           vim.diagnostic.jump({ count = -1, float = true })
         end)
-        -- keymap.set('n', 'gla', lsp.buf.code_action, { desc = 'Lsp code action' })
         keymap.set('n', 'gld', function() -- {{{
           local opts = { bufnr = 0, focusable = false }
           local opts_cursor = vim.tbl_extend('force', opts, { scope = 'cursor' })
@@ -251,22 +248,24 @@ return {
 
           api.nvim_set_option_value('winblend', winblend, {})
         end, { desc = 'Lsp diagnostic' }) -- }}}
-        keymap.set('n', 'glh', lsp.buf.signature_help, { desc = 'Lsp signature help' })
-        keymap.set('n', 'gli', function() -- {{{
-          if not has_clients() then
-            return
-          end
-          if client.supports_method('textDocument/inlayHint') then
+        keymap.set('n', 'glh', function()
+          lsp.buf.signature_help({ border = FLOAT_BORDER })
+        end, { desc = 'Lsp signature help' })
+        if capa.inlayHintProvider then
+          keymap.set('n', 'gli', function() -- {{{
             local toggle = not lsp.inlay_hint.is_enabled({ bufnr = bufnr })
             lsp.inlay_hint.enable(toggle)
-          end
-        end, { desc = 'Lsp inlay hints' }) -- }}}
-        keymap.set('n', 'gll', lsp.buf.hover, { desc = 'Lsp hover' })
-        keymap.set('n', 'glr', popup_rename, { desc = 'Lsp popup rename' })
+          end, { desc = 'Lsp inlay hints' }) -- }}}
+        end
+        if capa.hoverProvider then
+          keymap.set('n', 'gll', function()
+            lsp.buf.hover({ border = FLOAT_BORDER })
+          end, { desc = 'Lsp hover' })
+        end
+        if capa.renameProvider then
+          keymap.set('n', 'glr', popup_rename, { desc = 'Lsp popup rename' })
+        end
         keymap.set('n', 'glv', function() -- {{{
-          if not has_clients() then
-            return
-          end
           local toggle = not vim.diagnostic.config().virtual_text
           vim.diagnostic.config({ virtual_text = toggle })
         end, { desc = 'Lsp virtual text' }) -- }}}
@@ -316,7 +315,7 @@ return {
 
       local function _on_exit() -- {{{3
         vim.schedule(function()
-          if au_id.hold then
+          if au_id then
             api.nvim_del_autocmd(au_id.hold)
             api.nvim_del_autocmd(au_id.release)
           end
@@ -339,7 +338,6 @@ return {
         ts_ls = require('language_server.ts_ls'),
         vimls = require('language_server.vimls'),
       }
-      local lspconfig = require('lspconfig')
       for name, value in pairs(servers) do
         value.flags = flags
         value.capabilities = not value.capabilities and capabilities or nil
@@ -347,7 +345,6 @@ return {
         value.on_exit = _on_exit
         lspconfig[name].setup(value)
       end
-      -- vim.cmd.LspStart()
     end,
   }, -- }}}2
 }

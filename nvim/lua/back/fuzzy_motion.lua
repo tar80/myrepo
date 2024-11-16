@@ -15,7 +15,7 @@ return {
           vim.fn['denops#plugin#load']('fuzzy-motion')
         end
         local matchers = { 'fzf' }
-        if vim.fn['denops#plugin#is_loaded']('kensaku') == 1 then
+        if vim.fn.line('$') < 300 and vim.fn['denops#plugin#is_loaded']('kensaku') == 1 then
           table.insert(matchers, 'kensaku')
         end
         vim.g.fuzzy_motion_matchers = matchers

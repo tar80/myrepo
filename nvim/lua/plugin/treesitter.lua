@@ -1,5 +1,3 @@
--- vim:textwidth=0:foldmethod=marker:foldlevel=1:
-
 return {
   {
     'nvim-treesitter/nvim-treesitter',
@@ -7,11 +5,11 @@ return {
     dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
     build = ':TSUpdate',
     config = function()
-      vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
       vim.keymap.set('n', 'zc', function()
         local row = vim.api.nvim_win_get_cursor(0)[1]
         if vim.wo.foldlevel ~= 99 and vim.fn.foldlevel(row) == 0 then
           vim.wo.foldlevel = 99
+          vim.wo.foldexpr = 'nvim_treesitter#foldexpr()'
           vim.wo.foldmethod = 'expr'
         end
         return 'zc'
@@ -46,12 +44,12 @@ return {
             ---Automatically jump forward to textobj, similar to targets.vim
             lookahead = true,
             keymaps = {
-              ['ir'] = '@loop.inner',
-              ['ar'] = '@loop.outer',
+              ['il'] = '@loop.inner',
+              ['al'] = '@loop.outer',
               ['ii'] = '@conditional.inner',
               ['ai'] = '@conditional.outer',
-              ['if'] = '@function.inner',
-              ['af'] = '@function.outer',
+              ['im'] = '@function.inner',
+              ['am'] = '@function.outer',
               -- ["ib"] = "@parameter.inner",
             },
             selection_modes = {
@@ -78,22 +76,22 @@ return {
             goto_next_start = {
               [']m'] = '@function.outer',
               [']i'] = '@conditional.outer',
-              [']r'] = '@loop.outer',
+              [']l'] = '@loop.outer',
             },
             goto_next_end = {
               [']M'] = '@function.outer',
               [']I'] = '@conditional.outer',
-              [']R'] = '@loop.outer',
+              [']L'] = '@loop.outer',
             },
             goto_previous_start = {
               ['[m'] = '@function.outer',
               ['[i'] = '@conditional.outer',
-              ['[r'] = '@loop.outer',
+              ['[l'] = '@loop.outer',
             },
             goto_previous_end = {
               ['[M'] = '@function.outer',
               ['[I'] = '@conditional.outer',
-              ['[R'] = '@loop.outer',
+              ['[L'] = '@loop.outer',
             },
           },
         },

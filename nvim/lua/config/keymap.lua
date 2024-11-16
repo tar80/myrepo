@@ -14,34 +14,9 @@ local function toggleShellslash() -- {{{2
   vim.cmd.redrawtabline()
 end
 
-local function search_star(g, mode) -- {{{2
-  local word
-  if mode ~= 'v' then
-    word = fn.expand('<cword>')
-    word = g == 'g' and word or string.format([[\<%s\>]], word)
-  else
-    local first = fn.getpos('v')
-    local last = fn.getpos('.')
-    local lines = fn.getline(first[2], last[2])
-    if #lines > 1 then
-      -- word = table.concat(api.nvim_buf_get_text(0, first[2] - 1, first[3] - 1, last[2] - 1, last[3], {}))
-      return helper.feedkey('*', 'n')
-    else
-      word = lines[1]:sub(first[3], last[3])
-    end
-    helper.feedkey('<ESC>', 'n')
-  end
-  if vim.v.count > 0 then
-    return helper.feedkey('*', 'n')
-  else
-    fn.setreg('/', word)
-    return api.nvim_set_option_value('hlsearch', true, { scope = 'global' })
-  end
-end
-
 ---@desc Refine substitution histories within the command window
 ---@see https://qiita.com/monaqa/items/e22e6f72308652fc81e2
-local function refine_substitutions(input)
+local function refine_substitutions(input) -- {{{2
   local search_str = fn.getreg('/')
   local redraw_value = api.nvim_get_option_value('lazyredraw', { scope = 'global' })
   api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
@@ -141,6 +116,8 @@ abbrev:set('va')
 keymap.del('n', 'gra')
 keymap.del('n', 'grn')
 keymap.del('n', 'grr')
+keymap.del('n', 'gri')
+keymap.del('n', 'gO')
 
 vim.g.mapleader = ';'
 ---Normal mode{{{2
@@ -151,23 +128,18 @@ keymap.set({ 'n', 'c' }, '<F4>', toggleShellslash)
 keymap.set('n', '<C-F9>', ppcust_load)
 keymap.set('n', '<F12>', util.toggleWrap)
 keymap.set('n', '<C-z>', '<Nop>')
-keymap.set('n', 'd_', '"_dd')
+keymap.set('n', 'dD', '"_dd')
 
---@see https://zenn.dev/mattn/articles/83c2d4c7645faa
-keymap.set('n', 'gj', 'gj<Plug>(g)')
-keymap.set('n', 'gk', 'gk<Plug>(g)')
-keymap.set('n', '<Plug>(g)j', 'gj<Plug>(g)')
-keymap.set('n', '<Plug>(g)k', 'gk<Plug>(g)')
-keymap.set('n', 'zh', 'zh<Plug>(z)')
-keymap.set('n', 'zl', 'zl<Plug>(z)')
-keymap.set('n', '<Plug>(z)h', 'zh<Plug>(z)')
-keymap.set('n', '<Plug>(z)l', 'zl<Plug>(z)')
---@see https://github.com/atusy/dotfiles/blob/main/dot_config/nvim/lua/atusy/init.lua
-keymap.set('n', 'q', '<Plug>(q)')
-keymap.set('n', '<Plug>(q)w', 'qw')
-keymap.set('n', '<Plug>(q):', 'q:')
-keymap.set('n', '<Plug>(q)/', 'q/')
-keymap.set('n', '<Plug>(q)?', 'q?')
+local repeatable_g = helper.plugkey('g', 'n', true)
+repeatable_g({ 'j', 'k' })
+local repeatable_z = helper.plugkey('z', 'n', true)
+repeatable_z({ 'h', 'j', 'k', 'l' })
+local operatable_q = helper.plugkey('q', 'n')
+operatable_q({ ':', 'w', '/', '?' })
+local replaceable_H = helper.plugkey('H','n',true)
+replaceable_H('H', '<PageUp>H')
+local replaceable_L = helper.plugkey('L','n',true)
+replaceable_L('L', '<PageDown>L')
 keymap.set('n', ',', function()
   if o.hlsearch then
     api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
@@ -175,14 +147,14 @@ keymap.set('n', ',', function()
     api.nvim_feedkeys(',', 'n', false)
   end
 end)
-keymap.set('n', 'H', 'H<Plug>(H)')
-keymap.set('n', 'L', 'L<Plug>(L)')
-keymap.set('n', '<Plug>(H)H', '<PageUp>H<Plug>(H)')
-keymap.set('n', '<Plug>(L)L', '<PageDown>Lzb<Plug>(L)')
 keymap.set('n', '<C-m>', 'i<C-M><ESC>')
 keymap.set('n', '/', function()
   api.nvim_set_option_value('hlsearch', true, { scope = 'global' })
   return '/'
+end, { noremap = true, expr = true })
+keymap.set('n', '?', function()
+  api.nvim_set_option_value('hlsearch', true, { scope = 'global' })
+  return '?'
 end, { noremap = true, expr = true })
 keymap.set('n', 'n', "'Nn'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
 keymap.set('n', 'N', "'nN'[v:searchforward].'zv'", { noremap = true, silent = true, expr = true })
@@ -213,7 +185,7 @@ end)
 ---Close nofile|qf|preview window
 keymap.set('n', '<Space>z', function()
   if api.nvim_get_option_value('buftype', { buf = 0 }) == 'nofile' then
-    return api.nvim_buf_delete(0, {unload = true})
+    return api.nvim_buf_delete(0, { unload = true })
   end
   local altnr = fn.bufnr('#')
   if altnr ~= -1 and api.nvim_get_option_value('buftype', { buf = altnr }) == 'nofile' then
@@ -271,19 +243,19 @@ keymap.set('x', '@', function()
   end
 end, { expr = true })
 ---@see https://zenn.dev/vim_jp/articles/43d021f461f3a4
-keymap.set('v', 'y', 'mmy`m')
+-- keymap.set('v', 'y', 'mmy`m')
 keymap.set('v', '<C-insert>', '"*y')
 keymap.set('v', '<C-delete>', '"*ygvd')
 ---do not release after range indentation process
 keymap.set('x', '<', '<gv')
 keymap.set('x', '>', '>gv')
 ---search for cursor under string without moving cursor
-keymap.set('n', '*', function()
-  search_star()
-end, { expr = true })
-keymap.set('n', 'g*', function()
-  search_star('g')
-end, { expr = true })
-keymap.set('x', '*', function()
-  search_star(nil, 'v')
-end, { expr = true })
+-- keymap.set('n', '*', function()
+--   util.search_star()
+-- end, { expr = true })
+-- keymap.set('n', 'g*', function()
+--   util.search_star(true)
+-- end, { expr = true })
+-- keymap.set('x', '*', function()
+--   util.search_star(false, true)
+-- end, { expr = true })

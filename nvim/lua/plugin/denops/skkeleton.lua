@@ -3,7 +3,7 @@
 local helper = require('helper')
 local api = vim.api
 local keymap = vim.keymap
-local augroup = api.nvim_create_augroup('rc_skkeleton', { clear = true })
+
 local skkeleton_init = function() -- {{{2
   vim.fn['skkeleton#config']({
     databasePath = '~/.skk/db/jisyo.db',
@@ -42,29 +42,31 @@ local skkeleton_init = function() -- {{{2
 end --}}}
 
 return {
-  { -- {{{2 skkeleton_indicator
-    'delphinus/skkeleton_indicator.nvim',
-    event = 'User skkeleton-initialize-pre',
-    opts = {
-      alwaysShown = false,
-      fadeOutMs = 0,
-      hiraText = ' 󱌴',
-      kataText = ' 󱌵',
-      hankataText = ' 󱌶',
-      zenkakuText = ' 󰚞',
-      abbrevText = ' 󱌯',
-      -- border = { "", "", "", "┃", "", "", "", "┃" }
-    },
-  }, --}}}
+  -- { -- {{{2 skkeleton_indicator
+  --   'delphinus/skkeleton_indicator.nvim',
+  --   event = 'User skkeleton-initialize-pre',
+  --   opts = {
+  --     alwaysShown = false,
+  --     fadeOutMs = 0,
+  --     hiraText = ' 󱌴',
+  --     kataText = ' 󱌵',
+  --     hankataText = ' 󱌶',
+  --     zenkakuText = ' 󰚞',
+  --     abbrevText = ' 󱌯',
+  --     -- border = { "", "", "", "┃", "", "", "", "┃" }
+  --   },
+  -- }, --}}}
   { -- {{{2 skkeleton
     'vim-skk/skkeleton',
     config = function()
+      local augroup = api.nvim_create_augroup('rc_skkeleton', { clear = true })
       ---@desc Autocommand
       api.nvim_create_autocmd('User', {
         group = augroup,
         pattern = 'skkeleton-initialize-pre',
         callback = skkeleton_init,
       })
+
       ---@desc Keymaps {{{3
       keymap.set({ 'i', 'c', 't' }, '<C-l>', '<Plug>(skkeleton-enable)')
       keymap.set({ 'n' }, '<Space>i', function()

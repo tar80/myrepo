@@ -42,6 +42,7 @@ return {
     'nvim-telescope/telescope.nvim',
     cmd = 'Telescope',
     keys = { '<Leader>', 'gl' },
+    dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
       local telescope = require('telescope')
       local actions = require('telescope.actions')
@@ -179,7 +180,7 @@ return {
             }),
           },
           frecency = {
-            ignore_patterns = { '*/.git', '*/.git/*', [[*.git\*]], [[*\tmp\]], "term://*", 'MugTerm://*', '*.jax' },
+            ignore_patterns = { '*/.git', '*/.git/*', [[*.git\*]], [[*\tmp\]], 'term://*', 'MugTerm://*', '*.jax' },
             db_safe_mode = false,
             auto_validate = true,
             db_validate_threshold = 5,

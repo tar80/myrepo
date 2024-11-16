@@ -1,5 +1,5 @@
 --- vim:textwidth=0:foldmethod=marker:foldlevel=1:
--------------------------------------------------------------------------------
+
 local api = vim.api
 local fn = vim.fn
 local helper = require('helper')
@@ -153,10 +153,40 @@ end
 ---@param nighttime integer
 M.adapt_time = function(daytime, nighttime)
   local hour = os.date('*t').hour
-  if daytime <= hour and hour <= nighttime then
+  if daytime < hour and hour < nighttime then
     return 'daytime'
   else
     return 'nighttime'
+  end
+end
+
+---Start hlsearch at cursor position
+---@param has_g? boolean Has plefix "g"
+---@param is_visual? boolean Visual mode or not
+M.search_star = function(has_g, is_visual)
+  local word
+  if not is_visual then
+    word = fn.expand('<cword>')
+    word = has_g and word or string.format([[\<%s\>]], word)
+  else
+    local first = fn.getpos('v')
+    local last = fn.getpos('.')
+    local lines = fn.getline(first[2], last[2])
+    if #lines > 1 then
+      -- word = table.concat(api.nvim_buf_get_text(0, first[2] - 1, first[3] - 1, last[2] - 1, last[3], {}))
+      return helper.feedkey('*', 'n')
+    else
+      word = lines[1]:sub(first[3], last[3])
+    end
+    vim.defer_fn(function ()
+      helper.feedkey('<Esc>', 'x')
+    end, 0)
+  end
+  if vim.v.count > 0 then
+    return helper.feedkey('*', 'n')
+  else
+    fn.setreg('/', word)
+    return api.nvim_set_option_value('hlsearch', true, { scope = 'global' })
   end
 end
 

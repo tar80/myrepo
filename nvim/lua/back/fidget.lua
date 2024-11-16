@@ -45,7 +45,7 @@ return {
       poll_rate = 10,
       filter = vim.log.levels.DEBUG,
       history_size = 128,
-      override_vim_notify = false,
+      override_vim_notify = true,
       redirect = function(msg, level, opts)
         if opts and opts.on_open then
           return require('fidget.integration.nvim-notify').delegate(msg, level, opts)

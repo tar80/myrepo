@@ -129,7 +129,7 @@ return { -- {{{2
   { -- {{{3 fret
     'tar80/fret.nvim',
     -- event = 'VeryLazy',
-    keys = { 'f', 'F', 't', 'T' },
+    keys = { 'f', 'F', 't', 'T', 'd', 'v' },
     dev = true,
     opts = {
       fret_enable_kana = true,
@@ -167,9 +167,9 @@ return { -- {{{2
     'machakann/vim-sandwich',
     keys = {
       { '<Leader>i', '<Plug>(operator-sandwich-add)i', mode = { 'n' } },
-      { '<Leader>ii', 'v<Plug>(textobj-sandwich-auto-i)<Plug>(operator-sandwich-add)', mode = { 'n' } },
+      { '<Leader>ii', '<Plug>(textobj-sandwich-auto-i)<Plug>(operator-sandwich-add)', mode = { 'n' } },
       { '<Leader>a', '<Plug>(operator-sandwich-add)a', mode = { 'n' } },
-      { '<Leader>aa', 'v<Plug>(textobj-sandwich-auto-a)<Plug>(operator-sandwich-add)', mode = { 'n' } },
+      { '<Leader>aa', '<Plug>(textobj-sandwich-auto-a)<Plug>(operator-sandwich-add)', mode = { 'n' } },
       { '<Leader>a', '<Plug>(operator-sandwich-add)', mode = { 'x' } },
       { '<Leader>r', '<Plug>(sandwich-replace)', mode = { 'n', 'x' } },
       { '<Leader>rr', '<Plug>(sandwich-replace-auto)', mode = { 'n', 'x' } },
@@ -203,8 +203,8 @@ return { -- {{{2
         if vim.fn.reg_executing() ~= '' then
           return input
         end
-        local mode = vim.api.nvim_get_mode().mode
-        if mode:find('V', 1, true) then
+        local mode = vim.api.nvim_get_mode().mode:lower()
+        if mode:find('v', 1, true) then
           return input
         end
         ---@diagnostic disable-next-line: redundant-parameter

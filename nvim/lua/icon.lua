@@ -17,9 +17,9 @@ M.state = {
   pending = '',
 }
 M.os = {
-  dos = { '', 'blue' },
-  unix = { '', 'olive' },
-  mac = { '', 'pink' },
+  dos = '',
+  unix = '',
+  mac = '',
 }
 M.severity = {
   Error = '',
@@ -57,37 +57,18 @@ M.lazy = {
   task = '',
   list = { '●', '', '', '' },
 }
-M.kind = {
-  Text = '',
-  Method = '',
-  Function = '󰊕',
-  Constructor = '',
-  Field = '',
-  Variable = '',
-  Class = '',
-  Interface = '',
-  Module = '󰏓',
-  Property = '',
-  Unit = '',
-  Value = '󰎠',
-  Enum = '',
-  EnumMember = '',
-  Keyword = '󰌋',
-  Snippet = '',
-  Color = ' ',
-  File = '󰈙',
-  Reference = '󰈇',
-  Folder = '',
-  Constant = '󰏿',
-  Struct = '󰙅',
-  Event = '',
-  Operator = '',
-  TypeParameter = '󰘦',
-  Codeium = '',
-  Version = '',
-  Unknown = ' ',
-  Calculator = '',
-  Emoji = '󰞅',
+M.cmp = {
+  vsnip = '',
+  dictionary = '󰗚',
+  nvim_lsp = '󰆧',
+  nvim_lua = '',
+  nvim_lsp_signature_help = '',
+  buffer = '󰆚',
+  path = '',
+  cmdline = '󰞷',
+}
+M.border = {
+  solid = { '┌', '─', '┐', '│', '┘', '─', '└', '│' },
 }
 
 return M

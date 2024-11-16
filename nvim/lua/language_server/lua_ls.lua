@@ -2,15 +2,15 @@ local helper = require('helper')
 
 return {
   cmd = { helper.mason_apps('lua-language-server/bin/lua-language-server.exe') },
-  -- root_dir = function(fname)
-  --   return helper.get_project_root(fname, { '.git', '.luarc.json' })
-  -- end,
+  root_dir = function(fname)
+    return helper.get_project_root(fname, { '.git', '.luarc.json', 'stylua.toml' })
+  end,
   single_file_support = false,
   settings = {
     Lua = {
       completion = {
         enable = true,
-        callSnippet = 'both',
+        callSnippet = 'Replace',
         showWord = 'Enable',
         -- showWord = 'Disable',
       },
@@ -20,8 +20,14 @@ return {
         path = { '?.lua', '?/init.lua' },
       },
       diagnostics = {
+        enable = true,
         globals = { 'vim', 'nyagos', 'describe', 'before_each', 'setup', 'teardown', 'it' },
       },
+      format = { enable = false },
+      hover = { enable = true },
+      semantic = { enable = true },
+      signature_help = { enable = true },
+      window = { progressBar = true, statusBar = false },
       hint = {
         enable = true,
         setType = false,

@@ -21,14 +21,6 @@ M.has_words_before = function()
   return col ~= 0 and api.nvim_buf_get_lines(0, row - 1, row, true)[1]:sub(col, col):match('%w') ~= nil
 end
 
----Returns the escaped key
----@param key string
----@param mode string
----@return string
--- M.get_feedkey = function(key, mode)
---   return fn.feedkeys(api.nvim_replace_termcodes(key, true, true, true), mode)
--- end
-
 ---Feeds the specified key
 ---@param key string
 ---@param mode string
@@ -115,6 +107,50 @@ M.executable = function(cmd)
   end
 
   return ok
+end
+
+---@param keys string|string[]
+local _iter_maps = function(keys, callback)
+  local t = type(keys)
+  if t == 'string' then
+    callback(keys)
+  elseif t == 'table' then
+    vim.iter(keys):each(function(key)
+      callback(key)
+    end)
+  end
+end
+
+---A operator that issues a specific key standby
+---https://zenn.dev/mattn/articles/83c2d4c7645faa
+---https://github.com/atusy/dotfiles/blob/main/dot_config/nvim/lua/atusy/init.lua
+---@param startkey string A trigger key spec
+---@param mode string A list of modes
+---@param is_repeat? boolean Whether to repeat the key sequence
+---@return fun(keys: string|string[], addkey?: string):nil
+M.plugkey = function(startkey, mode, is_repeat)
+  local plug = ('<Plug>(%s)'):format(startkey)
+  if is_repeat then
+    return function(keys, replacekey)
+      if replacekey and keys == startkey then
+        vim.keymap.set(mode, startkey, startkey .. plug)
+        vim.keymap.set(mode, plug .. startkey, replacekey .. plug)
+      else
+        _iter_maps(keys, function(nextkey)
+          local repeatkey = startkey .. nextkey
+          vim.keymap.set(mode, repeatkey, repeatkey .. plug)
+          vim.keymap.set(mode, plug .. nextkey, repeatkey .. plug)
+        end)
+      end
+    end
+  else
+    vim.keymap.set(mode, startkey, ('<Plug>(%s)'):format(startkey))
+    return function(keys)
+      _iter_maps(keys, function(nextkey)
+        vim.keymap.set(mode, plug .. nextkey, startkey .. nextkey)
+      end)
+    end
+  end
 end
 
 return M

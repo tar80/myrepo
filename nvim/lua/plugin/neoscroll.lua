@@ -3,7 +3,8 @@ return {
   opts = {
     mappings = {},
     hide_cursor = false,
-    performance_mode = true,
+    performance_mode = false,
+    -- telescope_scroll_opts = {duration = 250},
   },
   keys = {
     {
@@ -41,7 +42,7 @@ return {
     {
       'zt',
       function()
-        require('neoscroll').zt({ half_win_duration = 20, easing = 'quintic' })
+        require('neoscroll').zt({ half_win_duration = 25, easing = 'quintic' })
       end,
       mode = { 'n', 'x' },
       desc = 'Neoscroll top',
@@ -57,7 +58,7 @@ return {
     {
       'zb',
       function()
-        require('neoscroll').zb({ half_win_duration = 20, easing = 'quintic' })
+        require('neoscroll').zb({ half_win_duration = 25, easing = 'quintic' })
       end,
       mode = { 'n', 'x' },
       desc = 'Neoscroll bottom',

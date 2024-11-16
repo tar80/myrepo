@@ -35,7 +35,7 @@ vim.api.nvim_create_autocmd('ColorScheme', {
     require('staline').setup({ -- {{{2
       sections = {
         left = { '+mode', 'sep', 'diagnostics', 'sep', ' ', 'file_name', ' ', '+file_mod' },
-        mid = { 'search_count' },
+        mid = { '-search_count' },
         right = { branch_details, 'file_enc', 'line_column' },
       },
       mode_colors = staline.vi_mode,
@@ -47,7 +47,7 @@ vim.api.nvim_create_autocmd('ColorScheme', {
         fg = palette.gray,
         inactive_color = palette.purple,
       },
-    }) -- }}}
+    }, true) -- }}}
     require('cokeline').setup({ -- {{{2
       show_if_buffers_are_at_least = 1,
       buffers = {
@@ -145,34 +145,35 @@ vim.api.nvim_create_autocmd('ColorScheme', {
   end,
 })
 
+local quit = function()
+  local tabs = #vim.api.nvim_tabpage_list_wins(0)
+  if tabs ~= 1 then
+    vim.api.nvim_win_close(0, false)
+  else
+    -- vim.api.nvim_buf_delete(0, {})
+    vim.cmd.bdelete()
+  end
+end
+
 return {
   { 'tar80/staline.nvim', event = 'UIEnter', dev = true },
   { -- {{{2 nvim-cokeline
     'willothy/nvim-cokeline',
     event = 'UiEnter',
     keys = {
-      {
-        '<Plug>(quit)',
-        function()
-          local tabs = #vim.api.nvim_tabpage_list_wins(0)
-          if tabs ~= 1 then
-            vim.api.nvim_win_close(0, false)
-          else
-            -- vim.api.nvim_buf_delete(0, {})
-            vim.cmd.bdelete()
-          end
-        end,
-        desc = 'Function close buffer',
-      },
+      { '<Plug>(quit)', quit, desc = 'Function close buffer' },
       { '<Space>q', '<Plug>(quit)<Plug>(sq)', desc = 'Close a buffer' },
       { '<Plug>(sq)q', '<Cmd>quit<CR>', desc = 'Quit neovim' },
       {
-        '<Plug>(sq)a',
+        '<Plug>(q)1',
         function()
+          local current = vim.api.nvim_get_current_buf()
           vim.iter(vim.api.nvim_list_bufs()):each(function(bufnr)
-            vim.api.nvim_buf_delete(bufnr, {})
+            if current ~= bufnr and not vim.bo[bufnr].modified then
+              vim.api.nvim_buf_delete(bufnr, {})
+            end
           end)
-          vim.notify('Clean buffers', vim.log.levels.WARN)
+          vim.notify('Clean buffers', vim.log.levels.INFO)
         end,
         desc = 'Clean buffers',
       },
