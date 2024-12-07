@@ -42,6 +42,7 @@ return {
           return '<Ignore>'
         end,
         desc = 'Go to next hunk',
+        expr = true,
       })
       helper.buf_setmap(bufnr, 'n', '[c', 'callback', {
         callback = function()
@@ -52,6 +53,7 @@ return {
           return '<Ignore>'
         end,
         desc = 'Go to previous hunk',
+        expr = true,
       })
       -- Actions
       helper.buf_setmap(bufnr, { 'n', 'x' }, 'gsa', 'callback', {

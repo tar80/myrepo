@@ -55,6 +55,7 @@ o.showtabline = 2
 o.laststatus = 3
 o.cmdheight = 1
 o.number = true
+o.ruler = false
 -- o.numberwidth = 4
 o.relativenumber = true
 o.signcolumn = 'yes'
@@ -80,7 +81,7 @@ opt.spelllang:append({ 'cjk' })
 opt.shortmess:append('csS')
 opt.shortmess:remove({ 'fF' })
 -- opt.fillchars = { vert = "█", vertleft = "█", vertright = "█", verthoriz = "█", horiz = "█", horizup = "█", horizdown = "█", }
-opt.fillchars = { diff = ' ' }
+opt.fillchars = { diff = ' ', foldclose = '', foldopen = '', foldsep = '┊' }
 o.keywordprg = ':help'
 o.helplang = 'ja'
 o.helpheight = 10

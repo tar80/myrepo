@@ -1,8 +1,6 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 local helper = require('helper')
-local api = vim.api
-local keymap = vim.keymap
 
 local skkeleton_init = function() -- {{{2
   vim.fn['skkeleton#config']({
@@ -42,46 +40,46 @@ local skkeleton_init = function() -- {{{2
 end --}}}
 
 return {
-  -- { -- {{{2 skkeleton_indicator
-  --   'delphinus/skkeleton_indicator.nvim',
-  --   event = 'User skkeleton-initialize-pre',
-  --   opts = {
-  --     alwaysShown = false,
-  --     fadeOutMs = 0,
-  --     hiraText = ' 󱌴',
-  --     kataText = ' 󱌵',
-  --     hankataText = ' 󱌶',
-  --     zenkakuText = ' 󰚞',
-  --     abbrevText = ' 󱌯',
-  --     -- border = { "", "", "", "┃", "", "", "", "┃" }
-  --   },
-  -- }, --}}}
+  { -- {{{2 skkeleton_indicator
+    'delphinus/skkeleton_indicator.nvim',
+    event = 'User skkeleton-initialize-pre',
+    opts = {
+      alwaysShown = false,
+      fadeOutMs = 0,
+      hiraText = ' 󱌴',
+      kataText = ' 󱌵',
+      hankataText = ' 󱌶',
+      zenkakuText = ' 󰚞',
+      abbrevText = ' 󱌯',
+      -- border = { "", "", "", "┃", "", "", "", "┃" }
+    },
+  }, --}}}
   { -- {{{2 skkeleton
     'vim-skk/skkeleton',
     config = function()
-      local augroup = api.nvim_create_augroup('rc_skkeleton', { clear = true })
+      local augroup = vim.api.nvim_create_augroup('rc_skkeleton', { clear = true })
       ---@desc Autocommand
-      api.nvim_create_autocmd('User', {
+      vim.api.nvim_create_autocmd('User', {
         group = augroup,
         pattern = 'skkeleton-initialize-pre',
         callback = skkeleton_init,
       })
 
       ---@desc Keymaps {{{3
-      keymap.set({ 'i', 'c', 't' }, '<C-l>', '<Plug>(skkeleton-enable)')
-      keymap.set({ 'n' }, '<Space>i', function()
+      vim.keymap.set({ 'i', 'c', 't' }, '<C-l>', '<Plug>(skkeleton-enable)')
+      vim.keymap.set({ 'n' }, '<Space>i', function()
         vim.fn['skkeleton#handle']('enable', {})
         vim.cmd.startinsert()
       end)
-      keymap.set({ 'n' }, '<Space>I', function()
+      vim.keymap.set({ 'n' }, '<Space>I', function()
         vim.fn['skkeleton#handle']('enable', {})
         helper.feedkey('I', 'n')
       end)
-      keymap.set({ 'n' }, '<Space>a', function()
+      vim.keymap.set({ 'n' }, '<Space>a', function()
         vim.fn['skkeleton#handle']('enable', {})
         helper.feedkey('a', 'n')
       end)
-      keymap.set({ 'n' }, '<Space>A', function()
+      vim.keymap.set({ 'n' }, '<Space>A', function()
         vim.fn['skkeleton#handle']('enable', {})
         vim.cmd.startinsert({ bang = true })
       end) -- }}}

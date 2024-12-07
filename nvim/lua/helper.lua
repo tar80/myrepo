@@ -134,7 +134,7 @@ M.plugkey = function(startkey, mode, is_repeat)
     return function(keys, replacekey)
       if replacekey and keys == startkey then
         vim.keymap.set(mode, startkey, startkey .. plug)
-        vim.keymap.set(mode, plug .. startkey, replacekey .. plug)
+        vim.keymap.set(mode, plug .. keys, replacekey .. plug)
       else
         _iter_maps(keys, function(nextkey)
           local repeatkey = startkey .. nextkey

@@ -39,14 +39,14 @@ return {
     --   mode = { 'n', 'x' },
     --   desc = 'Neoscroll up',
     -- },
-    {
-      'zt',
-      function()
-        require('neoscroll').zt({ half_win_duration = 25, easing = 'quintic' })
-      end,
-      mode = { 'n', 'x' },
-      desc = 'Neoscroll top',
-    },
+    -- {
+    --   'zt',
+    --   function()
+    --     require('neoscroll').zt({ half_win_duration = 25, easing = 'quintic' })
+    --   end,
+    --   mode = { 'n', 'x' },
+    --   desc = 'Neoscroll top',
+    -- },
     {
       'zz',
       function()
@@ -55,13 +55,13 @@ return {
       mode = { 'n', 'x' },
       desc = 'Neoscroll middle',
     },
-    {
-      'zb',
-      function()
-        require('neoscroll').zb({ half_win_duration = 25, easing = 'quintic' })
-      end,
-      mode = { 'n', 'x' },
-      desc = 'Neoscroll bottom',
-    },
+    -- {
+    --   'zb',
+    --   function()
+    --     require('neoscroll').zb({ half_win_duration = 25, easing = 'quintic' })
+    --   end,
+    --   mode = { 'n', 'x' },
+    --   desc = 'Neoscroll bottom',
+    -- },
   },
 }

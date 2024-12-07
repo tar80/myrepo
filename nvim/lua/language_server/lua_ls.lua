@@ -1,7 +1,9 @@
 local helper = require('helper')
+local wd = helper.mason_apps('lua-language-server/bin')
 
 return {
-  cmd = { helper.mason_apps('lua-language-server/bin/lua-language-server.exe') },
+  cmd = { wd .. '/lua-language-server.exe' },
+  cmd_cwd = wd,
   root_dir = function(fname)
     return helper.get_project_root(fname, { '.git', '.luarc.json', 'stylua.toml' })
   end,

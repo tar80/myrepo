@@ -18,6 +18,7 @@ return {
   }, -- }}}
   config = function()
     local cmp_icon = require('icon').cmp
+    local cmp_border = require('icon').border.solid
     local helper = require('helper')
     local cmp = require('cmp')
     local feedkey = helper.feedkey
@@ -29,19 +30,23 @@ return {
     local kind = {
       vsnip = { icon = cmp_icon.vsnip, alias = 'V-snip' },
       dictionary = { icon = cmp_icon.dictionary, alias = 'Dictionary' },
-      nvim_lsp = { icon = cmp_icon.nvim_lsp, alias = nil },
+      nvim_lsp = { icon = nil, alias = 'Lsp' },
       nvim_lua = { icon = cmp_icon.nvim_lua, alias = nil },
-      -- nvim_lsp_signature_help = { icon = icon.nvim_lsp_signature_help, alias = nil },
+      -- nvim_lsp_signature_help = { icon = cmp_icon.nvim_lsp_signature_help, alias = nil },
       buffer = { icon = cmp_icon.buffer, alias = 'Buffer' },
       path = { icon = cmp_icon.path, alias = nil },
       cmdline = { icon = cmp_icon.cmdline, alias = nil },
     }
     local display_kind = function(entry, item)
       local v = kind[entry.source.name]
-      item.kind = string.format('%s%s', v.icon, v.alias or item.kind)
+      if v.alias == 'Lsp' then
+        v.icon = cmp_icon[item.kind]
+      end
+      item.kind = v.icon
+      -- item.kind = string.format('%s%s', v.icon, v.alias or item.kind)
       return item
     end
-    local undisplay_kind = function(_, item)
+    local no_display_kind = function(_, item)
       item.kind = ''
       return item
     end -- }}}
@@ -64,7 +69,7 @@ return {
       window = {
         completion = { scrolloff = 1 },
         -- completion = cmp.config.window.bordered(),
-        documentation = cmp.config.window.bordered({border = require('icon').border.solid}),
+        documentation = cmp.config.window.bordered({border = cmp_border})
       },
       snippet = { -- {{{
         expand = function(args)
@@ -89,6 +94,7 @@ return {
         { name = 'nvim_lua', keyword_length = 2 },
       }), -- }}}
       formatting = { -- {{{
+        -- fields = {'menu','abbr','kind'},
         format = function(entry, item)
           return display_kind(entry, item)
         end,
@@ -171,7 +177,7 @@ return {
       }),
       formatting = {
         format = function(entry, item)
-          return undisplay_kind(entry, item)
+          return no_display_kind(entry, item)
         end,
       },
       mapping = cmp.mapping.preset.cmdline(),
@@ -190,7 +196,7 @@ return {
       ),
       formatting = {
         format = function(entry, item)
-          return undisplay_kind(entry, item)
+          return no_display_kind(entry, item)
         end,
       },
       mapping = cmp.mapping.preset.cmdline(),

@@ -1,20 +1,22 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 
-local beacon = function()
-  local ok, mod = pcall(require, 'fret.util')
-  if ok then
-    mod.beacon(0, 'FlashLabel', 30, 15)
+---@param pre integer[] Cursor position before flash execution
+---@param post integer[] Cursor position after flash execution
+local beacon = function(pre, post)
+  local ok, beacon = pcall(require, 'fret.beacon')
+  if ok and not vim.deep_equal(pre, post) then
+    beacon.flash_cursor(0, 'FlashLabel', 80, 30, 15)
   end
 end
 
-local search_labels = '*nNasdfglkjhqwertgbvcxzpoiuym'
+local NORMAL_LABELS = 'asdfgtrewqhjkluiopnmbvcxz'
+local SEARCH_LABELS = '*nNasdfglkjhqwertgbvcxzpoiuym'
 
 return {
   'folke/flash.nvim',
   enabled = true,
-  event = 'VeryLazy',
   opts = {
-    labels = 'asdfgtrewqhjkluiopnmbvcxz',
+    labels = NORMAL_LABELS,
     search = {
       multi_window = true,
       forward = true,
@@ -107,11 +109,11 @@ return {
     ---@type table<string, Flash.Config>
     modes = {
       search = {
-        enabled = true,
+        enabled = false,
         highlight = { backdrop = false },
         jump = { history = true, register = true, nohlsearch = false },
         label = { after = true, before = false },
-        labels = search_labels,
+        labels = SEARCH_LABELS,
         search = {
           multi_window = false,
           forward = true,
@@ -141,7 +143,7 @@ return {
       },
     },
     prompt = {
-      enabled = true,
+      enabled = false,
     },
     -- options for remote operator pending mode
     remote_op = {
@@ -157,41 +159,56 @@ return {
   },
   keys = {
     {
-      '<leader><leader>',
+      '<leader>f',
       mode = { 'n', 'x', 'o' },
       function()
+        local pre = vim.api.nvim_win_get_cursor(0)
         require('flash').jump({ search = { mode = 'exact' } })
-        beacon()
+        local post = vim.api.nvim_win_get_cursor(0)
+        beacon(pre, post)
       end,
       desc = 'Flash',
     },
     {
-      '<Space><leader>',
-      mode = { 'n', 'x', 'o' },
+      '<Space>',
+      mode = { 'x', 'o' },
       function()
-        require('flash').treesitter()
+        if vim.bo.filetype ~= '' then
+          require('flash').treesitter()
+        end
       end,
       desc = 'Flash Treesitter',
     },
     {
       'r',
-      mode = 'o',
+      mode = { 'o' },
       function()
         require('flash').remote()
       end,
       desc = 'Remote Flash',
     },
     {
-      's',
-      mode = 'o',
+      'R',
+      mode = { 'o' },
       function()
-        local pos = vim.api.nvim_win_get_cursor(0)
-        require('flash').treesitter_search({ remote_op = { restore = true, motion = false } })
-        vim.defer_fn(function()
-          vim.api.nvim_win_set_cursor(0, pos)
-        end, 0)
+        if vim.bo.filetype ~= '' then
+          vim.cmd.normal('ma')
+          require('flash').treesitter_search({ remote_op = { restore = true, motion = false } })
+          vim.defer_fn(function()
+            vim.cmd.normal('g`a')
+            vim.api.nvim_buf_del_mark(0, 'a')
+          end, 0)
+        end
       end,
       desc = 'Remote selection Flash',
+    },
+    {
+      '<C-s>',
+      mode = { 'c' },
+      function()
+        require('flash').toggle()
+      end,
+      desc = 'Toggle Flash Search',
     },
     {
       '*',
@@ -225,7 +242,7 @@ return {
       mode = { 'n', 'x' },
       function()
         require('flash').jump({
-          labels = search_labels,
+          labels = SEARCH_LABELS,
           pattern = vim.fn.getreg('/'),
           search = { mode = 'search' },
           label = { current = true, after = true, before = false },

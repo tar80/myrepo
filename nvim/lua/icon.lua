@@ -1,6 +1,7 @@
 local M = {}
 
 M.symbol = {
+  bar = '┃',
   circle = '',
   square = '■',
   square2 = '󱓻',
@@ -26,6 +27,7 @@ M.severity = {
   Warn = '',
   Hint = '',
   Info = '',
+  Trace = '',
 }
 M.ime = {
   hira = '󱌴',
@@ -60,15 +62,47 @@ M.lazy = {
 M.cmp = {
   vsnip = '',
   dictionary = '󰗚',
-  nvim_lsp = '󰆧',
   nvim_lua = '',
   nvim_lsp_signature_help = '',
   buffer = '󰆚',
   path = '',
   cmdline = '󰞷',
+  Text = '',
+  Method = '󰆧',
+  Function = '󰊕',
+  Constructor = '',
+  Field = '',
+  Variable = '󰂡',
+  Class = '',
+  Interface = '',
+  Module = '',
+  Property = '',
+  Unit = '',
+  Value = '󰎠',
+  Enum = '',
+  EnumMember = '',
+  Keyword = '󰌋',
+  Snippet = '',
+  Color = '󰏘',
+  File = '',
+  Reference = '',
+  Folder = '󰉋',
+  Constant = '󰏿',
+  Struct = ' ',
+  Event = '',
+  Operator = '',
+  TypeParameter = '󰘦',
+  Codeium = '',
+  Version = '',
+  Unknown = '  ',
+  Calculator = '',
+  Emoji = '󰞅',
 }
 M.border = {
   solid = { '┌', '─', '┐', '│', '┘', '─', '└', '│' },
+  quotation = { '', '', '', '', '', '', '', '┃' },
+  top_dash = { '', { '┄', '@comment' }, '', '', '', '', '', '' },
+  bot_dash = { '', '', '', '', '', { '┄', '@comment' }, '', '' },
 }
 
 return M

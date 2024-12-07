@@ -14,12 +14,13 @@ local api = vim.api
 local lsp = vim.lsp
 local keymap = vim.keymap
 local helper = require('helper')
-local sign_icon = require('icon').symbol.square
+local icon = require('icon')
 
 local RENAME_TITLE = 'Lsp-rename'
 local FLOAT_BORDER = vim.g.float_border
 ---@type Severities
-local SEVERITIES = { Error = sign_icon, Warn = sign_icon, Hint = sign_icon, Info = sign_icon }
+local SEVERITIES =
+  { Error = icon.severity.Error, Warn = icon.severity.Warn, Hint = icon.severity.Hint, Info = icon.severity.Info }
 
 local augroup = api.nvim_create_augroup('rc_lsp', {})
 
@@ -38,9 +39,9 @@ end -- }}}
 ---@return {text?: Severities, numhl?: Severities, linehl?: Severities}
 local function get_signs()
   local o = { text = {}, linehl = {}, numhl = {} }
-  for name, symbol in pairs(SEVERITIES) do
+  for name, _ in pairs(SEVERITIES) do
     local key = vim.diagnostic.severity[name:upper()]
-    o.text[key] = symbol
+    o.text[key] = icon.symbol.square
     -- o.numhl[key] = string.format('DiagnosticSign%s', name)
     -- s.linehl[key] = 'NONE'
   end
