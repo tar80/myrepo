@@ -38,10 +38,10 @@ return {
       vim.g.quickrun_config = {
         ['_'] = {
           outputter = 'error',
-          ['outputter/error/success'] = 'buffer',
-          ['outputter/error/error'] = 'quickfix',
-          ['outputter/buffer/opener'] = ':botright 5split',
-          ['outputter/buffer/close_on_empty'] = 0,
+          ['outputter/error/success'] = 'message',
+          ['outputter/error/error'] = 'message',
+          -- ['outputter/buffer/opener'] = ':botright 5split',
+          -- ['outputter/buffer/close_on_empty'] = 0,
           runner = 'neovim_job',
           hooks = {
             {

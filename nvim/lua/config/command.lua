@@ -96,7 +96,7 @@ api.nvim_create_autocmd('TextYankPost', {
   group = augroup,
   pattern = '*',
   callback = function()
-    vim.hl.on_yank({ higroup = 'DiffAdd', on_visual = false, timeout = 150, prioritiy = 200 })
+    vim.hl.on_yank({ higroup = 'FretAlternative', on_visual = false, timeout = 150, prioritiy = 200 })
   end,
 })
 

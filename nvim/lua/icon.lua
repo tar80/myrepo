@@ -1,20 +1,27 @@
 local M = {}
 
 M.symbol = {
+  input = '',
+  search_down = '',
+  search_up = '',
   bar = '┃',
-  circle = '',
-  square = '■',
-  square2 = '󱓻',
-  square3 = '󰄮',
+  circle = '',
+  circle2 = '',
+  square = '',
+  square2 = '■',
+  square3 = '󱓻',
+  square4 = '󰄮',
   star = '󰙴',
   lock = '',
-  logo = '',
-  edit2 = '󰤌',
-  edit3 = '󱅃',
+  nvim = '',
+  vim = '',
+  lua = '',
+  edit = '󰤌',
+  modify = '󱅃',
 }
 M.state = {
-  success = '󰄬',
-  failure = '󰅖',
+  success = '',
+  failure = '',
   pending = '',
 }
 M.os = {
@@ -27,7 +34,7 @@ M.severity = {
   Warn = '',
   Hint = '',
   Info = '',
-  Trace = '',
+  Trace = '󱨈',
 }
 M.ime = {
   hira = '󱌴',
@@ -39,6 +46,7 @@ M.ime = {
 }
 M.git = {
   branch = '',
+  branch2 = '',
 }
 M.lazy = {
   cmd = '',
@@ -103,6 +111,10 @@ M.border = {
   quotation = { '', '', '', '', '', '', '', '┃' },
   top_dash = { '', { '┄', '@comment' }, '', '', '', '', '', '' },
   bot_dash = { '', '', '', '', '', { '┄', '@comment' }, '', '' },
+}
+M.sep = {
+  rect = { l = '', r = '' },
+  bubble = { l = '', r = '' },
 }
 
 return M

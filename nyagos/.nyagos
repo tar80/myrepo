@@ -178,6 +178,8 @@ nyagos.alias.pca = string.format([[cd %s\pages-pca && bundle exec jekyll s --fut
 nyagos.alias.keyp = [[C:\bin\Keypirinha\keypirinha.exe]]
 nyagos.alias.lazyinstall = [[nvim --headless "+silent! Lazy! install" +qa]]
 nyagos.alias.nvim = [[nvim --cmd "let g:start_level='general'"]]
+nyagos.alias.nvimtest = [[nvim --cmd "let g:start_level='test'"]]
+nyagos.alias.nvimmini = [[nvim --cmd "let g:start_level='minimal'"]]
 
 nyagos.alias['..'] = 'cd ../'
 nyagos.alias.cp = 'cp -i'

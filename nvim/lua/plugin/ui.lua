@@ -4,6 +4,13 @@ local is_alter = function(buffer)
   return vim.fn.bufnr('#') == buffer.number
 end
 
+-- local noice_stats = function()
+--   if require('noice').api.status.mode.has() then
+--     return require('noice').api.status.mode.get()
+--   end
+--   return ''
+-- end
+
 local branch_details = function()
   local repo = vim.uv.cwd():gsub('^(.+[/\\])', '')
   local branch = vim.b.mug_branch_name or ''
@@ -21,7 +28,8 @@ local branch_details = function()
       )
     or ''
   local details = branch .. detach .. state
-  return details == ' ' and '' or ('%%#Staline#%s%s:%s%s'):format(require('icon').git.branch, repo, '%#Special#', details)
+  return details == ' ' and ''
+    or ('%%#Staline#%s%s:%s%s'):format(require('icon').git.branch, repo, '%#Special#', details)
 end
 
 local augroup = vim.api.nvim_create_augroup('rc_plugin', { clear = false })
@@ -33,11 +41,15 @@ vim.api.nvim_create_autocmd('ColorScheme', {
     local staline = require(('staline.themes.%s'):format(theme))
     local palette = require('loose').get_colors(theme)
     vim.api.nvim_set_hl(0, 'Statusline', { sp = palette.border, underline = true })
+    local fg = vim.api.nvim_get_hl(0, { name = 'NormalFloat' }).bg
+    local bg = vim.api.nvim_get_hl(0, { name = 'Normal' }).bg
+    vim.api.nvim_set_hl(0, 'NormalFloatReverse', { fg = fg, bg = bg })
+
     vim.o.cmdheight = 0
     require('staline').setup({ -- {{{2
       sections = {
         left = { '+mode', 'sep', 'diagnostics', 'sep', ' ', 'file_icon', 'file_name', ' ', '+file_mod' },
-        mid = { '%<', '+search_count' },
+        -- mid = { '%<', noice_stats },
         right = { branch_details, 'file_enc', 'line_column' },
       },
       mode_colors = staline.vi_mode,

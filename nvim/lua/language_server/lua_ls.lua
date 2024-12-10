@@ -8,8 +8,16 @@ return {
     return helper.get_project_root(fname, { '.git', '.luarc.json', 'stylua.toml' })
   end,
   single_file_support = false,
-  settings = {
-    Lua = {
+  settings = { Lua = {} },
+  on_init = function(client)
+    if client.workspace_folders then
+      local path = client.workspace_folders[1].name
+      if vim.loop.fs_stat(path .. '/.luarc.json') or vim.loop.fs_stat(path .. '/.luarc.jsonc') then
+        return
+      end
+    end
+
+    client.config.settings.Lua = vim.tbl_deep_extend('force', client.config.settings.Lua, {
       completion = {
         enable = true,
         callSnippet = 'Replace',
@@ -45,6 +53,6 @@ return {
           '${3rd}/luassert/library',
         },
       },
-    },
-  },
+    })
+  end,
 }

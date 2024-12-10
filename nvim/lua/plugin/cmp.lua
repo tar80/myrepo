@@ -107,10 +107,10 @@ return {
           return cmp.visible() and cmp.select_next_item() or cmp.complete()
         end, { 'i', 'c' }),
         ['<C-e>'] = cmp.mapping(function(_)
-          return cmp.visible() and cmp.abort() or feedkey('<C-e>', '')
+          return cmp.visible() and cmp.abort() or feedkey('<Home>','')
         end, { 'i' }),
         ['<C-y>'] = cmp.mapping(function(_)
-          return cmp.visible() and cmp.close() or feedkey('<C-y>', '')
+          return cmp.visible() and cmp.close() or feedkey('<End>', '')
         end, { 'i' }),
         ['<Down>'] = cmp.mapping.scroll_docs(4),
         ['<Up>'] = cmp.mapping.scroll_docs(-4),

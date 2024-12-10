@@ -12,7 +12,7 @@ do -- {{{2 Bootstrap
   vim.opt.rtp:prepend(lazypath)
 end --}}}2
 
-local specs = { -- {{{2
+local specs = { -- {{{1
   general = {
     { import = 'plugin.colorscheme' },
     { import = 'plugin.denops' },
@@ -21,7 +21,7 @@ local specs = { -- {{{2
   extended = {
     { import = 'plugin.extended' },
   },
-} -- }}}2
+} -- }}}1
 local options = { -- {{{2
   change_detection = {
     enabled = true,

@@ -9,15 +9,16 @@ vim.api.nvim_create_autocmd('UIEnter', {
   group = augroup,
   once = true,
   callback = function()
-    local msg = ('Startup time: %s'):format(require('lazy').stats().startuptime)
-    vim.notify(msg, vim.log.levels.INFO)
     vim.cmd.colorscheme(vim.g.colors_name)
+    -- local msg = ('Startup time: %s'):format(require('lazy').stats().startuptime)
+    -- vim.notify(msg)
   end,
 })
 
 return { -- {{{2
   ---@library
   { 'nvim-lua/plenary.nvim', lazy = true },
+  { 'MunifTanjim/nui.nvim', lazy = true },
   { 'nvim-tree/nvim-web-devicons', lazy = true },
   { -- {{{3 tiny-devicons-auto-colors
     'rachartier/tiny-devicons-auto-colors.nvim',
@@ -57,7 +58,12 @@ return { -- {{{2
         cw.add(0x27A1, 2)
         cw.add({ 0x2B05, 0x2B07, 2 })
         cw.delete({
+          0x2026,
+          0x2030,
+          0x2039,
+          0x203A,
           0x2640,
+          0x25B6,
           0x2642,
           0x2660,
           0x2663,
@@ -70,12 +76,20 @@ return { -- {{{2
           0xE0BE,
           0xE0BF,
           0xE0C7,
+          0xE216,
           0xE285,
           0xE725,
           0xEA71,
           0xEABC,
           0xEAAA,
           0xEAAB,
+          0xF054,
+          0xF102,
+          0xF103,
+          0xF126,
+          0xF128,
+          0xF444,
+          0xF445,
         })
         return cw
       end,
@@ -84,7 +98,8 @@ return { -- {{{2
       require('cellwidths').remove()
     end,
   }, -- }}}
-  { 'folke/ts-comments.nvim', event = 'VeryLazy', opts = {} },
+  -- { 'folke/ts-comments.nvim', event = 'VeryLazy', opts = {} },
+  { 'tar80/rereope.nvim', opts = {} },
   { -- {{{3 mug
     'tar80/mug.nvim',
     dev = true,
@@ -129,16 +144,17 @@ return { -- {{{2
   { -- {{{3 fret
     'tar80/fret.nvim',
     -- event = 'VeryLazy',
-    keys = { 'f', 'F', 't', 'T', 'd', 'v' },
+    keys = { 'f', 'F', 't', 'T', 'd', 'v', 'y' },
     dev = true,
     opts = {
+      fret_enable_beacon = true,
       fret_enable_kana = true,
       fret_enable_symbol = true,
       fret_repeat_notify = false,
       fret_smart_fold = true,
       fret_timeout = 9000,
-      fret_beacon = true,
-      -- beacon_opts = { hl = 'LazyButtonActive', blend = 30, freq = 15 },
+      fret_samekey_repeat = true,
+      -- beacon_opts = { hl = 'LazyButtonActive', interval = 80, blend = 30, decay = 15 },
       mapkeys = { fret_f = 'f', fret_F = 'F', fret_t = 't', fret_T = 'T' },
     },
   }, ---}}}
@@ -147,11 +163,13 @@ return { -- {{{2
     event = 'VeryLazy',
     dev = true,
     opts = {
-      ignore_filetypes = { 'TelescopePrompt', 'cmp-menu', 'cmp-docs' },
+      ignore_filetypes = { 'TelescopePrompt', 'TelescopeResults', 'cmp-menu', 'cmp-docs' },
       -- ignore_buftypes = {},
       jump_key = '%',
-      -- indicator = 200,
-      -- sign = true,
+      indicator = 200,
+      sign = true,
+      show_parent = true,
+      show_next = true,
     },
   }, -- }}}
   { -- {{{3 smartword
@@ -195,16 +213,15 @@ return { -- {{{2
       }
     end,
   }, -- }}}
-  { -- {{{3 operator-replace
-    'yuki-yano/vim-operator-replace',
-    dependencies = { 'vim-operator-user' },
+  { -- {{{3 ReplaceWithRegister
+    'inkarkat/vim-ReplaceWithRegister',
     init = function()
       local popup_register = function(input) -- {{{
         if vim.fn.reg_executing() ~= '' then
           return input
         end
         local mode = vim.api.nvim_get_mode().mode:lower()
-        if mode:find('v', 1, true) then
+        if mode:find('v', 1, true) or mode == [[]] then
           return input
         end
         ---@diagnostic disable-next-line: redundant-parameter
@@ -240,13 +257,13 @@ return { -- {{{2
       keymap.set({ 'n', 'x' }, '_', function()
         local input = '*'
         input = popup_register(input)
-        return string.format('"%s<Plug>(operator-replace)', input)
+        return string.format('"%s<Plug>ReplaceWithRegisterOperator', input)
       end, { expr = true })
       keymap.set({ 'n', 'x' }, '\\', function()
         local input = vim.fn.nr2char(vim.fn.getchar())
         input = input == '\\' and '0' or input
         input = popup_register(input)
-        return string.format('"%s<Plug>(operator-replace)', input)
+        return string.format('"%s<Plug>ReplaceWithRegisterOperator', input)
       end, { expr = true })
     end,
   }, -- }}}
@@ -297,10 +314,7 @@ return { -- {{{2
   }, -- }}}
   { -- {{{3 registers
     'tversteeg/registers.nvim',
-    keys = {
-      { '""', mode = { 'n', 'x' } },
-      { '<C-R>', mode = 'i' },
-    },
+    keys = { { '""', mode = { 'n', 'x' } }, { '<C-R>', mode = 'i' } },
     config = function()
       local registers = require('registers')
       keymap.set({ 'n', 'x' }, '""', registers.show_window({ mode = 'motion' }), { silent = true, noremap = true })
@@ -407,6 +421,8 @@ return { -- {{{2
     ft = 'markdown',
     opts = {
       enabled = true,
+      debounce = 200,
+      preset = 'obsidian',
       bullet = { enabled = true, icons = { '', '', '', '' } },
       sign = { enabled = false },
       checkbox = {
@@ -421,6 +437,13 @@ return { -- {{{2
             require('render-markdown').disable()
           end
         end,
+      },
+      win_options = {
+        -- See :h 'concealcursor'
+        concealcursor = {
+          default = vim.api.nvim_get_option_value('concealcursor', {}),
+          rendered = 'n',
+        },
       },
     },
   }, -- }}}

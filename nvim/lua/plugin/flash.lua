@@ -202,14 +202,14 @@ return {
       end,
       desc = 'Remote selection Flash',
     },
-    {
-      '<C-s>',
-      mode = { 'c' },
-      function()
-        require('flash').toggle()
-      end,
-      desc = 'Toggle Flash Search',
-    },
+    -- {
+    --   '<C-s>',
+    --   mode = { 'c' },
+    --   function()
+    --     require('flash').toggle()
+    --   end,
+    --   desc = 'Toggle Flash Search',
+    -- },
     {
       '*',
       mode = { 'n' },

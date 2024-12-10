@@ -18,12 +18,14 @@ return {
       end,
       ignore = {
         function(msg)
-          return msg.title:find('iagnos', 2, true) ~= nil
+          if msg.title:find('iagnos', 2, true) or msg.title:find('semantic', 2, true) then
+            return true
+          end
         end,
       },
       display = {
-        render_limit = 7,
-        done_ttl = 5,
+        render_limit = 5,
+        done_ttl = 1,
         done_icon = '󰄬',
         done_style = 'DiagnosticOk',
         progress_ttl = math.huge,
@@ -51,7 +53,7 @@ return {
       poll_rate = 100,
       filter = vim.log.levels.DEBUG,
       history_size = 128,
-      override_vim_notify = true,
+      override_vim_notify = false,
       -- configs = {
       --   default = {
       --     name = 'Notifications',

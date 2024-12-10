@@ -7,7 +7,7 @@ local o = vim.o
 ---@desc Options {{{1
 ---Global {{{2
 api.nvim_set_option_value('termguicolors', true, { scope = 'global' })
-api.nvim_set_option_value('foldcolumn', '1', { scope = 'global' })
+-- api.nvim_set_option_value('foldcolumn', '1', { scope = 'global' })
 api.nvim_set_option_value('fileformats', 'unix,dos,mac', { scope = 'global' })
 api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
 api.nvim_set_option_value('shada', "'50,<500,/10,:100,h", { scope = 'global' })
@@ -81,7 +81,7 @@ opt.spelllang:append({ 'cjk' })
 opt.shortmess:append('csS')
 opt.shortmess:remove({ 'fF' })
 -- opt.fillchars = { vert = "█", vertleft = "█", vertright = "█", verthoriz = "█", horiz = "█", horizup = "█", horizdown = "█", }
-opt.fillchars = { diff = ' ', foldclose = '', foldopen = '', foldsep = '┊' }
+opt.fillchars = { diff = ' ', foldclose = '>', foldopen = '⌄', foldsep = '┊' }
 o.keywordprg = ':help'
 o.helplang = 'ja'
 o.helpheight = 10

@@ -98,7 +98,7 @@ return {
     inactive_titlebar_bg = 'none',
     active_titlebar_bg = 'none',
   },
-  window_padding = { left = 3, right = 0, top = 3, bottom = 0 },
+  window_padding = { left = 3, right = 0, top = 12, bottom = 0 },
   -- foreground_text_hsb = { hue = 1.02, saturation = 1.1, brightness = 1.1, },
   inactive_pane_hsb = { saturation = 0.9, brightness = 0.6 },
 
