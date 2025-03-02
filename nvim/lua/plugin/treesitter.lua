@@ -6,11 +6,13 @@ return {
     build = ':TSUpdate',
     config = function()
       vim.keymap.set('n', 'zc', function()
-        local row = vim.api.nvim_win_get_cursor(0)[1]
-        if vim.wo.foldlevel ~= 99 and vim.fn.foldlevel(row) == 0 then
-          vim.wo.foldlevel = 99
-          vim.wo.foldexpr = 'nvim_treesitter#foldexpr()'
-          vim.wo.foldmethod = 'expr'
+        if vim.treesitter.get_node() then
+          local row = vim.api.nvim_win_get_cursor(0)[1]
+          if vim.wo.foldlevel ~= 99 and vim.fn.foldlevel(row) == 0 then
+            vim.opt_local.foldlevel = 99
+            vim.opt_local.foldexpr = 'nvim_treesitter#foldexpr()'
+            vim.opt_local.foldmethod = 'expr'
+          end
         end
         return 'zc'
       end, { noremap = true, expr = true })

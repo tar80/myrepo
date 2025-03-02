@@ -92,6 +92,7 @@ M.shell = function(name) -- {{{
       quote = '',
       xquote = '',
       slash = true,
+      completeslash = 'slash',
     },
     bash = {
       path = helper.scoop_apps('/apps/git/current/bin/bash.exe'),
@@ -100,6 +101,7 @@ M.shell = function(name) -- {{{
       quote = '',
       xquote = '"',
       slash = true,
+      completeslash = 'slash',
     },
   }
   local cui = obj[name]
@@ -112,6 +114,7 @@ M.shell = function(name) -- {{{
   set('shellquote', cui.quote)
   set('shellxquote', cui.xquote)
   set('shellslash', cui.slash)
+  set('completeslash', cui.completeslash)
 end -- }}}
 
 ---Create new scratch buffer

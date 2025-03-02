@@ -34,7 +34,7 @@ return {
         group_style = 'DiagnosticInfo',
         icon_style = 'DiagnosticSignInfo',
         priority = 30,
-        skip_history = true,
+        skip_history = false,
         -- format_message = require('fidget.progress.display').default_format_message,
         format_annote = function(msg)
           return msg.title

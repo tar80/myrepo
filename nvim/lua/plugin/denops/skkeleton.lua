@@ -8,7 +8,6 @@ local skkeleton_init = function() -- {{{2
     globalDictionaries = { '~/.skk/SKK-JISYO.L.yaml' },
     globalKanaTableFiles = { helper.myrepo_path('nvim/skk/azik_us.rule') },
     eggLikeNewline = true,
-    usePopup = true,
     showCandidatesCount = 2,
     markerHenkan = '🐤',
     markerHenkanSelect = '🐥',

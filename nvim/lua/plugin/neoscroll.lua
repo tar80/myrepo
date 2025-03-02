@@ -10,7 +10,7 @@ return {
     {
       '<C-d>',
       function()
-        require('neoscroll').ctrl_d({ duration = 60, easing = 'cubic' })
+        require('neoscroll').ctrl_d({ duration = 100, easing = 'cubic' })
       end,
       mode = { 'n', 'x' },
       desc = 'Neoscroll half down',
@@ -18,7 +18,7 @@ return {
     {
       '<C-u>',
       function()
-        require('neoscroll').ctrl_u({ duration = 60, easing = 'cubic' })
+        require('neoscroll').ctrl_u({ duration = 100, easing = 'cubic' })
       end,
       mode = { 'n', 'x' },
       desc = 'Neoscroll half up',

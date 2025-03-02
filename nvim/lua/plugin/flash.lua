@@ -1,13 +1,11 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 
----@param pre integer[] Cursor position before flash execution
----@param post integer[] Cursor position after flash execution
-local beacon = function(pre, post)
-  local ok, beacon = pcall(require, 'fret.beacon')
-  if ok and not vim.deep_equal(pre, post) then
-    beacon.flash_cursor(0, 'FlashLabel', 80, 30, 15)
+local beacon = (function()
+  local ok, beacon = pcall(require, 'tartare.beacon')
+  if ok then
+    return beacon.new('FlashLabel', 80, 30, 15)
   end
-end
+end)()
 
 local NORMAL_LABELS = 'asdfgtrewqhjkluiopnmbvcxz'
 local SEARCH_LABELS = '*nNasdfglkjhqwertgbvcxzpoiuym'
@@ -165,7 +163,9 @@ return {
         local pre = vim.api.nvim_win_get_cursor(0)
         require('flash').jump({ search = { mode = 'exact' } })
         local post = vim.api.nvim_win_get_cursor(0)
-        beacon(pre, post)
+        if beacon and not vim.deep_equal(pre, post) then
+          beacon:around_cursor(0)
+        end
       end,
       desc = 'Flash',
     },
@@ -173,7 +173,7 @@ return {
       '<Space>',
       mode = { 'x', 'o' },
       function()
-        if vim.bo.filetype ~= '' then
+        if type(vim.treesitter.get_node()) == 'userdata' then
           require('flash').treesitter()
         end
       end,
@@ -191,7 +191,7 @@ return {
       'R',
       mode = { 'o' },
       function()
-        if vim.bo.filetype ~= '' then
+        if type(vim.treesitter.get_node()) == 'userdata' then
           vim.cmd.normal('ma')
           require('flash').treesitter_search({ remote_op = { restore = true, motion = false } })
           vim.defer_fn(function()

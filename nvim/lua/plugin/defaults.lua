@@ -15,6 +15,27 @@ vim.api.nvim_create_autocmd('UIEnter', {
   end,
 })
 
+local function git_branch() -- {{{3
+  local repo = vim.uv.cwd():gsub('^(.+[/\\])', '')
+  local branch = vim.b.mug_branch_name or ''
+  local detach = vim.b.mug_branch_info or ''
+  detach = detach ~= '' and ('(%s) '):format(detach) or ' '
+  local state = vim.b.mug_branch_stats
+  state = state
+      and ('%s+%s%s~%s%s!%s%s '):format(
+        '%#DiagnosticSignOk#',
+        state.s,
+        '%#DiagnosticSignWarn#',
+        state.u,
+        '%#DiagnosticSignError#',
+        state.c,
+        '%*'
+      )
+    or ''
+  local details = branch .. detach .. state
+  return details == ' ' and '' or ('%s %s:%%#Special#%s '):format(require('icon').git.branch, repo, details)
+end -- }}}
+
 return { -- {{{2
   ---@library
   { 'nvim-lua/plenary.nvim', lazy = true },
@@ -39,6 +60,7 @@ return { -- {{{2
       end
     end,
   }, -- }}}
+  -- { 'tar80/tartare.nvim', event = 'UIEnter', opts = {}, },
 
   ---@desc On event
   { -- {{{3 cellwidths
@@ -64,17 +86,22 @@ return { -- {{{2
           0x203A,
           0x2640,
           0x25B6,
+          0x25B8,
+          0x25BE,
           0x2642,
           0x2660,
           0x2663,
           0xE0B4,
           0xE0B6,
           0xE0B8,
+          0xE0B9,
           0xE0BA,
+          0xE0BB,
           0xE0BC,
           0xE0BD,
           0xE0BE,
           0xE0BF,
+          0xE0C5,
           0xE0C7,
           0xE216,
           0xE285,
@@ -89,7 +116,16 @@ return { -- {{{2
           0xF126,
           0xF128,
           0xF444,
-          0xF445,
+          0xF44A,
+          0xF44B,
+          0xF460,
+          0xF47C,
+          0xF0140,
+          0xF0142,
+          0xF035D,
+          0xF035F,
+          0xF0FF6,
+          0xF1A09,
         })
         return cw
       end,
@@ -99,7 +135,61 @@ return { -- {{{2
     end,
   }, -- }}}
   -- { 'folke/ts-comments.nvim', event = 'VeryLazy', opts = {} },
-  { 'tar80/rereope.nvim', opts = {} },
+
+  { -- {{{3 staba
+    'tar80/staba.nvim',
+    dependencies = { 'nvim-web-devicons' },
+    config = function()
+      vim.keymap.set('n', 'gb', '<Plug>(staba-pick)')
+      vim.keymap.set('n', '<Space>1', '<Plug>(staba-cleanup)')
+      vim.keymap.set('n', '<Space>q', '<Plug>(staba-delete-select)')
+      vim.keymap.set('n', '<Space>qq', '<Plug>(staba-delete-current)')
+      require('staba').setup({
+        -- no_name = '^blank',
+        enable_fade = true,
+        enable_underline = true,
+        enable_statuscolumn = true,
+        enable_statusline = true,
+        enable_tabline = true,
+        mode_line = 'LineNr',
+        ignore_filetypes = {
+          statusline = { 'terminal', 'trouble' },
+        },
+        -- nav_key = '',
+        statusline = {
+          active = {
+            left = { 'staba_logo', 'noice_mode' },
+            middle = { 'search_count' },
+            right = { '%<', 'diagnostics', ' ', git_branch, 'encoding', ' ', 'position' },
+          },
+          -- inactive = { left = {}, middle = { 'devicon', 'filename', '%*' }, right = {} },
+        },
+        tabline = {},
+        -- icons = {},
+      })
+    end,
+    event = 'UIEnter',
+    dev = true,
+  }, -- }}}
+  { -- {{{ rereope
+    'tar80/rereope.nvim',
+    opts = {},
+    dev = true,
+    keys = {
+      {
+        '_',
+        function()
+          require('rereope').open('_', {
+            end_point = false,
+            beacon = { 'FretAlternative', 100, 30, 15 },
+            hint = { winblend = 10, border = { '', '', '', '', '', '', '', '┃' } },
+          })
+        end,
+        mode = { 'n', 'x' },
+        desc = 'Rereope regular replace',
+      },
+    },
+  }, -- }}}
   { -- {{{3 mug
     'tar80/mug.nvim',
     dev = true,
@@ -166,8 +256,8 @@ return { -- {{{2
       ignore_filetypes = { 'TelescopePrompt', 'TelescopeResults', 'cmp-menu', 'cmp-docs' },
       -- ignore_buftypes = {},
       jump_key = '%',
-      indicator = 200,
-      sign = true,
+      indicator = 0,
+      sign = false,
       show_parent = true,
       show_next = true,
     },
@@ -211,60 +301,6 @@ return { -- {{{2
       vim.g['sandwich#magicchar#f#patterns'] = {
         { header = [[\<\%(\h\k*\.\)*\h\k*]], bra = '(', ket = ')', footer = '' },
       }
-    end,
-  }, -- }}}
-  { -- {{{3 ReplaceWithRegister
-    'inkarkat/vim-ReplaceWithRegister',
-    init = function()
-      local popup_register = function(input) -- {{{
-        if vim.fn.reg_executing() ~= '' then
-          return input
-        end
-        local mode = vim.api.nvim_get_mode().mode:lower()
-        if mode:find('v', 1, true) or mode == [[]] then
-          return input
-        end
-        ---@diagnostic disable-next-line: redundant-parameter
-        local reg_str = vim.fn.getreg(input, 1, 1)
-        ---@cast reg_str -string
-        if vim.tbl_isempty(reg_str) then
-          input = '0'
-          ---@diagnostic disable-next-line: redundant-parameter
-          reg_str = vim.fn.getreg(input, 1, 1)
-        end
-        vim.schedule(function()
-          local float = require('float').popup({
-            border = vim.g.float_border,
-            data = reg_str,
-            winblend = 0,
-            hl = { link = 'SpecialKey' },
-          })
-          api.nvim_create_autocmd({ 'ModeChanged' }, {
-            group = augroup,
-            -- pattern = '*',
-            pattern = 'no:[nc]*',
-            once = true,
-            callback = function()
-              print(vim.api.nvim_get_mode().mode)
-              if float and api.nvim_buf_is_valid(float[1]) then
-                api.nvim_buf_delete(float[1], { force = true })
-              end
-            end,
-          })
-        end)
-        return input
-      end -- }}}
-      keymap.set({ 'n', 'x' }, '_', function()
-        local input = '*'
-        input = popup_register(input)
-        return string.format('"%s<Plug>ReplaceWithRegisterOperator', input)
-      end, { expr = true })
-      keymap.set({ 'n', 'x' }, '\\', function()
-        local input = vim.fn.nr2char(vim.fn.getchar())
-        input = input == '\\' and '0' or input
-        input = popup_register(input)
-        return string.format('"%s<Plug>ReplaceWithRegisterOperator', input)
-      end, { expr = true })
     end,
   }, -- }}}
   { 'kana/vim-niceblock', event = 'ModeChanged' },
@@ -314,7 +350,7 @@ return { -- {{{2
   }, -- }}}
   { -- {{{3 registers
     'tversteeg/registers.nvim',
-    keys = { { '""', mode = { 'n', 'x' } }, { '<C-R>', mode = 'i' } },
+    keys = { { '""', mode = { 'n', 'x' } }, { '<C-r>', mode = 'i' } },
     config = function()
       local registers = require('registers')
       keymap.set({ 'n', 'x' }, '""', registers.show_window({ mode = 'motion' }), { silent = true, noremap = true })
@@ -420,7 +456,8 @@ return { -- {{{2
     name = 'render-markdown',
     ft = 'markdown',
     opts = {
-      enabled = true,
+      enabled = false,
+      render_modes = { 'n', 'c', 't' },
       debounce = 200,
       preset = 'obsidian',
       bullet = { enabled = true, icons = { '', '', '', '' } },
@@ -430,6 +467,9 @@ return { -- {{{2
         unchecked = { icon = '󰄱', highlight = '@markup.list.unchecked' },
         checked = { icon = '󰱒', highlight = '@markup.list.unchecked' },
         custom = { todo = { raw = '[-]', rendered = '󰥔', highlight = '@markup.raw' } },
+      },
+      anti_conceal = {
+        enabled = false,
       },
       on = {
         attach = function()

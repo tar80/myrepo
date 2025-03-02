@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Auto Close YouTube Ads
 // @namespace    http://fuzetsu.acypa.com
-// @version      1.4.4
+// @version      1.4.7
 // @description  Close and/or Mute YouTube ads automatically!
 // @author       fuzetsu
 // @run-at       document-body
@@ -22,9 +22,10 @@
  */
 const CSS = {
   // the button used to skip an ad
-  skipButton: '.videoAdUiSkipButton,.ytp-ad-skip-button',
+  skipButton:
+    '.videoAdUiSkipButton,.ytp-ad-skip-button,.ytp-ad-skip-button-modern,.ytp-skip-ad-button',
   // the area showing the countdown to the skip button showing
-  preSkipButton: '.videoAdUiPreSkipButton,.ytp-ad-preview-container',
+  preSkipButton: '.videoAdUiPreSkipButton,.ytp-ad-preview-container,.ytp-preview-ad',
   // little x that closes banner ads
   closeBannerAd: '.close-padding.contains-svg,a.close-button,.ytp-ad-overlay-close-button',
   // button that toggle mute on the video
@@ -32,13 +33,13 @@ const CSS = {
   // the slider bar handle that represents the current volume
   muteIndicator: '.ytp-volume-slider-handle',
   // container for ad on video
-  adArea: '.videoAdUi,.ytp-ad-player-overlay',
+  adArea: '.videoAdUi,.ytp-ad-player-overlay,.ytp-ad-player-overlay-layout',
   // container that shows ad length eg 3:23
   adLength: '.videoAdUiAttribution,.ytp-ad-duration-remaining',
   // container for header ad on the home page
   homeAdContainer: '#masthead-ad'
 }
- 
+
 const util = {
   log: (...args) => console.log(`%c${SCRIPT_NAME}:`, 'font-weight: bold;color: purple;', ...args),
   clearTicks: ticks => {
@@ -68,12 +69,13 @@ const util = {
   getPath: (obj, path) =>
     obj == null ? null : path.length > 0 ? util.getPath(obj[path.pop()], path) : obj
 }
- 
+
 const SCRIPT_NAME = 'Auto Close YouTube Ads'
 const SHORT_AD_MSG_LENGTH = 12000
 const TICKS = []
 let DONT_SKIP = false
- 
+const CONFIG_VERSION = 2
+
 const config = GM_config([
   {
     key: 'muteAd',
@@ -123,45 +125,14 @@ const config = GM_config([
   {
     key: 'version',
     type: 'hidden',
-    default: 1
+    default: CONFIG_VERSION
   }
 ])
- 
-const configVersion = 2
+
 let conf = config.load()
- 
+
 config.onsave = cfg => (conf = cfg)
- 
-// config upgrade procedure
-function upgradeConfig() {
-  let lastVersion
-  while (conf.version < configVersion && lastVersion !== conf.version) {
-    util.log('upgrading config version, current = ', conf.version, ', target = ', configVersion)
-    lastVersion = conf.version
-    switch (conf.version) {
-      case 1: {
-        const oldConf = {
-          muteAd: util.storeGet('MUTE_AD'),
-          hideAd: util.storeGet('HIDE_AD'),
-          secWait: util.storeGet('SEC_WAIT')
-        }
- 
-        if (oldConf.muteAd != null) conf.muteAd = !!oldConf.muteAd
-        if (oldConf.hideAd != null) conf.hideAd = !!oldConf.hideAd
-        if (oldConf.secWait != null && !isNaN(oldConf.secWait))
-          conf.secWaitBanner = conf.secWaitVideo = parseInt(oldConf.secWait)
- 
-        conf.version = 2
- 
-        config.save(conf)
-        ;['SEC_WAIT', 'HIDE_AD', 'MUTE_AD'].forEach(util.storeDel)
-        break
-      }
-    }
-  }
-}
-upgradeConfig()
- 
+
 function createMessageElement() {
   const elem = document.createElement('div')
   elem.setAttribute(
@@ -177,11 +148,12 @@ function showMessage(container, text, ms) {
   util.log(`showing message [${ms}ms]: ${text}`)
   setTimeout(() => message.remove(), ms)
 }
- 
+
 function setupCancelDiv(ad) {
   const skipArea = util.q(CSS.preSkipButton, ad)
   const skipText = skipArea && skipArea.textContent.trim().replace(/\s+/g, ' ')
-  if (skipText && !['will begin', 'will play'].some(snip => skipText.includes(snip))) {
+  if (skipText) {
+    if (['will begin', 'will play', 'plays soon'].some(snip => skipText.includes(snip))) return
     const cancelClass = 'acya-cancel-skip'
     let cancelDiv = util.q('.' + cancelClass)
     if (cancelDiv) cancelDiv.remove()
@@ -205,7 +177,7 @@ function setupCancelDiv(ad) {
     util.log("skip button area wasn't there for some reason.. couldn't place cancel button.")
   }
 }
- 
+
 function parseTime(str) {
   const [minutes, seconds] = str
     .split(' ')
@@ -215,17 +187,17 @@ function parseTime(str) {
   util.log(str, minutes, seconds)
   return minutes * 60 + seconds || 0
 }
- 
+
 const getMuteButton = () => util.qq(CSS.muteButton).find(elem => elem.offsetParent)
 const getMuteIndicator = () => util.qq(CSS.muteIndicator).find(elem => elem.offsetParent)
 const isMuted = m => m.style.left === '0px'
- 
+
 function getAdLength(ad) {
   if (!ad) return 0
   const time = ad.querySelector(CSS.adLength)
   return time ? parseTime(time.textContent) : 0
 }
- 
+
 function waitForAds() {
   DONT_SKIP = false
   TICKS.push(
@@ -254,6 +226,7 @@ function waitForAds() {
     waitForElems({
       sel: CSS.adArea,
       onmatch: ad => {
+        util.log('Video ad detected')
         // reset don't skip
         DONT_SKIP = false
         const adLength = getAdLength(ad)
@@ -280,11 +253,15 @@ function waitForAds() {
         const muteButton = getMuteButton()
         const muteIndicator = getMuteIndicator()
         if (!muteIndicator) return util.log('unable to determine mute state, skipping mute')
-        muteButton.click()
-        util.log('Video ad detected, muting audio')
+        if (isMuted(muteIndicator)) {
+          util.log('Audio is already muted')
+        } else {
+          util.log('Muting audio')
+          muteButton.click()
+        }
         // wait for the ad to disappear before unmuting
         util.keepTrying(250, () => {
-          if (!util.q(CSS.adArea)) {
+          if (!ad.offsetParent) {
             if (isMuted(muteIndicator)) {
               muteButton.click()
               util.log('Video ad ended, unmuting audio')
@@ -306,7 +283,7 @@ function waitForAds() {
     })
   )
 }
- 
+
 const waitAndClick = (sel, ms, cb) =>
   waitForElems({
     sel: sel,
@@ -318,9 +295,9 @@ const waitAndClick = (sel, ms, cb) =>
       }, ms)
     }
   })
- 
+
 util.log('Started')
- 
+
 if (window.self === window.top) {
   let videoUrl
   // close home ad whenever encountered
@@ -352,5 +329,5 @@ if (window.self === window.top) {
     waitForAds()
   }
 }
- 
+
 GM_registerMenuCommand('Auto Close Youtube Ads - Manage Settings', config.setup)

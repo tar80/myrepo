@@ -31,6 +31,8 @@ dof diff off
 dor difforg
 ht hitest
 ct colortest
+bt deno task build
+bp npm run build:prod
 
 # normal
 ]p インデントを考慮して張り付け

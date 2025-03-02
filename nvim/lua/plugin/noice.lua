@@ -12,9 +12,9 @@ local function create_border(sep_l, sep_r, hlgroup)
 end
 
 local border = { -- {{{2
-  notify = create_border('', icon.sep.bubble.r, 'NoiceMiniHintReverse'),
-  warn = create_border(icon.sep.bubble.l, '', 'NoiceMiniWarnReverse'),
-  error = create_border(icon.sep.bubble.l, '', 'NoiceMiniErrorReverse'),
+  notify = create_border(icon.sep.bubble.l, icon.sep.bubble.r, 'NoiceMiniHintReverse'),
+  warn = create_border(icon.sep.bubble.l, icon.sep.bubble.r, 'NoiceMiniWarnReverse'),
+  error = create_border(icon.sep.bubble.l, icon.sep.bubble.r, 'NoiceMiniErrorReverse'),
 } -- }}}2
 
 -- {{{2 any_wrap()
@@ -58,6 +58,28 @@ return {
         end,
         desc = 'Noice redirect cmdline',
       },
+      {
+        '<Down>',
+        mode = { 'n', 'i', 's' },
+        function()
+          if not require('noice.lsp').scroll(4) then
+            return '<Down>'
+          end
+        end,
+        expr = true,
+        desc = 'Noice hacked Down',
+      },
+      {
+        '<Up>',
+        mode = { 'n', 'i', 's' },
+        function()
+          if not require('noice.lsp').scroll(-4) then
+            return '<Up>'
+          end
+        end,
+        expr = true,
+        desc = 'Noice hacked Up',
+      },
     }, -- }}}2
     opts = { -- {{{2
       throttle = 1000 / 30,
@@ -71,10 +93,10 @@ return {
           cmdline = { pattern = '^:', icon = icon.symbol.input, lang = 'vim' },
           search_down = { kind = 'search', pattern = '^/', icon = icon.symbol.search_down, lang = 'regex' },
           search_up = { kind = 'search', pattern = '^%?', icon = icon.symbol.search_up, lang = 'regex' },
+          input = { view = 'cmdline', icon = icon.lazy.cmd },
           lua = false,
           filter = false,
           help = false,
-          input = { view = 'cmdline', icon = icon.lazy.cmd },
           -- input = false,
           error = {
             conceal = false,
@@ -90,15 +112,26 @@ return {
         progress = { enabled = false },
         override = {
           ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
-          ['vim.lsp.util.stylize_markdown'] = true,
-          ['cmp.entry.get_documentation'] = true,
+          ['vim.lsp.util.stylize_markdown'] = false,
+          ['cmp.entry.get_documentation'] = false,
         },
         signature = {
-          enabled = true,
-          auto_open = { enabled = false, trigger = true, luasnip = false, throttle = 1000 / 30 },
+          enabled = false,
+          auto_open = { enabled = true, trigger = true, luasnip = false, throttle = 50 },
+          view = nil,
+          opts = {
+            replace = true,
+            render = 'plain',
+            format = { '{message}' },
+            win_options = { concealcursor = 'n', conceallevel = 3 },
+          },
         },
       }, -- }}}3
-      popupmenu = { enabled = false },
+      popupmenu = {
+        enabled = true,
+        backend = 'cmp',
+        kind_icons = {},
+      },
       presets = { -- {{{3
         bottom_search = true,
         command_palette = false,
@@ -145,30 +178,52 @@ return {
           filter = {
             any = any_wrap(
               { event = 'lsp', kind = 'progress', find = 'iagnos' },
-              -- { event = 'msg_show', kind = '', find = '' }
-              filter_wrap('msg_show', { '', 'lua_print' }, { 'written', '; after', '; before', 'yanked' })
+              { event = 'msg_show', kind = 'echomsg', find = 'Replaced' },
+              filter_wrap('msg_show', { '', 'lua_print' }, { 'written', '; after', '; before', 'lines' })
             ),
           },
         },
       }, -- }}}3
       views = { -- {{{3
+        hover = { -- {{{4
+          view = 'popup',
+          relative = 'cursor',
+          zindex = 45,
+          enter = false,
+          anchor = 'auto',
+          size = {
+            width = 'auto',
+            height = 'auto',
+            max_height = 7,
+            max_width = 120,
+          },
+          border = {
+            style = icon.border.quotation,
+            padding = { 0, 1 },
+          },
+          position = { row = 1, col = 0 },
+          win_options = {
+            wrap = true,
+            linebreak = true,
+          },
+        }, -- }}}
         cmdline = { -- {{{4
           backend = 'popup',
           relative = 'editor',
-          position = { row = -1, col = 0 },
+          position = { row = '100%', col = 0 },
           size = { height = 'auto', width = '100%' },
           border = { style = 'none' },
           win_options = {
-            winblend = 0,
+            winblend = 50,
             winhighlight = { Normal = 'NoiceCmdline', IncSearch = '', CurSearch = '', Search = '' },
           },
         }, -- }}}4
         notify = { -- {{{4
-          format = { ' {message} ' },
+          format = { '  {message} ' },
           backend = 'mini',
           relative = 'editor',
           align = 'message-left',
-          timeout = 5000,
+          timeout = 2500,
           reverse = false,
           focusable = false,
           position = { row = -1, col = 0 },
@@ -186,10 +241,10 @@ return {
           relative = 'editor',
           align = 'message-right',
           timeout = 5000,
-          reverse = true,
+          reverse = false,
           focusable = false,
-          position = { row = -1, col = 0 },
-          size = { width = 'auto', height = 'auto', max_height = 5, min_length = 20 },
+          position = { row = -1, col = '100%' },
+          size = { width = 'auto', height = 'auto', max_height = 5, max_length = 100, min_length = 20 },
           border = { style = border.warn },
           zindex = 20,
           win_options = {
@@ -203,10 +258,10 @@ return {
           relative = 'editor',
           align = 'message-right',
           timeout = 7000,
-          reverse = true,
+          reverse = false,
           focusable = false,
           position = { row = -1, col = '100%' },
-          size = { width = 'auto', height = 'auto', max_height = 10, min_length = 20 },
+          size = { width = 'auto', height = 'auto', max_height = 10, max_length = 120, min_length = 20 },
           border = { style = border.error },
           zindex = 10,
           win_options = {
@@ -232,6 +287,7 @@ return {
     }, -- }}}2
     config = function(_, opts) -- {{{2
       require('noice').setup(opts)
+      vim.keymap.set('n', 'mn', '<Cmd>Noice history<CR>', { desc = 'Noice last' })
       vim.schedule(function()
         local msg = ('Startup time: %s'):format(require('lazy').stats().startuptime)
         vim.notify(msg, 1)

@@ -6,7 +6,7 @@ return {
   event = { 'CursorMoved', 'InsertEnter', 'CmdlineEnter' },
   dependencies = { -- {{{
     'hrsh7th/cmp-nvim-lsp',
-    -- 'hrsh7th/cmp-nvim-lsp-signature-help',
+    'hrsh7th/cmp-nvim-lsp-signature-help',
     'hrsh7th/vim-vsnip',
     'hrsh7th/cmp-vsnip',
     'hrsh7th/cmp-buffer',
@@ -17,10 +17,10 @@ return {
     { 'uga-rosa/cmp-dictionary', opts = { first_case_insensitive = true } },
   }, -- }}}
   config = function()
-    local cmp_icon = require('icon').cmp
-    local cmp_border = require('icon').border.solid
-    local helper = require('helper')
     local cmp = require('cmp')
+    local icon = require('icon').cmp
+    local border = require('icon').border
+    local helper = require('helper')
     local feedkey = helper.feedkey
 
     ---@desc Vsnip
@@ -28,22 +28,24 @@ return {
 
     ---@desc kinds{{{
     local kind = {
-      vsnip = { icon = cmp_icon.vsnip, alias = 'V-snip' },
-      dictionary = { icon = cmp_icon.dictionary, alias = 'Dictionary' },
+      vsnip = { icon = icon.vsnip, alias = 'V-snip' },
+      dictionary = { icon = icon.dictionary, alias = 'Dictionary' },
       nvim_lsp = { icon = nil, alias = 'Lsp' },
-      nvim_lua = { icon = cmp_icon.nvim_lua, alias = nil },
-      -- nvim_lsp_signature_help = { icon = cmp_icon.nvim_lsp_signature_help, alias = nil },
-      buffer = { icon = cmp_icon.buffer, alias = 'Buffer' },
-      path = { icon = cmp_icon.path, alias = nil },
-      cmdline = { icon = cmp_icon.cmdline, alias = nil },
+      nvim_lua = { icon = icon.nvim_lua, alias = nil },
+      nvim_lsp_signature_help = { icon = icon.nvim_lsp_signature_help, alias = nil },
+      buffer = { icon = icon.buffer, alias = 'Buffer' },
+      path = { icon = icon.path, alias = nil },
+      cmdline = { icon = icon.cmdline, alias = nil },
     }
     local display_kind = function(entry, item)
       local v = kind[entry.source.name]
-      if v.alias == 'Lsp' then
-        v.icon = cmp_icon[item.kind]
+      if v then
+        if v.alias == 'Lsp' then
+          v.icon = icon[item.kind]
+        end
+        item.kind = v.icon
+        -- item.kind = string.format('%s%s', v.icon, v.alias or item.kind)
       end
-      item.kind = v.icon
-      -- item.kind = string.format('%s%s', v.icon, v.alias or item.kind)
       return item
     end
     local no_display_kind = function(_, item)
@@ -64,12 +66,11 @@ return {
         return true
       end,
       -- completion = { keyword_length = 2 },
-      performance = { debounce = 10, throttle = 25 },
+      performance = { debounce = 30, throttle = 30 },
       -- experimental = { ghost_text = { hl_group = 'CmpGhostText' } },
       window = {
-        completion = { scrolloff = 1 },
-        -- completion = cmp.config.window.bordered(),
-        documentation = cmp.config.window.bordered({border = cmp_border})
+        completion = { scrolloff = 1, side_padding = 1 },
+        documentation = { border = border.quotation },
       },
       snippet = { -- {{{
         expand = function(args)
@@ -79,7 +80,7 @@ return {
       sources = cmp.config.sources({ -- {{{
         { name = 'vsnip' },
         { name = 'nvim_lsp', max_item_count = 20 },
-        -- { name = 'nvim_lsp_signature_help' },
+        { name = 'nvim_lsp_signature_help' },
         { name = 'dictionary', keyword_length = 2 },
         {
           name = 'buffer',
@@ -107,7 +108,7 @@ return {
           return cmp.visible() and cmp.select_next_item() or cmp.complete()
         end, { 'i', 'c' }),
         ['<C-e>'] = cmp.mapping(function(_)
-          return cmp.visible() and cmp.abort() or feedkey('<Home>','')
+          return cmp.visible() and cmp.abort() or feedkey('<Home>', '')
         end, { 'i' }),
         ['<C-y>'] = cmp.mapping(function(_)
           return cmp.visible() and cmp.close() or feedkey('<End>', '')

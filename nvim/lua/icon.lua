@@ -5,6 +5,7 @@ M.symbol = {
   search_down = '',
   search_up = '',
   bar = '┃',
+  bar2 = '▋',
   circle = '',
   circle2 = '',
   square = '',
@@ -108,7 +109,7 @@ M.cmp = {
 }
 M.border = {
   solid = { '┌', '─', '┐', '│', '┘', '─', '└', '│' },
-  quotation = { '', '', '', '', '', '', '', '┃' },
+  quotation = { '', '', '', '', '', '', '', { M.symbol.bar2, 'SpecialKey' } },
   top_dash = { '', { '┄', '@comment' }, '', '', '', '', '', '' },
   bot_dash = { '', '', '', '', '', { '┄', '@comment' }, '', '' },
 }

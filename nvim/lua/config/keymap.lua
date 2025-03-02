@@ -10,6 +10,7 @@ local helper = require('helper')
 ---@desc Functions {{{1
 local function toggleShellslash() -- {{{2
   vim.opt_local.shellslash = not api.nvim_get_option_value('shellslash', { scope = 'global' })
+  vim.bo.completeslash = vim.o.shellslash and 'slash' or 'backslash'
   vim.cmd.redrawstatus()
   vim.cmd.redrawtabline()
 end
@@ -74,6 +75,7 @@ local abbrev = { -- {{{2
 } ---}}}2
 abbrev.tbl = { --- {{{2
   ia = {
+    ['cache'] = { 'chace', 'chache' },
     ['export'] = { 'exprot', 'exoprt' },
     ['field'] = { 'filed' },
     ['string'] = { 'stirng', 'sting' },
@@ -112,14 +114,21 @@ abbrev:set('va')
 
 ---@desc Keymaps {{{1
 -- Unmap default-mappings {{{2
--- keymap.del('i', '<C-s>')
-keymap.del('n', 'gra')
-keymap.del('n', 'grn')
-keymap.del('n', 'grr')
-keymap.del('n', 'gri')
-keymap.del('n', 'gO')
+if vim.fn.has('nvim-0.11') == 1 then
+  keymap.del('i', '<C-s>')
+  keymap.del('n', 'gra')
+  keymap.del('n', 'grn')
+  keymap.del('n', 'grr')
+  keymap.del('n', 'gri')
+  keymap.del('n', 'gO')
+end
 
 vim.g.mapleader = ';'
+
+---Operator mode{{{2
+keymap.set({ 'o', 'x' }, 'iq', 'iW')
+keymap.set({ 'o', 'x' }, 'aq', 'aW')
+
 ---Normal mode{{{2
 keymap.set('n', '<F1>', function()
   return os.execute('c:/bin/cltc/cltc.exe')
@@ -136,9 +145,9 @@ local repeatable_g = helper.plugkey('g', 'n', true)
 repeatable_g({ 'j', 'k' })
 local repeatable_z = helper.plugkey('z', 'n', true)
 repeatable_z({ 'h', 'j', 'k', 'l' })
-local replaceable_H = helper.plugkey('H','n',true)
+local replaceable_H = helper.plugkey('H', 'n', true)
 replaceable_H('H', '<PageUp>H')
-local replaceable_L = helper.plugkey('L','n',true)
+local replaceable_L = helper.plugkey('L', 'n', true)
 replaceable_L('L', '<PageDown>L')
 
 keymap.set('n', ',', function()
@@ -171,8 +180,24 @@ end, { noremap = true, expr = true, silent = true })
 keymap.set('n', '<Space>', '<C-w>', { remap = true })
 keymap.set('n', '<Space><Space>', '<C-w><C-w>')
 keymap.set('n', '<Space>n', util.scratch_buffer)
--- keymap.set('n', '<Space>q', '<Cmd>bunload<CR>')
-keymap.set('n', '<Space>Q', '<Cmd>bdelete!<CR>')
+-- keymap.set('n', '<Space>q', function()
+--   if not vim.bo.buflisted then
+--     vim.api.nvim_buf_delete(0, { force = true })
+--   else
+--     local bufcount = 0
+--     vim.iter(vim.fn.tabpagebuflist()):each(function(bufnr)
+--       if vim.bo[bufnr].buflisted then
+--         bufcount = bufcount + 1
+--       end
+--     end)
+--     if bufcount > 1 then
+--       vim.api.nvim_win_close(0, false)
+--     else
+--       vim.cmd.close({ mods = { emsg_silent = true } })
+--     end
+--   end
+-- end)
+-- keymap.set('n', '<Space>Q', '<Cmd>lua vim.api.nvim_buf_delete(0,{unload=false})<CR>')
 keymap.set('n', '<Space>c', '<Cmd>tabclose<CR>')
 keymap.set('n', '<Space>-', '<C-w>-<Plug>(space)')
 keymap.set('n', '<Plug>(space)-', '<C-w>-<Plug>(space)')
@@ -237,7 +262,7 @@ keymap.set('!', '<C-v>u', '<C-R>=nr2char(0x)<Left>')
 
 ---Visual mode{{{2
 keymap.set('x', '@', function()
-  local input = fn.nr2char(fn.getchar())
+  local input = fn.nr2char(fn.getchar() --[[@as number]])
   if input:match('[%d%l]') then
     local rgx = '^V?:%%?s'
     local value = fn.getreg(input)

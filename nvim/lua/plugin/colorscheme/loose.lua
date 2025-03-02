@@ -10,7 +10,7 @@ vim.g.tr_bg = nil
 
 ---@type string, string, string
 local global_bg = (function()
-  local time = require('util').adapt_time(7, 17)
+  local time = require('util').adapt_time(7, 18)
   return time == 'daytime' and 'light' or 'dark'
 end)()
 
@@ -41,12 +41,12 @@ return {
       },
       disable = {
         background = tr,
-        cursorline = false,
         eob_lines = true,
+        -- cursorline = true,
         statusline = true,
-        tabline = tr,
-        tabsel = true,
-        tabfille = false,
+        -- tabline = tr,
+        -- tabsel = true,
+        tabfill = true,
       },
       custom_highlights = {
         light = {
@@ -66,10 +66,12 @@ return {
         gitsigns = true,
         flash = true,
         fret = true,
-        matchwith = false,
+        matchwith = true,
         noice = true,
+        rereope = true,
         skkeleton_indicator = true,
         sandwich = true,
+        staba = true,
         trouble = true,
         dap = true,
         dap_virtual_text = true,

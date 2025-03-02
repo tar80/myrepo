@@ -87,16 +87,27 @@ return { -- {{{1 futago
           },
         })
       end, { range = true, desc = 'Code review' })
+      api.nvim_create_user_command('GeminiCommitMessage', function(opts)
+        local _prompt = {
+          'Please generate the following commit message using Conventional Commit notation',
+          'using no uppercase letters and using up to 50 characters in english.',
+          'If listed, add message from the contents of the git diff.',
+          unpack(get_lines(opts)),
+        }
+        vim.fn['futago#git_commit']({
+          prompt = vim.fn.join(_prompt, ''),
+        })
+      end, { range = true, desc = 'Commit message' })
       api.nvim_create_user_command('GeminiTranslateEnglish', function(opts)
         start_chat(
           get_lines(opts),
-          { opener = 'vsplit', history = { { role = 'user', parts = '英訳してください' } } }
+          { opener = 'edit', history = { { role = 'user', parts = '英訳してください' } } }
         )
       end, { range = true, desc = 'English translation' })
       api.nvim_create_user_command('GeminiTranslateJapanese', function(opts)
         start_chat(
           get_lines(opts),
-          { opener = 'vsplit', history = { { role = 'user', parts = '和訳してください' } } }
+          { opener = 'edit', history = { { role = 'user', parts = '和訳してください' } } }
         )
       end, { range = true, desc = 'Japanese translation' })
     end,

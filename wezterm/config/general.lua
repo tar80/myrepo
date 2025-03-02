@@ -21,11 +21,11 @@ return {
   freetype_render_target = 'HorizontalLcd',
   harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
   allow_square_glyphs_to_overflow_width = 'WhenFollowedBySpace',
-  anti_alias_custom_block_glyphs = false,
+  anti_alias_custom_block_glyphs = true,
   bold_brightens_ansi_colors = false,
   custom_block_glyphs = true,
   use_cap_height_to_scale_fallback_fonts = true,
-  -- underline_position = -2,
+  underline_position = -2,
   -- underline_thickness = 1.0,
 
   ---@desc general

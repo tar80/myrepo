@@ -12,6 +12,7 @@ api.nvim_set_option_value('fileformats', 'unix,dos,mac', { scope = 'global' })
 api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
 api.nvim_set_option_value('shada', "'50,<500,/10,:100,h", { scope = 'global' })
 api.nvim_set_option_value('foldtext', 'v:lua.Simple_fold()', { win = 0 })
+-- api.nvim_set_option_value('equalalways', false, { scope = 'global' })
 
 ---Local {{{2
 -- NOTE: api.nvim_set_option_value('name', value, { scope = 'local' })
@@ -52,8 +53,8 @@ o.confirm = true
 -- o.display = 'lastline'
 o.showmode = false
 o.showtabline = 2
-o.laststatus = 3
-o.cmdheight = 1
+o.laststatus = 2
+o.cmdheight = 0
 o.number = true
 o.ruler = false
 -- o.numberwidth = 4
@@ -81,7 +82,7 @@ opt.spelllang:append({ 'cjk' })
 opt.shortmess:append('csS')
 opt.shortmess:remove({ 'fF' })
 -- opt.fillchars = { vert = "█", vertleft = "█", vertright = "█", verthoriz = "█", horiz = "█", horizup = "█", horizdown = "█", }
-opt.fillchars = { diff = ' ', foldclose = '>', foldopen = '⌄', foldsep = '┊' }
+opt.fillchars = { diff = ' ', foldclose = '󰅂', foldopen = '󰅀', foldsep = '┊' }
 o.keywordprg = ':help'
 o.helplang = 'ja'
 o.helpheight = 10
