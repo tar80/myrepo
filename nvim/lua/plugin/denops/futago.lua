@@ -58,7 +58,8 @@ return { -- {{{1 futago
         start_chat(get_lines(opts), {
           opener = 'vsplit',
           history = {
-            { role = 'user', parts = string.format('%sにアノテーションをつけてください', ft) },
+            { role = 'user', parts = { { string.format('Please annotate %s', ft) } } },
+            { role = 'model', parts = { { text = 'ready' } } },
           },
         })
       end, { range = true, desc = 'Add type annotations' })
@@ -66,7 +67,10 @@ return { -- {{{1 futago
         local ft = api.nvim_get_option_value('filetype', {})
         start_chat(get_lines(opts), {
           opener = 'vsplit',
-          history = { { role = 'user', parts = string.format('%sをレビューしてください', ft) } },
+          history = {
+            { role = 'user', parts = { { string.format('%sをレビューしてください', ft) } } },
+            { role = 'model', parts = { { text = 'どんなコードですか？' } } },
+          },
         })
       end, { range = true, desc = 'Code review' })
       api.nvim_create_user_command('GeminiJest', function(opts)
@@ -74,7 +78,8 @@ return { -- {{{1 futago
         start_chat(get_lines(opts), {
           opener = 'vsplit',
           history = {
-            { role = 'user', parts = string.format('%sのJest単体テストを提案してください', ft) },
+            { role = 'user', parts = { { string.format('%sのJest単体テストを提案してください', ft) } } },
+            { role = 'model', parts = { { text = 'どんなコードですか？' } } },
           },
         })
       end, { range = true, desc = 'Code review' })
@@ -83,7 +88,11 @@ return { -- {{{1 futago
         start_chat(get_lines(opts), {
           opener = 'vsplit',
           history = {
-            { role = 'user', parts = string.format('%sのBusted単体テストを提案してください', ft) },
+            {
+              role = 'user',
+              parts = { { string.format('%sのBusted単体テストを提案してください', ft) } },
+            },
+            { role = 'model', parts = { { text = 'どんなコードですか？' } } },
           },
         })
       end, { range = true, desc = 'Code review' })
@@ -99,16 +108,22 @@ return { -- {{{1 futago
         })
       end, { range = true, desc = 'Commit message' })
       api.nvim_create_user_command('GeminiTranslateEnglish', function(opts)
-        start_chat(
-          get_lines(opts),
-          { opener = 'edit', history = { { role = 'user', parts = '英訳してください' } } }
-        )
+        start_chat(get_lines(opts), {
+          opener = 'vsplit',
+          history = {
+            { role = 'user', parts = { { text = '英訳してください' } } },
+            { role = 'model', parts = { { text = 'どんな文章ですか？' } } },
+          },
+        })
       end, { range = true, desc = 'English translation' })
       api.nvim_create_user_command('GeminiTranslateJapanese', function(opts)
-        start_chat(
-          get_lines(opts),
-          { opener = 'edit', history = { { role = 'user', parts = '和訳してください' } } }
-        )
+        start_chat(get_lines(opts), {
+          opener = 'vsplit',
+          history = {
+            { role = 'user', parts = { { '和訳してください' } } },
+            { role = 'user', parts = { { 'どんな文章なんだい？' } } },
+          },
+        })
       end, { range = true, desc = 'Japanese translation' })
     end,
   },

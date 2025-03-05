@@ -198,7 +198,7 @@ keymap.set('n', '<Space>n', util.scratch_buffer)
 --   end
 -- end)
 -- keymap.set('n', '<Space>Q', '<Cmd>lua vim.api.nvim_buf_delete(0,{unload=false})<CR>')
-keymap.set('n', '<Space>c', '<Cmd>tabclose<CR>')
+-- keymap.set('n', '<Space>c', '<Cmd>tabclose<CR>')
 keymap.set('n', '<Space>-', '<C-w>-<Plug>(space)')
 keymap.set('n', '<Plug>(space)-', '<C-w>-<Plug>(space)')
 keymap.set('n', '<Space>;', '<C-w>+<Plug>(space)')
