@@ -50,7 +50,17 @@ return { -- {{{1 futago
         { category = 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold = 'BLOCK_NONE' },
       })
       api.nvim_create_user_command('Gemini', function(opts)
-        start_chat({ opts.args }, { opener = 'split' })
+        start_chat({ opts.args }, {
+          opener = 'split',
+          history = {
+            {
+              role = 'user',
+              parts = {
+                { text = 'ハルシネーションに注意してください。質問の会話部分は日本語で回答してください' },
+              },
+            },
+          },
+        })
       end, { nargs = '?', desc = 'Question to gemini' })
       api.nvim_create_user_command('GeminiAnnotate', function(opts)
         local ft = api.nvim_get_option_value('filetype', {})
@@ -58,8 +68,7 @@ return { -- {{{1 futago
         start_chat(get_lines(opts), {
           opener = 'vsplit',
           history = {
-            { role = 'user', parts = { { string.format('Please annotate %s', ft) } } },
-            { role = 'model', parts = { { text = 'ready' } } },
+            { role = 'user', parts = { { text = string.format('Please annotate %s', ft) } } },
           },
         })
       end, { range = true, desc = 'Add type annotations' })
@@ -68,8 +77,7 @@ return { -- {{{1 futago
         start_chat(get_lines(opts), {
           opener = 'vsplit',
           history = {
-            { role = 'user', parts = { { string.format('%sをレビューしてください', ft) } } },
-            { role = 'model', parts = { { text = 'どんなコードですか？' } } },
+            { role = 'user', parts = { { text = string.format('%sをレビューしてください', ft) } } },
           },
         })
       end, { range = true, desc = 'Code review' })
@@ -78,8 +86,10 @@ return { -- {{{1 futago
         start_chat(get_lines(opts), {
           opener = 'vsplit',
           history = {
-            { role = 'user', parts = { { string.format('%sのJest単体テストを提案してください', ft) } } },
-            { role = 'model', parts = { { text = 'どんなコードですか？' } } },
+            {
+              role = 'user',
+              parts = { { text = string.format('%sのJest単体テストを提案してください', ft) } },
+            },
           },
         })
       end, { range = true, desc = 'Code review' })
@@ -90,9 +100,8 @@ return { -- {{{1 futago
           history = {
             {
               role = 'user',
-              parts = { { string.format('%sのBusted単体テストを提案してください', ft) } },
+              parts = { { text = string.format('%sのBusted単体テストを提案してください', ft) } },
             },
-            { role = 'model', parts = { { text = 'どんなコードですか？' } } },
           },
         })
       end, { range = true, desc = 'Code review' })
@@ -112,7 +121,6 @@ return { -- {{{1 futago
           opener = 'vsplit',
           history = {
             { role = 'user', parts = { { text = '英訳してください' } } },
-            { role = 'model', parts = { { text = 'どんな文章ですか？' } } },
           },
         })
       end, { range = true, desc = 'English translation' })
@@ -120,8 +128,7 @@ return { -- {{{1 futago
         start_chat(get_lines(opts), {
           opener = 'vsplit',
           history = {
-            { role = 'user', parts = { { '和訳してください' } } },
-            { role = 'user', parts = { { 'どんな文章なんだい？' } } },
+            { role = 'user', parts = { { text = '和訳してください' } } },
           },
         })
       end, { range = true, desc = 'Japanese translation' })

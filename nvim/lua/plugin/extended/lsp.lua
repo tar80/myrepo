@@ -78,6 +78,7 @@ local function popup_rename()
       return rename_old
     end,
     post = function()
+      vim.wo.eventignorewin = 'WinLeave'
       keymap.set('i', '<CR>', function()
         vim.cmd.stopinsert({ bang = true })
         local input = api.nvim_get_current_line()
@@ -220,7 +221,7 @@ return {
       local capabilities = cmp_capabilities()
       local flags = {
         allow_incremental_sync = false,
-        debounce_text_changes = 500,
+        debounce_text_changes = 2000,
       }
       ---@type Autocmd_id
       local au_id

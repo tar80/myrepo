@@ -18,7 +18,11 @@ return {
       end,
       ignore = {
         function(msg)
-          if msg.title:find('iagnos', 2, true) or msg.title:find('semantic', 2, true) then
+          if
+            msg.title:find('iagnos', 2, true)
+            or msg.title:find('semantic', 2, true)
+            or msg.title:find('completion', 2, true)
+          then
             return true
           end
         end,

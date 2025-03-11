@@ -2,7 +2,6 @@
 
 local api = vim.api
 local keymap = vim.keymap
-local helper = require('helper')
 
 local augroup = api.nvim_create_augroup('rc_plugin', {})
 vim.api.nvim_create_autocmd('UIEnter', {
@@ -40,24 +39,12 @@ return { -- {{{2
   ---@library
   { 'nvim-lua/plenary.nvim', lazy = true },
   { 'MunifTanjim/nui.nvim', lazy = true },
-  { 'nvim-tree/nvim-web-devicons', lazy = true },
-  { -- {{{3 tiny-devicons-auto-colors
-    'rachartier/tiny-devicons-auto-colors.nvim',
-    -- lazy = true,
-    event = 'VeryLazy',
+  { -- {{{3 mini.icons
+    'echasnovski/mini.icons',
+    lazy = true,
     config = function()
-      local ok, loose = pcall(require, 'loose')
-      local opts = {
-        cache = {
-          enabled = true,
-          path = helper.xdg_path('cache', 'tiny-devicons-auto-colors-cache.json'),
-        },
-        autoreload = true,
-      }
-      if ok then
-        opts.colors = loose.get_palette()
-        require('tiny-devicons-auto-colors').setup(opts)
-      end
+      require('mini.icons').setup()
+      require('mini.icons').mock_nvim_web_devicons()
     end,
   }, -- }}}
   -- { 'tar80/tartare.nvim', event = 'UIEnter', opts = {}, },
@@ -135,10 +122,9 @@ return { -- {{{2
     end,
   }, -- }}}
   -- { 'folke/ts-comments.nvim', event = 'VeryLazy', opts = {} },
-
   { -- {{{3 staba
     'tar80/staba.nvim',
-    dependencies = { 'nvim-web-devicons' },
+    -- dependencies = { 'mini.icons' },
     config = function()
       vim.keymap.set('n', 'gb', '<Plug>(staba-pick)')
       vim.keymap.set('n', '<Space>1', '<Plug>(staba-cleanup)')
@@ -153,6 +139,7 @@ return { -- {{{2
         enable_tabline = true,
         mode_line = 'LineNr',
         ignore_filetypes = {
+          statuscolumn = { 'qf', 'help', 'terminal', 'undotree' },
           statusline = { 'terminal', 'trouble' },
         },
         -- nav_key = '',

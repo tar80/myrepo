@@ -1,4 +1,4 @@
-local util = require('util')
+local helper = require('helper')
 
 ---@desc Disable preset plugins
 vim.g.editorconfig = false
@@ -17,10 +17,10 @@ local level = vim.g.start_level
 vim.g.start_level = nil
 
 if level == 'minimal' then
-  util.unload_presets()
+  helper.unload_presets()
   require('config._minimal')
 elseif level == 'test' then
-  util.shell('nyagos')
+  helper.shell('nyagos')
   -- require('config.private')
   -- require('config.option')
   -- require('config.keymap')
@@ -29,8 +29,8 @@ elseif level == 'test' then
 else
   vim.g.tr_bg = level == 'general'
 
-  util.set_client_server(100, level)
-  util.shell('nyagos')
+  helper.set_client_server(100, level)
+  helper.shell('nyagos')
 
   require('config.private')
   require('config.option')

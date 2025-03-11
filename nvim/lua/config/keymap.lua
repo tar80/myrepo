@@ -4,7 +4,6 @@ local api = vim.api
 local fn = vim.fn
 local o = vim.o
 local keymap = vim.keymap
-local util = require('util')
 local helper = require('helper')
 
 ---@desc Functions {{{1
@@ -135,7 +134,7 @@ keymap.set('n', '<F1>', function()
 end)
 keymap.set({ 'n', 'c' }, '<F4>', toggleShellslash)
 keymap.set('n', '<C-F9>', ppcust_load)
-keymap.set('n', '<F12>', util.toggleWrap)
+keymap.set('n', '<F12>', helper.toggleWrap)
 keymap.set('n', '<C-z>', '<Nop>')
 keymap.set('n', 'dD', '"_dd')
 
@@ -179,7 +178,7 @@ end, { noremap = true, expr = true, silent = true })
 ---Move buffer use <Space>
 keymap.set('n', '<Space>', '<C-w>', { remap = true })
 keymap.set('n', '<Space><Space>', '<C-w><C-w>')
-keymap.set('n', '<Space>n', util.scratch_buffer)
+keymap.set('n', '<Space>n', helper.scratch_buffer)
 -- keymap.set('n', '<Space>q', function()
 --   if not vim.bo.buflisted then
 --     vim.api.nvim_buf_delete(0, { force = true })
@@ -240,12 +239,12 @@ end)
 
 ---Insert/Command mode {{{2
 ---@see https://zenn.dev/vim_jp/articles/2024-10-07-vim-insert-uppercase
-keymap.set('i', '<C-q>', function()
+keymap.set('i', '<C-q>q', function()
   local line = api.nvim_get_current_line()
   local col = api.nvim_win_get_cursor(0)[2]
   local substring = line:sub(1, col)
   local result = vim.fn.matchstr(substring, [[\v<(\k(<)@!)*$]])
-  return string.format('<C-w>%s', result:upper())
+  return ('<C-w>%s'):format(result:upper())
 end, { expr = true })
 keymap.set('i', '<M-j>', '<C-g>U<Down>')
 keymap.set('i', '<M-k>', '<C-g>U<Up>')
@@ -256,9 +255,10 @@ keymap.set('i', '<C-k>', '<Delete>')
 keymap.set('i', '<C-f>', '<Right>')
 keymap.set('i', '<C-b>', '<Left>')
 keymap.set('i', '<C-z>', '<C-a><Esc>')
+keymap.set('i', '<C-u>', '<Cmd>normal u<CR>')
 keymap.set('c', '<C-a>', '<Home>')
 keymap.set('c', '<C-b>', '<Left>')
-keymap.set('!', '<C-v>u', '<C-R>=nr2char(0x)<Left>')
+keymap.set('!', '<C-q>u', '<C-R>=nr2char(0x)<Left>')
 
 ---Visual mode{{{2
 keymap.set('x', '@', function()
@@ -286,11 +286,11 @@ keymap.set('x', '<', '<gv')
 keymap.set('x', '>', '>gv')
 ---search for cursor under string without moving cursor
 -- keymap.set('n', '*', function()
---   util.search_star()
+--   helper.search_star()
 -- end, { expr = true })
 -- keymap.set('n', 'g*', function()
---   util.search_star(true)
+--   helper.search_star(true)
 -- end, { expr = true })
 -- keymap.set('x', '*', function()
---   util.search_star(false, true)
+--   helper.search_star(false, true)
 -- end, { expr = true })

@@ -115,12 +115,12 @@ return {
         end, { 'i' }),
         ['<Down>'] = cmp.mapping.scroll_docs(4),
         ['<Up>'] = cmp.mapping.scroll_docs(-4),
-        ['<C-d>'] = cmp.mapping(function(fallback)
-          return cmp.visible() and cmp.mapping.scroll_docs(4) or fallback()
-        end, { 'i', 'c' }),
-        ['<C-u>'] = cmp.mapping(function(fallback)
-          return cmp.visible() and cmp.mapping.scroll_docs(-4) or fallback()
-        end, { 'i', 'c' }),
+        -- ['<C-d>'] = cmp.mapping(function(fallback)
+        --   return cmp.visible() and cmp.mapping.scroll_docs(4) or fallback()
+        -- end, { 'i', 'c' }),
+        -- ['<C-u>'] = cmp.mapping(function(fallback)
+        --   return cmp.visible() and cmp.mapping.scroll_docs(-4) or fallback()
+        -- end, { 'i', 'c' }),
         ['<CR>'] = function(fallback)
           if cmp.visible() and (cmp.get_selected_entry() ~= nil) then
             return cmp.confirm({ select = false })

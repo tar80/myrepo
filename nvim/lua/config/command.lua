@@ -55,7 +55,7 @@ api.nvim_create_autocmd('CursorHoldI', {
   group = augroup,
   callback = function()
     if vim.bo.filetype ~= 'TelescopePrompt' then
-      api.nvim_set_option_value('cursorline', true, { win = 0 })
+      api.nvim_set_option_value('cursorline', true, {})
     end
   end,
 })
@@ -66,7 +66,7 @@ api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
   group = augroup,
   callback = function()
     if api.nvim_get_mode().mode == 'i' and vim.bo.filetype ~= 'TelescopePrompt' then
-      api.nvim_set_option_value('cursorline', true, { win = 0 })
+      api.nvim_set_option_value('cursorline', true, {})
     end
   end,
 })
@@ -102,14 +102,14 @@ api.nvim_create_autocmd('TextYankPost', {
 
 ---Supports changing options that affect diff and folding {{{2
 local FOLD_SEP = ' » '
-local foldmarker = vim.split(api.nvim_get_option_value('foldmarker', { win = 0 }), ',', { plain = true })
+local foldmarker = vim.split(api.nvim_get_option_value('foldmarker', {}), ',', { plain = true })
 api.nvim_create_autocmd('OptionSet', {
   desc = 'Set settings',
   group = augroup,
   pattern = { 'diff', 'foldmarker' },
   callback = function(opts)
     if opts.match == 'foldmarker' then
-      foldmarker = vim.split(api.nvim_get_option_value('foldmarker', { win = 0 }), ',')
+      foldmarker = vim.split(api.nvim_get_option_value('foldmarker', {}), ',', { plain = true })
     elseif opts.match == 'diff' then
       if vim.o.diff then
         keymap.set('x', 'do', ':diffget<CR>', { buffer = opts.buf, desc = 'Get selection diff' })
@@ -133,7 +133,7 @@ api.nvim_create_autocmd('OptionSet', {
 
 function Simple_fold() -- {{{3
   ---this code is based on https://github.com/tamton-aquib/essentials.nvim
-  local cms = api.nvim_get_option_value('commentstring', { buf = 0 })
+  local cms = api.nvim_get_option_value('commentstring', {})
   cms = cms:gsub('(%S+)%s*%%s.*', '%1')
   local open, close = api.nvim_get_vvar('foldstart'), api.nvim_get_vvar('foldend')
   local line_count = string.format('%s lines', close - open)

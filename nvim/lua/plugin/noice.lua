@@ -80,6 +80,18 @@ return {
         expr = true,
         desc = 'Noice hacked Up',
       },
+      {
+        'ma',
+        mode = { 'n' },
+        '<Cmd>NoiceAll<CR>',
+        desc = 'Noice all log',
+      },
+      {
+        'ms',
+        mode = { 'n' },
+        '<Cmd>Noice history<CR>',
+        desc = 'Noice messages',
+      },
     }, -- }}}2
     opts = { -- {{{2
       throttle = 1000 / 30,
@@ -287,7 +299,6 @@ return {
     }, -- }}}2
     config = function(_, opts) -- {{{2
       require('noice').setup(opts)
-      vim.keymap.set('n', 'mn', '<Cmd>Noice history<CR>', { desc = 'Noice last' })
       vim.schedule(function()
         local msg = ('Startup time: %s'):format(require('lazy').stats().startuptime)
         vim.notify(msg, 1)

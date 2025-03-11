@@ -1,12 +1,16 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 
-local LIGHT_THEME = 'light'
-local DARK_THEME = 'mallow'
+local light_theme = 'light'
+local dark_theme = 'mallow'
 
 ---Transparent background
 ---@type boolean|nil
 local tr = vim.g.tr_bg
-vim.g.tr_bg = nil
+if tr then
+  vim.o.winblend = 0
+  light_theme = 'veil'
+  dark_theme = 'veil'
+end
 
 ---@type string, string, string
 local global_bg = (function()
@@ -23,21 +27,21 @@ return {
     opts = {
       enable_usercmd = true,
       background = global_bg,
-      theme = { light = LIGHT_THEME, dark = DARK_THEME },
+      theme = { light = light_theme, dark = dark_theme },
       borders = true,
       fade_nc = false,
       fade_tr = false,
       styles = {
         comments = 'italic',
-        strings = 'NONE',
-        keywords = 'bold',
-        functions = 'NONE',
-        variables = 'NONE',
         deprecated = 'NONE',
         diagnostics = 'undercurl',
+        functions = 'NONE',
+        keywords = 'bold',
         references = 'NONE',
-        virtualtext = 'italic',
         spell = 'undercurl,italic',
+        strings = 'NONE',
+        variables = 'NONE',
+        virtualtext = 'italic',
       },
       disable = {
         background = tr,
@@ -67,6 +71,8 @@ return {
         flash = true,
         fret = true,
         matchwith = true,
+        mini_diff = true,
+        mini_icons = true,
         noice = true,
         rereope = true,
         skkeleton_indicator = true,

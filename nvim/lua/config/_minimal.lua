@@ -4,7 +4,7 @@ local api = vim.api
 local opt = vim.opt
 local o = vim.o
 local keymap = vim.keymap
-local util = require('util')
+local helper = require('helper')
 
 ---@desc OPTIONS {{{2
 o.guicursor = 'n:block,i-c-ci-ve:ver50,v-r-cr-o:hor50'
@@ -37,7 +37,7 @@ o.previewheight = 8
 ---@desc Normal {{{2
 vim.g.mapleader = ';'
 
-keymap.set('n', '<F12>', util.toggleWrap)
+keymap.set('n', '<F12>', helper.toggleWrap)
 keymap.set('n', '<C-Z>', '<NOP>')
 keymap.set('n', ',', function()
   if o.hlsearch then
@@ -49,7 +49,7 @@ end)
 ---Move buffer use <SPACE>
 keymap.set('n', '<SPACE>', '<C-W>', { remap = true })
 keymap.set('n', '<SPACE><SPACE>', '<C-W><C-W>')
-keymap.set('n', '<Space>n', util.scratch_buffer)
+keymap.set('n', '<Space>n', helper.scratch_buffer)
 keymap.set('n', '<SPACE>a', '<Cmd>bwipeout<CR>')
 keymap.set('n', '<SPACE>c', '<Cmd>tabclose<CR>')
 

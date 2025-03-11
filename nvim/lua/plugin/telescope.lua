@@ -42,7 +42,7 @@ return {
     'nvim-telescope/telescope.nvim',
     cmd = 'Telescope',
     keys = { '<Leader>', 'gl' },
-    dependencies = { 'nvim-lua/plenary.nvim' },
+    dependencies = { 'plenary.nvim', 'mini.icons' },
     config = function()
       local telescope = require('telescope')
       local actions = require('telescope.actions')
@@ -54,7 +54,7 @@ return {
       telescope.setup({
         defaults = { ---{@@3
           path_display = { truncate = 1 },
-          winblend = 10,
+          winblend = vim.g.tr_bg and 0 or 10,
           previewer = false,
           cache_picker = false,
           color_devicons = true,
@@ -98,7 +98,6 @@ return {
             i = {
               ['<C-l>'] = { '<Plug>(skkeleton-enable)', type = 'command' },
               ['<C-s>'] = actions.file_split,
-              ['<C-x>'] = actions.file_vsplit,
               ['<C-k>'] = actions.preview_scrolling_up,
               ['<C-j>'] = actions.preview_scrolling_down,
               ['<C-g>'] = actions.close,
