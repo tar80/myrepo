@@ -81,13 +81,22 @@ api.nvim_create_autocmd({ 'BufEnter', 'CursorMovedI', 'InsertLeave' }, {
 api.nvim_create_autocmd('InsertEnter', {
   desc = 'Set to longer updatetime',
   group = augroup,
-  command = 'set updatetime=7000',
+  -- command = 'set updatetime=7000',
+  callback = function()
+    vim.go.updatetime = 7000
+    vim.g._ts_force_sync_parsing = true
+  end
 })
 
 api.nvim_create_autocmd('InsertLeave', {
   desc = 'Revert to normal updatetime',
   group = augroup,
-  command = 'setl iminsert=0|execute "set updatetime=" . g:update_time',
+  -- command = 'setl iminsert=0|execute "set updatetime=" . g:update_time',
+  callback = function()
+    vim.bo.iminsert=0
+    vim.go.updatetime = vim.g.update_time
+    vim.g._ts_force_sync_parsing = false
+  end
 })
 
 ---Yanked, it shines {{{2
@@ -100,51 +109,30 @@ api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
----Supports changing options that affect diff and folding {{{2
-local FOLD_SEP = ' » '
-local foldmarker = vim.split(api.nvim_get_option_value('foldmarker', {}), ',', { plain = true })
+---Supports changing options that affect diff {{{2
 api.nvim_create_autocmd('OptionSet', {
   desc = 'Set settings',
   group = augroup,
-  pattern = { 'diff', 'foldmarker' },
+  pattern = { 'diff' },
   callback = function(opts)
-    if opts.match == 'foldmarker' then
-      foldmarker = vim.split(api.nvim_get_option_value('foldmarker', {}), ',', { plain = true })
-    elseif opts.match == 'diff' then
-      if vim.o.diff then
-        keymap.set('x', 'do', ':diffget<CR>', { buffer = opts.buf, desc = 'Get selection diff' })
-        keymap.set('x', 'dp', ':diffput<CR>', { buffer = opts.buf, desc = 'Put selection diff' })
-        keymap.set('x', 'dd', 'd', { buffer = opts.buf, desc = 'Delete selection range' })
-        keymap.set(
-          { 'n', 'x' },
-          'du',
-          '<Cmd>diffupdate<CR>',
-          { buffer = opts.buf, desc = 'Update diff comparison status' }
-        )
-      elseif vim.fn.mapcheck('dd', 'x') ~= '' then
-        keymap.del('x', 'do', { buffer = opts.buf })
-        keymap.del('x', 'dp', { buffer = opts.buf })
-        keymap.del('x', 'dd', { buffer = opts.buf })
-        keymap.del({ 'x', 'n' }, 'du', { buffer = opts.buf })
-      end
+    if vim.o.diff then
+      keymap.set('x', 'do', ':diffget<CR>', { buffer = opts.buf, desc = 'Get selection diff' })
+      keymap.set('x', 'dp', ':diffput<CR>', { buffer = opts.buf, desc = 'Put selection diff' })
+      keymap.set('x', 'dd', 'd', { buffer = opts.buf, desc = 'Delete selection range' })
+      keymap.set(
+        { 'n', 'x' },
+        'du',
+        '<Cmd>diffupdate<CR>',
+        { buffer = opts.buf, desc = 'Update diff comparison status' }
+      )
+    elseif vim.fn.mapcheck('dd', 'x') ~= '' then
+      keymap.del('x', 'do', { buffer = opts.buf })
+      keymap.del('x', 'dp', { buffer = opts.buf })
+      keymap.del('x', 'dd', { buffer = opts.buf })
+      keymap.del({ 'x', 'n' }, 'du', { buffer = opts.buf })
     end
   end,
 })
-
-function Simple_fold() -- {{{3
-  ---this code is based on https://github.com/tamton-aquib/essentials.nvim
-  local cms = api.nvim_get_option_value('commentstring', {})
-  cms = cms:gsub('(%S+)%s*%%s.*', '%1')
-  local open, close = api.nvim_get_vvar('foldstart'), api.nvim_get_vvar('foldend')
-  local line_count = string.format('%s lines', close - open)
-  local forward = api.nvim_buf_get_lines(0, open - 1, open, false)[1]
-  forward = forward:gsub(string.format('%s%%s*%s%%d*', cms, foldmarker[1]), '')
-  local backward = api.nvim_buf_get_lines(0, close - 1, close, false)[1]
-  backward = backward:find(foldmarker[2], 1, true) and backward:sub(0, backward:find(cms, 1, true) - 1) or ''
-  local linewise = string.format('%s%s%s... %s', forward, FOLD_SEP, line_count, backward)
-  local spaces = (' '):rep(o.columns - #linewise)
-  return linewise .. spaces
-end
 
 ---@desc User-commands {{{1
 api.nvim_create_user_command('BustedThisFile', function() -- {{{2

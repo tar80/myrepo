@@ -47,14 +47,14 @@ return {
     --   mode = { 'n', 'x' },
     --   desc = 'Neoscroll top',
     -- },
-    {
-      'zz',
-      function()
-        require('neoscroll').zz({ half_win_duration = 40, easing = 'quintic' })
-      end,
-      mode = { 'n', 'x' },
-      desc = 'Neoscroll middle',
-    },
+    -- {
+    --   'zz',
+    --   function()
+    --     require('neoscroll').zz({ half_win_duration = 40, easing = 'quintic' })
+    --   end,
+    --   mode = { 'n', 'x' },
+    --   desc = 'Neoscroll middle',
+    -- },
     -- {
     --   'zb',
     --   function()

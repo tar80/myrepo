@@ -214,7 +214,7 @@ return {
       '*',
       mode = { 'n' },
       function()
-        return "<Cmd>call v:lua.require('util').search_star()<CR><Plug>(*)"
+        return "<Cmd>call v:lua.require('helper').search_star()<CR><Plug>(*)"
       end,
       expr = true,
       desc = 'Search star',
@@ -223,7 +223,7 @@ return {
       'g*',
       mode = { 'n' },
       function()
-        return "<Cmd>call v:lua.require('util').search_star(v:true)<CR><Plug>(*)"
+        return "<Cmd>call v:lua.require('helper').search_star(v:true)<CR><Plug>(*)"
       end,
       expr = true,
       desc = 'Search star',
@@ -232,7 +232,7 @@ return {
       '*',
       mode = { 'x' },
       function()
-        return "<Cmd>call v:lua.require('util').search_star(v:false,v:true)<CR><Plug>(*)"
+        return "<Cmd>call v:lua.require('helper').search_star(v:false,v:true)<CR><Plug>(*)"
       end,
       expr = true,
       desc = 'Search star',

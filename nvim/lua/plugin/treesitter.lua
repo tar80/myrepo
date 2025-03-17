@@ -5,17 +5,6 @@ return {
     dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
     build = ':TSUpdate',
     config = function()
-      vim.keymap.set('n', 'zc', function()
-        if vim.treesitter.get_node() then
-          local row = vim.api.nvim_win_get_cursor(0)[1]
-          if vim.wo.foldlevel ~= 99 and vim.fn.foldlevel(row) == 0 then
-            vim.opt_local.foldlevel = 99
-            vim.opt_local.foldexpr = 'nvim_treesitter#foldexpr()'
-            vim.opt_local.foldmethod = 'expr'
-          end
-        end
-        return 'zc'
-      end, { noremap = true, expr = true })
       require('nvim-treesitter.configs').setup({
         -- ensure_installed = {'lua', 'typescript', 'javascript', 'markdown'},
         sync_install = false,

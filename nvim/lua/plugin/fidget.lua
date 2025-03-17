@@ -5,7 +5,7 @@ return {
   event = 'VeryLazy',
   opts = {
     progress = {
-      poll_rate = 100,
+      poll_rate = 10,
       suppress_on_insert = false,
       ignore_done_already = true,
       ignore_empty_message = false,
@@ -38,7 +38,7 @@ return {
         group_style = 'DiagnosticInfo',
         icon_style = 'DiagnosticSignInfo',
         priority = 30,
-        skip_history = false,
+        skip_history = true,
         -- format_message = require('fidget.progress.display').default_format_message,
         format_annote = function(msg)
           return msg.title
@@ -54,10 +54,10 @@ return {
       },
     },
     notification = {
-      poll_rate = 100,
+      poll_rate = 10,
       filter = vim.log.levels.DEBUG,
       history_size = 128,
-      override_vim_notify = false,
+      override_vim_notify = true,
       -- configs = {
       --   default = {
       --     name = 'Notifications',
@@ -76,11 +76,11 @@ return {
       --     error_annote = 'ERROR',
       --   },
       -- },
-      redirect = function(msg, level, opts)
-        if opts and opts.on_open then
-          return require('fidget.integration.nvim-notify').delegate(msg, level, opts)
-        end
-      end,
+      -- redirect = function(msg, level, opts)
+      --   if opts and opts.on_open then
+      --     return require('fidget.integration.nvim-notify').delegate(msg, level, opts)
+      --   end
+      -- end,
       view = {
         stack_upwards = false,
         icon_separator = ' ',

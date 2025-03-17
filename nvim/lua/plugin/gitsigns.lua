@@ -16,7 +16,17 @@ return {
     },
   },
   opts = {
+    signs_staged = {
+      add = { text = '+' },
+      change = { text = '+' },
+      delete = { text = '-' },
+      topdelete = { text = '‾' },
+      changedelete = { text = '~' },
+      untracked = { text = '┆' },
+    },
+    signs_staged_enable = true,
     auto_attach = false,
+    culhl = true,
     update_debounce = vim.g.update_time,
     word_diff = true,
     trouble = true,

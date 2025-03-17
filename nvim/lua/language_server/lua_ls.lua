@@ -45,12 +45,15 @@ return {
       },
       workspace = {
         checkThirdParty = 'Disable',
+        ignoreDir = { 'test' },
         library = {
           'lua',
-          '$VIMRUNTIME/lua/vim',
+          '$VIMRUNTIME/lua/vim/_meta',
+          '$VIMRUNTIME/lua/vim/lsp',
+          '$VIMRUNTIME/lua/vim/treesitter',
           '${3rd}/luv/library',
-          '${3rd}/busted/library',
-          '${3rd}/luassert/library',
+          -- '${3rd}/busted/library',
+          -- '${3rd}/luassert/library',
         },
       },
     })

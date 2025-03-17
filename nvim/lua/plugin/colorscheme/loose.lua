@@ -14,7 +14,7 @@ end
 
 ---@type string, string, string
 local global_bg = (function()
-  local time = require('util').adapt_time(7, 18)
+  local time = require('helper').adapt_time(7, 18)
   return time == 'daytime' and 'light' or 'dark'
 end)()
 

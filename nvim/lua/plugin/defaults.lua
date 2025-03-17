@@ -9,8 +9,8 @@ vim.api.nvim_create_autocmd('UIEnter', {
   once = true,
   callback = function()
     vim.cmd.colorscheme(vim.g.colors_name)
-    -- local msg = ('Startup time: %s'):format(require('lazy').stats().startuptime)
-    -- vim.notify(msg)
+    local msg = ('Startup time: %s'):format(require('lazy').stats().startuptime)
+    vim.notify(msg, 2, {title = 'Startup time'})
   end,
 })
 
@@ -38,7 +38,28 @@ end -- }}}
 return { -- {{{2
   ---@library
   { 'nvim-lua/plenary.nvim', lazy = true },
-  { 'MunifTanjim/nui.nvim', lazy = true },
+  { -- {{{3 tartar
+    'tar80/tartar.nvim',
+    event = 'UIEnter',
+    dev = true,
+    config = function()
+      require('tartar')
+      local source = require('tartar.source')
+      source.set_tartar_fold()
+      source.map_conditional_zc('treesitter', 99)
+      keymap.set('x', 'aa', source.tartar_align, { desc = 'Tartar align' })
+      local operatable_q = source.plugkey('n', 'q')
+      operatable_q({ ':', 'w', '/', '?' })
+      local repeatable_g = source.plugkey('n', 'g', true)
+      repeatable_g({ 'j', 'k' })
+      local repeatable_z = source.plugkey('n', 'z', true)
+      repeatable_z({ 'h', 'j', 'k', 'l' })
+      local replaceable_H = source.plugkey('n', 'H', true)
+      replaceable_H('H', '<PageUp>H')
+      local replaceable_L = source.plugkey('n', 'L', true)
+      replaceable_L('L', '<PageDown>L')
+    end,
+  }, -- }}}
   { -- {{{3 mini.icons
     'echasnovski/mini.icons',
     lazy = true,
@@ -47,7 +68,6 @@ return { -- {{{2
       require('mini.icons').mock_nvim_web_devicons()
     end,
   }, -- }}}
-  -- { 'tar80/tartare.nvim', event = 'UIEnter', opts = {}, },
 
   ---@desc On event
   { -- {{{3 cellwidths
@@ -124,16 +144,20 @@ return { -- {{{2
   -- { 'folke/ts-comments.nvim', event = 'VeryLazy', opts = {} },
   { -- {{{3 staba
     'tar80/staba.nvim',
-    -- dependencies = { 'mini.icons' },
+    dependencies = { 'mini.icons', 'tartar.nvim' },
     config = function()
       vim.keymap.set('n', 'gb', '<Plug>(staba-pick)')
       vim.keymap.set('n', '<Space>1', '<Plug>(staba-cleanup)')
       vim.keymap.set('n', '<Space>q', '<Plug>(staba-delete-select)')
       vim.keymap.set('n', '<Space>qq', '<Plug>(staba-delete-current)')
+      vim.keymap.set('n', 'm', '<Plug>(staba-mark-operator)', {})
+      vim.keymap.set('n', 'mm', '<Plug>(staba-mark-toggle)', {})
+      vim.keymap.set('n', 'mD', '<Plug>(staba-mark-delete-all)', {})
       require('staba').setup({
         -- no_name = '^blank',
         enable_fade = true,
         enable_underline = true,
+        enable_sign_marks = true,
         enable_statuscolumn = true,
         enable_statusline = true,
         enable_tabline = true,
@@ -145,8 +169,10 @@ return { -- {{{2
         -- nav_key = '',
         statusline = {
           active = {
-            left = { 'staba_logo', 'noice_mode' },
-            middle = { 'search_count' },
+            left = { 'search_count' },
+            middle = {},
+            -- left = { 'staba_logo', 'noice_mode' },
+            -- middle = { 'search_count' },
             right = { '%<', 'diagnostics', ' ', git_branch, 'encoding', ' ', 'position' },
           },
           -- inactive = { left = {}, middle = { 'devicon', 'filename', '%*' }, right = {} },
@@ -263,7 +289,7 @@ return { -- {{{2
     keys = {
       { '<Leader>i', '<Plug>(operator-sandwich-add)i', mode = { 'n' } },
       { '<Leader>ii', '<Plug>(textobj-sandwich-auto-i)<Plug>(operator-sandwich-add)', mode = { 'n' } },
-      { '<Leader>a', '<Plug>(operator-sandwich-add)a', mode = { 'n' } },
+      { '<Leader>a', '<Plug>(operator-sandwich-add)2i', mode = { 'n' } },
       { '<Leader>aa', '<Plug>(textobj-sandwich-auto-a)<Plug>(operator-sandwich-add)', mode = { 'n' } },
       { '<Leader>a', '<Plug>(operator-sandwich-add)', mode = { 'x' } },
       { '<Leader>r', '<Plug>(sandwich-replace)', mode = { 'n', 'x' } },
@@ -337,10 +363,10 @@ return { -- {{{2
   }, -- }}}
   { -- {{{3 registers
     'tversteeg/registers.nvim',
-    keys = { { '""', mode = { 'n', 'x' } }, { '<C-r>', mode = 'i' } },
+    keys = { { '"R', mode = { 'n', 'x' } }, { '<C-r>', mode = 'i' } },
     config = function()
       local registers = require('registers')
-      keymap.set({ 'n', 'x' }, '""', registers.show_window({ mode = 'motion' }), { silent = true, noremap = true })
+      keymap.set({ 'n', 'x' }, '"R', registers.show_window({ mode = 'motion' }), { silent = true, noremap = true })
       registers.setup({
         show_empty = false,
         register_user_command = false,

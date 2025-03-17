@@ -321,9 +321,8 @@ M.search_star = function(has_g, is_visual)
   else
     local first = fn.getpos('v')
     local last = fn.getpos('.')
-    local lines = fn.getline(first[2], last[2])
+    local lines = api.nvim_buf_get_lines(0, first[2] - 1, last[2], false)
     if #lines > 1 then
-      -- word = table.concat(api.nvim_buf_get_text(0, first[2] - 1, first[3] - 1, last[2] - 1, last[3], {}))
       return M.feedkey('*', 'n')
     else
       word = lines[1]:sub(first[3], last[3])

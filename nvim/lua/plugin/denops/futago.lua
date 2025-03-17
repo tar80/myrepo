@@ -56,7 +56,9 @@ return { -- {{{1 futago
             {
               role = 'user',
               parts = {
-                { text = 'ハルシネーションに注意してください。質問の会話部分は日本語で回答してください' },
+                {
+                  text = 'ハルシネーションに注意してください。会話は日本語で回答してください',
+                },
               },
             },
           },
@@ -107,9 +109,10 @@ return { -- {{{1 futago
       end, { range = true, desc = 'Code review' })
       api.nvim_create_user_command('GeminiCommitMessage', function(opts)
         local _prompt = {
-          'Please generate the following commit message using Conventional Commit notation',
-          'using no uppercase letters and using up to 50 characters in english.',
-          'If listed, add message from the contents of the git diff.',
+          'コンベンショナルコミットの記法でコミットメッセージを記述します',
+          '見出し行は全体で50文字以内に収め大文字を使わず英訳してください',
+          'git diffのリザルトがリストされている場合はその内容をまとめて英訳してください',
+          '内容は各行80文字以内で折り返してください',
           unpack(get_lines(opts)),
         }
         vim.fn['futago#git_commit']({

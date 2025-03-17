@@ -1,5 +1,12 @@
 -- vim:textwidth=0:foldmarker={@@,@@}:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'TelescopePrompt',
+  command = 'let b:insx_disabled=v:true',
+  desc = 'Disable insx by filetype'
+})
+
 return {
   'hrsh7th/nvim-insx',
   event = { 'InsertEnter', 'CmdlineEnter' },

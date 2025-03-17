@@ -54,13 +54,13 @@ keymap.set('n', '<SPACE>a', '<Cmd>bwipeout<CR>')
 keymap.set('n', '<SPACE>c', '<Cmd>tabclose<CR>')
 
 ---@desc Insert & Command {{{2
-keymap.set('i', '<C-J>', '<DOWN>')
-keymap.set('i', '<C-K>', '<UP>')
-keymap.set('i', '<C-F>', '<RIGHT>')
+keymap.set('i', '<C-j>', '<DOWN>')
+keymap.set('i', '<C-k>', '<UP>')
+keymap.set('i', '<C-f>', '<RIGHT>')
 keymap.set('i', '<S-DELETE>', '<C-O>D')
-keymap.set('!', '<C-B>', '<LEFT>')
-keymap.set('!', '<C-V>u', '<C-R>=nr2char(0x)<LEFT>')
-keymap.set('c', '<C-A>', '<HOME>')
+keymap.set('!', '<C-b>', '<LEFT>')
+keymap.set('!', '<C-q>u', '<C-R>=nr2char(0x)<LEFT>')
+keymap.set('c', '<C-a>', '<HOME>')
 
 ---@desc Visual {{{2
 ---clipbord yank

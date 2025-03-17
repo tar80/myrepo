@@ -11,7 +11,6 @@ api.nvim_set_option_value('termguicolors', true, { scope = 'global' })
 api.nvim_set_option_value('fileformats', 'unix,dos,mac', { scope = 'global' })
 api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
 api.nvim_set_option_value('shada', "'50,<500,/10,:100,h", { scope = 'global' })
-api.nvim_set_option_value('foldtext', 'v:lua.Simple_fold()', { win = 0 })
 -- api.nvim_set_option_value('equalalways', false, { scope = 'global' })
 
 ---Local {{{2
@@ -54,7 +53,7 @@ o.confirm = true
 o.showmode = false
 o.showtabline = 2
 o.laststatus = 2
-o.cmdheight = 0
+o.cmdheight = 1
 o.number = true
 o.ruler = false
 -- o.numberwidth = 4

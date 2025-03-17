@@ -2,7 +2,12 @@
 --------------------------------------------------------------------------------
 local helper = require('helper')
 
+-- local piyo = string.char(0xF0, 0x9F, 0x90, 0xA4)
+
 local skkeleton_init = function() -- {{{2
+  local mapped_keys = vim.g['skkeleton#mapped_keys']
+  vim.list_extend(mapped_keys, { '<C-i>' })
+  vim.g['skkeleton#mapped_keys'] = mapped_keys
   vim.fn['skkeleton#config']({
     databasePath = '~/.skk/db/jisyo.db',
     globalDictionaries = { '~/.skk/SKK-JISYO.L.yaml' },
@@ -15,6 +20,7 @@ local skkeleton_init = function() -- {{{2
     -- sources = { 'deno_kv', 'skk_dictionary' },
   })
   vim.fn['skkeleton#register_keymap']('input', ';', 'henkanPoint')
+  vim.fn['skkeleton#register_keymap']('input', '<C-i>', 'katakana')
   vim.fn['skkeleton#register_keymap']('input', '@', 'cancel')
   vim.fn['skkeleton#register_keymap']('henkan', '@', 'cancel')
   vim.fn['skkeleton#register_keymap']('input', '<Up>', 'disable')

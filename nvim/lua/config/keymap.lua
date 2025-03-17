@@ -137,18 +137,6 @@ keymap.set('n', '<C-F9>', ppcust_load)
 keymap.set('n', '<F12>', helper.toggleWrap)
 keymap.set('n', '<C-z>', '<Nop>')
 keymap.set('n', 'dD', '"_dd')
-
-local operatable_q = helper.plugkey('q', 'n')
-operatable_q({ ':', 'w', '/', '?' })
-local repeatable_g = helper.plugkey('g', 'n', true)
-repeatable_g({ 'j', 'k' })
-local repeatable_z = helper.plugkey('z', 'n', true)
-repeatable_z({ 'h', 'j', 'k', 'l' })
-local replaceable_H = helper.plugkey('H', 'n', true)
-replaceable_H('H', '<PageUp>H')
-local replaceable_L = helper.plugkey('L', 'n', true)
-replaceable_L('L', '<PageDown>L')
-
 keymap.set('n', ',', function()
   if o.hlsearch then
     api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
@@ -268,12 +256,12 @@ keymap.set('x', '@', function()
     local value = fn.getreg(input)
     local subst = value:find(rgx, 1)
     if input == 'w' then
-      api.nvim_input(string.format(':g/^/normal @%s<CR>', input))
+      api.nvim_input((':g/^/normal @%s<CR>'):format(input))
     elseif subst and subst <= 2 then
       local keyemu = value:gsub(rgx, ':s', 1)
       api.nvim_input(keyemu)
     elseif value:match('%C') then
-      api.nvim_input(string.format(':ss %s<CR>', value))
+      api.nvim_input((':ss %s<CR>'):format(value))
     end
   end
 end, { expr = true })
