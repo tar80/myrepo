@@ -7,7 +7,6 @@ local o = vim.o
 ---@desc Options {{{1
 ---Global {{{2
 api.nvim_set_option_value('termguicolors', true, { scope = 'global' })
--- api.nvim_set_option_value('foldcolumn', '1', { scope = 'global' })
 api.nvim_set_option_value('fileformats', 'unix,dos,mac', { scope = 'global' })
 api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
 api.nvim_set_option_value('shada', "'50,<500,/10,:100,h", { scope = 'global' })
@@ -16,7 +15,6 @@ api.nvim_set_option_value('shada', "'50,<500,/10,:100,h", { scope = 'global' })
 ---Local {{{2
 -- NOTE: api.nvim_set_option_value('name', value, { scope = 'local' })
 vim.opt_global.isfname:append(':')
--- vim.opt_local.isfname:append(':')
 
 ---General {{{2
 o.guicursor = 'n:block,i-c-ci-ve:ver50,v-r-cr-o:hor50'

@@ -2,7 +2,6 @@
 --------------------------------------------------------------------------------
 local api = vim.api
 local fn = vim.fn
-local o = vim.o
 local keymap = vim.keymap
 
 ---@desc Auto-commands {{{1
@@ -84,8 +83,8 @@ api.nvim_create_autocmd('InsertEnter', {
   -- command = 'set updatetime=7000',
   callback = function()
     vim.go.updatetime = 7000
-    vim.g._ts_force_sync_parsing = true
-  end
+    -- vim.g._ts_force_sync_parsing = true
+  end,
 })
 
 api.nvim_create_autocmd('InsertLeave', {
@@ -93,10 +92,10 @@ api.nvim_create_autocmd('InsertLeave', {
   group = augroup,
   -- command = 'setl iminsert=0|execute "set updatetime=" . g:update_time',
   callback = function()
-    vim.bo.iminsert=0
+    vim.bo.iminsert = 0
     vim.go.updatetime = vim.g.update_time
-    vim.g._ts_force_sync_parsing = false
-  end
+    -- vim.g._ts_force_sync_parsing = false
+  end,
 })
 
 ---Yanked, it shines {{{2
@@ -118,7 +117,17 @@ api.nvim_create_autocmd('OptionSet', {
     if vim.o.diff then
       keymap.set('x', 'do', ':diffget<CR>', { buffer = opts.buf, desc = 'Get selection diff' })
       keymap.set('x', 'dp', ':diffput<CR>', { buffer = opts.buf, desc = 'Put selection diff' })
-      keymap.set('x', 'dd', 'd', { buffer = opts.buf, desc = 'Delete selection range' })
+      keymap.set('x', 'dd', function()
+        if vim.o.diff then
+          return 'd'
+        else
+          keymap.del('x', 'do', { buffer = opts.buf })
+          keymap.del('x', 'dp', { buffer = opts.buf })
+          keymap.del('x', 'dd', { buffer = opts.buf })
+          keymap.del({ 'x', 'n' }, 'du', { buffer = opts.buf })
+          return 'dd'
+        end
+      end, { buffer = opts.buf, expr = true, desc = 'Delete selection range' })
       keymap.set(
         { 'n', 'x' },
         'du',

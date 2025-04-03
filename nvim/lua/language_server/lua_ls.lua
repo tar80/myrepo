@@ -1,9 +1,10 @@
 local helper = require('helper')
-local wd = helper.mason_apps('lua-language-server/bin')
+local root = helper.mason_apps('lua-language-server')
+local lazy_plugins = helper.xdg_path('data', 'lazy')
 
 return {
-  cmd = { wd .. '/lua-language-server.exe' },
-  cmd_cwd = wd,
+  cmd = { root .. '/bin/lua-language-server.exe' },
+  cmd_cwd = root .. '/bin',
   root_dir = function(fname)
     return helper.get_project_root(fname, { '.git', '.luarc.json', 'stylua.toml' })
   end,
@@ -26,12 +27,12 @@ return {
       },
       runtime = {
         version = 'LuaJIT',
-        pathStrict = true,
-        path = { '?.lua', '?/init.lua' },
+        pathStrict = false,
+        path = { '?.lua', '?/init.lua', '?/types.lua' },
       },
       diagnostics = {
         enable = true,
-        globals = { 'vim', 'nyagos', 'describe', 'before_each', 'setup', 'teardown', 'it' },
+        globals = { 'vim', 'nyagos', 'describe', 'before_each', 'setup', 'teardown', 'it', 'Snacks', 'dd' },
       },
       format = { enable = false },
       hover = { enable = true },
@@ -44,11 +45,14 @@ return {
         arrayIndex = 'Disable',
       },
       workspace = {
+        maxPreload = 2500,
         checkThirdParty = 'Disable',
-        ignoreDir = { 'test' },
+        ignoreDir = { 'test', 'spec' },
         library = {
-          'lua',
-          '$VIMRUNTIME/lua/vim/_meta',
+          root .. '/locale/ja-jp/meta.lua',
+          lazy_plugins .. '/snacks.nvim/lua/snacks/meta',
+          '$VIMRUNTIME/lua/vim',
+          '$VIMRUNTIME/lua/vim/shared.lua',
           '$VIMRUNTIME/lua/vim/lsp',
           '$VIMRUNTIME/lua/vim/treesitter',
           '${3rd}/luv/library',

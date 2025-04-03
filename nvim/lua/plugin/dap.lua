@@ -3,109 +3,79 @@
 local keymap = vim.keymap
 local helper = require('helper')
 
-local augroup = vim.api.nvim_create_augroup('rc_dap', {})
-local jest_path = 'C:/bin/repository/ppmdev/node_modules/jest/bin/jest.js'
-
----@desc Dap signs {{{2
-local signs = {
-  Breakpoint = '',
-  BreakpointCondition = '',
-  BreakpointRejected = '',
-  Stopped = '',
+local UNIQUE_NAME = 'rc_dap'
+local LOG_LEVEL = vim.log.levels.WARN
+local JEST_PATH = 'C:/bin/repository/ppmdev/node_modules/jest/bin/jest.js'
+local SIGNS = {
+  -- DapBreakpoint = '',
+  -- DapBreakpointCondition = '',
+  -- DapBreakpointRejected = '',
+  DapBreakpoint = '',
+  DapBreakpointCondition = '',
+  DapBreakpointRejected = '',
+  DapStopped = '',
 }
-
-for type, icon in pairs(signs) do
-  local name = ('Dap%s'):format(type)
-  vim.fn.sign_define(name, { text = icon, texthl = name, linehl = 'NONE', numhl = 'NONE' })
+for sign, icon in pairs(SIGNS) do
+  vim.fn.sign_define(sign, { text = icon, texthl = sign, linehl = 'NONE', numhl = 'NONE' })
 end
+
+local augroup = vim.api.nvim_create_augroup(UNIQUE_NAME, {})
 
 local _pane = { -- {{{2
   enable = false,
-  termnr = 0,
-  termwin = 0,
+  bufnr = 0,
+  winid = 0,
   toggle_term = function(self)
-    if self.termwin == 0 then
+    if self.winid == 0 then
       return
     end
 
     local is_active = false
 
     for _, id in ipairs(vim.api.nvim_list_wins()) do
-      if id == self.termwin then
+      if id == self.winid then
         is_active = true
         break
       end
     end
 
     if is_active then
-      vim.api.nvim_win_close(self.termwin, false)
+      vim.api.nvim_win_close(self.winid, false)
     else
       local winid = vim.api.nvim_get_current_win()
-      vim.cmd(string.format('vertical belowright sbuffer %s|vert resize 60', self.termnr))
-      self.termnr = vim.api.nvim_get_current_buf()
-      self.termwin = vim.api.nvim_get_current_win()
+      vim.cmd(string.format('vertical belowright sbuffer %s|vert resize 60', self.bufnr))
+      self.bufnr = vim.api.nvim_get_current_buf()
+      self.winid = vim.api.nvim_get_current_win()
       vim.api.nvim_set_current_win(winid)
     end
   end,
   close_term = function(self)
-    if self.termwin ~= 0 then
-      vim.api.nvim_buf_delete(self.termnr, { force = true })
-      self.termnr = 0
-      self.termwin = 0
+    if self.winid ~= 0 then
+      vim.api.nvim_buf_delete(self.bufnr, { force = true })
+      self.bufnr = 0
+      self.winid = 0
     end
   end,
 } -- }}}
 
-return {
-  'theHamsta/nvim-dap-virtual-text',
-  lazy = true,
-  opts = {
-    enabled = true,
-    enabled_commands = false,
-    highlight_changed_variables = true,
-    highlight_new_as_changed = false,
-    show_stop_reason = true,
-    commented = false,
-    only_first_definition = true,
-    all_references = false,
-    clear_on_continue = false,
-    display_callback = function(variable, buf, stackframe, node, options)
-      if options.virt_text_pos == 'inline' then
-        variable.name = ''
-      end
-      return ('%s = %s'):format(variable.name, variable.value)
-    end,
-    virt_text_pos = 'inline',
-    -- experimental features:
-    all_frames = false, -- show virtual text for all stack frames not only current. Only works for debugpy on my machine.
-    virt_lines = false, -- show virtual lines instead of virtual text (will flicker!)
-    virt_lines_above = true,
-    virt_text_win_col = nil, -- position the virtual text at a fixed window column (starting from the first text column) ,
-  },
-}, {
-  'mxsdev/nvim-dap-vscode-js',
-  lazy = true,
-  opts = {
-    debugger_path = helper.mason_apps('js-debug-adapter'),
-    debugger_cmd = { 'js-debug-adapter' },
-    adapters = { 'pwa-node', 'node-terminal', 'pwa-extensionHost' },
-  },
-}, {
+local dap = {
   'mfussenegger/nvim-dap',
-  key = { '<F5>', nil, 'Load dap' },
-  config = function()
-    local dap = require('dap')
-    keymap.set('n', '<F5>', function()
-      vim.notify('[Dap] ready', 2)
+  lazy = true,
+  init = function()
+    local with_unique_name = require('tartar.util').name_formatter(UNIQUE_NAME)
+    keymap.set('n', '<C-F5>', function()
+      local dap = require('dap')
+      vim.b.maplocalleader = '\\'
+      vim.notify(with_unique_name('%s: ready'), 2)
       ---@desc Defaults {{{2
       -- dap.defaults.fallback.stepping_granularity = 'statement'
       dap.defaults.fallback.terminal_win_cmd = function()
         local winid = vim.api.nvim_get_current_win()
         vim.cmd('belowright 60vsplit new')
-        _pane.termnr = vim.api.nvim_get_current_buf()
-        _pane.termwin = vim.api.nvim_get_current_win()
+        _pane.bufnr = vim.api.nvim_get_current_buf()
+        _pane.winid = vim.api.nvim_get_current_win()
         vim.api.nvim_set_current_win(winid)
-        return _pane.termnr, _pane.termwin
+        return _pane.bufnr, _pane.winid
       end
 
       ---@desc Autocmds {{{2
@@ -160,7 +130,7 @@ return {
             -- trace = true, -- include debugger info
             runtimeExecutable = 'node',
             runtimeArgs = {
-              jest_path,
+              JEST_PATH,
               '--runInBand',
               '--testMatch',
               '**/${fileBasenameNoExtension}.test.${fileExtname}',
@@ -180,32 +150,54 @@ return {
         }
       end
 
+      ---@desc osv {{{2
+      dap.adapters.nlua = function(callback, config)
+        callback({
+          type = 'server',
+          host = config.host or '127.0.0.1',
+          port = config.port or 8086,
+        })
+      end
+
+      dap.configurations.lua = {
+        {
+          type = 'nlua',
+          request = 'attach',
+          name = 'Attach to running Neovim instance',
+          -- program = '${file}',
+          -- cwd = '${workspaceFolder}',
+          -- console = 'integratedTerminal',
+          -- internalConsoleOptions = 'neverOpen',
+        },
+      }
+
       ---@desc Event {{{2
       dap.listeners.after.event_initialized['dapui_config'] = function()
-        vim.notify('[Dap] session start', 3)
+        vim.notify(with_unique_name('%s: started'), LOG_LEVEL)
         dap.repl.open({ height = 5 })
       end
       dap.listeners.before.event_terminated['dapui_config'] = function()
         vim.cmd.doautocmd('<nomodeline> User DapTerminated')
-        vim.notify('[Dap] session end', 3)
+        vim.notify(with_unique_name('%s: terminated'), LOG_LEVEL)
       end
       dap.listeners.before.event_exited['dapui_config'] = function()
-        vim.notify('[Dap] listeners event_exited', 4)
+        vim.notify(with_unique_name('%s: listeners event exited'), LOG_LEVEL)
       end
 
       ---@Cmd {{{2
       vim.api.nvim_create_user_command('DapAttach', function() -- {{{2
+        require"osv".launch({port=8086})
         _pane.enable = true
-        keymap.set('n', '<leader>d', function()
+        keymap.set('n', '<LocalLeader><LocalLeader>', function()
           dap.continue()
         end)
-        keymap.set('n', '<Leader>b', function()
+        keymap.set('n', '<LocalLeader>s', function()
           dap.toggle_breakpoint()
         end)
-        keymap.set('n', '<Leader>B', function()
+        keymap.set('n', '<LocalLeader>r', function()
           dap.clear_breakpoints()
         end)
-        keymap.set('n', '<Leader>t', function()
+        keymap.set('n', '<LocalLeader>t', function()
           _pane:toggle_term()
         end)
         keymap.set('n', '<F8>', function()
@@ -220,31 +212,77 @@ return {
       end, {})
       vim.api.nvim_create_user_command('DapDetach', function() -- {{{2
         _pane.enable = false
-        keymap.del('n', '<leader>b')
-        keymap.del('n', '<leader>B')
-        keymap.del('n', '<leader>d')
-        keymap.del('n', '<leader>t')
+        keymap.del('n', '<LocalLeader>b')
+        keymap.del('n', '<LocalLeader>B')
+        keymap.del('n', '<LocalLeader>d')
+        keymap.del('n', '<LocalLeader>t')
         keymap.del('n', '<F8>')
         keymap.del('n', '<F9>')
         keymap.del('n', '<F10>')
       end, {})
 
       ---@Keymaps {{{2
-      keymap.set('n', '<F5>', function()
+      keymap.set('n', '<C-F5>', function()
         local msg
         if not _pane.enable then
           vim.cmd.DapAttach()
-          msg = '[Dap] attach'
+          msg = with_unique_name('%s: attach')
         else
+          vim.b.maplocalleader = nil
           vim.cmd.doautocmd('<nomodeline> User DapTerminated')
-          msg = '[Dap] detach'
+          msg = with_unique_name('%s: detach')
         end
 
-        vim.notify(msg, 2)
+        vim.notify(msg, 2, {})
       end)
       -- }}}
 
       vim.cmd.DapAttach()
-    end, { desc = 'Dap session start' })
+    end, { desc = with_unique_name('%s: start') })
   end,
 }
+
+local dap_virtual_text = {
+  'theHamsta/nvim-dap-virtual-text',
+  lazy = true,
+  opts = {
+    enabled = true,
+    enabled_commands = false,
+    highlight_changed_variables = true,
+    highlight_new_as_changed = false,
+    show_stop_reason = true,
+    commented = false,
+    only_first_definition = true,
+    all_references = false,
+    clear_on_continue = false,
+    display_callback = function(variable, buf, stackframe, node, options)
+      if options.virt_text_pos == 'inline' then
+        variable.name = ''
+      end
+      return ('%s = %s'):format(variable.name, variable.value)
+    end,
+    virt_text_pos = 'inline',
+    -- experimental features:
+    all_frames = false, -- show virtual text for all stack frames not only current. Only works for debugpy on my machine.
+    virt_lines = false, -- show virtual lines instead of virtual text (will flicker!)
+    virt_lines_above = true,
+    virt_text_win_col = nil, -- position the virtual text at a fixed window column (starting from the first text column) ,
+  },
+}
+
+local dap_vscode_js = {
+  'mxsdev/nvim-dap-vscode-js',
+  lazy = true,
+  opts = {
+    debugger_path = helper.mason_apps('js-debug-adapter'),
+    debugger_cmd = { 'js-debug-adapter' },
+    adapters = { 'pwa-node', 'node-terminal', 'pwa-extensionHost' },
+  },
+}
+
+local dap_osv = {
+  'jbyuki/one-small-step-for-vimkind',
+  lazy = true,
+}
+
+return { dap, dap_virtual_text, dap_vscode_js, dap_osv }

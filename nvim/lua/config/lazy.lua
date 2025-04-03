@@ -22,6 +22,25 @@ local specs = { -- {{{1
     { import = 'plugin.extended' },
   },
 } -- }}}1
+local icons = { -- {{{2
+  cmd = '',
+  config = '',
+  event = '',
+  ft = '',
+  init = '',
+  import = '',
+  keys = '󰺷',
+  lazy = '󰒲',
+  loaded = '',
+  not_loaded = '',
+  plugin = '',
+  runtime = '󰯁',
+  require = '󰢱',
+  source = '󱃲',
+  start = '',
+  task = '',
+  list = { '●', '', '', '' },
+} -- }}}
 local options = { -- {{{2
   change_detection = {
     enabled = true,
@@ -81,7 +100,7 @@ local options = { -- {{{2
         })
       end,
     },
-    icons = require('icon').lazy,
+    icons = icons,
   },
 } ---}}}
 
@@ -105,5 +124,14 @@ return {
   setup = function(level)
     options.spec = enable_plugins(level, specs)
     require('lazy').setup(options)
+    vim.api.nvim_create_autocmd('UIEnter', {
+      once = true,
+      callback = function()
+        vim.cmd.colorscheme(vim.g.colors_name)
+        local msg = ('Startup time: %s'):format(require('lazy').stats().startuptime)
+        -- vim.notify(msg, 2, { title = '󱎫' })
+        require('fidget').notify(msg, vim.log.levels.INFO, { annote = '󱎫' })
+      end,
+    })
   end,
 }

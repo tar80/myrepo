@@ -1,11 +1,12 @@
-local icon = require('icon')
-
 return {
   'j-hui/fidget.nvim',
   event = 'VeryLazy',
+  init = function()
+    vim.keymap.set('n', 'ms', '<Cmd>Fidget history<CR>', { desc = 'Fidget history' })
+  end,
   opts = {
     progress = {
-      poll_rate = 10,
+      poll_rate = 20,
       suppress_on_insert = false,
       ignore_done_already = true,
       ignore_empty_message = false,
@@ -37,7 +38,7 @@ return {
         progress_style = 'Error',
         group_style = 'DiagnosticInfo',
         icon_style = 'DiagnosticSignInfo',
-        priority = 30,
+        priority = 300,
         skip_history = true,
         -- format_message = require('fidget.progress.display').default_format_message,
         format_annote = function(msg)
@@ -58,31 +59,32 @@ return {
       filter = vim.log.levels.DEBUG,
       history_size = 128,
       override_vim_notify = true,
-      -- configs = {
-      --   default = {
-      --     name = 'Notifications',
-      --     icon = icon.symbol.star,
-      --     ttl = 5,
-      --     group_style = 'WarningMsg',
-      --     icon_style = 'WarningMsg',
-      --     annote_style = 'IncSearch',
-      --     debug_style = 'Comment',
-      --     info_style = 'Question',
-      --     warn_style = 'WarningMsg',
-      --     error_style = 'ErrorMsg',
-      --     debug_annote = 'DEBUG',
-      --     info_annote = 'INFO',
-      --     warn_annote = 'WARN',
-      --     error_annote = 'ERROR',
-      --   },
-      -- },
+      configs = {
+        default = {
+          name = 'Notifications',
+          icon = '󰎟',
+          icon_on_left = true,
+          ttl = 5,
+          group_style = 'WarningMsg',
+          icon_style = 'WarningMsg',
+          annote_style = 'IncSearch',
+          debug_style = 'Comment',
+          info_style = 'Question',
+          warn_style = 'WarningMsg',
+          error_style = 'ErrorMsg',
+          debug_annote = 'DEBUG',
+          info_annote = 'INFO',
+          warn_annote = 'WARN',
+          error_annote = 'ERROR',
+        },
+      },
       -- redirect = function(msg, level, opts)
       --   if opts and opts.on_open then
       --     return require('fidget.integration.nvim-notify').delegate(msg, level, opts)
       --   end
       -- end,
       view = {
-        stack_upwards = false,
+        stack_upwards = true,
         icon_separator = ' ',
         group_separator = '---',
         group_separator_hl = 'NonText',
@@ -91,15 +93,15 @@ return {
         end,
       },
       window = {
-        normal_hl = 'Normal',
-        winblend = 100,
-        border = icon.border.bot_dash,
+        -- normal_hl = 'Normal',
+        winblend = 0,
+        border = require('tartar.icon.ui').border.bot_dash,
         zindex = 45,
-        max_width = 0,
+        max_width = 100,
         max_height = 0,
         x_padding = 1,
         y_padding = 0,
-        align = 'top',
+        align = 'bottom',
         relative = 'editor',
       },
     },

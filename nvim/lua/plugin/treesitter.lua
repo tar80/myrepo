@@ -5,6 +5,7 @@ return {
     dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
     build = ':TSUpdate',
     config = function()
+      vim.g._ts_force_sync_parsing = true
       require('nvim-treesitter.configs').setup({
         -- ensure_installed = {'lua', 'typescript', 'javascript', 'markdown'},
         sync_install = false,

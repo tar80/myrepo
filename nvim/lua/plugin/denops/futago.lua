@@ -2,9 +2,9 @@
 --------------------------------------------------------------------------------
 local api = vim.api
 local augroup = api.nvim_create_augroup('rc_futago', { clear = true })
-local _tmp_dir = os.getenv('tmp')
+local cache_dir = os.getenv('XDG_CACHE_HOME')
 local result_path = function(path) -- {{{2
-  return ('%s/futago/%s'):format(_tmp_dir, path)
+  return ('%s/futago/%s'):format(cache_dir, path)
 end
 
 local get_lines = function(opts) -- {{{2
@@ -41,8 +41,8 @@ return { -- {{{1 futago
     config = function()
       -- api.nvim_set_var('futago_debug', true)
       api.nvim_set_var('futago_chat_path', result_path('chat'))
-      api.nvim_set_var('futago_log_file', result_path('log/futago.log'))
-      api.nvim_set_var('futago_historu_db', result_path('db/history.db'))
+      api.nvim_set_var('futago_log_file', result_path('log'))
+      api.nvim_set_var('futago_history_db', result_path('db/history.db'))
       api.nvim_set_var('futago_safety_settings', {
         { category = 'HARM_CATEGORY_HATE_SPEECH', threshold = 'BLOCK_NONE' },
         { category = 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold = 'BLOCK_NONE' },
@@ -61,6 +61,7 @@ return { -- {{{1 futago
                 },
               },
             },
+            { role = 'model', parts = { { text = '心得ました。質問をどうぞ' } } },
           },
         })
       end, { nargs = '?', desc = 'Question to gemini' })
@@ -109,9 +110,9 @@ return { -- {{{1 futago
       end, { range = true, desc = 'Code review' })
       api.nvim_create_user_command('GeminiCommitMessage', function(opts)
         local _prompt = {
-          'コンベンショナルコミットの記法でコミットメッセージを記述します',
+          'コンベンショナルコミット記法でコミットメッセージを記述します。コードブロックで囲まないでください',
           '見出し行は全体で50文字以内に収め大文字を使わず英訳してください',
-          'git diffのリザルトがリストされている場合はその内容をまとめて英訳してください',
+          'git diffのリザルトがリストされている場合はその要約を英訳してください',
           '内容は各行80文字以内で折り返してください',
           unpack(get_lines(opts)),
         }

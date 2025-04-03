@@ -8,7 +8,7 @@ vim.g.loaded_man = true
 vim.g.repo = 'c:/bin/repository/tar80'
 vim.env.myvimrc = vim.uv.fs_readlink(vim.env.myvimrc)
 
-vim.g.update_time = 700
+vim.g.update_time = 500
 vim.cmd('language message C')
 
 ---@desc Configuration file level

@@ -251,20 +251,20 @@ return {
         end
         return has_root
       end --@@}3
-      keymap.del('c', '<Plug>(TelescopeFuzzyCommandSearch)')
-      keymap.set('n', '<Leader>:', function()
-        load_builtin('buffers', 'no', { ignore_current_buffer = true })
-      end, {})
+      -- keymap.del('c', '<Plug>(TelescopeFuzzyCommandSearch)')
+      -- keymap.set('n', '<Leader>:', function()
+      --   load_builtin('buffers', 'no', { ignore_current_buffer = true })
+      -- end, {})
       keymap.set('n', '<leader>m', function()
         load_ext('frecency', 'no', {})
       end, {})
-      keymap.set('n', '<leader>p', function()
-        local path = vim.fn.expand('%:h:p')
-        load_ext('file_browser', 'no', { path = path })
-      end, {})
-      keymap.set('n', '<leader>o', function()
-        load_builtin('find_files', 'no', { hidden = true, no_ignore = true })
-      end, {})
+      -- keymap.set('n', '<leader>p', function()
+      --   local path = vim.fn.expand('%:h:p')
+      --   load_ext('file_browser', 'no', { path = path })
+      -- end, {})
+      -- keymap.set('n', '<leader>o', function()
+      --   load_builtin('find_files', 'no', { hidden = true, no_ignore = true })
+      -- end, {})
       keymap.set('n', '<leader>k', function()
         local path = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
         load_ext('kensaku', 'hor', { cwd = path })
@@ -272,19 +272,19 @@ return {
       keymap.set('n', '<leader>K', function()
         load_ext('kensaku', 'hor', {})
       end, {})
-      keymap.set('n', '<leader>h', function()
-        local slash = vim.o.shellslash
-        vim.o.shellslash = false
-        load_builtin('help_tags', 'vert', { layout_config = { preview_width = 0.7, width = 0.8, height = 0.9 } })
-        vim.o.shellslash = slash
-      end, {})
-      keymap.set('n', '<leader>l', function()
-        load_builtin(
-          'current_buffer_fuzzy_find',
-          'vert',
-          { layout_config = { preview_width = 0.5, width = 0.9, height = 0.9 }, results_ts_highlight = false }
-        )
-      end, {})
+      -- keymap.set('n', '<leader>h', function()
+      --   local slash = vim.o.shellslash
+      --   vim.o.shellslash = false
+      --   load_builtin('help_tags', 'vert', { layout_config = { preview_width = 0.7, width = 0.8, height = 0.9 } })
+      --   vim.o.shellslash = slash
+      -- end, {})
+      -- keymap.set('n', '<leader>l', function()
+      --   load_builtin(
+      --     'current_buffer_fuzzy_find',
+      --     'vert',
+      --     { layout_config = { preview_width = 0.5, width = 0.9, height = 0.9 }, results_ts_highlight = false }
+      --   )
+      -- end, {})
       keymap.set('n', '<Leader>gb', function()
         if is_repo() then
           load_builtin('git_branches', 'hor', {})

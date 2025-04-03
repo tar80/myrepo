@@ -6,10 +6,6 @@
 ---@field Hint string
 ---@field Info string
 
----@class Autocmd_id
----@field hold integer
----@field release integer
-
 local api = vim.api
 local lsp = vim.lsp
 local keymap = vim.keymap
@@ -42,8 +38,6 @@ local function get_signs()
   for name, _ in pairs(SEVERITIES) do
     local key = vim.diagnostic.severity[name:upper()]
     o.text[key] = icon.symbol.square
-    -- o.numhl[key] = string.format('DiagnosticSign%s', name)
-    -- s.linehl[key] = 'NONE'
   end
   return o
 end -- }}}
@@ -94,26 +88,37 @@ end -- }}}
 ---Highlight the symbol under the cursor {{{2
 ---@param _client vim.lsp.Client
 ---@param bufnr integer
----@return Autocmd_id
+---@return integer
 local function cursorword(_client, bufnr)
-  local hold = api.nvim_create_autocmd({ 'CursorHold' }, {
+  local ts = require('tartar.treesitter')
+  local tartar_helper = require('tartar.helper')
+  local lsp_reference_ns = vim.api.nvim_get_namespaces()['nvim.lsp.references']
+  return api.nvim_create_autocmd({ 'CursorHold' }, {
     desc = 'Set document highlighting',
     group = augroup,
     buffer = bufnr,
     callback = function()
-      lsp.buf.document_highlight()
+      if tartar_helper.is_insert_mode() then
+        return
+      end
+      local cur = vim.api.nvim_win_get_cursor(0)
+      cur[1] = cur[1] - 1
+      if lsp_reference_ns then
+        local extmarks = vim.api.nvim_buf_get_extmarks(0, lsp_reference_ns, 0, -1, { details = true })
+        if extmarks[1] then
+          local is_range = vim.iter(extmarks):find(function(extmark)
+            local tsrange = { extmark[2], extmark[3], extmark[4].end_row, extmark[4].end_col + 1 }
+            return ts.is_range(cur[1], cur[2], tsrange)
+          end)
+          if is_range then
+            return
+          end
+        end
+        vim.lsp.buf.clear_references()
+        vim.lsp.buf.document_highlight()
+      end
     end,
   })
-  local release = api.nvim_create_autocmd({ 'CursorMoved' }, {
-    desc = 'Clear references highlighting',
-    group = augroup,
-    buffer = bufnr,
-    callback = function()
-      lsp.buf.clear_references()
-    end,
-  })
-
-  return { hold = hold, release = release }
 end -- }}}
 
 ---@desc Lsp options
@@ -215,20 +220,20 @@ return {
     dependencies = { 'hrsh7th/cmp-nvim-lsp' },
     config = function()
       local lspconfig = require('lspconfig')
+      local quote_border = require('tartar.helper').generate_quotation()
       -- lspconfig.util.default_config = vim.tbl_extend('force', lspconfig.util.default_config, {
       --   set_log_level = 'OFF',
       -- })
       local capabilities = cmp_capabilities()
       local flags = {
         allow_incremental_sync = false,
-        debounce_text_changes = 2000,
+        debounce_text_changes = 700,
       }
-      ---@type Autocmd_id
-      local au_id
+      local document_highlight ---@type integer
       local function _on_attach(client, bufnr) -- {{{3
         local capa = client.server_capabilities
         if capa.documentHighlightProvider then
-          au_id = cursorword(client, bufnr)
+          document_highlight = cursorword(client, bufnr)
         end
         ---@desc Keymap
         keymap.set('n', ']d', function()
@@ -251,17 +256,17 @@ return {
           api.nvim_set_option_value('winblend', winblend, {})
         end, { desc = 'Lsp diagnostic' }) -- }}}
         keymap.set('n', 'glh', function()
-          lsp.buf.signature_help({ border = FLOAT_BORDER })
+          lsp.buf.signature_help({ border = quote_border })
         end, { desc = 'Lsp signature help' })
-        if capa.inlayHintProvider then
-          keymap.set('n', 'gli', function() -- {{{
-            local toggle = not lsp.inlay_hint.is_enabled({ bufnr = bufnr })
-            lsp.inlay_hint.enable(toggle)
-          end, { desc = 'Lsp inlay hints' }) -- }}}
-        end
+        -- if capa.inlayHintProvider then
+        --   keymap.set('n', 'gli', function() -- {{{
+        --     local toggle = not lsp.inlay_hint.is_enabled({ bufnr = bufnr })
+        --     lsp.inlay_hint.enable(toggle)
+        --   end, { desc = 'Lsp inlay hints' }) -- }}}
+        -- end
         if capa.hoverProvider then
           keymap.set('n', 'gll', function()
-            lsp.buf.hover({ border = FLOAT_BORDER })
+            lsp.buf.hover({ border = quote_border })
           end, { desc = 'Lsp hover' })
         end
         if capa.renameProvider then
@@ -317,9 +322,8 @@ return {
 
       local function _on_exit() -- {{{3
         vim.schedule(function()
-          if au_id then
-            api.nvim_del_autocmd(au_id.hold)
-            api.nvim_del_autocmd(au_id.release)
+          if document_highlight then
+            api.nvim_del_autocmd(document_highlight)
           end
           keymap.del('n', 'gla')
           keymap.del('n', 'gld')

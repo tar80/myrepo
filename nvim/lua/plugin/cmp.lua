@@ -1,6 +1,16 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 --------------------------------------------------------------------------------
 
+local extension_icons = {
+  vsnip = '',
+  dictionary = '',
+  nvim_lua = '',
+  nvim_lsp_signature_help = '',
+  buffer = '',
+  path = '',
+  cmdline = '',
+}
+
 return {
   'hrsh7th/nvim-cmp',
   event = { 'CursorMoved', 'InsertEnter', 'CmdlineEnter' },
@@ -10,7 +20,6 @@ return {
     'hrsh7th/vim-vsnip',
     'hrsh7th/cmp-vsnip',
     'hrsh7th/cmp-buffer',
-    'hrsh7th/cmp-nvim-lua',
     'hrsh7th/cmp-path',
     'hrsh7th/cmp-cmdline',
     'dmitmel/cmp-cmdline-history',
@@ -18,8 +27,8 @@ return {
   }, -- }}}
   config = function()
     local cmp = require('cmp')
-    local icon = require('icon').cmp
-    local border = require('icon').border
+    local icon = vim.tbl_deep_extend('force', extension_icons, require('tartar.icon.kind'))
+    local quote_border = require('tartar.helper').generate_quotation()
     local helper = require('helper')
     local feedkey = helper.feedkey
 
@@ -57,7 +66,7 @@ return {
         if vim.api.nvim_get_mode().mode == 'c' then
           return true
         end
-        if vim.bo.filetype == 'TelescopePrompt' then
+        if vim.bo.filetype == 'snacks_picker_input' or vim.bo.filetype == 'TelescopePrompt' then
           return false
         end
         if vim.g['skkeleton#enabled'] then
@@ -70,7 +79,7 @@ return {
       -- experimental = { ghost_text = { hl_group = 'CmpGhostText' } },
       window = {
         completion = { scrolloff = 1, side_padding = 1 },
-        documentation = { border = border.quotation },
+        documentation = { border = quote_border },
       },
       snippet = { -- {{{
         expand = function(args)
@@ -92,7 +101,8 @@ return {
           },
         },
         { name = 'path', keyword_length = 2 },
-        { name = 'nvim_lua', keyword_length = 2 },
+        -- { name = 'nvim_lua', keyword_length = 2 },
+        { name = 'render-markdown' },
       }), -- }}}
       formatting = { -- {{{
         -- fields = {'menu','abbr','kind'},
@@ -204,8 +214,8 @@ return {
     }) -- }}}
     require('cmp_dictionary').setup({ -- {{{
       paths = {
+        -- vim.g.repo .. '/myrepo/nvim/after/dict/lua.dict',
         vim.g.repo .. '/myrepo/nvim/after/dict/javascript.dict',
-        vim.g.repo .. '/myrepo/nvim/after/dict/lua.dict',
         vim.g.repo .. '/myrepo/nvim/after/dict/PPxcfg.dict',
       },
       exact_length = 2,

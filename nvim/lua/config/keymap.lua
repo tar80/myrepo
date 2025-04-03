@@ -47,23 +47,24 @@ local abbrev = { -- {{{2
     end
   end,
   ca = function(word, replace)
+    vim.validate('replace', replace[1], 'table', 'replace must be table')
     ---@see https://zenn.dev/vim_jp/articles/2023-06-30-vim-substitute-tips
     local getchar = replace[2] and '[getchar(), ""][1].' or ''
-    local exp = string.format('getcmdtype()..getcmdline() ==# ":%s" ? %s"%s" : "%s"', word, getchar, replace[1], word)
-    keymap.set('ca', word, exp, { expr = true })
-  end,
-  va = function(word, replace)
-    local getchar = replace[2] and '[getchar(), ""][1].' or ''
-    local exp = string.format(
-      'getcmdtype()..getcmdline() ==# ":%s" ? %s"%s" : getcmdtype()..getcmdline() ==# ":\'<,\'>%s" ? %s"%s" : "%s"',
-      word,
-      getchar,
-      helper.replace_lt(replace[1][1]),
-      word,
-      getchar,
-      helper.replace_lt(replace[1][2]),
-      word
-    )
+    local exp
+    if replace[1][2] then
+      exp = ('getcmdtype()..getcmdline() ==# ":%s" ? %s"%s" : getcmdtype()..getcmdline() ==# ":\'<,\'>%s" ? %s"%s" : "%s"'):format(
+        word,
+        getchar,
+        helper.replace_lt(replace[1][1]),
+        word,
+        getchar,
+        helper.replace_lt(replace[1][2]),
+        word
+      )
+    else
+      exp = string.format('getcmdtype()..getcmdline() ==# ":%s" ? %s"%s" : "%s"', word, getchar, replace[1][1], word)
+    end
+
     keymap.set('ca', word, exp, { expr = true })
   end,
   set = function(self, mode)
@@ -82,34 +83,32 @@ abbrev.tbl = { --- {{{2
     ['return'] = { 'reutnr', 'reutrn', 'retrun' },
   },
   ca = {
-    bt = { [[T deno task build <C-r>=expand(\"%\:\.\")<CR>]] },
-    bp = { [[!npm run build:prod]] },
-    ms = { 'MugShow', true },
-    es = { 'e<Space>++enc=cp932 ++ff=dos<CR>' },
-    e8 = { 'e<Space>++enc=utf-8<CR>' },
-    eu = { 'e<Space>++enc=utf-16le ++ff=dos<CR>' },
-    sc = { 'set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb<CR>' },
-    scn = { 'set<Space>noscb<CR>' },
-    del = { [[call<Space>delete(expand('%'))]] },
-    cs = { [[execute<Space>'50vsplit'g:repo.'/myrepo/nvim/.cheatsheet'<CR>]] },
-    dd = { 'diffthis<Bar>wincmd<Space>p<Bar>diffthis<Bar>wincmd<Space>p<CR>' },
-    dof = { 'syntax<Space>enable<Bar>diffoff!<CR>' },
+    bt = { { [[T deno task build <C-r>=expand(\"%\:\.\")<CR>]] } },
+    bp = { { [[!npm run build:prod]] } },
+    ms = { { 'MugShow' }, true },
+    es = { { 'e<Space>++enc=cp932 ++ff=dos<CR>' } },
+    e8 = { { 'e<Space>++enc=utf-8<CR>' } },
+    eu = { { 'e<Space>++enc=utf-16le ++ff=dos<CR>' } },
+    sc = { { 'set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb<CR>' } },
+    scn = { { 'set<Space>noscb<CR>' } },
+    del = { { [[call<Space>delete(expand('%'))]] } },
+    cs = { { [[execute<Space>'50vsplit'g:repo.'/myrepo/nvim/.cheatsheet'<CR>]] } },
+    dd = { { 'diffthis<Bar>wincmd<Space>p<Bar>diffthis<Bar>wincmd<Space>p<CR>' } },
+    dof = { { 'syntax<Space>enable<Bar>diffoff!<CR>' } },
     dor = {
-      'vert<Space>bel<Space>new<Space>difforg<Bar>set<Space>bt=nofile<Bar>r<Space>++edit<Space>#<Bar>0d_<Bar>windo<Space>diffthis<Bar>wincmd<Space>p<CR>',
+      {
+        'vert<Space>bel<Space>new<Space>difforg<Bar>set<Space>bt=nofile<Bar>r<Space>++edit<Space>#<Bar>0d_<Bar>windo<Space>diffthis<Bar>wincmd<Space>p<CR>',
+      },
     },
-    ht = { 'so<Space>$VIMRUNTIME/syntax/hitest.vim' },
-    ct = { 'so<Space>$VIMRUNTIME/syntax/colortest.vim' },
-    shadad = { '!rm ~/.local/share/nvim-data/shada/main.shada.tmp*' },
-  },
-  ---NOTE: {{cmdline, visualmode}}
-  va = {
+    ht = { { 'so<Space>$VIMRUNTIME/syntax/hitest.vim' } },
+    ct = { { 'so<Space>$VIMRUNTIME/syntax/colortest.vim' } },
+    shadad = { { '!rm ~/.local/share/nvim-data/shada/main.shada.tmp*' } },
     s = { { '%s//<Left>', 's//<Left>' }, true },
     ss = { { '%s///<Left>', 's///<Left>' }, true },
   },
 } ---}}}2
 abbrev:set('ia')
 abbrev:set('ca')
-abbrev:set('va')
 
 ---@desc Keymaps {{{1
 -- Unmap default-mappings {{{2

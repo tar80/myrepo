@@ -54,10 +54,15 @@ return {
       },
       custom_highlights = {
         light = {
+          MsgArea = { bg = '#FBFBE2' },
           CursorLine = { fg = 'NONE', bg = '#FDE3DD' },
         },
-        dark = {
+        mallow = {
+          MsgArea = { bg = '#102025' },
           CursorLine = { fg = 'NONE', bg = '#3E1D31' },
+        },
+        veil = {
+          CursorLine = { fg = 'NONE', bg = '#ff8da7' },
         },
       },
       plugins = {
@@ -71,12 +76,13 @@ return {
         flash = true,
         fret = true,
         matchwith = true,
-        mini_diff = true,
         mini_icons = true,
         noice = true,
         rereope = true,
+        render_markdown = true,
         skkeleton_indicator = true,
         sandwich = true,
+        snacks = true,
         staba = true,
         trouble = true,
         dap = true,

@@ -3,69 +3,46 @@
 local api = vim.api
 local keymap = vim.keymap
 
-local augroup = api.nvim_create_augroup('rc_plugin', {})
-vim.api.nvim_create_autocmd('UIEnter', {
-  group = augroup,
-  once = true,
-  callback = function()
-    vim.cmd.colorscheme(vim.g.colors_name)
-    local msg = ('Startup time: %s'):format(require('lazy').stats().startuptime)
-    vim.notify(msg, 2, {title = 'Startup time'})
-  end,
-})
-
-local function git_branch() -- {{{3
-  local repo = vim.uv.cwd():gsub('^(.+[/\\])', '')
-  local branch = vim.b.mug_branch_name or ''
-  local detach = vim.b.mug_branch_info or ''
-  detach = detach ~= '' and ('(%s) '):format(detach) or ' '
-  local state = vim.b.mug_branch_stats
-  state = state
-      and ('%s+%s%s~%s%s!%s%s '):format(
-        '%#DiagnosticSignOk#',
-        state.s,
-        '%#DiagnosticSignWarn#',
-        state.u,
-        '%#DiagnosticSignError#',
-        state.c,
-        '%*'
-      )
-    or ''
-  local details = branch .. detach .. state
-  return details == ' ' and '' or ('%s %s:%%#Special#%s '):format(require('icon').git.branch, repo, details)
-end -- }}}
-
 return { -- {{{2
   ---@library
   { 'nvim-lua/plenary.nvim', lazy = true },
-  { -- {{{3 tartar
-    'tar80/tartar.nvim',
-    event = 'UIEnter',
-    dev = true,
-    config = function()
-      require('tartar')
-      local source = require('tartar.source')
-      source.set_tartar_fold()
-      source.map_conditional_zc('treesitter', 99)
-      keymap.set('x', 'aa', source.tartar_align, { desc = 'Tartar align' })
-      local operatable_q = source.plugkey('n', 'q')
-      operatable_q({ ':', 'w', '/', '?' })
-      local repeatable_g = source.plugkey('n', 'g', true)
-      repeatable_g({ 'j', 'k' })
-      local repeatable_z = source.plugkey('n', 'z', true)
-      repeatable_z({ 'h', 'j', 'k', 'l' })
-      local replaceable_H = source.plugkey('n', 'H', true)
-      replaceable_H('H', '<PageUp>H')
-      local replaceable_L = source.plugkey('n', 'L', true)
-      replaceable_L('L', '<PageDown>L')
-    end,
-  }, -- }}}
   { -- {{{3 mini.icons
     'echasnovski/mini.icons',
     lazy = true,
     config = function()
       require('mini.icons').setup()
       require('mini.icons').mock_nvim_web_devicons()
+    end,
+  }, -- }}}
+  { -- {{{3 tartar
+    'tar80/tartar.nvim',
+    priority = 1000,
+    dev = true,
+    lazy = false,
+    init = function()
+      vim.api.nvim_create_autocmd('User', {
+        pattern = 'VeryLazy',
+        callback = function()
+          require('tartar')
+          local source = require('tartar.source')
+          source.set_tartar_fold()
+          source.map_smart_zc('treesitter')
+          keymap.set('x', 'aa', source.tartar_align, { desc = 'Tartar align' })
+          local operatable_q = source.plugkey('n', 'q')
+          operatable_q({ ':', '/', '?' })
+          keymap.set('n', '<Plug>(q)w', function()
+            return vim.fn.reg_recording() == '' and 'qw' or 'q'
+          end, { expr = true })
+          local repeatable_g = source.plugkey('n', 'g', true)
+          repeatable_g({ 'j', 'k' })
+          local repeatable_z = source.plugkey('n', 'z', true)
+          repeatable_z({ 'h', 'j', 'k', 'l' })
+          local replaceable_H = source.plugkey('n', 'H', true)
+          replaceable_H('H', '<PageUp>H')
+          local replaceable_L = source.plugkey('n', 'L', true)
+          replaceable_L('L', '<PageDown>L')
+        end,
+      })
     end,
   }, -- }}}
 
@@ -144,8 +121,31 @@ return { -- {{{2
   -- { 'folke/ts-comments.nvim', event = 'VeryLazy', opts = {} },
   { -- {{{3 staba
     'tar80/staba.nvim',
+    dev = true,
     dependencies = { 'mini.icons', 'tartar.nvim' },
+    event = 'UIEnter',
     config = function()
+      local function git_branch() -- {{{
+        local repo = vim.uv.cwd():gsub('^(.+[/\\])', '')
+        local branch = vim.b.mug_branch_name or ''
+        local detach = vim.b.mug_branch_info or ''
+        detach = detach ~= '' and ('(%s) '):format(detach) or ' '
+        local state = vim.b.mug_branch_stats
+        state = state
+            and ('%s+%s%s~%s%s!%s%s '):format(
+              '%#DiagnosticSignOk#',
+              state.s,
+              '%#DiagnosticSignWarn#',
+              state.u,
+              '%#DiagnosticSignError#',
+              state.c,
+              '%*'
+            )
+          or ''
+        local details = branch .. detach .. state
+        return details == ' ' and '' or ('%s %s:%%#Special#%s '):format(require('icon').git.branch, repo, details)
+      end -- }}}
+
       vim.keymap.set('n', 'gb', '<Plug>(staba-pick)')
       vim.keymap.set('n', '<Space>1', '<Plug>(staba-cleanup)')
       vim.keymap.set('n', '<Space>q', '<Plug>(staba-delete-select)')
@@ -154,7 +154,7 @@ return { -- {{{2
       vim.keymap.set('n', 'mm', '<Plug>(staba-mark-toggle)', {})
       vim.keymap.set('n', 'mD', '<Plug>(staba-mark-delete-all)', {})
       require('staba').setup({
-        -- no_name = '^blank',
+        -- no_name = '[no name]',
         enable_fade = true,
         enable_underline = true,
         enable_sign_marks = true,
@@ -181,13 +181,11 @@ return { -- {{{2
         -- icons = {},
       })
     end,
-    event = 'UIEnter',
-    dev = true,
   }, -- }}}
-  { -- {{{ rereope
+  { -- {{{3 rereope
     'tar80/rereope.nvim',
-    opts = {},
     dev = true,
+    opts = { map_cyclic_register_keys = {} },
     keys = {
       {
         '_',
@@ -202,7 +200,7 @@ return { -- {{{2
         desc = 'Rereope regular replace',
       },
     },
-  }, -- }}}
+  }, -- }}}3
   { -- {{{3 mug
     'tar80/mug.nvim',
     dev = true,
@@ -246,9 +244,9 @@ return { -- {{{2
   }, ---}}}3
   { -- {{{3 fret
     'tar80/fret.nvim',
+    dev = true,
     -- event = 'VeryLazy',
     keys = { 'f', 'F', 't', 'T', 'd', 'v', 'y' },
-    dev = true,
     opts = {
       fret_enable_beacon = true,
       fret_enable_kana = true,
@@ -263,15 +261,34 @@ return { -- {{{2
   }, ---}}}
   { -- {{{3 matchwith
     'tar80/matchwith.nvim',
-    event = 'VeryLazy',
     dev = true,
+    event = 'VeryLazy',
     opts = {
-      ignore_filetypes = { 'TelescopePrompt', 'TelescopeResults', 'cmp-menu', 'cmp-docs' },
+      captures = {
+        html = { 'tag.delimiter', 'punctuation.bracket' },
+        javascript = {
+          'tag.delimiter',
+          'keyword.function',
+          'keyword.repeat',
+          'keyword.conditional',
+          'punctuation.bracket',
+          'constructor',
+        },
+      },
+      ignore_filetypes = {
+        'TelescopePrompt',
+        'TelescopeResults',
+        'cmp_menu',
+        'cmp_docs',
+        'fidget',
+        'snacks_picker_input',
+      },
       -- ignore_buftypes = {},
       jump_key = '%',
       indicator = 0,
+      priority = 200,
       sign = false,
-      show_parent = true,
+      show_parent = false,
       show_next = true,
     },
   }, -- }}}
@@ -289,7 +306,7 @@ return { -- {{{2
     keys = {
       { '<Leader>i', '<Plug>(operator-sandwich-add)i', mode = { 'n' } },
       { '<Leader>ii', '<Plug>(textobj-sandwich-auto-i)<Plug>(operator-sandwich-add)', mode = { 'n' } },
-      { '<Leader>a', '<Plug>(operator-sandwich-add)2i', mode = { 'n' } },
+      { '<Leader>a', '<Plug>(operator-sandwich-add)a', mode = { 'n' } },
       { '<Leader>aa', '<Plug>(textobj-sandwich-auto-a)<Plug>(operator-sandwich-add)', mode = { 'n' } },
       { '<Leader>a', '<Plug>(operator-sandwich-add)', mode = { 'x' } },
       { '<Leader>r', '<Plug>(sandwich-replace)', mode = { 'n', 'x' } },
@@ -469,17 +486,18 @@ return { -- {{{2
     name = 'render-markdown',
     ft = 'markdown',
     opts = {
-      enabled = false,
+      enabled = true,
       render_modes = { 'n', 'c', 't' },
+      sign = { enabled = false },
       debounce = 200,
       preset = 'obsidian',
+      completions = { lsp = { enabled = true } },
       bullet = { enabled = true, icons = { '', '', '', '' } },
-      sign = { enabled = false },
       checkbox = {
         enabled = true,
         unchecked = { icon = '󰄱', highlight = '@markup.list.unchecked' },
         checked = { icon = '󰱒', highlight = '@markup.list.unchecked' },
-        custom = { todo = { raw = '[-]', rendered = '󰥔', highlight = '@markup.raw' } },
+        custom = { todo = { raw = '[-]', rendered = '󰥔', highlight = '@markup.link' } },
       },
       anti_conceal = {
         enabled = false,
@@ -487,19 +505,41 @@ return { -- {{{2
       on = {
         attach = function()
           if api.nvim_buf_get_name(0):find('futago://chat', 1, true) then
-            require('render-markdown').disable()
+            require('render-markdown').buf_disable()
+          end
+        end,
+        render = function()
+          if api.nvim_buf_get_name(0):find('futago://chat', 1, true) then
+            require('render-markdown').buf_disable()
           end
         end,
       },
+      heading = {
+        enabled = true,
+        render_modes = false,
+        sign = false,
+        icons = function()
+          return ''
+        end,
+        position = 'inline',
+        width = 'block',
+        left_pad = 1,
+        min_width = 80,
+      },
+      code = {
+        enabled = true,
+        render_modes = false,
+        sign = false,
+        width = 'block',
+        left_pad = 1,
+        min_width = 80,
+      },
       win_options = {
         -- See :h 'concealcursor'
-        concealcursor = {
-          default = vim.api.nvim_get_option_value('concealcursor', {}),
-          rendered = 'n',
-        },
+        concealcursor = { default = vim.api.nvim_get_option_value('concealcursor', {}), rendered = 'n' },
       },
     },
   }, -- }}}
   { 'tar80/vim-PPxcfg', dev = true, ft = 'PPxcfg' },
   { 'vim-jp/vimdoc-ja' },
-} -- }}}
+} -- }}}2

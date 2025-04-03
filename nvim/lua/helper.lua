@@ -10,7 +10,7 @@ local M = {}
 M.getchr = function()
   local col = vim.api.nvim_win_get_cursor(0)[2]
   local line = vim.api.nvim_get_current_line()
-  local charidx = vim.str_utfindex(line, 'utf-8', col)
+  local charidx = vim.str_utfindex(line, 'utf-32', col)
   return fn.strcharpart(line, charidx, 1)
 end
 
@@ -71,7 +71,8 @@ end
 ---@param path string
 ---@return string
 M.scoop_apps = function(path)
-  return ('%s/%s'):format(os.getenv('SCOOP'), path)
+  path, _ = ('%s/%s'):format(os.getenv('SCOOP'), path):gsub('\\','/')
+  return path
 end
 
 ---Get the executable file path under mason management
@@ -107,50 +108,6 @@ M.executable = function(cmd)
   end
 
   return ok
-end
-
----@param keys string|string[]
-local _iter_maps = function(keys, callback)
-  local t = type(keys)
-  if t == 'string' then
-    callback(keys)
-  elseif t == 'table' then
-    vim.iter(keys):each(function(key)
-      callback(key)
-    end)
-  end
-end
-
----A operator that issues a specific key standby
----https://zenn.dev/mattn/articles/83c2d4c7645faa
----https://github.com/atusy/dotfiles/blob/main/dot_config/nvim/lua/atusy/init.lua
----@param startkey string A trigger key spec
----@param mode string A list of modes
----@param is_repeat? boolean Whether to repeat the key sequence
----@return fun(keys: string|string[], addkey?: string):nil
-M.plugkey = function(startkey, mode, is_repeat)
-  local plug = ('<Plug>(%s)'):format(startkey)
-  if is_repeat then
-    return function(keys, replacekey)
-      if replacekey and keys == startkey then
-        vim.keymap.set(mode, startkey, startkey .. plug)
-        vim.keymap.set(mode, plug .. keys, replacekey .. plug)
-      else
-        _iter_maps(keys, function(nextkey)
-          local repeatkey = startkey .. nextkey
-          vim.keymap.set(mode, repeatkey, repeatkey .. plug)
-          vim.keymap.set(mode, plug .. nextkey, repeatkey .. plug)
-        end)
-      end
-    end
-  else
-    vim.keymap.set(mode, startkey, ('<Plug>(%s)'):format(startkey))
-    return function(keys)
-      _iter_maps(keys, function(nextkey)
-        vim.keymap.set(mode, plug .. nextkey, startkey .. nextkey)
-      end)
-    end
-  end
 end
 
 ---Unload preset plugins
@@ -233,7 +190,7 @@ M.shell = function(name) -- {{{
   local obj = {
     cmd = { path = 'cmd.exe', flag = '/c', pipe = '>%s 2>&1', quote = '', xquote = '"', slash = false },
     nyagos = {
-      path = M.scoop_apps('/apps/nyagos/current/nyagos.exe'),
+      path = M.scoop_apps('apps/nyagos/current/nyagos.exe'),
       flag = '-c',
       pipe = '|& tee',
       quote = '',
@@ -242,7 +199,7 @@ M.shell = function(name) -- {{{
       completeslash = 'slash',
     },
     bash = {
-      path = M.scoop_apps('/apps/git/current/bin/bash.exe'),
+      path = M.scoop_apps('apps/git/current/bin/bash.exe'),
       flag = '-c',
       pipe = '2>&1| tee',
       quote = '',
@@ -273,9 +230,11 @@ M.scratch_buffer = function() -- {{{
     bufname = ('Scratch%s'):format(i)
     i = i + 1
   until fn.bufnr(bufname) == -1
+  local ft = vim.bo.filetype
   vim.cmd.new(bufname)
   api.nvim_set_option_value('buftype', 'nofile', { buf = 0 })
   api.nvim_set_option_value('bufhidden', 'wipe', { buf = 0 })
+  api.nvim_set_option_value('filetype', ft, { buf = 0 })
 end -- }}}
 
 ---Toggle wrap option
