@@ -1,7 +1,6 @@
 --- vim:textwidth=0:foldmethod=marker:foldlevel=1:
 -------------------------------------------------------------------------------
 local api = vim.api
-local keymap = vim.keymap
 
 return {
   { 'tar80/vim-quickrun-neovim-job', branch = 'win-nyagos', lazy = true },
@@ -12,21 +11,46 @@ return {
       {
         'mq',
         function()
-          local prefix = ''
-          local mode = api.nvim_get_mode().mode
-
-          if mode:find('^[vV\x16]') then
-            local start = vim.fn.line('v')
-            local end_ = api.nvim_win_get_cursor(0)[1]
-
-            if start > end_ then
-              start, end_ = end_, start
-            end
-
-            prefix = string.format('%s,%s', start, end_)
+          if vim.bo.filetype == '' then
+            return
           end
 
-          vim.cmd(string.format('%sQuickRun', prefix))
+          local prefix = ''
+          local mode = api.nvim_get_mode().mode
+          local start_line, end_line ---@type integer, integer
+
+          if mode:find('^[vV\x16]') then
+            start_line = vim.fn.line('v')
+            end_line = api.nvim_win_get_cursor(0)[1]
+
+            if start_line > end_line then
+              start_line, end_line = end_line, start_line
+            end
+            api.nvim_buf_set_mark(0, 'q', start_line, 0, {})
+            api.nvim_buf_set_mark(0, 'r', end_line, 0, {})
+            api.nvim_exec_autocmds('User', { pattern = 'StabaUpdateMark', modeline = false })
+            prefix = ('%s,%s'):format(start_line, end_line)
+          else
+            start_line = api.nvim_buf_get_mark(0, 'q')[1]
+            end_line = api.nvim_buf_get_mark(0, 'r')[1]
+            if (start_line + end_line) > 0 then
+              prefix = ('%s,%s'):format(start_line, end_line)
+            end
+          end
+
+          local suffix = ''
+          local bufnr = vim.api.nvim_get_current_buf()
+          local pos = vim.api.nvim_win_get_cursor(0)
+          local row, col = pos[1] - 1, pos[2]
+          local captures = vim.treesitter.get_captures_at_pos(bufnr, row, col)
+          local filetypes = { 'lua', 'javascript', 'typescript' }
+          local is_injection = vim.iter(captures):find(function (capture)
+            return vim.tbl_contains(filetypes, capture.lang)
+          end)
+          if is_injection then
+            suffix = is_injection.lang
+          end
+          vim.cmd(('%sQuickRun %s'):format(prefix, suffix))
         end,
         mode = { 'n', 'v' },
         desc = 'QuickRun',
@@ -51,16 +75,13 @@ return {
                   job_id = session._temp_names[1]
                   jobs[job_id] = { finish = false }
                 end
-
-                vim.notify(string.format('[QuickRun] Running %s ...', session.config.command), vim.log.levels.WARN, {
-                  title = ' QuickRun',
-                })
+                vim.cmd(string.format('echon "[QuickRun] Running %s ..."', session.config.command))
               end,
               on_success = function(_, _)
                 vim.cmd('echon "[QuickRun] Success"')
               end,
               on_failure = function(_, _)
-                vim.notify('[QuickRun] Error', vim.log.levels.ERROR, { title = ' QuickRun' })
+                vim.cmd('echohl Error | echo "[QuickRun] Failure" | echohl None')
               end,
               on_finish = function(session, _)
                 if session._temp_names then

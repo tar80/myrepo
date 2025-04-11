@@ -9,7 +9,7 @@ local o = vim.o
 api.nvim_set_option_value('termguicolors', true, { scope = 'global' })
 api.nvim_set_option_value('fileformats', 'unix,dos,mac', { scope = 'global' })
 api.nvim_set_option_value('hlsearch', false, { scope = 'global' })
-api.nvim_set_option_value('shada', "'50,<500,/10,:100,h", { scope = 'global' })
+api.nvim_set_option_value('shada', "'200,<500,/10,:100,h", { scope = 'global' })
 -- api.nvim_set_option_value('equalalways', false, { scope = 'global' })
 
 ---Local {{{2

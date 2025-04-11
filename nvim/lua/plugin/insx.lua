@@ -2,7 +2,7 @@
 --------------------------------------------------------------------------------
 
 vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'TelescopePrompt',
+  pattern = {'TelescopePrompt','snacks_picker_input'},
   command = 'let b:insx_disabled=v:true',
   desc = 'Disable insx by filetype'
 })

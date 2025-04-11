@@ -1,6 +1,9 @@
 -- vim:textwidth=0:foldmethod=marker:foldlevel=1
 
 local symbol = require('tartar.icon.symbol')
+
+local EXCLUED_FILES = { '*.exe', '*.dll', '*.EXE', '*.DLL', '.bundle/', '.gems/', 'node_modules/', 'dist/', 'themes/' }
+
 local bigfile_opts = { -- {{{2
   enabled = true,
   notify = true,
@@ -20,124 +23,125 @@ local bigfile_opts = { -- {{{2
     end)
   end,
 } -- }}}2
+local image_opts = { -- {{{2
+  formats = { 'png' },
+  force = false,
+  doc = { enabled = true, inline = false, float = true, max_width = 60, max_height = 30 },
+  img_dirs = { 'img', 'images', 'assets', 'static', 'public', 'media', 'attachments' },
+  cache = vim.fn.stdpath('cache') .. '/snacks/image',
+  debug = { request = false, convert = false, placement = false },
+  env = {},
+  icons = { math = '󰪚', chart = '󰄧', image = '' },
+  convert = { notify = false, magick = false },
+  math = { enabled = false },
+} -- }}}2
 local picker_opts = { -- {{{2
   prompt = symbol.cmdline.input .. ' ',
-  jump = { -- {{{4
+  jump = { -- {{{3
     jumplist = true, -- save the current position in the jumplist
     tagstack = false, -- save the current position in the tagstack
-    reuse_win = false, -- reuse an existing window if the buffer is already open
+    reuse_win = true, -- reuse an existing window if the buffer is already open
     close = true, -- close the picker when jumping/editing to a location (defaults to true)
     match = false, -- jump to the first match position. (useful for `lines`)
-  }, -- }}}4
-  layout = { -- {{{4
+  }, -- }}}3
+  layout = { -- {{{3
+    backdrop = false,
     cycle = false,
     preset = function()
       return vim.o.columns >= 120 and 'default' or 'vertical'
     end,
-  }, -- }}}4
-  matcher = { -- {{{4
+  }, -- }}}3
+  matcher = { -- {{{3
     fuzzy = true,
-    smartcase = true,
+    smartcase = false,
     ignorecase = true,
     sort_empty = false,
     filename_bonus = true,
     file_pos = false,
     cwd_bonus = false,
-    frecency = false,
+    frecency = true,
     history_bonus = false,
-  }, -- }}}4
+  }, -- }}}3
   sort = {
-    fields = { 'score:desc', '#text', 'idx' },
+    fields = { 'score:desc', '#text' },
   },
   ui_select = true,
-  win = { -- {{{4
+  win = { -- {{{3
     input = {
       keys = {
         ['<Esc>'] = 'cancel',
-        ['<C-g>'] = { 'close', mode = { 'n', 'i' } },
-        ['<C-w>'] = { '<c-s-w>', mode = { 'i' }, expr = true, desc = 'delete word' },
         ['<CR>'] = { 'confirm', mode = { 'n', 'i' } },
         ['<S-CR>'] = { { 'pick_win', 'jump' }, mode = { 'n', 'i' } },
-        ['<S-Tab>'] = { 'select_and_prev', mode = { 'i', 'n' } },
+        ['<C-g>'] = { 'close', mode = { 'n', 'i' } },
         ['<Tab>'] = { 'select_and_next', mode = { 'i', 'n' } },
-        ['<C-Down>'] = { 'history_forward', mode = { 'i', 'n' } },
-        ['<C-Up>'] = { 'history_back', mode = { 'i', 'n' } },
+        ['<S-Tab>'] = { 'select_and_prev', mode = { 'i', 'n' } },
         ['<Up>'] = { 'list_up', mode = { 'i', 'n' } },
         ['<Down>'] = { 'list_down', mode = { 'i', 'n' } },
-        -- ['<a-d>'] = { 'inspect', mode = { 'n', 'i' } },
-        ['<A-j>'] = { 'flash', mode = { 'n', 'i' } },
-        ['<A-f>'] = { 'toggle_follow', mode = { 'i', 'n' } },
-        ['<A-h>'] = { 'toggle_hidden', mode = { 'i', 'n' } },
-        ['<A-i>'] = { 'toggle_ignored', mode = { 'i', 'n' } },
-        ['<A-m>'] = { 'toggle_maximize', mode = { 'i', 'n' } },
-        ['<A-p>'] = { 'toggle_preview', mode = { 'i', 'n' } },
-        ['<A-l>'] = { 'cycle_win', mode = { 'i', 'n' } },
-        ['<A-w>'] = false,
+        ['+'] = { 'flash', mode = { 'n', 'i' } },
+        ['<S-l>'] = { 'focus_list', mode = { 'i', 'n' } },
+        ['<S-p>'] = { 'focus_preview', mode = { 'i', 'n' } },
         ['<C-a>'] = { '<home>', mode = { 'i' }, expr = true },
         ['<C-e>'] = { '<End>', mode = { 'i' }, expr = true },
-        ['<C-b>'] = { 'preview_scroll_up', mode = { 'i', 'n' } },
-        ['<C-f>'] = { 'preview_scroll_down', mode = { 'i', 'n' } },
-        ['<C-u>'] = { 'list_scroll_up', mode = { 'i', 'n' } },
-        ['<C-d>'] = { 'list_scroll_down', mode = { 'i', 'n' } },
-        ['<C-k>'] = { 'list_up', mode = { 'i', 'n' } },
-        ['<C-j>'] = { 'list_down', mode = { 'i', 'n' } },
-        ['<C-p>'] = { 'list_up', mode = { 'i', 'n' } },
-        ['<C-n>'] = { 'list_down', mode = { 'i', 'n' } },
-        ['<C-l>'] = { 'toggle_live', mode = { 'i', 'n' } },
-        ['<C-q>'] = { 'qflist', mode = { 'i', 'n' } },
-        ['<C-s>'] = { 'edit_split', mode = { 'i', 'n' } },
-        ['<C-t>'] = { 'tab', mode = { 'n', 'i' } },
-        ['<C-v>'] = { 'edit_vsplit', mode = { 'i', 'n' } },
-        ['?'] = 'toggle_help_input',
-        ['G'] = 'list_bottom',
-        ['gg'] = 'list_top',
-        ['j'] = 'list_down',
-        ['k'] = 'list_up',
-        ['q'] = 'close',
+        ['<C-u>'] = { 'preview_scroll_up', mode = { 'i', 'n' } },
+        ['<C-d>'] = { 'preview_scroll_down', mode = { 'i', 'n' } },
+        ['<C-b>'] = { 'list_scroll_up', mode = { 'i', 'n' } },
+        ['<C-f>'] = { 'list_scroll_down', mode = { 'i', 'n' } },
+        -- ['<C-k>'] = { 'list_up', mode = { 'i', 'n' } },
+        -- ['<C-j>'] = { 'list_down', mode = { 'i', 'n' } },
+        -- ['<C-q>'] = { 'qflist', mode = { 'i', 'n' } },
+        -- ['<C-s>'] = { 'edit_split', mode = { 'i', 'n' } },
+        -- ['<C-t>'] = { 'tab', mode = { 'n', 'i' } },
+        -- ['<C-v>'] = { 'edit_vsplit', mode = { 'i', 'n' } },
+        -- ['<C-w>'] = { '<c-s-w>', mode = { 'i' }, expr = true, desc = 'delete word' },
+        -- ['<A-d>'] = { 'inspect', mode = { 'n', 'i' } },
+        -- ['<A-f>'] = { 'toggle_follow', mode = { 'i', 'n' } },
+        -- ['<A-h>'] = { 'toggle_hidden', mode = { 'i', 'n' } },
+        -- ['<A-i>'] = { 'toggle_ignored', mode = { 'i', 'n' } },
+        -- ['<A-m>'] = { 'toggle_maximize', mode = { 'i', 'n' } },
+        -- ['<A-p>'] = { 'toggle_preview', mode = { 'i', 'n' } },
+        ['<A-w>'] = false,
+        -- ['?'] = 'toggle_help_input',
+        -- ['G'] = 'list_bottom',
+        -- ['gg'] = 'list_top',
+        -- ['j'] = 'list_down',
+        -- ['k'] = 'list_up',
+        -- ['q'] = 'close',
       },
     },
     list = {
       keys = {
-        ['<Esc>'] = 'cancel',
-        ['/'] = 'toggle_focus',
-        ['<2-LeftMouse>'] = 'confirm',
-        ['<CR>'] = 'confirm',
+        -- ['<2-LeftMouse>'] = 'confirm',
+        -- ['<Esc>'] = 'cancel',
+        -- ['/'] = 'toggle_focus',
+        -- ['<CR>'] = 'confirm',
         ['<Up>'] = 'list_up',
         ['<Down>'] = 'list_down',
         ['<S-Tab>'] = { 'select_and_prev', mode = { 'n', 'x' } },
         ['<Tab>'] = { 'select_and_next', mode = { 'n', 'x' } },
-        ['<Leader>f'] = 'flash',
-        ['<A-f>'] = 'toggle_follow',
-        ['<A-h>'] = 'toggle_hidden',
-        ['<A-i>'] = 'toggle_ignored',
-        ['<A-m>'] = 'toggle_maximize',
-        ['<A-p>'] = 'toggle_preview',
-        ['<A-l>'] = 'cycle_win',
-        ['<A-w>'] = false,
+        ['+'] = 'flash',
+        ['<S-p>'] = { 'focus_preview', mode = { 'i', 'n' } },
         ['<C-a>'] = 'select_all',
-        ['<C-f>'] = 'preview_scroll_down',
-        ['<C-b>'] = 'preview_scroll_up',
-        ['<C-u>'] = 'list_scroll_up',
-        ['<C-d>'] = 'list_scroll_down',
-        ['<C-j>'] = 'list_down',
-        ['<C-k>'] = 'list_up',
-        ['<C-n>'] = 'list_down',
-        ['<C-p>'] = 'list_up',
-        ['<C-q>'] = 'qflist',
-        ['<C-s>'] = 'edit_split',
-        ['<C-t>'] = 'tab',
-        ['<C-v>'] = 'edit_vsplit',
-        ['?'] = 'toggle_help_list',
-        ['G'] = 'list_bottom',
-        ['gg'] = 'list_top',
-        ['i'] = 'focus_input',
-        ['j'] = 'list_down',
-        ['k'] = 'list_up',
-        ['q'] = 'close',
-      },
-      wo = {
-        conceallevel = 2,
-        concealcursor = 'nvc',
+        ['<C-u>'] = 'preview_scroll_up',
+        ['<C-d>'] = 'preview_scroll_down',
+        ['<C-b>'] = 'list_scroll_up',
+        ['<C-f>'] = 'list_scroll_down',
+        -- ['<C-q>'] = 'qflist',
+        -- ['<C-s>'] = 'edit_split',
+        -- ['<C-t>'] = 'tab',
+        -- ['<C-v>'] = 'edit_vsplit',
+        -- ['<A-f>'] = 'toggle_follow',
+        -- ['<A-h>'] = 'toggle_hidden',
+        -- ['<A-i>'] = 'toggle_ignored',
+        -- ['<A-m>'] = 'toggle_maximize',
+        -- ['<A-p>'] = 'toggle_preview',
+        ['<A-w>'] = false,
+        -- ['?'] = 'toggle_help_list',
+        -- ['G'] = 'list_bottom',
+        -- ['gg'] = 'list_top',
+        -- ['i'] = 'focus_input',
+        -- ['j'] = 'list_down',
+        -- ['k'] = 'list_up',
+        -- ['q'] = 'close',
       },
     },
     preview = {
@@ -145,14 +149,19 @@ local picker_opts = { -- {{{2
         ['<Esc>'] = 'cancel',
         ['q'] = 'close',
         ['i'] = 'focus_input',
+        ['+'] = 'flash',
         ['<ScrollWheelDown>'] = 'list_scroll_wheel_down',
         ['<ScrollWheelUp>'] = 'list_scroll_wheel_up',
-        ['<A-l>'] = 'cycle_win',
+        ['<S-l>'] = { 'focus_list', mode = { 'i', 'n' } },
         ['<A-w>'] = false,
       },
+      wo = {
+        conceallevel = 2,
+        concealcursor = 'nc',
+      },
     },
-  }, -- }}}4
-  actions = {
+  }, -- }}}3
+  actions = { -- {{{3
     flash = function(picker)
       require('flash').jump({
         pattern = '^',
@@ -171,8 +180,8 @@ local picker_opts = { -- {{{2
         end,
       })
     end,
-  },
-  formatters = { -- {{{4
+  }, -- }}}3
+  formatters = { -- {{{3
     text = {
       ft = nil, ---@type string? filetype for highlighting
     },
@@ -192,8 +201,8 @@ local picker_opts = { -- {{{2
       level = false,
       pos = 'left',
     },
-  }, -- }}}4
-  layouts = { -- {{{4
+  }, -- }}}3
+  layouts = { -- {{{3
     default = {
       layout = {
         box = 'horizontal',
@@ -210,10 +219,40 @@ local picker_opts = { -- {{{2
         { win = 'preview', title = '{preview}', border = 'single', width = 0.6 },
       },
     },
+    dropdown = {
+      layout = {
+        row = 1,
+        width = 0.5,
+        min_width = 81,
+        height = 0.9,
+        border = 'none',
+        box = 'vertical',
+        {
+          box = 'vertical',
+          border = 'single',
+          title = '{title}',
+          title_pos = 'center',
+          { win = 'input', height = 1, border = 'bottom' },
+          { win = 'list', border = 'none' },
+        },
+        {
+          win = 'preview',
+          title = '{preview}',
+          height = 0.7,
+          border = 'single',
+          wo = {
+            spell = false,
+            wrap = false,
+            signcolumn = 'no',
+            statuscolumn = ' ',
+            conceallevel = 3,
+          },
+        },
+      },
+    },
     sideview = {
       preview = 'main',
       layout = {
-        backdrop = false,
         width = 80,
         min_width = 80,
         height = 0,
@@ -227,7 +266,6 @@ local picker_opts = { -- {{{2
     vscode = {
       preview = false,
       layout = {
-        backdrop = false,
         row = 1,
         width = 0.4,
         min_width = 80,
@@ -239,8 +277,8 @@ local picker_opts = { -- {{{2
         { win = 'preview', title = '{preview}', border = 'single' },
       },
     },
-  }, -- }}}4
-  previewers = { -- {{{4
+  }, -- }}}3
+  previewers = { -- {{{3
     diff = {
       builtin = true,
       cmd = { 'delta' },
@@ -255,14 +293,62 @@ local picker_opts = { -- {{{2
       ft = nil,
     },
     man_pager = nil,
-  }, -- }}}4
-  sources = { -- {{{4
+  }, -- }}}3
+  sources = { -- {{{3
+    explorer = { -- {{{4
+      auto_close = true,
+      hidden = true,
+      ignored = true,
+      diagnostics = false,
+      diagnostics_open = false,
+      exclude = EXCLUED_FILES,
+      focus = 'input',
+      follow_file = false,
+      formatters = { file = { filename_only = false } },
+      git_status = false,
+      git_status_open = false,
+      git_untracked = false,
+      jump = { close = true },
+      layout = { preset = 'default', preview = true },
+      matcher = { sort_empty = false, fuzzy = true },
+      sort = { fields = { 'sort' } },
+      supports_live = false,
+      tree = false,
+      watch = false,
+      win = {
+        input = {
+          keys = {
+            ['<CR>'] = { { 'pick_win', 'jump' }, mode = { 'n', 'i' } },
+            ['<C-q>'] = { 'qflist', mode = { 'i', 'n' } },
+          },
+        },
+        list = {
+          keys = {
+            ['<BS>'] = 'explorer_up',
+            ['\\'] = 'explorer_up',
+            ['l'] = 'confirm',
+            ['o'] = false,
+            ['h'] = 'explorer_close',
+            ['a'] = 'explorer_add',
+            ['d'] = 'explorer_del',
+            ['r'] = 'explorer_rename',
+            ['p'] = 'toggle_preview',
+            ['y'] = { 'explorer_yank', mode = { 'n', 'x' } },
+            ['<C-g>'] = 'cancel',
+            ['<C-s>'] = 'edit_split',
+            ['<C-t>'] = 'tab',
+            ['<C-v>'] = 'edit_vsplit',
+            ['<A-w>'] = false,
+          },
+        },
+      },
+    }, -- }}}4
     files = {
       cmd = 'fd',
       hidden = true,
       ignored = true,
       support_live = false,
-      exclude = { '*.exe', '*.dll', '*.EXE', '*.DLL', 'node_modules/', 'dist/', 'themes/' },
+      exclude = EXCLUED_FILES,
     },
     kensaku = {
       format = 'file',
@@ -270,18 +356,18 @@ local picker_opts = { -- {{{2
       show_enpty = false,
       live = true,
       support_live = true,
+      exclude = EXCLUED_FILES,
     },
-  }, -- }}}4
-  toggles = { -- {{{4
+  }, -- }}}3
+  toggles = { -- {{{3
     follow = 'f',
     hidden = 'h',
     ignored = 'i',
     modified = 'm',
     regex = { icon = 'R', value = false },
-  }, -- }}}4
-  icons = { -- {{{4
+  }, -- }}}3
+  icons = { -- {{{3
     ui = {
-      live = '󰐰',
       hidden = 'h',
       ignored = 'i',
       follow = 'f',
@@ -309,9 +395,9 @@ local picker_opts = { -- {{{2
       attached = '󰖩 ',
     },
     kinds = require('tartar.icon.kind'),
-  }, --}}}4
+  }, --}}}3
   db = { sqlite3_path = nil },
-  debug = { -- {{{4
+  debug = { -- {{{3
     scores = false, -- show scores in the list
     leaks = false, -- show when pickers don't get garbage collected
     explorer = false, -- show explorer debug info
@@ -319,7 +405,7 @@ local picker_opts = { -- {{{2
     grep = false, -- show file debug info
     proc = false, -- show proc debug info
     extmarks = false, -- show extmarks errors
-  }, -- }}}4
+  }, -- }}}3
 } -- }}}2
 local style_opts = { -- {{{2
   float = {
@@ -381,16 +467,6 @@ local keys = { -- {{{2
     end,
     desc = 'Clear notifications',
   },
-  -- {
-  --   '<Leader>m',
-  --   function()
-  --     vim.cmd.wshada()
-  --     Snacks.picker.recent({
-  --       layout = 'vscode',
-  --     })
-  --   end,
-  --   desc = 'Most Recently Used Files',
-  -- },
   {
     '<Leader>:',
     function()
@@ -411,14 +487,22 @@ local keys = { -- {{{2
     desc = 'Find Config File',
   },
   {
-    '<Leader>o',
+    '<Leader>m',
     function()
-      Snacks.picker.files({
-        cwd = vim.uv.cwd(),
+      vim.cmd.wshada()
+      Snacks.picker.recent({
         layout = 'vscode',
       })
     end,
-    desc = 'Files',
+    desc = 'Most Recently Used Files',
+  },
+  {
+    '<Leader>o',
+    function()
+      Snacks.picker.explorer({
+        cwd = vim.fs.root(0, '.git'),
+      })
+    end,
   },
   {
     '<Leader>p',
@@ -430,46 +514,49 @@ local keys = { -- {{{2
     end,
     desc = 'Files',
   },
-  -- {
-  --   '<Leader>z',
-  --   function()
-  --     local opts = {
-  --       prompt = 'zoxide query: ',
-  --     }
-  --     vim.ui.input(opts, function(input)
-  --       if input and input ~= '' then
-  --         vim.system({ 'zoxide', 'add', input }, { text = true })
-  --         vim.system({ 'zoxide', 'query', input }, { text = true }, function(data)
-  --           vim.schedule(function()
-  --             if data.code == 0 and data.stdout then
-  --               Snacks.picker.files({
-  --                 cwd = data.stdout:gsub('\n', ''),
-  --               })
-  --             else
-  --               vim.notify('zoxide: no match found', 3)
-  --             end
-  --           end)
-  --         end)
-  --       end
-  --     end)
-  --   end,
-  --   desc = 'Zoxide',
-  -- },
-  -- {
-  --   '<Leader>k',
-  --   function()
-  --     require('snacks.picker.config.sources').kensaku = require('plugin/source/snacks_kensaku')
-  --     Snacks.picker.kensaku()
-  --   end,
-  --   desc = 'Kensaku',
-  -- },
+  {
+    '<Leader>z',
+    function()
+      local opts = {
+        prompt = 'zoxide query: ',
+      }
+      vim.ui.input(opts, function(input)
+        if input and input ~= '' then
+          vim.system({ 'zoxide', 'add', input }, { text = true })
+          vim.system({ 'zoxide', 'query', input }, { text = true }, function(data)
+            vim.schedule(function()
+              if data.code == 0 and data.stdout then
+                Snacks.picker.explorer({
+                  cwd = data.stdout:gsub('\n', ''),
+                })
+              else
+                vim.notify('zoxide: no match found', 3)
+              end
+            end)
+          end)
+        end
+      end)
+    end,
+    desc = 'Zoxide',
+  },
+  {
+    '<Leader>k',
+    function()
+      local is_help = vim.bo.filetype == 'help'
+      local cwd = is_help and vim.fs.dirname(vim.api.nvim_buf_get_name(0)) or vim.uv.cwd()
+      Snacks.picker.kensaku({
+        cwd = cwd,
+      })
+    end,
+    desc = 'Kensaku',
+  },
   {
     '<Leader>h',
     function()
-      require('staba').wrap_no_fade_background(Snacks.picker.help, {
+      Snacks.picker.help({
         finder = 'help',
         format = 'text',
-        -- layout = { preset = 'left' },
+        layout = { preset = 'dropdown' },
         confirm = 'help',
       })
     end,
@@ -478,25 +565,51 @@ local keys = { -- {{{2
   {
     '<Space>/',
     function()
+      local row = vim.api.nvim_win_get_cursor(0)[1]
       require('staba').wrap_no_fade_background(Snacks.picker.lines, {
         focus = 'list',
         pattern = vim.fn.expand('<cword>'),
         matcher = { fuzzy = false, smartcase = true, ignorecase = true, sort_empty = false },
-        layout = { preset = 'vscode' },
+        layout = {
+          preset = 'ivy_split',
+          layout = {
+            preview = 'main',
+            box = 'vertical',
+            backdrop = false,
+            width = 0,
+            height = 0.3,
+            position = 'bottom',
+            border = 'none',
+            {
+              box = 'horizontal',
+              { win = 'list', border = 'none' },
+              { win = 'preview', width = 0.6, border = 'none' },
+            },
+          },
+        },
+        on_show = function(picker)
+          for i, item in ipairs(picker:items()) do
+            if item.idx == row then
+              picker.list:view(i)
+              Snacks.picker.actions.list_scroll_center(picker)
+              break
+            end
+          end
+        end,
       })
     end,
     desc = 'Lines',
   },
   -- git
-  -- {
-  --   '<Leader>gb',
-  --   function()
-  --     Snacks.picker.git_branches({
-  --       layout = { preset = 'left' },
-  --     })
-  --   end,
-  --   desc = 'Git Branches',
-  -- },
+  {
+    '<Leader>gb',
+    function()
+      Snacks.picker.git_branches({
+        layout = { preset = 'dropdown' },
+      })
+    end,
+    desc = 'Git Branches',
+  },
   {
     '<Leader>gd',
     function()
@@ -529,13 +642,13 @@ local keys = { -- {{{2
     end,
     desc = 'Pickers',
   },
-  {
-    '<Leader>sr',
-    function()
-      Snacks.picker.registers()
-    end,
-    desc = 'Registers',
-  },
+  -- {
+  --   '<Leader>sr',
+  --   function()
+  --     Snacks.picker.registers()
+  --   end,
+  --   desc = 'Registers',
+  -- },
   {
     '<Leader>sa',
     function()
@@ -602,7 +715,6 @@ local keys = { -- {{{2
   },
   {
     '<Leader>N',
-    desc = 'Neovim News',
     function()
       Snacks.win({
         file = vim.api.nvim_get_runtime_file('doc/news.txt', false)[1],
@@ -618,6 +730,17 @@ local keys = { -- {{{2
         },
       })
     end,
+    desc = 'Neovim News',
+  },
+  {
+    '<Leader><Leader>t',
+    function()
+      local et = vim.bo.expandtab and 'set noexpandtab' or 'set expandtab'
+      vim.cmd(et .. '|retab')
+      vim.notify(et, vim.log.levels.INFO, { 'Options' })
+    end,
+    desc = 'Expandtab',
+    mode = { 'n' },
   },
   {
     ']]',
@@ -642,42 +765,18 @@ return {
   priority = 999,
   lazy = false,
   keys = keys,
-  opts = { -- {{{2
-    bigfile = bigfile_opts,
-    picker = picker_opts,
-    quickfile = { enabled = true },
-    win = win_opts,
-    styles = style_opts,
-    -- dashboard = { enabled = true },
-    -- explorer = { enabled = true },
-    -- image = { enabled = true },
-    -- indent = { enabled = true },
-    -- input = { enabled = true },
-    -- notifier = { enabled = true },
-    -- scope = { enabled = true },
-    -- scratch = { enabled = true },
-    -- scroll = { enabled = true },
-    -- statuscolumn = { enabled = true },
-    -- words = { enabled = true },
-  }, -- }}}2
   init = function() -- {{{2
     vim.api.nvim_create_autocmd('User', {
       pattern = 'VeryLazy',
       callback = function()
-        _G.dd = function(...)
-          Snacks.debug.inspect(...)
-        end
-        _G.bt = function()
-          Snacks.debug.backtrace()
-        end
-        vim.print = _G.dd
+        require('snacks.picker.config.sources').kensaku = require('plugin/source/snacks_kensaku')
         vim.api.nvim_create_user_command('R', function(opts)
           Snacks.rename.rename_file({
             from = vim.api.nvim_buf_get_name(0),
             to = opts.args,
           })
         end, { nargs = '?', desc = 'Rename File' })
-        -- Create some toggle mappings
+        Snacks.toggle.profiler():map('<leader><Leader>p')
         Snacks.toggle.option('wrap', { name = 'Wrap' }):map('<Leader><Leader>w')
         Snacks.toggle
           .option('conceallevel', { off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2 })
@@ -687,4 +786,22 @@ return {
       end,
     })
   end, -- }}}2
+  opts = { -- {{{2
+    bigfile = bigfile_opts,
+    -- image = image_opts,
+    picker = picker_opts,
+    quickfile = { enabled = true },
+    win = win_opts,
+    styles = style_opts,
+    -- dashboard = { enabled = true },
+    -- explorer = { enabled = true },
+    -- indent = { enabled = true },
+    input = { enabled = true },
+    -- notifier = { enabled = true },
+    -- scope = { enabled = true },
+    -- scratch = { enabled = true },
+    -- scroll = { enabled = true },
+    -- statuscolumn = { enabled = true },
+    -- words = { enabled = true },
+  }, -- }}}2
 }

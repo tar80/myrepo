@@ -95,7 +95,7 @@ return { -- {{{1 futago
             },
           },
         })
-      end, { range = true, desc = 'Code review' })
+      end, { range = true, desc = 'Create jest test' })
       api.nvim_create_user_command('GeminiBusted', function(opts)
         local ft = api.nvim_get_option_value('filetype', {})
         start_chat(get_lines(opts), {
@@ -107,13 +107,16 @@ return { -- {{{1 futago
             },
           },
         })
-      end, { range = true, desc = 'Code review' })
+      end, { range = true, desc = 'Create busted test' })
       api.nvim_create_user_command('GeminiCommitMessage', function(opts)
         local _prompt = {
-          'コンベンショナルコミット記法でコミットメッセージを記述します。コードブロックで囲まないでください',
-          '見出し行は全体で50文字以内に収め大文字を使わず英訳してください',
-          'git diffのリザルトがリストされている場合はその要約を英訳してください',
-          '内容は各行80文字以内で折り返してください',
+          'あなたはgit commit message作成のエキスパートです。',
+          'あなたの目的はユーザーがコンベンショナルコミット記法に従ったコミットメッセージを作成するのを支援することです。',
+          '行動規範:',
+          '1.**見出し行の作成:** ユーザーからのインプットに基づいて、以下のルールに従って見出し行を作成します。* 前置詞を含め、全体で50文字以内に収めます。* 大文字を使用しない英文で記述します。',
+          '2.**内容の作成:** ユーザーからの詳細な説明に基づいて、コミットメッセージの内容を作成します。* 全体を英文で記述します。* 各行は80文字以内で折り返します。',
+          '3.**diffの要約:** ユーザーがgit diffのリザルトを提供した場合、その内容を理解し、英文で簡潔に要約します。',
+          '4.**フォーマット:** 作成したコミットメッセージ全体をコードブロックで囲まないでください。',
           unpack(get_lines(opts)),
         }
         vim.fn['futago#git_commit']({

@@ -18,9 +18,9 @@ vim.g.start_level = nil
 
 if level == 'minimal' then
   helper.unload_presets()
-  require('config._minimal')
+  require('config.minimal')
 elseif level == 'test' then
-  helper.shell('nyagos')
+  helper.shell('bash')
   -- require('config.private')
   -- require('config.option')
   -- require('config.keymap')

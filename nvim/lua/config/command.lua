@@ -15,11 +15,8 @@ vim.api.nvim_create_autocmd('ModeChanged', {
   pattern = 'c:*',
   group = augroup,
   callback = function()
-    local hist = fn.histget('cmd', -1)
     vim.schedule(function()
-      if vim.regex(ignore_history):match_str(hist) then
-        fn.histdel(':', -1)
-      end
+      fn.histdel(':', ignore_history)
     end)
   end,
 })
@@ -53,7 +50,8 @@ api.nvim_create_autocmd('CursorHoldI', {
   desc = 'Ignore cursorline highlight',
   group = augroup,
   callback = function()
-    if vim.bo.filetype ~= 'TelescopePrompt' then
+    if vim.bo.filetype ~= 'snacks_picker_input' then
+      vim.opt_local.winhighlight:append('CursorLine:CursorLineHold')
       api.nvim_set_option_value('cursorline', true, {})
     end
   end,
@@ -64,7 +62,8 @@ api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
   desc = 'Ignore cursorline highlight',
   group = augroup,
   callback = function()
-    if api.nvim_get_mode().mode == 'i' and vim.bo.filetype ~= 'TelescopePrompt' then
+    if api.nvim_get_mode().mode == 'i' and vim.bo.filetype ~= 'snacks_picker_input' then
+      vim.opt_local.winhighlight:append('CursorLine:CursorLineHold')
       api.nvim_set_option_value('cursorline', true, {})
     end
   end,
@@ -73,7 +72,11 @@ api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
 api.nvim_create_autocmd({ 'BufEnter', 'CursorMovedI', 'InsertLeave' }, {
   desc = 'Ignore cursorline highlight',
   group = augroup,
-  command = 'setl nocursorline',
+  -- command = 'setl nocursorline',
+  callback = function()
+    vim.wo.cursorline = false
+    vim.opt_local.winhighlight:remove('CursorLine')
+  end
 })
 
 ---Insert-Mode, we want a longer updatetime {{{2
@@ -104,7 +107,7 @@ api.nvim_create_autocmd('TextYankPost', {
   group = augroup,
   pattern = '*',
   callback = function(_)
-    vim.hl.on_yank({ higroup = 'Visual', on_visual = false, timeout = 200, prioritiy = 200 })
+    vim.hl.on_yank({ higroup = 'Visual', on_visual = false, timeout = 200, prioritiy = 300 })
   end,
 })
 
@@ -152,7 +155,7 @@ api.nvim_create_user_command('BustedThisFile', function() -- {{{2
 end, {})
 
 ---@desc "Z <filepath>" zoxide query
-api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " . <q-args>)', { nargs = 1 })
+-- api.nvim_create_user_command('Z', 'execute "lcd " . system("zoxide query " . <q-args>)', { nargs = 1 })
 
 ---@desc Jest compose multi-panel
 ---@type string

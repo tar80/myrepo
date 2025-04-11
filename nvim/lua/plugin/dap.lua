@@ -4,7 +4,8 @@ local keymap = vim.keymap
 local helper = require('helper')
 
 local UNIQUE_NAME = 'rc_dap'
-local LOG_LEVEL = vim.log.levels.WARN
+local INFO = vim.log.levels.INFO
+local WARN = vim.log.levels.WARN
 local JEST_PATH = 'C:/bin/repository/ppmdev/node_modules/jest/bin/jest.js'
 local SIGNS = {
   -- DapBreakpoint = '',
@@ -150,43 +151,21 @@ local dap = {
         }
       end
 
-      ---@desc osv {{{2
-      dap.adapters.nlua = function(callback, config)
-        callback({
-          type = 'server',
-          host = config.host or '127.0.0.1',
-          port = config.port or 8086,
-        })
-      end
-
-      dap.configurations.lua = {
-        {
-          type = 'nlua',
-          request = 'attach',
-          name = 'Attach to running Neovim instance',
-          -- program = '${file}',
-          -- cwd = '${workspaceFolder}',
-          -- console = 'integratedTerminal',
-          -- internalConsoleOptions = 'neverOpen',
-        },
-      }
-
       ---@desc Event {{{2
       dap.listeners.after.event_initialized['dapui_config'] = function()
-        vim.notify(with_unique_name('%s: started'), LOG_LEVEL)
+        vim.notify(with_unique_name('%s: started'), WARN)
         dap.repl.open({ height = 5 })
       end
       dap.listeners.before.event_terminated['dapui_config'] = function()
         vim.cmd.doautocmd('<nomodeline> User DapTerminated')
-        vim.notify(with_unique_name('%s: terminated'), LOG_LEVEL)
+        vim.notify(with_unique_name('%s: terminated'), WARN)
       end
       dap.listeners.before.event_exited['dapui_config'] = function()
-        vim.notify(with_unique_name('%s: listeners event exited'), LOG_LEVEL)
+        vim.notify(with_unique_name('%s: listeners event exited'), WARN)
       end
 
       ---@Cmd {{{2
       vim.api.nvim_create_user_command('DapAttach', function() -- {{{2
-        require"osv".launch({port=8086})
         _pane.enable = true
         keymap.set('n', '<LocalLeader><LocalLeader>', function()
           dap.continue()
@@ -212,9 +191,9 @@ local dap = {
       end, {})
       vim.api.nvim_create_user_command('DapDetach', function() -- {{{2
         _pane.enable = false
-        keymap.del('n', '<LocalLeader>b')
-        keymap.del('n', '<LocalLeader>B')
-        keymap.del('n', '<LocalLeader>d')
+        keymap.del('n', '<LocalLeader><LocalLeader>')
+        keymap.del('n', '<LocalLeader>s')
+        keymap.del('n', '<LocalLeader>r')
         keymap.del('n', '<LocalLeader>t')
         keymap.del('n', '<F8>')
         keymap.del('n', '<F9>')
@@ -233,7 +212,7 @@ local dap = {
           msg = with_unique_name('%s: detach')
         end
 
-        vim.notify(msg, 2, {})
+        vim.notify(msg, INFO, {})
       end)
       -- }}}
 
@@ -280,9 +259,4 @@ local dap_vscode_js = {
   },
 }
 
-local dap_osv = {
-  'jbyuki/one-small-step-for-vimkind',
-  lazy = true,
-}
-
-return { dap, dap_virtual_text, dap_vscode_js, dap_osv }
+return { dap, dap_virtual_text, dap_vscode_js }

@@ -24,23 +24,70 @@ return { -- {{{2
         pattern = 'VeryLazy',
         callback = function()
           require('tartar')
+          require('tartar.test').setup({
+            localleader = '\\',
+            test_key = '<LocalLeader><LocalLeader>',
+          })
           local source = require('tartar.source')
           source.set_tartar_fold()
           source.map_smart_zc('treesitter')
+
           keymap.set('x', 'aa', source.tartar_align, { desc = 'Tartar align' })
-          local operatable_q = source.plugkey('n', 'q')
+
+          local operatable_q = source.plugkey('n', 'operatable_q', 'q')
           operatable_q({ ':', '/', '?' })
-          keymap.set('n', '<Plug>(q)w', function()
+          keymap.set('n', '<Plug>(operatable_q)w', function()
             return vim.fn.reg_recording() == '' and 'qw' or 'q'
           end, { expr = true })
-          local repeatable_g = source.plugkey('n', 'g', true)
+          local repeatable_g = source.plugkey('n', 'repeatable_g', 'g', true)
           repeatable_g({ 'j', 'k' })
-          local repeatable_z = source.plugkey('n', 'z', true)
+          local repeatable_z = source.plugkey('n', 'repeatable_z', 'z', true)
           repeatable_z({ 'h', 'j', 'k', 'l' })
-          local replaceable_H = source.plugkey('n', 'H', true)
-          replaceable_H('H', '<PageUp>H')
-          local replaceable_L = source.plugkey('n', 'L', true)
-          replaceable_L('L', '<PageDown>L')
+          local replaceable_space = source.plugkey('n', 'replaceable_space', '<Space>', true)
+          replaceable_space({ { '-', '<C-w>-' }, { ';', '<C-w>+' }, { ',', '<C-w><' }, { '.', '<C-w>>' } })
+          local argumentable_H = source.plugkey('n', 'argumentable_H', 'H', true)
+          argumentable_H('H', '<PageUp>H')
+          local argumentable_L = source.plugkey('n', 'argumentable_L', 'L', true)
+          argumentable_L('L', '<PageDown>L')
+
+          source.abbrev.tbl = { --- {{{4
+            ia = {
+              ['cache'] = { 'chace', 'chache' },
+              ['export'] = { 'exprot', 'exoprt' },
+              ['field'] = { 'filed' },
+              ['string'] = { 'stirng' },
+              ['function'] = { 'funcion', 'fuction' },
+              ['return'] = { 'reutnr', 'reutrn', 'retrun' },
+              ['true'] = { 'treu' },
+            },
+            ca = {
+              bt = { { [[T deno task build <C-r>=expand(\"%\:\.\")<CR>]] } },
+              bp = { { [[!npm run build:prod]] } },
+              ms = { { 'MugShow' }, true },
+              es = { { 'e<Space>++enc=cp932 ++ff=dos<CR>' } },
+              e8 = { { 'e<Space>++enc=utf-8<CR>' } },
+              eu = { { 'e<Space>++enc=utf-16le ++ff=dos<CR>' } },
+              sc = { { 'set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb<CR>' } },
+              scn = { { 'set<Space>noscb<CR>' } },
+              del = { { [[call<Space>delete(expand('%'))]] } },
+              cs = { { [[execute<Space>'50vsplit'g:repo.'/myrepo/nvim/.cheatsheet'<CR>]] } },
+              dd = { { 'diffthis<Bar>wincmd<Space>p<Bar>diffthis<Bar>wincmd<Space>p<CR>' } },
+              dof = { { 'syntax<Space>enable<Bar>diffoff!<CR>' } },
+              dor = {
+                {
+                  'tab<Space>split<Bar>vert<Space>bel<Space>new<Space>difforg<Bar>set<Space>bt=nofile<Bar>r<Space>++edit<Space>#<Bar>0d_<Bar>windo<Space>diffthis<Bar>wincmd<Space>p<CR>',
+                },
+              },
+              ht = { { 'so<Space>$VIMRUNTIME/syntax/hitest.vim' } },
+              ct = { { 'so<Space>$VIMRUNTIME/syntax/colortest.vim' } },
+              shadad = { { '!rm ~/.local/share/nvim-data/shada/main.shada.tmp*' } },
+              s = { { '%s//<Left>', 's//<Left>' }, true },
+              ss = { { '%s///<Left>', 's///<Left>' }, true },
+              z = { { 'Z' } },
+            },
+          } ---}}}4
+          source.abbrev:set('ia')
+          source.abbrev:set('ca')
         end,
       })
     end,
@@ -164,12 +211,12 @@ return { -- {{{2
         mode_line = 'LineNr',
         ignore_filetypes = {
           statuscolumn = { 'qf', 'help', 'terminal', 'undotree' },
-          statusline = { 'terminal', 'trouble' },
+          statusline = { 'terminal', 'trouble', 'snacks_layout_box' },
         },
         -- nav_key = '',
         statusline = {
           active = {
-            left = { 'search_count' },
+            left = { 'search_count', 'snacks_profiler' },
             middle = {},
             -- left = { 'staba_logo', 'noice_mode' },
             -- middle = { 'search_count' },
@@ -245,8 +292,7 @@ return { -- {{{2
   { -- {{{3 fret
     'tar80/fret.nvim',
     dev = true,
-    -- event = 'VeryLazy',
-    keys = { 'f', 'F', 't', 'T', 'd', 'v', 'y' },
+    keys = { 'f', 'F', 't', 'T', 'd', 'v', 'V', 'y', 'c' },
     opts = {
       fret_enable_beacon = true,
       fret_enable_kana = true,
@@ -263,6 +309,12 @@ return { -- {{{2
     'tar80/matchwith.nvim',
     dev = true,
     event = 'VeryLazy',
+    init = function()
+      vim.keymap.set({ 'o', 'x' }, 'i%', '<Plug>(matchwith-operator-i)')
+      vim.keymap.set({ 'o', 'x' }, 'a%', '<Plug>(matchwith-operator-a)')
+      vim.keymap.set({ 'o', 'x' }, 'iP', '<Plug>(matchwith-operator-parent-i)')
+      vim.keymap.set({ 'o', 'x' }, 'aP', '<Plug>(matchwith-operator-parent-a)')
+    end,
     opts = {
       captures = {
         html = { 'tag.delimiter', 'punctuation.bracket' },
@@ -272,12 +324,9 @@ return { -- {{{2
           'keyword.repeat',
           'keyword.conditional',
           'punctuation.bracket',
-          'constructor',
         },
       },
       ignore_filetypes = {
-        'TelescopePrompt',
-        'TelescopeResults',
         'cmp_menu',
         'cmp_docs',
         'fidget',
@@ -468,6 +517,13 @@ return { -- {{{2
       },
     },
   }, -- }}}
+  {
+    'smjonas/inc-rename.nvim',
+    cmd = 'IncRename',
+    opts = {
+      -- cmd_name = 'IncRename',
+    },
+  },
   { -- {{{3 translate
     'uga-rosa/translate.nvim',
     cmd = 'Translate',

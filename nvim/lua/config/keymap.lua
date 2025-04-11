@@ -39,77 +39,6 @@ local function ppcust_load() -- {{{2
   vim.notify('PPcust CA ' .. fn.expand('%:t'), 3)
 end
 
----@desc Abbreviations {{{1
-local abbrev = { -- {{{2
-  ia = function(word, replaces)
-    for _, replace in ipairs(replaces) do
-      keymap.set('ia', replace, word)
-    end
-  end,
-  ca = function(word, replace)
-    vim.validate('replace', replace[1], 'table', 'replace must be table')
-    ---@see https://zenn.dev/vim_jp/articles/2023-06-30-vim-substitute-tips
-    local getchar = replace[2] and '[getchar(), ""][1].' or ''
-    local exp
-    if replace[1][2] then
-      exp = ('getcmdtype()..getcmdline() ==# ":%s" ? %s"%s" : getcmdtype()..getcmdline() ==# ":\'<,\'>%s" ? %s"%s" : "%s"'):format(
-        word,
-        getchar,
-        helper.replace_lt(replace[1][1]),
-        word,
-        getchar,
-        helper.replace_lt(replace[1][2]),
-        word
-      )
-    else
-      exp = string.format('getcmdtype()..getcmdline() ==# ":%s" ? %s"%s" : "%s"', word, getchar, replace[1][1], word)
-    end
-
-    keymap.set('ca', word, exp, { expr = true })
-  end,
-  set = function(self, mode)
-    local func = self[mode]
-    local iter = vim.iter(self.tbl[mode])
-    iter:each(func)
-  end,
-} ---}}}2
-abbrev.tbl = { --- {{{2
-  ia = {
-    ['cache'] = { 'chace', 'chache' },
-    ['export'] = { 'exprot', 'exoprt' },
-    ['field'] = { 'filed' },
-    ['string'] = { 'stirng', 'sting' },
-    ['function'] = { 'funcion', 'fuction' },
-    ['return'] = { 'reutnr', 'reutrn', 'retrun' },
-  },
-  ca = {
-    bt = { { [[T deno task build <C-r>=expand(\"%\:\.\")<CR>]] } },
-    bp = { { [[!npm run build:prod]] } },
-    ms = { { 'MugShow' }, true },
-    es = { { 'e<Space>++enc=cp932 ++ff=dos<CR>' } },
-    e8 = { { 'e<Space>++enc=utf-8<CR>' } },
-    eu = { { 'e<Space>++enc=utf-16le ++ff=dos<CR>' } },
-    sc = { { 'set<Space>scb<Space><Bar><Space>wincmd<Space>p<Space><Bar><Space>set<Space>scb<CR>' } },
-    scn = { { 'set<Space>noscb<CR>' } },
-    del = { { [[call<Space>delete(expand('%'))]] } },
-    cs = { { [[execute<Space>'50vsplit'g:repo.'/myrepo/nvim/.cheatsheet'<CR>]] } },
-    dd = { { 'diffthis<Bar>wincmd<Space>p<Bar>diffthis<Bar>wincmd<Space>p<CR>' } },
-    dof = { { 'syntax<Space>enable<Bar>diffoff!<CR>' } },
-    dor = {
-      {
-        'vert<Space>bel<Space>new<Space>difforg<Bar>set<Space>bt=nofile<Bar>r<Space>++edit<Space>#<Bar>0d_<Bar>windo<Space>diffthis<Bar>wincmd<Space>p<CR>',
-      },
-    },
-    ht = { { 'so<Space>$VIMRUNTIME/syntax/hitest.vim' } },
-    ct = { { 'so<Space>$VIMRUNTIME/syntax/colortest.vim' } },
-    shadad = { { '!rm ~/.local/share/nvim-data/shada/main.shada.tmp*' } },
-    s = { { '%s//<Left>', 's//<Left>' }, true },
-    ss = { { '%s///<Left>', 's///<Left>' }, true },
-  },
-} ---}}}2
-abbrev:set('ia')
-abbrev:set('ca')
-
 ---@desc Keymaps {{{1
 -- Unmap default-mappings {{{2
 if vim.fn.has('nvim-0.11') == 1 then
@@ -166,33 +95,6 @@ end, { noremap = true, expr = true, silent = true })
 keymap.set('n', '<Space>', '<C-w>', { remap = true })
 keymap.set('n', '<Space><Space>', '<C-w><C-w>')
 keymap.set('n', '<Space>n', helper.scratch_buffer)
--- keymap.set('n', '<Space>q', function()
---   if not vim.bo.buflisted then
---     vim.api.nvim_buf_delete(0, { force = true })
---   else
---     local bufcount = 0
---     vim.iter(vim.fn.tabpagebuflist()):each(function(bufnr)
---       if vim.bo[bufnr].buflisted then
---         bufcount = bufcount + 1
---       end
---     end)
---     if bufcount > 1 then
---       vim.api.nvim_win_close(0, false)
---     else
---       vim.cmd.close({ mods = { emsg_silent = true } })
---     end
---   end
--- end)
--- keymap.set('n', '<Space>Q', '<Cmd>lua vim.api.nvim_buf_delete(0,{unload=false})<CR>')
--- keymap.set('n', '<Space>c', '<Cmd>tabclose<CR>')
-keymap.set('n', '<Space>-', '<C-w>-<Plug>(space)')
-keymap.set('n', '<Plug>(space)-', '<C-w>-<Plug>(space)')
-keymap.set('n', '<Space>;', '<C-w>+<Plug>(space)')
-keymap.set('n', '<Plug>(space);', '<C-w>+<Plug>(space)')
-keymap.set('n', '<Space>,', '<C-w><<Plug>(space)')
-keymap.set('n', '<Plug>(space),', '<C-w><<Plug>(space)')
-keymap.set('n', '<Space>.', '<C-w>><Plug>(space)')
-keymap.set('n', '<Plug>(space).', '<C-w>><Plug>(space)')
 
 ---Search history of replacement
 keymap.set('n', 'g/', function()
@@ -225,6 +127,7 @@ keymap.set('n', '<Space>z', function()
 end)
 
 ---Insert/Command mode {{{2
+keymap.set('!', '<C-q>u', '<C-R>=nr2char(0x)<Left>')
 ---@see https://zenn.dev/vim_jp/articles/2024-10-07-vim-insert-uppercase
 keymap.set('i', '<C-q>q', function()
   local line = api.nvim_get_current_line()
@@ -245,7 +148,6 @@ keymap.set('i', '<C-z>', '<C-a><Esc>')
 keymap.set('i', '<C-u>', '<Cmd>normal u<CR>')
 keymap.set('c', '<C-a>', '<Home>')
 keymap.set('c', '<C-b>', '<Left>')
-keymap.set('!', '<C-q>u', '<C-R>=nr2char(0x)<Left>')
 
 ---Visual mode{{{2
 keymap.set('x', '@', function()

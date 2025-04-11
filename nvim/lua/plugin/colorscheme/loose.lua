@@ -55,14 +55,14 @@ return {
       custom_highlights = {
         light = {
           MsgArea = { bg = '#FBFBE2' },
-          CursorLine = { fg = 'NONE', bg = '#FDE3DD' },
+          CursorLineHold = { fg = 'NONE', bg = '#FDE3DD' },
         },
         mallow = {
           MsgArea = { bg = '#102025' },
-          CursorLine = { fg = 'NONE', bg = '#3E1D31' },
+          CursorLineHold = { fg = 'NONE', bg = '#3E1D31' },
         },
         veil = {
-          CursorLine = { fg = 'NONE', bg = '#ff8da7' },
+          CursorLineHold = { fg = 'NONE', bg = '#ff8da7' },
         },
       },
       plugins = {

@@ -12,7 +12,7 @@ o.fileencodings = 'utf-8,cp932,euc-jp,utf-16le'
 o.updatetime = vim.g.update_time
 -- o.backup= false
 o.swapfile = false
-o.undofile = true
+o.undofile = false
 o.showtabline = 2
 o.laststatus = 3
 o.cmdheight = 1
@@ -37,8 +37,8 @@ o.previewheight = 8
 ---@desc Normal {{{2
 vim.g.mapleader = ';'
 
-keymap.set('n', '<F12>', helper.toggleWrap)
-keymap.set('n', '<C-Z>', '<NOP>')
+keymap.set('n', '<Laeder><Leader>w', helper.toggleWrap)
+keymap.set('n', '<C-z>', '<NOP>')
 keymap.set('n', ',', function()
   if o.hlsearch then
     o.hlsearch = false
@@ -46,21 +46,33 @@ keymap.set('n', ',', function()
     api.nvim_feedkeys(',', 'n', false)
   end
 end)
----Move buffer use <SPACE>
-keymap.set('n', '<SPACE>', '<C-W>', { remap = true })
-keymap.set('n', '<SPACE><SPACE>', '<C-W><C-W>')
+---Move buffer use <Space>
+keymap.set('n', '<Space>', '<C-W>', { remap = true })
+keymap.set('n', '<Space><Space>', '<C-W><C-W>')
 keymap.set('n', '<Space>n', helper.scratch_buffer)
-keymap.set('n', '<SPACE>a', '<Cmd>bwipeout<CR>')
-keymap.set('n', '<SPACE>c', '<Cmd>tabclose<CR>')
+keymap.set('n', '<Space>c', '<Cmd>tabclose<CR>')
 
 ---@desc Insert & Command {{{2
-keymap.set('i', '<C-j>', '<DOWN>')
-keymap.set('i', '<C-k>', '<UP>')
-keymap.set('i', '<C-f>', '<RIGHT>')
-keymap.set('i', '<S-DELETE>', '<C-O>D')
-keymap.set('!', '<C-b>', '<LEFT>')
-keymap.set('!', '<C-q>u', '<C-R>=nr2char(0x)<LEFT>')
-keymap.set('c', '<C-a>', '<HOME>')
+keymap.set('!', '<C-q>u', '<C-R>=nr2char(0x)<Left>')
+keymap.set('i', '<C-q>q', function()
+  local line = api.nvim_get_current_line()
+  local col = api.nvim_win_get_cursor(0)[2]
+  local substring = line:sub(1, col)
+  local result = vim.fn.matchstr(substring, [[\v<(\k(<)@!)*$]])
+  return ('<C-w>%s'):format(result:upper())
+end, { expr = true })
+keymap.set('i', '<M-j>', '<C-g>U<Down>')
+keymap.set('i', '<M-k>', '<C-g>U<Up>')
+keymap.set('i', '<M-h>', '<C-g>U<Left>')
+keymap.set('i', '<M-l>', '<C-g>U<Right>')
+keymap.set('i', '<S-Delete>', '<C-g>U<C-o>D')
+keymap.set('i', '<C-k>', '<Delete>')
+keymap.set('i', '<C-f>', '<Right>')
+keymap.set('i', '<C-b>', '<Left>')
+keymap.set('i', '<C-z>', '<C-a><Esc>')
+keymap.set('i', '<C-u>', '<Cmd>normal u<CR>')
+keymap.set('c', '<C-a>', '<Home>')
+keymap.set('c', '<C-b>', '<Left>')
 
 ---@desc Visual {{{2
 ---clipbord yank

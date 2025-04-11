@@ -221,9 +221,6 @@ return {
     config = function()
       local lspconfig = require('lspconfig')
       local quote_border = require('tartar.helper').generate_quotation()
-      -- lspconfig.util.default_config = vim.tbl_extend('force', lspconfig.util.default_config, {
-      --   set_log_level = 'OFF',
-      -- })
       local capabilities = cmp_capabilities()
       local flags = {
         allow_incremental_sync = false,
@@ -271,6 +268,9 @@ return {
         end
         if capa.renameProvider then
           keymap.set('n', 'glr', popup_rename, { desc = 'Lsp popup rename' })
+        end
+        if capa.codeActionProvider then
+          keymap.set('n', 'gla', vim.lsp.buf.code_action, { desc = 'Lsp code action' })
         end
         keymap.set('n', 'glv', function() -- {{{
           local toggle = not vim.diagnostic.config().virtual_text
@@ -344,12 +344,12 @@ return {
         ts_ls = require('language_server.ts_ls'),
         vimls = require('language_server.vimls'),
       }
-      for name, value in pairs(servers) do
-        value.flags = flags
-        value.capabilities = not value.capabilities and capabilities or nil
-        value.on_attach = _on_attach
-        value.on_exit = _on_exit
-        lspconfig[name].setup(value)
+      for name, opts in pairs(servers) do
+        opts.flags = flags
+        opts.capabilities = not opts.capabilities and capabilities or nil
+        opts.on_attach = _on_attach
+        opts.on_exit = _on_exit
+        lspconfig[name].setup(opts)
       end
     end,
   }, -- }}}2
