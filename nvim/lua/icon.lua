@@ -20,44 +20,23 @@ M.symbol = {
   edit = '󰤌',
   modify = '󱅃',
 }
-M.state = {
-  success = '',
-  failure = '',
-  pending = '',
-}
-M.os = {
-  dos = '',
-  unix = '',
-  mac = '',
-}
-M.severity = {
-  Error = '',
+M.diagnostics = {
+  Error = '',
   Warn = '',
-  Hint = '',
-  Info = '',
-  Trace = '󱨈',
+  Hint = '',
+  Info = '',
 }
-M.ime = {
-  hira = '󱌴',
-  kata = '󱌵',
-  hankata = '󱌶',
-  zenkaku = '󰚞',
-  abbrev = '󱌯',
-  [''] = '',
+M.log_levels = {
+  trace = '',
+  debug = '',
+  info = '',
+  warn = '',
+  error = '',
+  off = ' ',
 }
 M.git = {
   branch = '',
   branch2 = '',
-}
-M.border = {
-  solid = { '┌', '─', '┐', '│', '┘', '─', '└', '│' },
-  quotation = { '', '', '', '', '', '', '', { M.symbol.bar2, 'SpecialKey' } },
-  top_dash = { '', { '┄', '@comment' }, '', '', '', '', '', '' },
-  bot_dash = { '', '', '', '', '', { '┄', '@comment' }, '', '' },
-}
-M.sep = {
-  rect = { l = '', r = '' },
-  bubble = { l = '', r = '' },
 }
 
 return M

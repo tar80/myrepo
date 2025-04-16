@@ -2,7 +2,22 @@
 
 local symbol = require('tartar.icon.symbol')
 
-local EXCLUED_FILES = { '*.exe', '*.dll', '*.EXE', '*.DLL', '.bundle/', '.gems/', 'node_modules/', 'dist/', 'themes/' }
+local EXCLUED_FILES = {
+  'lazy-lock.json',
+  '*.exe',
+  '*.dll',
+  '*.EXE',
+  '*.DLL',
+  '.bundle[/\\]',
+  '.gems[/\\]',
+  '.obsidian[/\\]',
+  '.trash[/\\]',
+  'dist[/\\]',
+  'node_modules[/\\]',
+  'migeno[/\\]',
+  'themes[/\\]',
+  'vendor[/\\]',
+}
 
 local bigfile_opts = { -- {{{2
   enabled = true,
@@ -34,6 +49,29 @@ local image_opts = { -- {{{2
   icons = { math = '󰪚', chart = '󰄧', image = '' },
   convert = { notify = false, magick = false },
   math = { enabled = false },
+} -- }}}2
+local input_opts = { -- {{{2
+  icon = '',
+  icon_hl = 'SnacksInputIcon',
+  icon_pos = 'left',
+  prompt_pos = 'title',
+  win = { style = 'input' },
+  expand = true,
+} -- }}}2
+local notifier_opts = { -- {{{2
+  timeout = 3000,
+  width = { min = 30, max = 0.4 },
+  height = { min = 1, max = 0.6 },
+  margin = { top = 0, right = 1, bottom = 0 },
+  padding = true, -- add 1 cell of left/right padding to the notification window
+  sort = { 'level', 'added' },
+  level = vim.log.levels.TRACE,
+  icons = symbol.log_levels,
+  style = 'compact',
+  top_down = true,
+  date_format = '%R',
+  more_format = ' ↓ %d lines ',
+  refresh = 100,
 } -- }}}2
 local picker_opts = { -- {{{2
   prompt = symbol.cmdline.input .. ' ',
@@ -70,14 +108,16 @@ local picker_opts = { -- {{{2
     input = {
       keys = {
         ['<Esc>'] = 'cancel',
-        ['<CR>'] = { 'confirm', mode = { 'n', 'i' } },
-        ['<S-CR>'] = { { 'pick_win', 'jump' }, mode = { 'n', 'i' } },
-        ['<C-g>'] = { 'close', mode = { 'n', 'i' } },
+        ['<CR>'] = { 'confirm', mode = { 'i', 'n' } },
+        ['<S-CR>'] = { { 'pick_win', 'jump' }, mode = { 'i', 'n' } },
+        ['<C-g>'] = { 'close', mode = { 'i', 'n' } },
         ['<Tab>'] = { 'select_and_next', mode = { 'i', 'n' } },
         ['<S-Tab>'] = { 'select_and_prev', mode = { 'i', 'n' } },
         ['<Up>'] = { 'list_up', mode = { 'i', 'n' } },
         ['<Down>'] = { 'list_down', mode = { 'i', 'n' } },
-        ['+'] = { 'flash', mode = { 'n', 'i' } },
+        ['+'] = { 'flash', mode = { 'i', 'n' } },
+        ['<S-k>'] = { 'list_up', mode = { 'i', 'n' } },
+        ['<S-j>'] = { 'list_down', mode = { 'i', 'n' } },
         ['<S-l>'] = { 'focus_list', mode = { 'i', 'n' } },
         ['<S-p>'] = { 'focus_preview', mode = { 'i', 'n' } },
         ['<C-a>'] = { '<home>', mode = { 'i' }, expr = true },
@@ -86,14 +126,12 @@ local picker_opts = { -- {{{2
         ['<C-d>'] = { 'preview_scroll_down', mode = { 'i', 'n' } },
         ['<C-b>'] = { 'list_scroll_up', mode = { 'i', 'n' } },
         ['<C-f>'] = { 'list_scroll_down', mode = { 'i', 'n' } },
-        -- ['<C-k>'] = { 'list_up', mode = { 'i', 'n' } },
-        -- ['<C-j>'] = { 'list_down', mode = { 'i', 'n' } },
-        -- ['<C-q>'] = { 'qflist', mode = { 'i', 'n' } },
-        -- ['<C-s>'] = { 'edit_split', mode = { 'i', 'n' } },
-        -- ['<C-t>'] = { 'tab', mode = { 'n', 'i' } },
-        -- ['<C-v>'] = { 'edit_vsplit', mode = { 'i', 'n' } },
+        ['<C-q>'] = { 'qflist', mode = { 'i', 'n' } },
+        ['<C-s>'] = { 'split', mode = { 'i', 'n' } },
+        ['<C-t>'] = { 'tab', mode = { 'i', 'n' } },
+        ['<C-v>'] = { 'vsplit', mode = { 'i', 'n' } },
         -- ['<C-w>'] = { '<c-s-w>', mode = { 'i' }, expr = true, desc = 'delete word' },
-        -- ['<A-d>'] = { 'inspect', mode = { 'n', 'i' } },
+        -- ['<A-d>'] = { 'inspect', mode = { 'i', 'n' } },
         -- ['<A-f>'] = { 'toggle_follow', mode = { 'i', 'n' } },
         -- ['<A-h>'] = { 'toggle_hidden', mode = { 'i', 'n' } },
         -- ['<A-i>'] = { 'toggle_ignored', mode = { 'i', 'n' } },
@@ -113,7 +151,7 @@ local picker_opts = { -- {{{2
         -- ['<2-LeftMouse>'] = 'confirm',
         -- ['<Esc>'] = 'cancel',
         -- ['/'] = 'toggle_focus',
-        -- ['<CR>'] = 'confirm',
+        ['<CR>'] = 'confirm',
         ['<Up>'] = 'list_up',
         ['<Down>'] = 'list_down',
         ['<S-Tab>'] = { 'select_and_prev', mode = { 'n', 'x' } },
@@ -135,6 +173,7 @@ local picker_opts = { -- {{{2
         -- ['<A-m>'] = 'toggle_maximize',
         -- ['<A-p>'] = 'toggle_preview',
         ['<A-w>'] = false,
+        ['/'] = false,
         -- ['?'] = 'toggle_help_list',
         -- ['G'] = 'list_bottom',
         -- ['gg'] = 'list_top',
@@ -154,6 +193,7 @@ local picker_opts = { -- {{{2
         ['<ScrollWheelUp>'] = 'list_scroll_wheel_up',
         ['<S-l>'] = { 'focus_list', mode = { 'i', 'n' } },
         ['<A-w>'] = false,
+        ['/'] = false,
       },
       wo = {
         conceallevel = 2,
@@ -179,6 +219,32 @@ local picker_opts = { -- {{{2
           picker.list:_move(idx, true, true)
         end,
       })
+    end,
+    git_rm = function(picker)
+      local tree = require('snacks.explorer.tree')
+      local items = picker:selected({ fallback = true })
+      local done = 0
+      for _, item in ipairs(items) do
+        local cmd = { 'git', 'rm', '--cached', item.file }
+        Snacks.picker.util.cmd(cmd, function(data, code)
+          done = done + 1
+          if done == #items then
+            tree:refresh(vim.fs.dirname(item.file))
+            vim.defer_fn(function()
+              if picker and not picker.closed and tree:is_dirty(picker:cwd(), picker.opts) then
+                if not picker.list.target then
+                  picker.list:set_target()
+                end
+                vim.schedule(function()
+                  picker.list:set_selected()
+                  picker.list:set_target()
+                  picker:find()
+                end)
+              end
+            end, 100)
+          end
+        end, { cwd = item.cwd })
+      end
     end,
   }, -- }}}3
   formatters = { -- {{{3
@@ -250,6 +316,37 @@ local picker_opts = { -- {{{2
         },
       },
     },
+    registers = {
+      layout = {
+        row = 1,
+        width = 0.5,
+        min_width = 81,
+        height = 0.9,
+        border = 'none',
+        box = 'vertical',
+        {
+          win = 'preview',
+          title = '{preview}',
+          height = 0.2,
+          border = 'single',
+          wo = {
+            spell = false,
+            wrap = false,
+            signcolumn = 'no',
+            statuscolumn = ' ',
+            conceallevel = 0,
+          },
+        },
+        {
+          box = 'vertical',
+          border = 'single',
+          title = '{title}',
+          title_pos = 'center',
+          { win = 'input', height = 1, border = 'bottom' },
+          { win = 'list', border = 'none' },
+        },
+      },
+    },
     sideview = {
       preview = 'main',
       layout = {
@@ -305,9 +402,9 @@ local picker_opts = { -- {{{2
       focus = 'input',
       follow_file = false,
       formatters = { file = { filename_only = false } },
-      git_status = false,
+      git_status = true,
       git_status_open = false,
-      git_untracked = false,
+      git_untracked = true,
       jump = { close = true },
       layout = { preset = 'default', preview = true },
       matcher = { sort_empty = false, fuzzy = true },
@@ -318,7 +415,10 @@ local picker_opts = { -- {{{2
       win = {
         input = {
           keys = {
-            ['<CR>'] = { { 'pick_win', 'jump' }, mode = { 'n', 'i' } },
+            -- ['<CR>'] = { 'jump', mode = { 'i', 'n' } },
+            -- ['<C-s>'] = { 'edit_split', mode = { 'i', 'n' } },
+            -- ['<C-t>'] = { 'tab', mode = { 'i', 'n' } },
+            -- ['<C-v>'] = { 'edit_vsplit', mode = { 'i', 'n' } },
             ['<C-q>'] = { 'qflist', mode = { 'i', 'n' } },
           },
         },
@@ -331,13 +431,14 @@ local picker_opts = { -- {{{2
             ['h'] = 'explorer_close',
             ['a'] = 'explorer_add',
             ['d'] = 'explorer_del',
+            ['D'] = 'git_rm',
             ['r'] = 'explorer_rename',
             ['p'] = 'toggle_preview',
             ['y'] = { 'explorer_yank', mode = { 'n', 'x' } },
             ['<C-g>'] = 'cancel',
-            ['<C-s>'] = 'edit_split',
+            ['<C-s>'] = 'split',
             ['<C-t>'] = 'tab',
-            ['<C-v>'] = 'edit_vsplit',
+            ['<C-v>'] = 'vsplit',
             ['<A-w>'] = false,
           },
         },
@@ -353,10 +454,16 @@ local picker_opts = { -- {{{2
     kensaku = {
       format = 'file',
       regex = true,
-      show_enpty = false,
+      show_empty = false,
       live = true,
       support_live = true,
       exclude = EXCLUED_FILES,
+    },
+    mru = {
+      layout = 'vscode',
+    },
+    registers = {
+      layout = 'registers',
     },
   }, -- }}}3
   toggles = { -- {{{3
@@ -379,15 +486,15 @@ local picker_opts = { -- {{{2
       enabled = true,
       commit = '󰜘',
       staged = '●',
-      added = '',
-      deleted = '',
+      added = 'A ',
+      deleted = 'D ',
       ignored = '',
       modified = '○',
-      renamed = '',
-      unmerged = '?',
-      untracked = '?',
+      renamed = 'R ',
+      unmerged = '? ',
+      untracked = '? ',
     },
-    diagnostics = symbol.severity,
+    diagnostics = symbol.disgnostics,
     lsp = {
       unavailable = '',
       enabled = ' ',
@@ -424,6 +531,29 @@ local style_opts = { -- {{{2
     width = 0,
     height = 0.3,
   },
+  input = {
+    backdrop = false,
+    position = 'float',
+    border = 'double',
+    title_pos = 'center',
+    height = 1,
+    width = 60,
+    relative = 'editor',
+    noautocmd = false,
+    row = 2,
+    wo = {
+      winhighlight = 'NormalFloat:Normal',
+      cursorline = false,
+    },
+    bo = {
+      filetype = 'snacks_input',
+      buftype = 'prompt',
+    },
+    --- buffer local variables
+    b = {
+      completion = false, -- disable blink completions in input
+    },
+  },
   minimal = {
     wo = {
       cursorcolumn = false,
@@ -443,6 +573,31 @@ local style_opts = { -- {{{2
       sidescrolloff = 0,
     },
   },
+  notification = {
+    border = 'single',
+    zindex = 100,
+    ft = 'markdown',
+    wo = {
+      winblend = 5,
+      wrap = false,
+      conceallevel = 2,
+      colorcolumn = '',
+    },
+    bo = { filetype = 'snacks_notif' },
+  },
+  notification_history = {
+    border = 'single',
+    zindex = 100,
+    width = 0.7,
+    height = 0.7,
+    minimal = false,
+    title = ' Notification History ',
+    title_pos = 'center',
+    ft = 'markdown',
+    bo = { modifiable = false },
+    wo = { winhighlight = 'Normal:@markup.raw,FloatTitle:Normal' },
+    keys = { q = 'close' },
+  },
 } -- }}}2
 local win_opts = { -- {{{2
   backdrop = false,
@@ -456,326 +611,35 @@ local win_opts = { -- {{{2
   },
   keys = { q = 'close' },
 } -- }}}2
-local keys = { -- {{{2
-  {
-    '<Leader><Leader><Leader>',
-    function()
-      local mod = package.loaded['fidget']
-      if mod then
-        mod.notification.clear()
-      end
-    end,
-    desc = 'Clear notifications',
-  },
-  {
-    '<Leader>:',
-    function()
-      Snacks.picker.buffers({
-        layout = { preset = 'default' },
-      })
-    end,
-    desc = 'Buffers',
-  },
-  {
-    '<Leader>@',
-    function()
-      Snacks.picker.files({
-        cwd = require('helper').myrepo_path('nvim/lua'),
-        layout = 'vscode',
-      })
-    end,
-    desc = 'Find Config File',
-  },
-  {
-    '<Leader>m',
-    function()
-      vim.cmd.wshada()
-      Snacks.picker.recent({
-        layout = 'vscode',
-      })
-    end,
-    desc = 'Most Recently Used Files',
-  },
-  {
-    '<Leader>o',
-    function()
-      Snacks.picker.explorer({
-        cwd = vim.fs.root(0, '.git'),
-      })
-    end,
-  },
-  {
-    '<Leader>p',
-    function()
-      Snacks.picker.files({
-        cwd = vim.api.nvim_buf_get_name(0):gsub('[^\\/]*$', ''),
-        layout = 'vscode',
-      })
-    end,
-    desc = 'Files',
-  },
-  {
-    '<Leader>z',
-    function()
-      local opts = {
-        prompt = 'zoxide query: ',
-      }
-      vim.ui.input(opts, function(input)
-        if input and input ~= '' then
-          vim.system({ 'zoxide', 'add', input }, { text = true })
-          vim.system({ 'zoxide', 'query', input }, { text = true }, function(data)
-            vim.schedule(function()
-              if data.code == 0 and data.stdout then
-                Snacks.picker.explorer({
-                  cwd = data.stdout:gsub('\n', ''),
-                })
-              else
-                vim.notify('zoxide: no match found', 3)
-              end
-            end)
-          end)
-        end
-      end)
-    end,
-    desc = 'Zoxide',
-  },
-  {
-    '<Leader>k',
-    function()
-      local is_help = vim.bo.filetype == 'help'
-      local cwd = is_help and vim.fs.dirname(vim.api.nvim_buf_get_name(0)) or vim.uv.cwd()
-      Snacks.picker.kensaku({
-        cwd = cwd,
-      })
-    end,
-    desc = 'Kensaku',
-  },
-  {
-    '<Leader>h',
-    function()
-      Snacks.picker.help({
-        finder = 'help',
-        format = 'text',
-        layout = { preset = 'dropdown' },
-        confirm = 'help',
-      })
-    end,
-    desc = 'Help Pages',
-  },
-  {
-    '<Space>/',
-    function()
-      local row = vim.api.nvim_win_get_cursor(0)[1]
-      require('staba').wrap_no_fade_background(Snacks.picker.lines, {
-        focus = 'list',
-        pattern = vim.fn.expand('<cword>'),
-        matcher = { fuzzy = false, smartcase = true, ignorecase = true, sort_empty = false },
-        layout = {
-          preset = 'ivy_split',
-          layout = {
-            preview = 'main',
-            box = 'vertical',
-            backdrop = false,
-            width = 0,
-            height = 0.3,
-            position = 'bottom',
-            border = 'none',
-            {
-              box = 'horizontal',
-              { win = 'list', border = 'none' },
-              { win = 'preview', width = 0.6, border = 'none' },
-            },
-          },
-        },
-        on_show = function(picker)
-          for i, item in ipairs(picker:items()) do
-            if item.idx == row then
-              picker.list:view(i)
-              Snacks.picker.actions.list_scroll_center(picker)
-              break
-            end
-          end
-        end,
-      })
-    end,
-    desc = 'Lines',
-  },
-  -- git
-  {
-    '<Leader>gb',
-    function()
-      Snacks.picker.git_branches({
-        layout = { preset = 'dropdown' },
-      })
-    end,
-    desc = 'Git Branches',
-  },
-  {
-    '<Leader>gd',
-    function()
-      Snacks.picker.git_diff({
-        live = false,
-      })
-    end,
-    desc = 'Git Diff (Hunks)',
-  },
-  {
-    '<Leader>gl',
-    function()
-      Snacks.picker.git_log({
-        layout = { preset = 'sideview' },
-      })
-    end,
-    desc = 'Git Log',
-  },
-  {
-    '<Leader>gs',
-    function()
-      Snacks.picker.git_stash()
-    end,
-    desc = 'Git Stash',
-  },
-  {
-    '<Leader>ss',
-    function()
-      Snacks.picker()
-    end,
-    desc = 'Pickers',
-  },
-  -- {
-  --   '<Leader>sr',
-  --   function()
-  --     Snacks.picker.registers()
-  --   end,
-  --   desc = 'Registers',
-  -- },
-  {
-    '<Leader>sa',
-    function()
-      Snacks.picker.autocmds()
-    end,
-    desc = 'Autocmds',
-  },
-  {
-    '<Leader>sh',
-    function()
-      Snacks.picker.highlights()
-    end,
-    desc = 'Highlights',
-  },
-  {
-    '<Leader>si',
-    function()
-      Snacks.picker.icons()
-    end,
-    desc = 'Icons',
-  },
-  {
-    '<Leader>sk',
-    function()
-      Snacks.picker.keymaps()
-    end,
-    desc = 'Keymaps',
-  },
-  {
-    '<Leader>sl',
-    function()
-      Snacks.picker.lazy()
-    end,
-    desc = 'Search for Plugin Spec',
-  },
-  {
-    '<Leader>sq',
-    function()
-      Snacks.picker.qflist()
-    end,
-    desc = 'Quickfix List',
-  },
-  {
-    '<Leader>sc',
-    function()
-      Snacks.picker.colorschemes()
-    end,
-    desc = 'Colorschemes',
-  },
-  {
-    'gls',
-    function()
-      Snacks.picker.lsp_symbols()
-    end,
-    desc = 'LSP Symbols',
-  },
-  {
-    'glx',
-    function()
-      Snacks.gitbrowse()
-    end,
-    desc = 'Git Browse',
-    mode = { 'n', 'v' },
-  },
-  {
-    '<Leader>N',
-    function()
-      Snacks.win({
-        file = vim.api.nvim_get_runtime_file('doc/news.txt', false)[1],
-        backdrop = 50,
-        width = 0.8,
-        height = 0.8,
-        wo = {
-          spell = false,
-          wrap = false,
-          signcolumn = 'auto',
-          statuscolumn = ' ',
-          conceallevel = 3,
-        },
-      })
-    end,
-    desc = 'Neovim News',
-  },
-  {
-    '<Leader><Leader>t',
-    function()
-      local et = vim.bo.expandtab and 'set noexpandtab' or 'set expandtab'
-      vim.cmd(et .. '|retab')
-      vim.notify(et, vim.log.levels.INFO, { 'Options' })
-    end,
-    desc = 'Expandtab',
-    mode = { 'n' },
-  },
-  {
-    ']]',
-    function()
-      Snacks.words.jump(vim.v.count1)
-    end,
-    desc = 'Next Reference',
-    mode = { 'n', 't' },
-  },
-  {
-    '[[',
-    function()
-      Snacks.words.jump(-vim.v.count1)
-    end,
-    desc = 'Prev Reference',
-    mode = { 'n', 't' },
-  },
-} -- }}}2
 
 return {
   'folke/snacks.nvim',
   priority = 999,
   lazy = false,
-  keys = keys,
   init = function() -- {{{2
     vim.api.nvim_create_autocmd('User', {
       pattern = 'VeryLazy',
       callback = function()
-        require('snacks.picker.config.sources').kensaku = require('plugin/source/snacks_kensaku')
+        local sources = require('snacks.picker.config.sources')
+        sources.kensaku = require('plugin.source.snacks_kensaku')
+        sources.mru = require('plugin.source.snacks_mru')
         vim.api.nvim_create_user_command('R', function(opts)
           Snacks.rename.rename_file({
             from = vim.api.nvim_buf_get_name(0),
             to = opts.args,
           })
         end, { nargs = '?', desc = 'Rename File' })
+        local _fast_event_wrap = require('tartar.helper').fast_event_wrap
+        local notify = Snacks.notifier.notify
+        ---@diagnostic disable: duplicate-set-field
+        vim.print = function(...)
+          local info, lines = require('helper').inspect(1000, ...)
+          _fast_event_wrap(notify)(lines, vim.log.levels.TRACE, { title = info })
+        end
+        print = function(...)
+          local msg = tostring(...):gsub('\\n', '\n')
+          _fast_event_wrap(notify)(msg, vim.log.levels.TRACE, { title = 'print' })
+        end
         Snacks.toggle.profiler():map('<leader><Leader>p')
         Snacks.toggle.option('wrap', { name = 'Wrap' }):map('<Leader><Leader>w')
         Snacks.toggle
@@ -788,20 +652,349 @@ return {
   end, -- }}}2
   opts = { -- {{{2
     bigfile = bigfile_opts,
-    -- image = image_opts,
+    notifier = notifier_opts,
     picker = picker_opts,
     quickfile = { enabled = true },
     win = win_opts,
     styles = style_opts,
     -- dashboard = { enabled = true },
     -- explorer = { enabled = true },
+    -- image = image_opts,
     -- indent = { enabled = true },
-    input = { enabled = true },
-    -- notifier = { enabled = true },
+    -- input = input_opts,
     -- scope = { enabled = true },
     -- scratch = { enabled = true },
     -- scroll = { enabled = true },
     -- statuscolumn = { enabled = true },
     -- words = { enabled = true },
+  }, -- }}}2
+  keys = { -- {{{2
+    {
+      'ms',
+      function()
+        Snacks.notifier.show_history({ reverse = true })
+      end,
+      desc = 'Show notifications',
+    },
+    {
+      '<Leader><Leader><Leader>',
+      function()
+        Snacks.notifier.hide()
+        local mod = package.loaded['fidget']
+        if mod then
+          mod.notification.clear()
+        end
+      end,
+      desc = 'Hide notifications',
+    },
+    {
+      '<Leader>:',
+      function()
+        Snacks.picker.buffers({
+          layout = { preset = 'default' },
+        })
+      end,
+      desc = 'Buffers',
+    },
+    {
+      '<Leader>@',
+      function()
+        Snacks.picker.files({
+          cwd = require('helper').myrepo_path('nvim/lua'),
+          layout = 'vscode',
+        })
+      end,
+      desc = 'Find Config File',
+    },
+    {
+      '<Leader>o',
+      function()
+        Snacks.picker.explorer({
+          cwd = vim.fs.root(0, '.git'),
+        })
+      end,
+    },
+    {
+      '<Leader>p',
+      function()
+        Snacks.picker.files({
+          cwd = vim.api.nvim_buf_get_name(0):gsub('[^\\/]*$', ''),
+          layout = 'vscode',
+        })
+      end,
+      desc = 'Files',
+    },
+    {
+      '<Leader>z',
+      function()
+        local opts = {
+          prompt = 'zoxide query: ',
+        }
+        vim.ui.input(opts, function(input)
+          if input and input ~= '' then
+            vim.system({ 'zoxide', 'add', input }, { text = true })
+            vim.system({ 'zoxide', 'query', input }, { text = true }, function(data)
+              vim.schedule(function()
+                if data.code == 0 and data.stdout then
+                  Snacks.picker.explorer({
+                    cwd = data.stdout:gsub('\n', ''),
+                  })
+                else
+                  vim.notify('zoxide: no match found', 3)
+                end
+              end)
+            end)
+          end
+        end)
+      end,
+      desc = 'Zoxide',
+    },
+    {
+      '<Leader>k',
+      function()
+        local is_help = vim.bo.filetype == 'help'
+        local cwd = is_help and vim.fs.dirname(vim.api.nvim_buf_get_name(0)) or vim.uv.cwd()
+        Snacks.picker.kensaku({
+          cwd = cwd,
+        })
+      end,
+      desc = 'Kensaku',
+    },
+    {
+      '<Leader>m',
+      function()
+        Snacks.picker.mru()
+      end,
+      desc = 'vim-mr mru',
+    },
+    {
+      '<Leader>h',
+      function()
+        Snacks.picker.help({
+          layout = { preset = 'dropdown' },
+          confirm = 'help',
+        })
+      end,
+      desc = 'Help Pages',
+    },
+    {
+      '<Space>/',
+      function()
+        local row = vim.api.nvim_win_get_cursor(0)[1]
+        require('staba').wrap_no_fade_background(Snacks.picker.lines, {
+          focus = 'list',
+          pattern = vim.fn.expand('<cword>'),
+          matcher = { fuzzy = false, smartcase = true, ignorecase = true, sort_empty = false },
+          layout = {
+            preset = 'ivy_split',
+            layout = {
+              preview = 'main',
+              box = 'vertical',
+              backdrop = false,
+              width = 0,
+              height = 0.3,
+              position = 'bottom',
+              border = 'none',
+              {
+                box = 'horizontal',
+                { win = 'list', border = 'none' },
+                { win = 'preview', width = 0.6, border = 'none' },
+              },
+            },
+          },
+          on_show = function(picker)
+            for i, item in ipairs(picker:items()) do
+              if item.idx == row then
+                picker.list:view(i)
+                Snacks.picker.actions.list_scroll_center(picker)
+                break
+              end
+            end
+          end,
+        })
+      end,
+      desc = 'Lines',
+    },
+    -- git
+    {
+      '<Leader>gb',
+      function()
+        Snacks.picker.git_branches({
+          layout = { preset = 'dropdown' },
+        })
+      end,
+      desc = 'Git Branches',
+    },
+    {
+      '<Leader>gd',
+      function()
+        Snacks.picker.git_diff({
+          live = false,
+        })
+      end,
+      desc = 'Git Diff (Hunks)',
+    },
+    {
+      '<Leader>gl',
+      function()
+        Snacks.picker.git_log({
+          layout = { preset = 'sideview' },
+        })
+      end,
+      desc = 'Git Log',
+    },
+    {
+      '<Leader>gs',
+      function()
+        Snacks.picker.git_stash()
+      end,
+      desc = 'Git Stash',
+    },
+    {
+      '<Leader>ss',
+      function()
+        Snacks.picker()
+      end,
+      desc = 'Pickers',
+    },
+    {
+      '<Leader>sr',
+      function()
+        Snacks.picker.registers({
+          confirm = function(picker, item)
+            picker:close()
+            if item then
+              vim.api.nvim_input('"' .. item.reg)
+            end
+          end,
+        })
+      end,
+      desc = 'Registers normal-mode',
+    },
+    {
+      '<C-r>r',
+      function()
+        Snacks.picker.registers({
+          confirm = function(picker, item)
+            picker:close()
+            if item then
+              vim.api.nvim_paste(item.data, true, -1)
+              vim.api.nvim_input('a')
+            end
+          end,
+        })
+      end,
+      desc = 'Registers insert-mode',
+      mode = { 'i' },
+    },
+    {
+      '<Leader>sa',
+      function()
+        Snacks.picker.autocmds()
+      end,
+      desc = 'Autocmds',
+    },
+    {
+      '<Leader>sh',
+      function()
+        Snacks.picker.highlights()
+      end,
+      desc = 'Highlights',
+    },
+    {
+      '<Leader>si',
+      function()
+        Snacks.picker.icons()
+      end,
+      desc = 'Icons',
+    },
+    {
+      '<Leader>sk',
+      function()
+        Snacks.picker.keymaps()
+      end,
+      desc = 'Keymaps',
+    },
+    {
+      '<Leader>sl',
+      function()
+        Snacks.picker.lazy()
+      end,
+      desc = 'Search for Plugin Spec',
+    },
+    {
+      '<Leader>sq',
+      function()
+        Snacks.picker.qflist()
+      end,
+      desc = 'Quickfix List',
+    },
+    {
+      '<Leader>sc',
+      function()
+        Snacks.picker.colorschemes()
+      end,
+      desc = 'Colorschemes',
+    },
+    {
+      'gls',
+      function()
+        Snacks.picker.lsp_symbols()
+      end,
+      desc = 'LSP Symbols',
+    },
+    {
+      'glx',
+      function()
+        Snacks.gitbrowse()
+      end,
+      desc = 'Git Browse',
+      mode = { 'n', 'v' },
+    },
+    {
+      '<Leader>N',
+      function()
+        Snacks.win({
+          file = vim.api.nvim_get_runtime_file('doc/news.txt', false)[1],
+          backdrop = 50,
+          width = 0.8,
+          height = 0.8,
+          wo = {
+            spell = false,
+            wrap = false,
+            signcolumn = 'auto',
+            statuscolumn = ' ',
+            conceallevel = 3,
+          },
+        })
+      end,
+      desc = 'Neovim News',
+    },
+    {
+      '<Leader><Leader>t',
+      function()
+        local et = vim.bo.expandtab and 'set noexpandtab' or 'set expandtab'
+        vim.cmd(et .. '|retab')
+        vim.notify(et, vim.log.levels.INFO, { 'Options' })
+      end,
+      desc = 'Expandtab',
+      mode = { 'n' },
+    },
+    {
+      ']]',
+      function()
+        Snacks.words.jump(vim.v.count1)
+      end,
+      desc = 'Next Reference',
+      mode = { 'n', 't' },
+    },
+    {
+      '[[',
+      function()
+        Snacks.words.jump(-vim.v.count1)
+      end,
+      desc = 'Prev Reference',
+      mode = { 'n', 't' },
+    },
   }, -- }}}2
 }

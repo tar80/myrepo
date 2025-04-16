@@ -8,8 +8,8 @@ local M = {}
 ---Get the character at the cursor position
 ---@return string
 M.getchr = function()
-  local col = vim.api.nvim_win_get_cursor(0)[2]
-  local line = vim.api.nvim_get_current_line()
+  local col = api.nvim_win_get_cursor(0)[2]
+  local line = api.nvim_get_current_line()
   local charidx = vim.str_utfindex(line, 'utf-32', col)
   return fn.strcharpart(line, charidx, 1)
 end
@@ -28,6 +28,12 @@ M.feedkey = function(key, mode)
   api.nvim_feedkeys(api.nvim_replace_termcodes(key, true, false, true), mode, false)
 end
 
+---Replaces "<" in the string with "<lt>"
+---@param v string
+M.replace_lt = function(v)
+  return v:gsub('<([%a-]+>)', '<lt>%1')
+end
+
 ---@param bufnr integer
 ---@param mode string|string[]
 ---@param lhs string
@@ -44,12 +50,6 @@ M.buf_setmap = function(bufnr, mode, lhs, rhs, opts)
     end
     api.nvim_buf_set_keymap(bufnr, v, lhs, rhs, opts)
   end
-end
-
----Replaces "<" in the string with "<lt>"
----@param v string
-M.replace_lt = function(v)
-  return v:gsub('<([%a-]+>)', '<lt>%1')
 end
 
 ---Normalize specified path
@@ -71,7 +71,7 @@ end
 ---@param path string
 ---@return string
 M.scoop_apps = function(path)
-  path, _ = ('%s/%s'):format(os.getenv('SCOOP'), path):gsub('\\','/')
+  path, _ = ('%s/%s'):format(os.getenv('SCOOP'), path):gsub('\\', '/')
   return path
 end
 
@@ -86,28 +86,11 @@ end
 ---@param xdg string
 ---@param path string
 M.xdg_path = function(xdg, path)
-  return ('%s/%s'):format(vim.fn.stdpath(xdg), path)
+  return ('%s/%s'):format(fn.stdpath(xdg), path)
 end
 
 M.myrepo_path = function(path)
   return ('%s/myrepo/%s'):format(vim.g.repo, path)
-end
-
----Check the existence of the executable file
----@param cmd string[]
----@return boolean
-M.executable = function(cmd)
-  local ok, job = pcall(vim.system, cmd, { text = true })
-
-  if ok then
-    vim.defer_fn(function()
-      if not job:is_closing() then
-        job:kill(9)
-      end
-    end, 1000)
-  end
-
-  return ok
 end
 
 ---Unload preset plugins
@@ -125,17 +108,17 @@ end
 
 ---Measure the time it takes to start vim
 M.measure_startup = function()
-  if vim.fn.has('vim_starting') then
-    local pre = vim.fn.reltime()
-    local augroup = vim.api.nvim_create_augroup('rc_helper', {})
-    vim.api.nvim_create_autocmd('UIEnter', {
+  if fn.has('vim_starting') then
+    local pre = fn.reltime()
+    local augroup = api.nvim_create_augroup('rc_helper', {})
+    api.nvim_create_autocmd('UIEnter', {
       group = augroup,
       once = true,
       callback = function()
-        local post = vim.fn.reltime(pre)
-        local msg = ('Startup time: %s'):format(vim.fn.reltimestr(post))
+        local post = fn.reltime(pre)
+        local msg = ('Startup time: %s'):format(fn.reltimestr(post))
         vim.notify(msg, vim.log.levels.INFO)
-        vim.api.nvim_del_augroup_by_id(augroup)
+        api.nvim_del_augroup_by_id(augroup)
       end,
     })
   end
@@ -151,11 +134,11 @@ M.set_client_server = function(port, level) -- {{{
   local pipe = ([[\\.\pipe\nvim.%s.0]]):format(port or '100')
   local server = vim.v.servername
   if not server then
-    pcall(vim.fn.serverstart, pipe)
+    pcall(fn.serverstart, pipe)
   elseif server ~= pipe then
-    local ok = pcall(vim.fn.serverstart, pipe)
+    local ok = pcall(fn.serverstart, pipe)
     if ok then
-      pcall(vim.fn.serverstop, server)
+      pcall(fn.serverstop, server)
     end
   end
 end -- }}}
@@ -249,11 +232,11 @@ end
 
 M.set_macros = function()
   local k = vim.keycode
-  vim.fn.setreg('e', string.format([[:let @=@w%s]], k('<Left><Left><Left>')))
-  vim.fn.setreg('b', string.format([[V:s \//\\%s]], k('<CR>')))
-  vim.fn.setreg('d', string.format([[V:s \\/\\\\%s]], k('<CR>')))
-  vim.fn.setreg('s', string.format([[V:s \\\\/\/%s]], k('<CR>')))
-  vim.fn.setreg('k', string.format([[:let @=@w%s]], k('<Left><Left><Left>')))
+  fn.setreg('e', string.format([[:let @=@w%s]], k('<Left><Left><Left>')))
+  fn.setreg('b', string.format([[V:s \//\\%s]], k('<CR>')))
+  fn.setreg('d', string.format([[V:s \\/\\\\%s]], k('<CR>')))
+  fn.setreg('s', string.format([[V:s \\\\/\/%s]], k('<CR>')))
+  fn.setreg('k', string.format([[:let @=@w%s]], k('<Left><Left><Left>')))
   vim.notify('[Info] Registered macros', vim.log.levels.INFO)
 end
 
@@ -286,7 +269,7 @@ M.search_star = function(has_g, is_visual)
     else
       word = lines[1]:sub(first[3], last[3])
     end
-    vim.defer_fn(function ()
+    vim.defer_fn(function()
       M.feedkey('<Esc>', 'x')
     end, 0)
   end
@@ -297,5 +280,63 @@ M.search_star = function(has_g, is_visual)
     return api.nvim_set_option_value('hlsearch', true, { scope = 'global' })
   end
 end
+
+--- This code was copied from snacks.debug.
+---@param max_lines integer
+---@param ... unknown
+---@return string, string
+function M.inspect(max_lines, ...) -- {{{2
+  local len = select('#', ...) ---@type number
+  local obj = { ... } ---@type unknown[]
+  local caller = debug.getinfo(1, 'S')
+  for level = 2, 10 do
+    local info = debug.getinfo(level, 'S')
+    if
+      info
+      and info.source ~= caller.source
+      and info.what ~= 'C'
+      and info.source ~= 'lua'
+      and info.source ~= '@' .. (os.getenv('MYVIMRC') or '')
+    then
+      caller = info
+      break
+    end
+  end
+  local dirname = vim.fs.dirname(caller.source):gsub('^.*/', '')
+  local basename = vim.fs.basename(caller.source)
+  local info = ('%s/%s:%s'):format(dirname, basename, caller.linedefined)
+  -- local info = fn.fnamemodify(caller.source:sub(2), ':t') .. ':' .. caller.linedefined
+  if ... == nil then
+    return info, 'nil'
+  end
+  local lines = vim.split(vim.inspect(obj), '\\n')
+  if #lines > max_lines then
+    local c = #lines
+    lines = vim.list_slice(lines, 1, max_lines)
+    lines[#lines + 1] = (c - max_lines) .. ' more lines have been truncated...'
+  end
+  local msg = table.concat(lines, '\n')
+  msg = vim.trim(msg):sub(2, -2)
+  return info, msg
+end -- }}}2
+
+--[[
+---Check the existence of the executable file
+---@param cmd string[]
+---@return boolean
+M.executable = function(cmd)
+  local ok, job = pcall(vim.system, cmd, { text = true })
+
+  if ok then
+    vim.defer_fn(function()
+      if not job:is_closing() then
+        job:kill(9)
+      end
+    end, 1000)
+  end
+
+  return ok
+end
+--]]
 
 return M

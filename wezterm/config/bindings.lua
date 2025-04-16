@@ -14,6 +14,7 @@ return {
   use_dead_keys = false,
   -- leader = { key = 'phys:Space', mods = S_C, timeout_milliseconds = 2000 },
   keys = {
+    { key = 'Enter', mods = S, action = wezterm.action.SendString('\x1b[13;2u') },
     { key = ',', mods = C, action = wezterm.action.SendString('\x1b[44;5u') },
     { key = '.', mods = C, action = wezterm.action.SendString('\x1b[46;5u') },
     -- { key = '@', mods = 'CTRL', action = wezterm.action.SendString('\x1b[64;5u') },

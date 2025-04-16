@@ -19,44 +19,19 @@ return { -- {{{2
     priority = 1000,
     dev = true,
     lazy = false,
-    init = function()
+    init = function() -- {{{4
       vim.api.nvim_create_autocmd('User', {
         pattern = 'VeryLazy',
         callback = function()
-          require('tartar')
-          require('tartar.test').setup({
-            localleader = '\\',
-            test_key = '<LocalLeader><LocalLeader>',
-          })
-          local source = require('tartar.source')
-          source.set_tartar_fold()
-          source.map_smart_zc('treesitter')
-
-          keymap.set('x', 'aa', source.tartar_align, { desc = 'Tartar align' })
-
-          local operatable_q = source.plugkey('n', 'operatable_q', 'q')
-          operatable_q({ ':', '/', '?' })
-          keymap.set('n', '<Plug>(operatable_q)w', function()
-            return vim.fn.reg_recording() == '' and 'qw' or 'q'
-          end, { expr = true })
-          local repeatable_g = source.plugkey('n', 'repeatable_g', 'g', true)
-          repeatable_g({ 'j', 'k' })
-          local repeatable_z = source.plugkey('n', 'repeatable_z', 'z', true)
-          repeatable_z({ 'h', 'j', 'k', 'l' })
-          local replaceable_space = source.plugkey('n', 'replaceable_space', '<Space>', true)
-          replaceable_space({ { '-', '<C-w>-' }, { ';', '<C-w>+' }, { ',', '<C-w><' }, { '.', '<C-w>>' } })
-          local argumentable_H = source.plugkey('n', 'argumentable_H', 'H', true)
-          argumentable_H('H', '<PageUp>H')
-          local argumentable_L = source.plugkey('n', 'argumentable_L', 'L', true)
-          argumentable_L('L', '<PageDown>L')
-
-          source.abbrev.tbl = { --- {{{4
+          local sauce = require('tartar.sauce')
+          local abbrev = sauce.abbrev()
+          abbrev.tbl = { --- {{{5
             ia = {
               ['cache'] = { 'chace', 'chache' },
               ['export'] = { 'exprot', 'exoprt' },
               ['field'] = { 'filed' },
               ['string'] = { 'stirng' },
-              ['function'] = { 'funcion', 'fuction' },
+              ['function'] = { 'funcion', 'fuction', 'funciton' },
               ['return'] = { 'reutnr', 'reutrn', 'retrun' },
               ['true'] = { 'treu' },
             },
@@ -85,13 +60,39 @@ return { -- {{{2
               ss = { { '%s///<Left>', 's///<Left>' }, true },
               z = { { 'Z' } },
             },
-          } ---}}}4
-          source.abbrev:set('ia')
-          source.abbrev:set('ca')
+          } ---}}}5
+          abbrev:set('ia')
+          abbrev:set('ca')
+
+          sauce.foldtext()
+          sauce.smart_zc('treesitter')
+          keymap.set('x', 'aa', sauce.align, { desc = 'Tartar align' })
+
+          local function quit_recording()
+            return vim.fn.reg_recording() == '' and 'qw' or 'q'
+          end
+          local operatable_q = sauce.plugkey('n', 'operat_q', 'q')
+          operatable_q({ ':', '/', '?', { 'w', quit_recording } })
+          local repeatable_g = sauce.plugkey('n', 'repeatable_g', 'g', true)
+          repeatable_g({ 'j', 'k' })
+          local repeatable_z = sauce.plugkey('n', 'repeatable_z', 'z', true)
+          repeatable_z({ 'h', 'l' })
+          local replaceable_space = sauce.plugkey('n', 'replaceable_space', '<Space>', true)
+          replaceable_space({ { '-', '<C-w>-' }, { ';', '<C-w>+' }, { ',', '<C-w><' }, { '.', '<C-w>>' } })
+          local argumentable_H = sauce.plugkey('n', 'argumentable_H', 'H', true)
+          argumentable_H('H', '<PageUp>H')
+          local argumentable_L = sauce.plugkey('n', 'argumentable_L', 'L', true)
+          argumentable_L('L', '<PageDown>L')
+
+          sauce.testmode({
+            localleader = '\\',
+            test_key = '<LocalLeader><LocalLeader>',
+          })
         end,
       })
-    end,
-  }, -- }}}
+    end, -- }}}4
+    config = true,
+  }, -- }}}3
 
   ---@desc On event
   { -- {{{3 cellwidths
@@ -111,6 +112,7 @@ return { -- {{{2
         cw.add(0x27A1, 2)
         cw.add({ 0x2B05, 0x2B07, 2 })
         cw.delete({
+          0x2022,
           0x2026,
           0x2030,
           0x2039,
@@ -427,34 +429,6 @@ return { -- {{{2
       keymap.set('v', 'g<C-x>', require('dial.map').dec_gvisual(), { silent = true, noremap = true })
     end,
   }, -- }}}
-  { -- {{{3 registers
-    'tversteeg/registers.nvim',
-    keys = { { '"R', mode = { 'n', 'x' } }, { '<C-r>', mode = 'i' } },
-    config = function()
-      local registers = require('registers')
-      keymap.set({ 'n', 'x' }, '"R', registers.show_window({ mode = 'motion' }), { silent = true, noremap = true })
-      registers.setup({
-        show_empty = false,
-        register_user_command = false,
-        system_clipboard = false,
-        show_register_types = true,
-        symbols = { newline = '↲', tab = '~' },
-        bind_keys = {
-          normal = false,
-          insert = registers.show_window({
-            mode = 'insert',
-            delay = 1,
-          }),
-        },
-        window = {
-          max_width = 100,
-          highlight_cursorline = true,
-          border = vim.g.float_border,
-          transparency = 12,
-        },
-      })
-    end,
-  }, ---}}}
   { -- {{{3 undotree
     'mbbill/undotree',
     keys = { { '<F7>', '<Cmd>UndotreeToggle<CR>', desc = 'Toggle undotree' } },
@@ -521,6 +495,7 @@ return { -- {{{2
     'smjonas/inc-rename.nvim',
     cmd = 'IncRename',
     opts = {
+      show_message = false,
       -- cmd_name = 'IncRename',
     },
   },
@@ -528,11 +503,13 @@ return { -- {{{2
     'uga-rosa/translate.nvim',
     cmd = 'Translate',
     init = function()
-      keymap.set({ 'n', 'x' }, 'me', '<Cmd>Translate EN<CR><C-[>', { silent = true })
-      keymap.set({ 'n', 'x' }, 'mj', '<Cmd>Translate JA<CR><C-[>', { silent = true })
-      keymap.set({ 'n', 'x' }, 'mE', '<Cmd>Translate EN -output=replace<CR>', { silent = true })
-      keymap.set({ 'n', 'x' }, 'mJ', '<Cmd>Translate JA -output=replace<CR>', { silent = true })
+      keymap.set({ 'n', 'x' }, '<Leader>ie', '<Cmd>Translate EN<CR><C-[>', { silent = true })
+      keymap.set({ 'n', 'x' }, '<Leader>ij', '<Cmd>Translate JA<CR><C-[>', { silent = true })
+      keymap.set({ 'n', 'x' }, '<Leader>iE', '<Cmd>Translate EN -output=replace<CR>', { silent = true })
+      keymap.set({ 'n', 'x' }, '<Leader>iJ', '<Cmd>Translate JA -output=replace<CR>', { silent = true })
+      keymap.set({ 'n', 'x' }, 'mj', '<Cmd>echo "Translate keymap was changed <lt>Leader>ij"<CR>', { desc = 'dummy' })
     end,
+    opts = { silent = true },
   }, -- }}}
   { 'norcalli/nvim-colorizer.lua', cmd = 'ColorizerAttachToBuffer' },
 

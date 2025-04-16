@@ -56,8 +56,8 @@ return {
           '$VIMRUNTIME/lua/vim/lsp',
           '$VIMRUNTIME/lua/vim/treesitter',
           '${3rd}/luv/library',
-          -- '${3rd}/busted/library',
-          -- '${3rd}/luassert/library',
+          '${3rd}/busted/library',
+          '${3rd}/luassert/library',
         },
       },
     })

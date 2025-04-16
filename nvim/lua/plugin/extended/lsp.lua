@@ -12,13 +12,13 @@ local keymap = vim.keymap
 local helper = require('helper')
 local icon = require('icon')
 
+local UNIQUE_NAME = 'rc_lsp'
 local RENAME_TITLE = 'Lsp-rename'
 local FLOAT_BORDER = vim.g.float_border
 ---@type Severities
-local SEVERITIES =
-  { Error = icon.severity.Error, Warn = icon.severity.Warn, Hint = icon.severity.Hint, Info = icon.severity.Info }
+local SEVERITIES = icon.diagnostics
 
-local augroup = api.nvim_create_augroup('rc_lsp', {})
+local augroup = api.nvim_create_augroup(UNIQUE_NAME, {})
 
 ---@desc Functions
 ---Check if the buffer is starting clients {{{2
@@ -26,18 +26,19 @@ local augroup = api.nvim_create_augroup('rc_lsp', {})
 local function has_clients()
   local _has_clients = #lsp.get_clients({ bufnr = 0 }) > 0
   if not _has_clients then
-    vim.notify_once('Language server is not attached this buffer', vim.log.levels.WARN)
+    vim.notify_once('Language server is not attached this buffer', vim.log.levels.WARN, { title = UNIQUE_NAME })
   end
   return _has_clients
 end -- }}}
 
 ---Get severity details {{{2
+---@param sign_icon string
 ---@return {text?: Severities, numhl?: Severities, linehl?: Severities}
-local function get_signs()
+local function get_signs(sign_icon)
   local o = { text = {}, linehl = {}, numhl = {} }
   for name, _ in pairs(SEVERITIES) do
     local key = vim.diagnostic.severity[name:upper()]
-    o.text[key] = icon.symbol.square
+    o.text[key] = sign_icon
   end
   return o
 end -- }}}
@@ -45,8 +46,8 @@ end -- }}}
 ---Get Lsp server capabilities {{{2
 ---@return lsp.ClientCapabilities
 local function cmp_capabilities()
-  local ok, mod = pcall(require, 'cmp_nvim_lsp')
-  return ok and mod.default_capabilities() or {}
+  local ok, cmp = pcall(require, 'cmp_nvim_lsp')
+  return ok and cmp.default_capabilities() or {}
 end -- }}}
 
 ---Renames all references to the symbol under the cursor {{{2
@@ -124,9 +125,10 @@ end -- }}}
 ---@desc Lsp options
 vim.diagnostic.config({ -- {{{2
   virtual_text = false,
+  virtual_lines = false,
   severity_sort = true,
   update_in_insert = false,
-  signs = get_signs(),
+  signs = get_signs(icon.symbol.square),
   float = {
     focusable = true,
     style = 'minimal',
@@ -223,8 +225,14 @@ return {
       local quote_border = require('tartar.helper').generate_quotation()
       local capabilities = cmp_capabilities()
       local flags = {
-        allow_incremental_sync = false,
+        allow_incremental_sync = true,
         debounce_text_changes = 700,
+      }
+      local float_opts = {
+        max_width = 80,
+        wrap_at = 80,
+        border = quote_border,
+        anchor_bias = 'below',
       }
       local document_highlight ---@type integer
       local function _on_attach(client, bufnr) -- {{{3
@@ -253,7 +261,7 @@ return {
           api.nvim_set_option_value('winblend', winblend, {})
         end, { desc = 'Lsp diagnostic' }) -- }}}
         keymap.set('n', 'glh', function()
-          lsp.buf.signature_help({ border = quote_border })
+          lsp.buf.signature_help(float_opts)
         end, { desc = 'Lsp signature help' })
         -- if capa.inlayHintProvider then
         --   keymap.set('n', 'gli', function() -- {{{
@@ -263,7 +271,7 @@ return {
         -- end
         if capa.hoverProvider then
           keymap.set('n', 'gll', function()
-            lsp.buf.hover({ border = quote_border })
+            lsp.buf.hover(float_opts)
           end, { desc = 'Lsp hover' })
         end
         if capa.renameProvider then
@@ -273,9 +281,9 @@ return {
           keymap.set('n', 'gla', vim.lsp.buf.code_action, { desc = 'Lsp code action' })
         end
         keymap.set('n', 'glv', function() -- {{{
-          local toggle = not vim.diagnostic.config().virtual_text
-          vim.diagnostic.config({ virtual_text = toggle })
-        end, { desc = 'Lsp virtual text' }) -- }}}
+          local toggle = not vim.diagnostic.config().virtual_lines
+          vim.diagnostic.config({ virtual_lines = toggle })
+        end, { desc = 'Lsp virtual lines' }) -- }}}
 
         ---@desc trouble.nvim
         local ok, trouble_api = pcall(require, 'trouble.api')

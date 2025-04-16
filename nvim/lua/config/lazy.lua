@@ -128,9 +128,8 @@ return {
       once = true,
       callback = function()
         vim.cmd.colorscheme(vim.g.colors_name)
-        local msg = ('Startup time: %s'):format(require('lazy').stats().startuptime)
+        -- local msg = ('Startup time: %s'):format(require('lazy').stats().startuptime)
         -- vim.notify(msg, 2, { title = '󱎫' })
-        require('fidget').notify(msg, vim.log.levels.INFO, { annote = '󱎫' })
       end,
     })
   end,
