@@ -52,15 +52,15 @@ return {
         vim.fn['mr#mru#delete'](item.text)
       end
       vim.notify('Removed from mru', vim.log.levels.INFO, { title = 'Snacks picker mru' })
-      picker.list:set_selected()
-      picker.list:set_target()
-      picker:find()
+      -- picker.list:set_selected()
+      -- picker.list:set_target()
+      -- picker:find()
     end,
   },
   win = {
     input = {
       keys = {
-        ['<S-d>'] = { 'del_mru_item', mode = { 'i', 'n' } },
+        ['D'] = { 'del_mru_item', mode = { 'i', 'n' } },
       },
     },
     list = { keys = { ['D'] = 'del_mru_item' } },

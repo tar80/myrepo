@@ -48,7 +48,9 @@ return {
           if vim.wo.diff then
             return ']c'
           end
-          gs.nav_hunk('next', { foldopen = true, preview = true })
+          gs.nav_hunk('next', { foldopen = true, preview = true }, function()
+            vim.api.nvim_input('zz')
+          end)
           return '<Ignore>'
         end,
         desc = 'Go to next hunk',
@@ -59,7 +61,9 @@ return {
           if vim.wo.diff then
             return '[c'
           end
-          gs.nav_hunk('prev', { foldopen = true, preview = true })
+          gs.nav_hunk('prev', { foldopen = true, preview = true }, function()
+            vim.api.nvim_input('zz')
+          end)
           return '<Ignore>'
         end,
         desc = 'Go to previous hunk',
@@ -89,16 +93,18 @@ return {
         callback = function()
           require('gitsigns').detach(bufnr)
           if vim.fn.maparg('gsa', 'n') ~= '' then
-            api.nvim_del_keymap('n', 'gsa')
-            api.nvim_del_keymap('n', 'gsr')
-            api.nvim_del_keymap('x', 'gsa')
-            api.nvim_del_keymap('x', 'gsr')
-            api.nvim_del_keymap('n', 'gsR')
-            api.nvim_del_keymap('n', 'gsp')
-            api.nvim_del_keymap('n', 'gsb')
-            api.nvim_del_keymap('n', 'gsv')
-            api.nvim_del_keymap('n', '[c')
-            api.nvim_del_keymap('n', ']c')
+            api.nvim_buf_del_keymap(0, 'n', 'gsa')
+            api.nvim_buf_del_keymap(0, 'x', 'gsa')
+            api.nvim_buf_del_keymap(0, 'n', 'gsr')
+            api.nvim_buf_del_keymap(0, 'x', 'gsr')
+            api.nvim_buf_del_keymap(0, 'n', 'gsR')
+            api.nvim_buf_del_keymap(0, 'n', 'gsp')
+            api.nvim_buf_del_keymap(0, 'n', 'gsb')
+            api.nvim_buf_del_keymap(0, 'n', 'gsq')
+            api.nvim_buf_del_keymap(0, 'n', 'gsv')
+            api.nvim_buf_del_keymap(0, 'n', 'gsS')
+            api.nvim_buf_del_keymap(0, 'n', '[c')
+            api.nvim_buf_del_keymap(0, 'n', ']c')
           end
         end,
         desc = 'Detach gitsigns',

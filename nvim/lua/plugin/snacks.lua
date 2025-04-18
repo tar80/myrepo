@@ -220,32 +220,6 @@ local picker_opts = { -- {{{2
         end,
       })
     end,
-    git_rm = function(picker)
-      local tree = require('snacks.explorer.tree')
-      local items = picker:selected({ fallback = true })
-      local done = 0
-      for _, item in ipairs(items) do
-        local cmd = { 'git', 'rm', '--cached', item.file }
-        Snacks.picker.util.cmd(cmd, function(data, code)
-          done = done + 1
-          if done == #items then
-            tree:refresh(vim.fs.dirname(item.file))
-            vim.defer_fn(function()
-              if picker and not picker.closed and tree:is_dirty(picker:cwd(), picker.opts) then
-                if not picker.list.target then
-                  picker.list:set_target()
-                end
-                vim.schedule(function()
-                  picker.list:set_selected()
-                  picker.list:set_target()
-                  picker:find()
-                end)
-              end
-            end, 100)
-          end
-        end, { cwd = item.cwd })
-      end
-    end,
   }, -- }}}3
   formatters = { -- {{{3
     text = {
@@ -412,6 +386,34 @@ local picker_opts = { -- {{{2
       supports_live = false,
       tree = false,
       watch = false,
+      actions = {
+        git_rm = function(picker)
+          local tree = require('snacks.explorer.tree')
+          local items = picker:selected({ fallback = true })
+          local done = 0
+          for _, item in ipairs(items) do
+            local cmd = { 'git', 'rm', '--cached', item.file }
+            Snacks.picker.util.cmd(cmd, function(data, code)
+              done = done + 1
+              if done == #items then
+                tree:refresh(vim.fs.dirname(item.file))
+                vim.defer_fn(function()
+                  if picker and not picker.closed and tree:is_dirty(picker:cwd(), picker.opts) then
+                    if not picker.list.target then
+                      picker.list:set_target()
+                    end
+                    vim.schedule(function()
+                      picker.list:set_selected()
+                      picker.list:set_target()
+                      picker:find()
+                    end)
+                  end
+                end, 100)
+              end
+            end, { cwd = item.cwd })
+          end
+        end,
+      },
       win = {
         input = {
           keys = {
@@ -464,6 +466,29 @@ local picker_opts = { -- {{{2
     },
     registers = {
       layout = 'registers',
+      actions = {
+        reg_delete = function(picker)
+          picker.preview:reset()
+          local items = picker:selected({ fallback = true })
+          for _, item in ipairs(items) do
+            vim.fn.setreg(item.reg, vim.empty_dict())
+          end
+          picker.list:set_selected()
+          picker.list:set_target()
+          picker:find()
+          vim.cmd.wshada({ bang = true })
+        end,
+      },
+      win = {
+        input = {
+          keys = {
+            ['D'] = { 'reg_delete', mode = { 'i', 'n' } },
+          },
+        },
+        list = {
+          keys = { ['D'] = 'reg_delete' },
+        },
+      },
     },
   }, -- }}}3
   toggles = { -- {{{3
@@ -586,10 +611,11 @@ local style_opts = { -- {{{2
     bo = { filetype = 'snacks_notif' },
   },
   notification_history = {
+    fixbuf = true,
     border = 'single',
     zindex = 100,
-    width = 0.7,
-    height = 0.7,
+    width = 0.8,
+    height = 0.8,
     minimal = false,
     title = ' Notification History ',
     title_pos = 'center',
@@ -637,7 +663,16 @@ return {
           _fast_event_wrap(notify)(lines, vim.log.levels.TRACE, { title = info })
         end
         print = function(...)
-          local msg = tostring(...):gsub('\\n', '\n')
+          local msg = 'nil'
+          if ... then
+            msg = vim
+              .iter({ ... })
+              :map(function(v)
+                local s = tostring(v):gsub('\\n', '\n')
+                return s
+              end)
+              :join(' ')
+          end
           _fast_event_wrap(notify)(msg, vim.log.levels.TRACE, { title = 'print' })
         end
         Snacks.toggle.profiler():map('<leader><Leader>p')
@@ -821,6 +856,11 @@ return {
       function()
         Snacks.picker.git_branches({
           layout = { preset = 'dropdown' },
+          win = {
+            list = {
+              keys = { ['<c-x>'] = 'git_branch_del' },
+            },
+          },
         })
       end,
       desc = 'Git Branches',
@@ -863,6 +903,7 @@ return {
         Snacks.picker.registers({
           confirm = function(picker, item)
             picker:close()
+            vim.api.nvim_set_current_win(picker.finder.filter.current_win)
             if item then
               vim.api.nvim_input('"' .. item.reg)
             end
@@ -877,6 +918,7 @@ return {
         Snacks.picker.registers({
           confirm = function(picker, item)
             picker:close()
+            vim.api.nvim_set_current_win(picker.finder.filter.current_win)
             if item then
               vim.api.nvim_paste(item.data, true, -1)
               vim.api.nvim_input('a')

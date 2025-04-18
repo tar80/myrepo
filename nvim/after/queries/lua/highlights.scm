@@ -3,3 +3,8 @@
   (#lua-match? @comment.todo "TODO") (#set! "priority" 150))
 ((comment) @comment.note
   (#lua-match? @comment.note "NOTE") (#set! "priority" 150))
+(do_statement
+  [
+    "do"
+    "end"
+  ] @keyword.repeat)
