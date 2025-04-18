@@ -180,6 +180,7 @@ nyagos.alias.lazyinstall = [[nvim --headless "+silent! Lazy! install" +qa]]
 nyagos.alias.nvim = [[nvim --cmd "let g:start_level='general'"]]
 nyagos.alias.nvimtest = [[nvim --cmd "let g:start_level='test'"]]
 nyagos.alias.nvimmini = [[nvim --cmd "let g:start_level='minimal'"]]
+nyagos.alias.nvimstable = [[C:\bin\Scoop\apps\neovim\current\bin\nvim.exe --cmd "let g:start_level='general'"]]
 
 nyagos.alias['..'] = 'cd ../'
 nyagos.alias.cp = 'cp -i'
